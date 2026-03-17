@@ -1,0 +1,49 @@
+# Solver configuration — neural network and training hyperparameters
+# Problem data (geometry, materials, BCs) is loaded from CSV files in data/
+
+device: "auto"           # "cpu", "cuda", or "auto"
+seed: 42
+dtype: "float32"
+
+model:
+  width: 128
+  depth: 6
+  activation: "tanh"     # tanh | gelu | silu
+  fourier_features: false
+  fourier_scale: 1.0
+  fourier_mapping_size: 64
+
+sampling:
+  n_interior: 8000
+  n_interface: 500
+  n_boundary: 400
+  oversample: 5
+  resample_every: 0      # 0 = fixed points; >0 = resample every N Adam steps
+
+normalization:
+  normalize_coords: true
+
+training:
+  lr: 1.0e-3
+  adam_steps: 20000
+  lbfgs_steps: 5000
+  lbfgs_history: 50
+  print_every: 500
+  save_every: 5000
+  checkpoint_dir: "checkpoints/"
+  use_compile: false     # torch.compile on model forward (requires PyTorch 2.x)
+
+loss_weights:
+  pde: 1.0
+  bc_dirichlet: 10.0
+  bc_neumann: 1.0
+  bc_robin: 5.0
+  interface_T: 10.0
+  interface_flux: 10.0
+  ic: 10.0               # only used in transient mode
+
+time:                     # only used in transient mode
+  n_time: 200
+
+logging:
+  log_dir: "runs/"
