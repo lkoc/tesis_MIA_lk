@@ -7,11 +7,11 @@
 
 ## 0. Punto de partida y adaptación
 
-En ampacidad de cables subterráneos, es común partir de métodos analíticos “tipo estándar” (p.ej., IEC 60287) y contrastarlos con modelos numéricos (FEM) cuando aparecen **geometrías complejas** y/o **heterogeneidad térmica del medio** (IEC, 2023; Aras et al., 2005). En un enfoque PINN, el objetivo es resolver el mismo problema físico (PDE + BC/IC + acoples), pero con una formulación que pueda:
+En el calculo de la ampacidad de cables subterráneos, es común partir de métodos analíticos/empíricos “tipo estándar” (p.ej., IEC 60287) y contrastarlos con modelos numéricos (FEM) cuando aparecen **geometrías complejas** y/o **heterogeneidad térmica del medio** (IEC, 2023; Aras et al., 2005). En un enfoque PINN, el objetivo es resolver el mismo problema físico (PDE + BC/IC + interfases), pero con una formulación que pueda:
 - absorber con naturalidad **k(x,y)** variable en suelo (estratos/humedad),
 - manejar **discontinuidades por capas** (conductor/XLPE/pantalla/cubierta),
-- escalar a variantes de instalación (zanja, múltiples cables, interferencias térmicas),
-- y cubrir **estado estacionario** y **transitorio** (ciclos de carga / sobrecargas).
+- escalar a variantes de instalación (zanja, múltiples cables, bandejas a la interperie, interferencias térmicas),
+- y cubrir tanto el **estado estacionario**, como el estado **transitorio** (ciclos de carga / sobrecargas).
 
 Como antecedente técnico, la comparación entre métodos normativos y métodos numéricos para casos subterráneos con geometrías realistas se encuentra bien documentada, incluyendo limitaciones de los modelos simplificados y el uso de FEM como referencia (Aras et al., 2005). Para el marco de PINNs y su formalización (resolución de PDEs por redes con información física), se toma como base el enfoque de *physics-informed neural networks* (Raissi et al., 2019).
 
@@ -20,7 +20,7 @@ Como antecedente técnico, la comparación entre métodos normativos y métodos 
 ## 1. Planteamiento del problema
 
 ### 1.1. Problema técnico
-La **ampacidad** está limitada por la temperatura máxima admisible del cable (y su entorno). En operación real, la temperatura depende de:
+La **ampacidad** de cables eléctrcos está limitada por la temperatura máxima admisible del cable (y su entorno). En operación real, la temperatura depende de:
 - geometría de instalación (zanja, profundidad, separación),
 - propiedades térmicas del suelo y su variación espacial/temporal,
 - pérdidas internas (Joule, dieléctricas, pantalla),
@@ -44,9 +44,9 @@ Desarrollar y validar un solucionador basado en **PINNs** para conducción de ca
 ### 2.2. Objetivos específicos
 1. Formular el modelo físico (PDE) y condiciones de contorno relevantes (zanja/terreno, límites, simetrías, fuentes) para el cálculo térmico asociado a ampacidad (IEC, 2023; Aras et al., 2005).
 2. Implementar un PINN en PyTorch para:
-   - estacionario (∂T/∂t = 0),
-   - transitorio (∂T/∂t ≠ 0),
-   - k(x,y) y (ρc)(x,y) variables (por región o continuo en suelo).
+   - estacionario ($∂T/∂t = 0$),
+   - transitorio ($∂T/∂t ≠ 0$),
+   - $k(x,y)$ y $(ρc)(x,y)$ variables (por región o continuo en suelo).
 3. Implementar un **sampler de geometría** robusto (capas concéntricas + zanja) para collocation points, interfaces y bordes.
 4. Validar con:
    - benchmarks analíticos (Carslaw & Jaeger, 1959),
@@ -68,17 +68,17 @@ Modelo general (forma divergente) en 2D:
 \]
 
 Esta forma es consistente con formulaciones estándar de conducción y con el planteo aplicado al entorno de cables subterráneos (Aras et al., 2005). En particular:
-- k puede ser constante por capa (discontinuo entre capas) y **variable en suelo** k(x,y).
-- Q representa fuentes volumétricas (pérdidas) o puede reemplazarse por flujos impuestos.
+- $k$ puede ser constante por capa (discontinuo entre capas) y **variable en suelo** $k(x,y)$.
+- $Q$ representa fuentes volumétricas (pérdidas) o puede reemplazarse por flujos impuestos.
 
 **Casos:**
-- **Estacionario**: ∂T/∂t = 0
-- **Transitorio**: ∂T/∂t ≠ 0
+- **Estacionario**: $∂T/∂t = 0$
+- **Transitorio**: $∂T/∂t ≠ 0$
 
 ### 3.2. Condiciones de contorno (plantilla)
 Según el dominio:
-- Superficie del terreno: Dirichlet (T = T_amb) o Robin (convección) (IEC, 2023).
-- Laterales/fondo: Dirichlet en frontera “lejana” (aproximación a medio infinito) o Neumann ~ 0 si se justifica simetría/aislamiento (Aras et al., 2005).
+- Superficie del terreno: Dirichlet ($T = T_amb$) o Robin (convección) (IEC, 2023).
+- Laterales/fondo: Dirichlet en frontera “lejana” (aproximación a medio infinito) o Neumann con gradiente ~ 0 si se justifica simetría/aislamiento (Aras et al., 2005).
 - Simetrías: Neumann (flujo normal 0) en ejes de simetría (Aras et al., 2005).
 
 ### 3.3. Interfaces entre capas
@@ -103,7 +103,7 @@ La formulación general y el uso de autodiferenciación para construir residuos 
 
 ### 4.2. Discontinuidades: 2 estrategias prácticas
 1) **PINN global + pérdida de interfaces** (y muestreo reforzado cerca de interfaces) (Raissi et al., 2019).  
-2) **Domain decomposition / XPINNs**: una red por subdominio con condiciones de acople en interfaces, particularmente útil con discontinuidades fuertes (Jagtap & Karniadakis, 2020).
+2) **Descomposición de dominios / XPINNs**: una red por subdominio con condiciones de acople en interfaces, particularmente útil con discontinuidades fuertes (Jagtap & Karniadakis, 2020).
 
 ---
 
