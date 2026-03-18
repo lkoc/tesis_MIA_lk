@@ -1,4 +1,4 @@
-"""Tests for pinn_cables.pinn.losses — loss functions."""
+"""Tests for pinn_cables.pinn.losses -- loss functions."""
 
 from __future__ import annotations
 
@@ -10,6 +10,8 @@ from pinn_cables.pinn.losses import (
     interface_T_loss,
     interface_flux_loss,
     mse,
+    neumann_loss,
+    robin_loss,
     weighted_total_loss,
 )
 
@@ -33,6 +35,16 @@ def test_dirichlet_loss_nonzero():
     pred = torch.ones(5, 1)
     target = torch.zeros(5, 1)
     assert abs(dirichlet_loss(pred, target).item() - 1.0) < 1e-6
+
+
+def test_neumann_loss_zero_flux():
+    dTdn = torch.zeros(10, 1)
+    assert neumann_loss(dTdn, target=0.0).item() < 1e-12
+
+
+def test_robin_loss_zero_residual():
+    residual = torch.zeros(8, 1)
+    assert robin_loss(residual).item() < 1e-12
 
 
 def test_interface_T_loss_symmetry():

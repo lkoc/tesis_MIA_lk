@@ -3,17 +3,19 @@
 from __future__ import annotations
 
 import csv
-import tempfile
 from pathlib import Path
 
 import pytest
 import torch
 
 from pinn_cables.io.readers import (
+    BoundaryCondition,
     CableLayer,
     CablePlacement,
     Domain2D,
+    Scenario,
     SoilProperties,
+    SolverParams,
 )
 
 
@@ -45,6 +47,34 @@ def placement() -> CablePlacement:
 @pytest.fixture
 def soil() -> SoilProperties:
     return SoilProperties(k=1.0, rho_c=2.0e6, variable=False, amp=0.3)
+
+
+@pytest.fixture
+def sample_bcs() -> dict[str, BoundaryCondition]:
+    return {
+        "top": BoundaryCondition("top", "dirichlet", 293.15, 0.0),
+        "bottom": BoundaryCondition("bottom", "dirichlet", 293.15, 0.0),
+        "left": BoundaryCondition("left", "neumann", 0.0, 0.0),
+        "right": BoundaryCondition("right", "neumann", 0.0, 0.0),
+    }
+
+
+@pytest.fixture
+def sample_scenario() -> Scenario:
+    return Scenario(
+        scenario_id="test_steady",
+        mode="steady",
+        Q_scale=1.0,
+        k_soil=1.0,
+        T_amb=293.15,
+        t_end=0.0,
+    )
+
+
+@pytest.fixture
+def solver_params() -> SolverParams:
+    """Default SolverParams instance for unit tests."""
+    return SolverParams()
 
 
 @pytest.fixture
@@ -81,6 +111,25 @@ def tmp_data_dir(tmp_path: Path) -> Path:
         ["scenario_id", "mode", "Q_scale", "k_soil", "T_amb", "t_end"],
         ["test_steady", "steady", "1.0", "1.0", "293.15", "0"],
         ["test_transient", "transient", "1.0", "1.0", "293.15", "3600"],
+    ])
+    _write_csv(d / "solver_params.csv", [
+        ["param", "value"],
+        ["model_width", "64"],
+        ["model_depth", "3"],
+        ["model_activation", "tanh"],
+        ["model_fourier_features", "false"],
+        ["lr", "1e-3"],
+        ["adam_steps", "100"],
+        ["lbfgs_steps", "0"],
+        ["print_every", "50"],
+        ["n_interior", "500"],
+        ["n_interface", "50"],
+        ["n_boundary", "50"],
+        ["normalize_coords", "true"],
+        ["w_pde", "1.0"],
+        ["w_bc_dirichlet", "10.0"],
+        ["device", "auto"],
+        ["seed", "42"],
     ])
     return d
 

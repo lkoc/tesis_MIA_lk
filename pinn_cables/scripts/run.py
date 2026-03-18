@@ -51,8 +51,11 @@ def main(argv: list[str] | None = None) -> None:
         help="Directory containing the problem CSV files.",
     )
     parser.add_argument(
-        "--config", required=True,
-        help="Path to the solver YAML configuration.",
+        "--config", default=None,
+        help=(
+            "Path to the solver YAML configuration.  Optional when the "
+            "data directory contains a solver_params.csv file."
+        ),
     )
     parser.add_argument(
         "--scenario", required=True,
@@ -66,7 +69,17 @@ def main(argv: list[str] | None = None) -> None:
 
     # --- Load problem and solver config ---
     problem = load_problem(args.data)
-    solver_cfg = load_config(args.config)
+
+    if args.config is not None:
+        solver_cfg = load_config(args.config)
+    elif problem.solver_params is not None:
+        solver_cfg = problem.solver_params.to_solver_cfg()
+    else:
+        raise SystemExit(
+            "No solver configuration found.  Provide --config or add a "
+            "solver_params.csv file to the data directory."
+        )
+
     scenario = _find_scenario(problem.scenarios, args.scenario)
 
     # --- Setup ---

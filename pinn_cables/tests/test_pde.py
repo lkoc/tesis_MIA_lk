@@ -1,4 +1,4 @@
-"""Tests for pinn_cables.pinn.pde — PDE operators via autograd."""
+"""Tests for pinn_cables.pinn.pde -- PDE operators via autograd."""
 
 from __future__ import annotations
 

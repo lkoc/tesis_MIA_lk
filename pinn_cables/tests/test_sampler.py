@@ -1,4 +1,4 @@
-"""Tests for pinn_cables.geom.sampler — geometry and collocation-point sampling."""
+"""Tests for pinn_cables.geom.sampler -- geometry and collocation-point sampling."""
 
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ import math
 import torch
 
 from pinn_cables.geom.sampler import (
+    append_time,
     sample_boundary_points,
     sample_domain_points,
     sample_initial_condition,
@@ -92,3 +93,13 @@ def test_sample_initial_condition(domain, device):
     assert ic.shape == (200, 3)
     assert torch.allclose(ic[:, 2], torch.tensor(0.0))
     assert ic.requires_grad
+
+
+def test_append_time_output_shape(device):
+    xy = torch.rand(50, 2, device=device)
+    t = torch.rand(1, 1, device=device)
+    out = append_time(xy, t)
+    assert out.shape == (50, 3)
+    assert out.requires_grad
+    # The time column should be broadcast from the single time value
+    assert torch.allclose(out[:, 2], t.squeeze().expand(50))

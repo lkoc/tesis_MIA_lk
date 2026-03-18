@@ -63,7 +63,7 @@ def plot_loss_history(
     title: str = "Training loss",
     save_path: str | Path | None = None,
 ) -> None:
-    """Semi-log plot of loss components vs.\ iteration.
+    """Semi-log plot of loss components vs. iteration.
 
     Args:
         history: Dict of loss lists (key = component name).

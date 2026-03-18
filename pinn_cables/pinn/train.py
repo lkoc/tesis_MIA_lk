@@ -206,6 +206,11 @@ class SteadyStatePINNTrainer:
 
     # -- normalise helper ---------------------------------------------------
 
+    @staticmethod
+    def _fresh(t: torch.Tensor) -> torch.Tensor:
+        """Detach and clone so autograd graphs don't persist across iterations."""
+        return t.data.clone().requires_grad_(True)
+
     def _norm(self, xy: torch.Tensor) -> torch.Tensor:
         if self._do_normalize:
             return normalize_coords(xy, self._coord_mins, self._coord_maxs)
@@ -219,7 +224,7 @@ class SteadyStatePINNTrainer:
         # PDE residual per region
         pde_parts: list[torch.Tensor] = []
         for layer in self.layers:
-            xy = self.pts_int[layer.name]
+            xy = self._fresh(self.pts_int[layer.name])
             if xy.shape[0] == 0:
                 continue
             T = self.model(self._norm(xy))
@@ -228,7 +233,7 @@ class SteadyStatePINNTrainer:
             pde_parts.append(pde_residual_steady(T, xy, k, Q))
 
         # Soil
-        xy_soil = self.pts_int["soil"]
+        xy_soil = self._fresh(self.pts_int["soil"])
         if xy_soil.shape[0] > 0:
             T_soil = self.model(self._norm(xy_soil))
             k_soil = get_k(None, xy_soil, self.soil)
@@ -240,9 +245,10 @@ class SteadyStatePINNTrainer:
         # Boundary conditions
         bc_parts: list[torch.Tensor] = []
         for edge, bc in self.bcs.items():
-            pts = self.pts_bnd.get(edge)
-            if pts is None or pts.shape[0] == 0:
+            pts_raw = self.pts_bnd.get(edge)
+            if pts_raw is None or pts_raw.shape[0] == 0:
                 continue
+            pts = self._fresh(pts_raw)
             T_b = self.model(self._norm(pts))
             if bc.bc_type == "dirichlet":
                 target = bc.value if bc.value != 0 else self.scenario.T_amb
@@ -266,9 +272,10 @@ class SteadyStatePINNTrainer:
         ifc_F_parts: list[torch.Tensor] = []
         for i, layer in enumerate(self.layers):
             key = f"r_{layer.name}"
-            pts = self.pts_ifc.get(key)
-            if pts is None or pts.shape[0] == 0:
+            pts_raw = self.pts_ifc.get(key)
+            if pts_raw is None or pts_raw.shape[0] == 0:
                 continue
+            pts = self._fresh(pts_raw)
             T_at_ifc = self.model(self._norm(pts))
             ifc_T_parts.append(T_at_ifc)
 
@@ -318,6 +325,9 @@ class SteadyStatePINNTrainer:
         self.model.train()
         history: dict[str, list[float]] = {"total": []}
 
+        total_steps = cfg.adam_steps + cfg.lbfgs_steps
+        completed = 0
+
         # --- Adam phase ---
         opt = torch.optim.Adam(self.model.parameters(), lr=cfg.lr)
         for it in range(1, cfg.adam_steps + 1):
@@ -326,14 +336,16 @@ class SteadyStatePINNTrainer:
             total.backward()
             opt.step()
 
+            completed += 1
             history["total"].append(total.item())
             for k, v in parts.items():
                 history.setdefault(k, []).append(v.item())
 
             if it % cfg.print_every == 0:
+                pct = completed / total_steps * 100
                 self.logger.info(
-                    "[Adam %d/%d] loss=%.4e  %s",
-                    it, cfg.adam_steps, total.item(),
+                    "[Adam %d/%d  %.1f%%] loss=%.4e  %s",
+                    it, cfg.adam_steps, pct, total.item(),
                     "  ".join(f"{k}={v.item():.3e}" for k, v in parts.items()),
                 )
 
@@ -352,23 +364,47 @@ class SteadyStatePINNTrainer:
                 line_search_fn="strong_wolfe",
             )
             outer_iters = max(1, cfg.lbfgs_steps // 20)
+            steps_per_outer = cfg.lbfgs_steps / outer_iters
+
+            # Save checkpoint so we can restore if L-BFGS diverges (NaN/Inf)
+            best_lbfgs_loss = history["total"][-1] if history["total"] else float("inf")
+            best_state = {k: v.clone() for k, v in self.model.state_dict().items()}
+            nan_streak = 0
+
             for oi in range(1, outer_iters + 1):
                 def closure() -> torch.Tensor:
                     lbfgs.zero_grad(set_to_none=True)
                     total, _ = self._compute_loss()
                     total.backward()
+                    nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
                     return total
 
                 loss_val = lbfgs.step(closure)
-                if loss_val is not None:
-                    history["total"].append(float(loss_val))
+                completed += int(steps_per_outer)
+
+                current_loss = float(loss_val) if loss_val is not None else float("nan")
+                if math.isnan(current_loss) or math.isinf(current_loss):
+                    nan_streak += 1
+                    self.logger.warning(
+                        "L-BFGS step %d: NaN/Inf detected, restoring last good state", oi,
+                    )
+                    self.model.load_state_dict(best_state)
+                    if nan_streak >= 3:
+                        self.logger.warning("L-BFGS diverged %d times, stopping early", nan_streak)
+                        break
+                    continue
+                nan_streak = 0
+                if current_loss < best_lbfgs_loss:
+                    best_lbfgs_loss = current_loss
+                    best_state = {k: v.clone() for k, v in self.model.state_dict().items()}
+                history["total"].append(current_loss)
                 if oi % max(1, outer_iters // 10) == 0:
+                    pct = min(completed / total_steps * 100, 100.0)
                     self.logger.info(
-                        "[LBFGS %d/%d] loss=%.4e", oi, outer_iters,
-                        float(loss_val) if loss_val is not None else float("nan"),
+                        "[LBFGS %d/%d  %.1f%%] loss=%.4e", oi, outer_iters, pct, current_loss,
                     )
 
-        self.logger.info("Training complete. Final loss=%.4e", history["total"][-1])
+        self.logger.info("Training complete (100%%). Final loss=%.4e", history["total"][-1])
         return history
 
     def _save_checkpoint(self, step: int) -> None:
@@ -426,19 +462,19 @@ class TransientPINNTrainer(SteadyStatePINNTrainer):
         # PDE residual per region
         pde_parts: list[torch.Tensor] = []
         for layer in self.layers:
-            xy = self.pts_int[layer.name]
+            xy = self._fresh(self.pts_int[layer.name])
             if xy.shape[0] == 0:
                 continue
-            xyt = append_time(xy, self.t_samples)
+            xyt = append_time(xy, self._fresh(self.t_samples))
             T = self.model(self._norm(xyt))
             k = get_k(layer, xyt[:, :2], self.soil)
             Q = get_Q(layer, self.scenario.Q_scale)
             rho_c = get_rho_c(layer, self.soil)
             pde_parts.append(pde_residual_transient(T, xyt, k, rho_c, Q))
 
-        xy_soil = self.pts_int["soil"]
+        xy_soil = self._fresh(self.pts_int["soil"])
         if xy_soil.shape[0] > 0:
-            xyt_s = append_time(xy_soil, self.t_samples)
+            xyt_s = append_time(xy_soil, self._fresh(self.t_samples))
             T_s = self.model(self._norm(xyt_s))
             k_s = get_k(None, xyt_s[:, :2], self.soil)
             rho_c_s = get_rho_c(None, self.soil)
@@ -450,10 +486,10 @@ class TransientPINNTrainer(SteadyStatePINNTrainer):
         # Boundary conditions (at random times)
         bc_parts: list[torch.Tensor] = []
         for edge, bc in self.bcs.items():
-            pts = self.pts_bnd.get(edge)
-            if pts is None or pts.shape[0] == 0:
+            pts_raw = self.pts_bnd.get(edge)
+            if pts_raw is None or pts_raw.shape[0] == 0:
                 continue
-            xyt_b = append_time(pts, self.t_samples)
+            xyt_b = append_time(self._fresh(pts_raw), self._fresh(self.t_samples))
             T_b = self.model(self._norm(xyt_b))
             if bc.bc_type == "dirichlet":
                 target = bc.value if bc.value != 0 else self.scenario.T_amb
@@ -467,7 +503,8 @@ class TransientPINNTrainer(SteadyStatePINNTrainer):
             losses["bc_dirichlet"] = mse(torch.cat(bc_parts, dim=0))
 
         # Initial condition
-        T_ic = self.model(self._norm(self.pts_ic))
+        pts_ic = self._fresh(self.pts_ic)
+        T_ic = self.model(self._norm(pts_ic))
         losses["ic"] = initial_condition_loss(T_ic, self.T_init)
 
         total = weighted_total_loss(losses, self.weights)

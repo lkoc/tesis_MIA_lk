@@ -1,4 +1,4 @@
-"""Tests for pinn_cables.materials.props — material property look-ups."""
+"""Tests for pinn_cables.materials.props -- material property look-ups."""
 
 from __future__ import annotations
 
@@ -59,7 +59,11 @@ def test_get_rho_c():
     assert get_rho_c(None, soil) == 2e6
 
 
-def test_get_Q():
+def test_get_Q_conductor():
     layer = CableLayer("cond", 0.0, 0.01, 400.0, 3e6, 30.0)
     assert get_Q(layer, Q_scale=2.0) == 60.0
+
+
+def test_get_Q_soil():
     assert get_Q(None) == 0.0
+    assert get_Q(None, Q_scale=5.0) == 0.0

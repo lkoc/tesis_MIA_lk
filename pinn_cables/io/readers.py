@@ -10,6 +10,7 @@ import csv
 import math
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 
 # ---------------------------------------------------------------------------
@@ -152,17 +153,153 @@ class Scenario:
             )
 
 
+@dataclass(frozen=True)
+class SolverParams:
+    """ML/solver hyperparameters loaded from ``solver_params.csv``.
+
+    Flat dataclass that mirrors every knob exposed in ``solver.yaml``.
+    Call :meth:`to_solver_cfg` to get the nested dict expected by
+    ``build_model``, ``TrainConfig.from_config``, etc.
+
+    Attributes — model:
+        model_width:           Hidden-layer width.
+        model_depth:           Number of hidden layers.
+        model_activation:      Activation function name.
+        model_fourier_features: Use Fourier feature mapping.
+        model_fourier_scale:   Scale of Fourier frequencies.
+        model_fourier_mapping_size: Size of Fourier mapping.
+
+    Attributes — training:
+        lr:              Adam learning rate.
+        adam_steps:      Adam iterations.
+        lbfgs_steps:     L-BFGS outer iterations (0 = disabled).
+        lbfgs_history:   L-BFGS history size.
+        print_every:     Logging frequency (Adam steps).
+        save_every:      Checkpoint frequency (0 = none).
+        resample_every:  Re-sample collocation points every N steps.
+        use_compile:     Apply ``torch.compile``.
+        checkpoint_dir:  Checkpoint directory path.
+
+    Attributes — sampling:
+        n_interior:   Interior collocation points.
+        n_interface:  Interface collocation points.
+        n_boundary:   Boundary collocation points.
+        oversample:   Over-sampling factor for rejection sampling.
+
+    Attributes — other:
+        normalize_coords: Normalize spatial coordinates to [-1,1].
+        w_pde, w_bc_dirichlet, w_bc_neumann, w_bc_robin,
+        w_interface_T, w_interface_flux, w_ic: Loss weights.
+        n_time:   Time collocation points (transient mode).
+        device:   Torch device string (``"auto"``, ``"cpu"``, ``"cuda"``).
+        seed:     Random seed.
+        log_dir:  Directory for training logs.
+    """
+    # model
+    model_width: int = 128
+    model_depth: int = 6
+    model_activation: str = "tanh"
+    model_fourier_features: bool = False
+    model_fourier_scale: float = 1.0
+    model_fourier_mapping_size: int = 64
+    # training
+    lr: float = 1e-3
+    adam_steps: int = 20_000
+    lbfgs_steps: int = 5_000
+    lbfgs_history: int = 50
+    print_every: int = 200
+    save_every: int = 0
+    resample_every: int = 0
+    use_compile: bool = False
+    checkpoint_dir: str = "checkpoints/"
+    # sampling
+    n_interior: int = 8_000
+    n_interface: int = 500
+    n_boundary: int = 400
+    oversample: int = 5
+    # normalisation
+    normalize_coords: bool = True
+    # loss weights
+    w_pde: float = 1.0
+    w_bc_dirichlet: float = 10.0
+    w_bc_neumann: float = 1.0
+    w_bc_robin: float = 10.0
+    w_interface_T: float = 10.0
+    w_interface_flux: float = 10.0
+    w_ic: float = 10.0
+    # time (transient)
+    n_time: int = 200
+    # execution
+    device: str = "auto"
+    seed: int = 42
+    log_dir: str = "runs/"
+
+    def to_solver_cfg(self) -> dict[str, Any]:
+        """Convert to the nested dict consumed by existing solver code.
+
+        Returns a structure identical to the ``solver.yaml`` layout so
+        that :func:`pinn_cables.pinn.model.build_model`,
+        :class:`pinn_cables.pinn.train.TrainConfig`, etc. work without
+        any changes.
+        """
+        return {
+            "device": self.device,
+            "seed": self.seed,
+            "model": {
+                "width": self.model_width,
+                "depth": self.model_depth,
+                "activation": self.model_activation,
+                "fourier_features": self.model_fourier_features,
+                "fourier_scale": self.model_fourier_scale,
+                "fourier_mapping_size": self.model_fourier_mapping_size,
+            },
+            "sampling": {
+                "n_interior": self.n_interior,
+                "n_interface": self.n_interface,
+                "n_boundary": self.n_boundary,
+                "oversample": self.oversample,
+            },
+            "normalization": {
+                "normalize_coords": self.normalize_coords,
+            },
+            "training": {
+                "lr": self.lr,
+                "adam_steps": self.adam_steps,
+                "lbfgs_steps": self.lbfgs_steps,
+                "lbfgs_history": self.lbfgs_history,
+                "print_every": self.print_every,
+                "save_every": self.save_every,
+                "resample_every": self.resample_every,
+                "use_compile": self.use_compile,
+                "checkpoint_dir": self.checkpoint_dir,
+            },
+            "loss_weights": {
+                "pde": self.w_pde,
+                "bc_dirichlet": self.w_bc_dirichlet,
+                "bc_neumann": self.w_bc_neumann,
+                "bc_robin": self.w_bc_robin,
+                "interface_T": self.w_interface_T,
+                "interface_flux": self.w_interface_flux,
+                "ic": self.w_ic,
+            },
+            "time": {"n_time": self.n_time},
+            "logging": {"log_dir": self.log_dir},
+        }
+
+
 @dataclass
 class ProblemDefinition:
     """Complete problem assembled from all CSV files.
 
     Attributes:
-        layers:     Ordered cable layers (inner → outer).
-        domain:     Computational domain.
-        placements: Cable positions.
-        bcs:        Boundary conditions keyed by edge name.
-        soil:       Soil thermal properties.
-        scenarios:  Available simulation scenarios.
+        layers:        Ordered cable layers (inner → outer).
+        domain:        Computational domain.
+        placements:    Cable positions.
+        bcs:           Boundary conditions keyed by edge name.
+        soil:          Soil thermal properties.
+        scenarios:     Available simulation scenarios.
+        solver_params: Solver/ML hyperparameters (``None`` if no
+                       ``solver_params.csv`` present in data dir).
     """
     layers: list[CableLayer]
     domain: Domain2D
@@ -170,6 +307,7 @@ class ProblemDefinition:
     bcs: dict[str, BoundaryCondition]
     soil: SoilProperties
     scenarios: list[Scenario]
+    solver_params: SolverParams | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -297,16 +435,79 @@ def load_scenarios(path: str | Path) -> list[Scenario]:
     ]
 
 
+def load_solver_params(path: str | Path) -> SolverParams:
+    """Load ML/solver hyperparameters from *solver_params.csv*.
+
+    The CSV uses a ``param, value`` layout (same as ``domain.csv``).
+    Unknown parameter names are silently ignored so new parameters can
+    be added without breaking older CSV files.
+
+    Args:
+        path: Path to ``solver_params.csv``.
+
+    Returns:
+        :class:`SolverParams` with all available fields populated.
+
+    Raises:
+        FileNotFoundError: If *path* does not exist.
+    """
+    rows = _read_csv(path)
+    raw: dict[str, str] = {r["param"].strip(): r["value"].strip() for r in rows}
+
+    # Explicit type mapping for every field in SolverParams.
+    _INT_FIELDS = {
+        "model_width", "model_depth", "model_fourier_mapping_size",
+        "adam_steps", "lbfgs_steps", "lbfgs_history",
+        "print_every", "save_every", "resample_every",
+        "n_interior", "n_interface", "n_boundary", "oversample",
+        "n_time", "seed",
+    }
+    _FLOAT_FIELDS = {
+        "model_fourier_scale", "lr",
+        "w_pde", "w_bc_dirichlet", "w_bc_neumann", "w_bc_robin",
+        "w_interface_T", "w_interface_flux", "w_ic",
+    }
+    _BOOL_FIELDS = {"model_fourier_features", "use_compile", "normalize_coords"}
+    # All remaining fields are strings: model_activation, checkpoint_dir, device, log_dir
+
+    def _parse_bool(s: str) -> bool:
+        return s.lower() in ("true", "1", "yes")
+
+    kwargs: dict[str, Any] = {}
+    for name, val in raw.items():
+        if name in _INT_FIELDS:
+            kwargs[name] = int(float(val))   # float() first handles "2.0e3"
+        elif name in _FLOAT_FIELDS:
+            kwargs[name] = float(val)
+        elif name in _BOOL_FIELDS:
+            kwargs[name] = _parse_bool(val)
+        else:
+            # string field (or unknown — will be ignored by dataclass)
+            # only store if it's actually a known field name
+            kwargs[name] = val
+
+    # Filter out any unrecognised keys to avoid TypeError in the dataclass
+    valid = {f.name for f in __import__("dataclasses").fields(SolverParams)}
+    kwargs = {k: v for k, v in kwargs.items() if k in valid}
+    return SolverParams(**kwargs)
+
+
 def load_problem(data_dir: str | Path) -> ProblemDefinition:
     """Load all problem CSV files from *data_dir* into a single object.
 
+    The six physical-data CSVs are mandatory.  ``solver_params.csv`` is
+    optional: when present it is loaded as a :class:`SolverParams`
+    instance and stored in :attr:`ProblemDefinition.solver_params`.
+
     Args:
-        data_dir: Directory containing the six CSV files.
+        data_dir: Directory containing the CSV files.
 
     Returns:
         Fully-populated :class:`ProblemDefinition`.
     """
     d = Path(data_dir)
+    sp_path = d / "solver_params.csv"
+    solver_params = load_solver_params(sp_path) if sp_path.exists() else None
     return ProblemDefinition(
         layers=load_cable_layers(d / "cable_layers.csv"),
         domain=load_domain(d / "domain.csv"),
@@ -314,4 +515,5 @@ def load_problem(data_dir: str | Path) -> ProblemDefinition:
         bcs=load_boundary_conditions(d / "boundary_conditions.csv"),
         soil=load_soil_properties(d / "soil_properties.csv"),
         scenarios=load_scenarios(d / "scenarios.csv"),
+        solver_params=solver_params,
     )

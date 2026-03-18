@@ -1,4 +1,4 @@
-"""Tests for pinn_cables.pinn.model — MLP, Fourier features, and build_model."""
+"""Tests for pinn_cables.pinn.model -- MLP, Fourier features, and build_model."""
 
 from __future__ import annotations
 

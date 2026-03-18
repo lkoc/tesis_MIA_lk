@@ -1,14 +1,21 @@
-# Solver configuration — neural network and training hyperparameters
-# Problem data (geometry, materials, BCs) is loaded from CSV files in data/
+# ============================================================
+# Solver configuration (ML hyperparameters only)
+# Physical problem data is defined in CSV files under data/
+#
+# PREFERRED: add solver_params.csv to your data/ directory.
+# That file uses the same param/value layout as domain.csv and
+# keeps ALL configuration (physical + solver) in one place.
+# This YAML is kept as a reference template and for --config overrides.
+# ============================================================
 
 device: "auto"           # "cpu", "cuda", or "auto"
 seed: 42
-dtype: "float32"
+dtype: "float32"         # "float32" or "float64"
 
 model:
   width: 128
   depth: 6
-  activation: "tanh"     # tanh | gelu | silu
+  activation: "tanh"     # tanh, relu, gelu, swish
   fourier_features: false
   fourier_scale: 1.0
   fourier_mapping_size: 64
@@ -18,7 +25,6 @@ sampling:
   n_interface: 500
   n_boundary: 400
   oversample: 5
-  resample_every: 0      # 0 = fixed points; >0 = resample every N Adam steps
 
 normalization:
   normalize_coords: true
@@ -28,22 +34,23 @@ training:
   adam_steps: 20000
   lbfgs_steps: 5000
   lbfgs_history: 50
-  print_every: 500
-  save_every: 5000
+  use_compile: false
+  print_every: 200       # log cada N pasos Adam
+  save_every: 0          # 0 = no guardar checkpoints intermedios
   checkpoint_dir: "checkpoints/"
-  use_compile: false     # torch.compile on model forward (requires PyTorch 2.x)
+  resample_every: 0      # 0 = fixed; >0 = re-sample every N Adam steps
 
 loss_weights:
   pde: 1.0
   bc_dirichlet: 10.0
   bc_neumann: 1.0
-  bc_robin: 5.0
+  bc_robin: 10.0
   interface_T: 10.0
   interface_flux: 10.0
-  ic: 10.0               # only used in transient mode
+  ic: 10.0
 
-time:                     # only used in transient mode
+time:
   n_time: 200
 
 logging:
-  log_dir: "runs/"
+  log_dir: "runs/"       # directorio para train.log
