@@ -105,7 +105,7 @@ def tmp_data_dir(tmp_path: Path) -> Path:
     ])
     _write_csv(d / "soil_properties.csv", [
         ["param", "value"],
-        ["k", "1.0"], ["rho_c", "2.0e6"], ["variable", "false"], ["amp", "0.3"],
+        ["rho_c", "2.0e6"],
     ])
     _write_csv(d / "scenarios.csv", [
         ["scenario_id", "mode", "Q_scale", "k_soil", "T_amb", "t_end"],

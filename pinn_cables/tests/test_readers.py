@@ -126,11 +126,16 @@ class TestLoadBoundaryConditions:
 # -- load_soil_properties -------------------------------------------------
 
 class TestLoadSoilProperties:
-    def test_values(self, tmp_data_dir: Path) -> None:
+    def test_rho_c(self, tmp_data_dir: Path) -> None:
+        sp = load_soil_properties(tmp_data_dir / "soil_properties.csv")
+        assert sp.rho_c == 2.0e6
+
+    def test_defaults_when_fields_absent(self, tmp_data_dir: Path) -> None:
+        # CSV only has rho_c; k, variable, amp should use defaults
         sp = load_soil_properties(tmp_data_dir / "soil_properties.csv")
         assert sp.k == 1.0
         assert sp.variable is False
-        assert sp.amp == 0.3
+        assert sp.amp == 0.0
 
 
 # -- load_scenarios --------------------------------------------------------

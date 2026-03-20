@@ -403,8 +403,11 @@ def load_boundary_conditions(
 def load_soil_properties(path: str | Path) -> SoilProperties:
     """Load soil properties from *soil_properties.csv*.
 
-    Expected columns: ``param, value`` with rows for
-    ``k``, ``rho_c``, ``variable``, ``amp``.
+    Required row: ``rho_c``.  Optional rows (with defaults):
+    ``k`` (default 1.0), ``variable`` (default false), ``amp`` (default 0.0).
+
+    Keeping the CSV minimal (``rho_c`` only) is recommended; the soil thermal
+    conductivity is better specified in ``scenarios.csv`` via ``k_soil``.
     """
     rows = _read_csv(path)
     d: dict[str, str] = {}
@@ -412,10 +415,10 @@ def load_soil_properties(path: str | Path) -> SoilProperties:
         d[r["param"].strip()] = r["value"].strip()
 
     return SoilProperties(
-        k=float(d["k"]),
+        k=float(d.get("k", "1.0")),
         rho_c=float(d["rho_c"]),
-        variable=d["variable"].lower() in ("true", "1", "yes"),
-        amp=float(d["amp"]),
+        variable=d.get("variable", "false").lower() in ("true", "1", "yes"),
+        amp=float(d.get("amp", "0.0")),
     )
 
 
