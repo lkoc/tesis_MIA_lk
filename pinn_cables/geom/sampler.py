@@ -128,6 +128,7 @@ def sample_domain_points(
     n_interior: int,
     n_interface: int,
     oversample: int = 5,
+    min_per_region: int = 20,
     device: torch.device | None = None,
 ) -> tuple[dict[str, torch.Tensor], dict[str, torch.Tensor]]:
     """Sample interior and interface collocation points (single cable).
@@ -150,7 +151,7 @@ def sample_domain_points(
     r_outer_max = layers[-1].r_outer
 
     counts = _compute_region_counts(
-        layers, domain, r_outer_max, n_interior,
+        layers, domain, r_outer_max, n_interior, min_per_region=min_per_region,
     )
 
     # Generate candidate pool

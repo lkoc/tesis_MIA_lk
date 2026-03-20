@@ -182,6 +182,30 @@ class SteadyStatePINNTrainer:
             [domain.xmax, domain.ymax], device=device, dtype=torch.float32,
         )
 
+        # Q reference for dimensionless PDE residuals — prevents the large
+        # heat-source term (e.g. 150 kW/m³) from swamping the BC losses.
+        self._Q_ref = float(max(
+            (abs(layer.Q * scenario.Q_scale) for layer in layers),
+            default=1.0,
+        )) or 1.0  # fallback when every layer has Q=0
+
+        # Cable-surface Neumann condition: at the cable outer surface (sheath),
+        # the radial heat flux into the soil must equal Q_lin (W/m).
+        # This breaks the trivial T=T_amb local minimum by coupling the
+        # conductor heat source to the soil temperature field.
+        conductor = self.layers[0]
+        self._Q_lin = float(
+            conductor.Q * scenario.Q_scale * math.pi * conductor.r_outer ** 2
+        )
+        self._r_cable_outer = float(self.layers[-1].r_outer)
+        # Expected radial gradient at cable surface (k_soil × ∂T/∂r = -Q_lin/(2πr))
+        if self._r_cable_outer > 0 and self._Q_lin != 0:
+            self._expected_flux_at_cable = float(
+                -self._Q_lin / (2.0 * math.pi * self._r_cable_outer)
+            )  # < 0: T decreases outward
+        else:
+            self._expected_flux_at_cable = 0.0
+
         self.model = _maybe_compile(self.model, self.train_cfg.use_compile)
 
         # Pre-sample points
@@ -198,6 +222,7 @@ class SteadyStatePINNTrainer:
             self.domain, self.layers, self.placement,
             n_int, n_ifc,
             oversample=self.samp_cfg.get("oversample", 5),
+            min_per_region=self.samp_cfg.get("min_per_region", 20),
             device=self.device,
         )
         self.pts_bnd = sample_boundary_points(
@@ -221,8 +246,9 @@ class SteadyStatePINNTrainer:
     def _compute_loss(self) -> tuple[torch.Tensor, dict[str, torch.Tensor]]:
         losses: dict[str, torch.Tensor] = {}
 
-        # PDE residual per region
-        pde_parts: list[torch.Tensor] = []
+        # PDE residual per region — equal weighting per region so that the
+        # small-area conductor region (Q ≠ 0) has the same influence as soil.
+        pde_region_losses: list[torch.Tensor] = []
         for layer in self.layers:
             xy = self._fresh(self.pts_int[layer.name])
             if xy.shape[0] == 0:
@@ -230,17 +256,17 @@ class SteadyStatePINNTrainer:
             T = self.model(self._norm(xy))
             k = get_k(layer, xy, self.soil)
             Q = get_Q(layer, self.scenario.Q_scale)
-            pde_parts.append(pde_residual_steady(T, xy, k, Q))
+            pde_region_losses.append(mse(pde_residual_steady(T, xy, k, Q) / self._Q_ref))
 
         # Soil
         xy_soil = self._fresh(self.pts_int["soil"])
         if xy_soil.shape[0] > 0:
             T_soil = self.model(self._norm(xy_soil))
             k_soil = get_k(None, xy_soil, self.soil)
-            pde_parts.append(pde_residual_steady(T_soil, xy_soil, k_soil, 0.0))
+            pde_region_losses.append(mse(pde_residual_steady(T_soil, xy_soil, k_soil, 0.0) / self._Q_ref))
 
-        if pde_parts:
-            losses["pde"] = mse(torch.cat(pde_parts, dim=0))
+        if pde_region_losses:
+            losses["pde"] = sum(pde_region_losses) / len(pde_region_losses)  # type: ignore[assignment]
 
         # Boundary conditions
         bc_parts: list[torch.Tensor] = []
@@ -309,6 +335,27 @@ class SteadyStatePINNTrainer:
             k: v for k, v in losses.items()
             if not k.startswith("ifc_T_") and not k.startswith("ifc_F_")
         }
+
+        # Cable outer surface flux condition: k_soil × ∂T/∂r = -Q_lin/(2π×r)
+        # This couples the cable heat source to the soil temperature field and
+        # prevents the trivial solution T ≈ T_amb (which has zero radial flux).
+        if self._expected_flux_at_cable != 0.0:
+            key = f"r_{self.layers[-1].name}"
+            pts_raw = self.pts_ifc.get(key)
+            if pts_raw is not None and pts_raw.shape[0] > 0:
+                pts_c = self._fresh(pts_raw)
+                T_surf = self.model(self._norm(pts_c))
+                gT_surf = gradients(T_surf, pts_c)
+                dx_c = pts_c[:, 0:1] - self.placement.cx
+                dy_c = pts_c[:, 1:2] - self.placement.cy
+                r_c = torch.sqrt(dx_c * dx_c + dy_c * dy_c).clamp(min=1e-12)
+                nr_c = torch.cat([dx_c / r_c, dy_c / r_c], dim=1)
+                dTdr_c = (gT_surf * nr_c).sum(dim=1, keepdim=True)
+                expected = self._expected_flux_at_cable  # negative (< 0)
+                # Normalise by |expected| so the loss is dimensionless (1.0 for trivial, 0 for correct)
+                losses["cable_flux"] = mse(
+                    (self.soil.k * dTdr_c - expected) / abs(expected)
+                )
 
         total = weighted_total_loss(losses, self.weights)
         return total, losses
@@ -459,8 +506,8 @@ class TransientPINNTrainer(SteadyStatePINNTrainer):
     def _compute_loss(self) -> tuple[torch.Tensor, dict[str, torch.Tensor]]:
         losses: dict[str, torch.Tensor] = {}
 
-        # PDE residual per region
-        pde_parts: list[torch.Tensor] = []
+        # PDE residual per region — equal weighting per region
+        pde_region_losses: list[torch.Tensor] = []
         for layer in self.layers:
             xy = self._fresh(self.pts_int[layer.name])
             if xy.shape[0] == 0:
@@ -470,7 +517,7 @@ class TransientPINNTrainer(SteadyStatePINNTrainer):
             k = get_k(layer, xyt[:, :2], self.soil)
             Q = get_Q(layer, self.scenario.Q_scale)
             rho_c = get_rho_c(layer, self.soil)
-            pde_parts.append(pde_residual_transient(T, xyt, k, rho_c, Q))
+            pde_region_losses.append(mse(pde_residual_transient(T, xyt, k, rho_c, Q) / self._Q_ref))
 
         xy_soil = self._fresh(self.pts_int["soil"])
         if xy_soil.shape[0] > 0:
@@ -478,10 +525,10 @@ class TransientPINNTrainer(SteadyStatePINNTrainer):
             T_s = self.model(self._norm(xyt_s))
             k_s = get_k(None, xyt_s[:, :2], self.soil)
             rho_c_s = get_rho_c(None, self.soil)
-            pde_parts.append(pde_residual_transient(T_s, xyt_s, k_s, rho_c_s, 0.0))
+            pde_region_losses.append(mse(pde_residual_transient(T_s, xyt_s, k_s, rho_c_s, 0.0) / self._Q_ref))
 
-        if pde_parts:
-            losses["pde"] = mse(torch.cat(pde_parts, dim=0))
+        if pde_region_losses:
+            losses["pde"] = sum(pde_region_losses) / len(pde_region_losses)  # type: ignore[assignment]
 
         # Boundary conditions (at random times)
         bc_parts: list[torch.Tensor] = []

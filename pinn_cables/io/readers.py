@@ -217,6 +217,7 @@ class SolverParams:
     n_interface: int = 500
     n_boundary: int = 400
     oversample: int = 5
+    min_per_region: int = 20
     # normalisation
     normalize_coords: bool = True
     # loss weights
@@ -227,6 +228,7 @@ class SolverParams:
     w_interface_T: float = 10.0
     w_interface_flux: float = 10.0
     w_ic: float = 10.0
+    w_cable_flux: float = 5.0
     # time (transient)
     n_time: int = 200
     # execution
@@ -258,6 +260,7 @@ class SolverParams:
                 "n_interface": self.n_interface,
                 "n_boundary": self.n_boundary,
                 "oversample": self.oversample,
+                "min_per_region": self.min_per_region,
             },
             "normalization": {
                 "normalize_coords": self.normalize_coords,
@@ -281,6 +284,7 @@ class SolverParams:
                 "interface_T": self.w_interface_T,
                 "interface_flux": self.w_interface_flux,
                 "ic": self.w_ic,
+                "cable_flux": self.w_cable_flux,
             },
             "time": {"n_time": self.n_time},
             "logging": {"log_dir": self.log_dir},
@@ -459,13 +463,13 @@ def load_solver_params(path: str | Path) -> SolverParams:
         "model_width", "model_depth", "model_fourier_mapping_size",
         "adam_steps", "lbfgs_steps", "lbfgs_history",
         "print_every", "save_every", "resample_every",
-        "n_interior", "n_interface", "n_boundary", "oversample",
+        "n_interior", "n_interface", "n_boundary", "oversample", "min_per_region",
         "n_time", "seed",
     }
     _FLOAT_FIELDS = {
         "model_fourier_scale", "lr",
         "w_pde", "w_bc_dirichlet", "w_bc_neumann", "w_bc_robin",
-        "w_interface_T", "w_interface_flux", "w_ic",
+        "w_interface_T", "w_interface_flux", "w_ic", "w_cable_flux",
     }
     _BOOL_FIELDS = {"model_fourier_features", "use_compile", "normalize_coords"}
     # All remaining fields are strings: model_activation, checkpoint_dir, device, log_dir
