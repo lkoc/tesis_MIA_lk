@@ -78,10 +78,21 @@ class CablePlacement:
         cable_id: Integer identifier (used when several cables exist).
         cx: Horizontal centre [m].
         cy: Vertical centre [m].
+        section_mm2: Nominal conductor cross-section [mm²]
+            (e.g. 95, 150, 240, 400, 600).  ``0`` means "use
+            cable_layers.csv" (backward compatibility).
+        conductor_material: ``"cu"`` (copper) or ``"al"`` (aluminium).
+            Ignored when *section_mm2* is 0.
+        current_A: Operating current [A].  When a non-zero
+            *section_mm2* is given the volumetric heat source *Q* is
+            computed as ``I² R_dc / A_cond``.
     """
     cable_id: int
     cx: float
     cy: float
+    section_mm2: int = 0
+    conductor_material: str = "cu"
+    current_A: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -296,14 +307,20 @@ class ProblemDefinition:
     """Complete problem assembled from all CSV files.
 
     Attributes:
-        layers:        Ordered cable layers (inner → outer).
+        layers:        Default cable layers (inner → outer) loaded from
+                       ``cable_layers.csv``.  Used as fallback when
+                       *layers_per_cable* is empty.
         domain:        Computational domain.
-        placements:    Cable positions.
+        placements:    Cable positions (may include per-cable type info).
         bcs:           Boundary conditions keyed by edge name.
         soil:          Soil thermal properties.
         scenarios:     Available simulation scenarios.
         solver_params: Solver/ML hyperparameters (``None`` if no
                        ``solver_params.csv`` present in data dir).
+        layers_per_cable: Per-cable layer lists keyed by *cable_id*.
+                       Populated automatically when ``cables_placement.csv``
+                       contains ``section_mm2`` / ``conductor_material`` /
+                       ``current_A`` columns.
     """
     layers: list[CableLayer]
     domain: Domain2D
@@ -312,6 +329,17 @@ class ProblemDefinition:
     soil: SoilProperties
     scenarios: list[Scenario]
     solver_params: SolverParams | None = None
+    layers_per_cable: dict[int, list[CableLayer]] | None = None
+
+    def get_layers(self, cable_id: int) -> list[CableLayer]:
+        """Return layers for a specific cable.
+
+        Falls back to the default ``layers`` when no per-cable entry
+        exists.
+        """
+        if self.layers_per_cable and cable_id in self.layers_per_cable:
+            return self.layers_per_cable[cable_id]
+        return self.layers
 
 
 # ---------------------------------------------------------------------------
@@ -367,6 +395,8 @@ def load_placements(path: str | Path) -> list[CablePlacement]:
     """Load cable centre positions from *cables_placement.csv*.
 
     Expected columns: ``cable_id, cx, cy``.
+    Optional columns (for per-cable cable-type selection):
+    ``section_mm2, conductor_material, current_A``.
     """
     rows = _read_csv(path)
     return [
@@ -374,6 +404,9 @@ def load_placements(path: str | Path) -> list[CablePlacement]:
             cable_id=int(r["cable_id"]),
             cx=float(r["cx"]),
             cy=float(r["cy"]),
+            section_mm2=int(r["section_mm2"]) if "section_mm2" in r else 0,
+            conductor_material=r.get("conductor_material", "cu").strip().lower(),
+            current_A=float(r["current_A"]) if "current_A" in r else 0.0,
         )
         for r in rows
     ]
@@ -506,6 +539,11 @@ def load_problem(data_dir: str | Path) -> ProblemDefinition:
     optional: when present it is loaded as a :class:`SolverParams`
     instance and stored in :attr:`ProblemDefinition.solver_params`.
 
+    When ``cables_placement.csv`` contains the optional columns
+    ``section_mm2``, ``conductor_material`` and ``current_A``, per-cable
+    layers are generated automatically from the built-in XLPE cable
+    catalog (see :mod:`pinn_cables.materials.props`).
+
     Args:
         data_dir: Directory containing the CSV files.
 
@@ -515,12 +553,29 @@ def load_problem(data_dir: str | Path) -> ProblemDefinition:
     d = Path(data_dir)
     sp_path = d / "solver_params.csv"
     solver_params = load_solver_params(sp_path) if sp_path.exists() else None
+
+    layers = load_cable_layers(d / "cable_layers.csv")
+    placements = load_placements(d / "cables_placement.csv")
+
+    # Auto-generate per-cable layers from catalog when section_mm2 > 0
+    layers_per_cable: dict[int, list[CableLayer]] | None = None
+    if any(p.section_mm2 > 0 for p in placements):
+        from pinn_cables.materials.props import generate_cable_layers
+        layers_per_cable = {}
+        for p in placements:
+            if p.section_mm2 > 0:
+                layers_per_cable[p.cable_id] = generate_cable_layers(
+                    p.section_mm2, p.conductor_material, p.current_A,
+                )
+            # else: will fall back to default `layers`
+
     return ProblemDefinition(
-        layers=load_cable_layers(d / "cable_layers.csv"),
+        layers=layers,
         domain=load_domain(d / "domain.csv"),
-        placements=load_placements(d / "cables_placement.csv"),
+        placements=placements,
         bcs=load_boundary_conditions(d / "boundary_conditions.csv"),
         soil=load_soil_properties(d / "soil_properties.csv"),
         scenarios=load_scenarios(d / "scenarios.csv"),
         solver_params=solver_params,
+        layers_per_cable=layers_per_cable,
     )

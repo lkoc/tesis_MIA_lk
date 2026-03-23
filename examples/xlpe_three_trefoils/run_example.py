@@ -1,24 +1,26 @@
-"""Ejemplo cables XLPE 12/20 kV en formacion trefoil (toque).
+"""Ejemplo tres circuitos XLPE 12/20 kV en formacion trefoil separados.
 
-Tres cables enterrados en agrupacion trefoil tocante, con el
-centroide del grupo a 70 cm de profundidad.  Soporta cables de
-diferente seccion (95, 150, 240, 400, 600 mm2), material (cu/al) y
-corriente individual, especificados en ``cables_placement.csv``.
+Nueve cables (3 circuitos de 3 cables cada uno) enterrados en
+agrupacion trefoil tocante por circuito, con una separacion tipica de 0.30 m
+entre los centroides de circuito adyacente y el centroide del conjunto a
+70 cm de profundidad.  Soporta cables de diferente seccion (95, 150, 240,
+400, 600 mm2), material (cu/al) y corriente individual, especificados
+en ``cables_placement.csv``.
 
 Efectos modelados:
-- Calentamiento mutuo entre cables (superposicion Kennelly)
+- Calentamiento mutuo entre los 9 cables (superposicion Kennelly)
 - Resistencia electrica R(T): R aumenta con temperatura, incrementando Q
-- k(x,y) espacialmente variable: region buena (~zona del trefolio) rodeada
-  de suelo con k menor; transicion suave sigmoide
+- k(x,y) espacialmente variable: region buena (zona del conjunto de 9 cables)
+  rodeada de suelo con k menor; transicion suave sigmoide
 
 Formulacion residual: T_total = T_bg + u
 - T_bg : superposicion de Kennelly (N cables) + perfil multicapa por cable
 - u    : correccion de dominio finito aprendida por la red neuronal
 - El PINN solo aprende u -- la solucion trivialmente correcta es u = 0.
 
-Archivos de datos requeridos (directorio examples/xlpe_trefoil/data/):
-  cable_layers.csv          -- geometria y propiedades termicas del cable (fallback)
-  cables_placement.csv      -- posicion, seccion, material y corriente de cada cable
+Archivos de datos requeridos (directorio examples/xlpe_three_trefoils/data/):
+  cable_layers.csv          -- geometria y propiedades termicas del cable
+  cables_placement.csv      -- posicion de los 9 cables (3 circuitos x 3)
   boundary_conditions.csv   -- CCF del dominio
   domain.csv                -- limites del dominio
   scenarios.csv             -- escenarios de operacion
@@ -27,15 +29,24 @@ Archivos de datos requeridos (directorio examples/xlpe_trefoil/data/):
   solver_params.csv         -- hiperparametros del solver (perfil quick)
   solver_params_research.csv-- hiperparametros del solver (perfil research)
 
+Circuitos y cables (separacion entre centroides = 0.30 m):
+  Circuito 1 (x=-0.30 m): cables 1 (top), 2 (bot-izq), 3 (bot-der)
+  Circuito 2 (x= 0.00 m): cables 4 (top), 5 (bot-izq), 6 (bot-der)
+  Circuito 3 (x=+0.30 m): cables 7 (top), 8 (bot-izq), 9 (bot-der)
+
+Separacion libre entre circuitos adyacentes: ~0.24 m (superficie a superficie).
+Suelo mejorado: region de k=1.5 W/(mK) alrededor del conjunto 0.90 x 0.55 m,
+resto del suelo k=0.8 W/(mK).
+
 Soporta dos perfiles de ejecucion:
 
-- **quick**    (~10-15 min CPU) : 5 000 Adam, red 64x4
-- **research** (~40-70 min CPU): 10 000 Adam + 500 L-BFGS, red 128x5
+- **quick**    (~15-20 min CPU) : 5 000 Adam, red 64x4
+- **research** (~60-90 min CPU): 10 000 Adam + 500 L-BFGS, red 128x5
 
 Uso::
 
-    python examples/xlpe_trefoil/run_example.py
-    python examples/xlpe_trefoil/run_example.py --profile research
+    python examples/xlpe_three_trefoils/run_example.py
+    python examples/xlpe_three_trefoils/run_example.py --profile research
 
 Referencia IEC 60287: T_max admisible XLPE = 90 degC (363 K).
 """
@@ -307,7 +318,7 @@ def _multilayer_T_multi(
 # Pre-entrenamiento: todos los interiores de cable + contornos del dominio
 # ---------------------------------------------------------------------------
 
-def _pretrain_trefoil(
+def _pretrain_cables(
     model: nn.Module,
     placements: list,
     domain,
@@ -902,8 +913,10 @@ def _plot_geometry_trefoil(
     """Visualizar dominio con los cables del trefoil (seccion transversal)."""
     fig, ax = plt.subplots(figsize=(10, 6))
 
-    colores_cable = ["tab:blue", "tab:orange", "tab:green"]
-    names = [f"Cable {pl.cable_id}" for pl in placements]
+    circuit_colors = ["tab:blue", "tab:orange", "tab:green"]
+    colores_cable = [circuit_colors[(pl.cable_id - 1) // 3] for pl in placements]
+    circuit_num = [(pl.cable_id - 1) // 3 + 1 for pl in placements]
+    names = [f"C{circuit_num[i]}-{pl.cable_id}" for i, pl in enumerate(placements)]
 
     for idx, (pl, color) in enumerate(zip(placements, colores_cable)):
         layers_i = layers_list[idx]
@@ -958,7 +971,7 @@ def _plot_geometry_trefoil(
 def main() -> None:
     """Cargar datos, entrenar PINN trefoil y comparar con estimacion analitica."""
     parser = argparse.ArgumentParser(
-        description="Ejemplo PINN: tres cables XLPE 95 mm2 en trefoil tocante",
+        description="Ejemplo PINN: tres circuitos de 3 cables XLPE en trefoil separado",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "Perfiles disponibles:\n"
@@ -980,7 +993,7 @@ def main() -> None:
 
     SEP = "=" * 66
     print(SEP)
-    print("  PINN -- Cables XLPE en Trefoil tocante")
+    print("  PINN -- 3 circuitos XLPE / Trefoil separado (9 cables)")
     print("  Perfil de ejecucion : %s" % profile.upper())
     print(SEP)
 
@@ -1101,7 +1114,8 @@ def main() -> None:
     # ------------------------------------------------------------------
     print("\n  Configuracion fisica:")
     print("  Escenario   : %s  (%s)" % (scenario.scenario_id, scenario.mode))
-    print("  Cables      : %d en trefoil tocante" % n_cables)
+    n_circuits = n_cables // 3
+    print("  Cables      : %d en %d circuitos trefoil (sep. 0.30 m)" % (n_cables, n_circuits))
     for pl in problem.placements:
         sec = "%d mm2" % pl.section_mm2 if pl.section_mm2 > 0 else "CSV"
         mat = pl.conductor_material.upper() if pl.section_mm2 > 0 else "CSV"
@@ -1117,7 +1131,7 @@ def main() -> None:
             pp.k_good, pp.k_bad))
         print("  Region buena: cx=%.2f  cy=%.2f  w=%.2f  h=%.2f  s=%.3f m" % (
             pp.k_cx, pp.k_cy, pp.k_width, pp.k_height, pp.k_transition))
-        print("  k_eff_bg    : %.3f W/(m*K)  (en centroide del trefolio)" % k_eff_bg)
+        print("  k_eff_bg    : %.3f W/(m*K)  (en centroide del conjunto)" % k_eff_bg)
     else:
         print("  k_suelo     : %.1f W/(m*K)  (uniforme)" % k_soil)
     print("  T_ambiente  : %.1f degC  (%.2f K)" % (T_amb - 273.15, T_amb))
@@ -1132,12 +1146,16 @@ def main() -> None:
         print("  dT %-10s : %+.2f K" % (name, dT))
     print("  dT cable total  : %+.2f K" % iec["dT_cable"])
     print()
-    for cr in iec["cables"]:
-        hot = "  <-- mas caliente" if cr["cable_id"] == iec["hottest_idx"] + 1 else ""
-        print("  Cable %d (%.3f, %.3f m): dT_suelo=%+.2f K  T_cond=%.1f K (%.1f degC)%s" % (
-            cr["cable_id"], cr["cx"], cr["cy"],
-            cr["dT_soil"], cr["T_cond"], cr["T_cond"] - 273.15, hot,
-        ))
+    for circ in range(1, 4):
+        first = (circ - 1) * 3 + 1
+        cx_circ = iec["cables"][first - 1]["cx"]  # top cable cx = circuit centroid x
+        print("  Circuito %d (x=%+.2f m):" % (circ, cx_circ))
+        for cr in iec["cables"][first - 1 : first + 2]:
+            hot = "  <-- mas caliente" if cr["cable_id"] == iec["hottest_idx"] + 1 else ""
+            print("    Cable %d (%.3f, %.3f m): dT_suelo=%+.2f K  T_cond=%.1f K (%.1f degC)%s" % (
+                cr["cable_id"], cr["cx"], cr["cy"],
+                cr["dT_soil"], cr["T_cond"], cr["T_cond"] - 273.15, hot,
+            ))
     print("  T_cond ref. (max) : %.1f K  (%.1f degC)" % (T_ref_K, T_ref_K - 273.15))
 
     # ------------------------------------------------------------------
@@ -1176,7 +1194,7 @@ def main() -> None:
     # Grafica de geometria
     _plot_geometry_trefoil(
         layers_list, problem.placements, problem.domain,
-        title="Cables XLPE -- Trefoil tocante (detalle)",
+        title="Cables XLPE -- 3 circuitos Trefoil (detalle)",
         save_path=RESULTS_DIR / "geometry.png",
     )
 
@@ -1190,7 +1208,7 @@ def main() -> None:
     # Pre-entrenamiento
     # ------------------------------------------------------------------
     print("\n  Pre-entrenando en perfiles cilindricos de los %d cables (800 pasos)..." % n_cables, flush=True)
-    rmse_pre = _pretrain_trefoil(
+    rmse_pre = _pretrain_cables(
         model, problem.placements, problem.domain, layers_list,
         Q_lins, k_eff_bg, T_amb, device=device, normalize=normalize,
         n_cable_per=1000, n_bc=300, n_steps=800, lr=1e-3,
@@ -1317,6 +1335,7 @@ def main() -> None:
         model, problem.domain, problem.placements, layers_list,
         device, normalize, profile,
         save_path=RESULTS_DIR / "temperature_zoom.png",
+        margin=0.12,
     )
 
     # ------------------------------------------------------------------
@@ -1345,6 +1364,9 @@ def main() -> None:
     for i, (pl, T_pinn_i, cr) in enumerate(
         zip(problem.placements, T_cond_pinns, iec["cables"])
     ):
+        if i % 3 == 0:
+            circ = i // 3 + 1
+            print("  -- Circuito %d --" % circ)
         T_ref_i = cr["T_cond"]
         err_i   = T_pinn_i - T_ref_i
         hot     = " *" if i == iec["hottest_idx"] else "  "
@@ -1372,7 +1394,7 @@ def main() -> None:
     if profile == "quick":
         print()
         print("  Para resultados de investigacion (~40-70 min):")
-        print("    python examples/xlpe_trefoil/run_example.py --profile research")
+        print("    python examples/xlpe_three_trefoils/run_example.py --profile research")
     print()
     print("  Graficas guardadas en: %s" % RESULTS_DIR)
     print("    - geometry.png  |  loss_history.png  |  temperature_field.png")

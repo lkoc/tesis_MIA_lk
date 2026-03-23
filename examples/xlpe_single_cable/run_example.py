@@ -1,4 +1,9 @@
-"""Ejemplo cable XLPE 95 mm2 a 12/20 kV enterrado a 70 cm.
+"""Ejemplo cable XLPE a 12/20 kV enterrado a 70 cm.
+
+Soporta cables XLPE de 95, 150, 240, 400 y 600 mm2 con conductor de
+cobre (cu) o aluminio (al).  La seccion, material y corriente se
+especifican en ``cables_placement.csv`` (columnas ``section_mm2``,
+``conductor_material``, ``current_A``).
 
 Soporta dos perfiles de ejecucion:
 
@@ -297,7 +302,7 @@ def _iec60287_estimate(layers, placement, k_soil: float, Q_scale: float) -> dict
 def main() -> None:
     """Cargar datos, entrenar PINN y mostrar resumen comparativo con IEC 60287."""
     parser = argparse.ArgumentParser(
-        description="Ejemplo PINN: cable XLPE 95 mm2 en zanja estandar",
+        description="Ejemplo PINN: cable XLPE en zanja estandar",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "Perfiles disponibles:\n"
@@ -317,15 +322,28 @@ def main() -> None:
     RESULTS_DIR = HERE / ("results" if profile == "quick" else "results_research")
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
-    SEP = "=" * 62
-    print(SEP)
-    print("  PINN -- Cable XLPE 95 mm2 / 12-20 kV / zanja estandar")
-    print("  Perfil de ejecucion : %s" % profile.upper())
-    print(SEP)
-
     # Cargar problema fisico (CSV)
     problem = load_problem(DATA_DIR)
     scenario = problem.scenarios[0]
+    placement = problem.placements[0]
+
+    # Obtener capas del cable (per-cable del catalogo o fallback a cable_layers.csv)
+    layers = problem.get_layers(placement.cable_id)
+
+    # Informacion del tipo de cable
+    section_mm2 = placement.section_mm2
+    material = placement.conductor_material.upper()
+    current_A = placement.current_A
+
+    SEP = "=" * 62
+    print(SEP)
+    if section_mm2 > 0:
+        print("  PINN -- Cable XLPE %d mm2 %s / 12-20 kV / %.0f A" % (
+            section_mm2, material, current_A))
+    else:
+        print("  PINN -- Cable XLPE / 12-20 kV / zanja estandar")
+    print("  Perfil de ejecucion : %s" % profile.upper())
+    print(SEP)
 
     # Cargar config del perfil seleccionado
     params_csv = DATA_DIR / (
@@ -343,17 +361,21 @@ def main() -> None:
     n_ifc    = solver_cfg["sampling"]["n_interface"]
     n_bnd    = solver_cfg["sampling"]["n_boundary"]
 
-    q_kw  = problem.layers[0].Q * scenario.Q_scale / 1000
-    q_lin = problem.layers[0].Q * scenario.Q_scale * math.pi * problem.layers[0].r_outer ** 2
+    conductor = layers[0]
+    q_kw  = conductor.Q * scenario.Q_scale / 1000
+    q_lin = conductor.Q * scenario.Q_scale * math.pi * conductor.r_outer ** 2
     print("\n  Problema fisico:")
     print("  Escenario   : %s  (%s)" % (scenario.scenario_id, scenario.mode))
+    if section_mm2 > 0:
+        print("  Cable       : XLPE %d mm2  %s  I=%.0f A" % (
+            section_mm2, material, current_A))
     print("  Q_conductor : %.0f kW/m3  (%.2f W/m lineal)" % (q_kw, q_lin))
     print("  k_suelo     : %.1f W/(m*K)  (suelo humedo tipico)" % scenario.k_soil)
     print("  T_ambiente  : %.1f degC  (%.2f K)" % (scenario.T_amb - 273.15, scenario.T_amb))
 
     # Estimacion analitica IEC 60287 para comparacion
     iec = _iec60287_estimate(
-        problem.layers, problem.placements[0], scenario.k_soil, scenario.Q_scale
+        layers, placement, scenario.k_soil, scenario.Q_scale
     )
     T_ref_K = scenario.T_amb + iec["dT_total"]
     print("\n  Referencia analitica IEC 60287 (resistencias en serie):")
@@ -373,8 +395,8 @@ def main() -> None:
     base_model = build_model(solver_cfg["model"], in_dim=2, device=device)
     model = ResidualPINNModel(
         base_model,
-        problem.layers,
-        problem.placements[0],
+        layers,
+        placement,
         scenario.k_soil,
         scenario.T_amb,
         q_lin,
@@ -386,8 +408,8 @@ def main() -> None:
 
     print("\n  Pre-entrenando en perfil cilindrico multicapa (500 pasos)...", flush=True)
     rmse_pre = _pretrain_cable_plus_bc(
-        model, problem.placements[0], problem.domain,
-        problem.layers, q_lin, scenario.k_soil, scenario.T_amb,
+        model, placement, problem.domain,
+        layers, q_lin, scenario.k_soil, scenario.T_amb,
         device=device, normalize=normalize,
         n_cable=2000, n_bc=200, n_steps=500, lr=1e-3,
     )
@@ -405,9 +427,10 @@ def main() -> None:
 
     # Geometria del cable
     geo_path = RESULTS_DIR / "geometry.png"
+    cable_title = "Cable XLPE %d mm2 %s" % (section_mm2, material) if section_mm2 > 0 else "Cable XLPE"
     plot_cable_geometry(
-        problem.layers, problem.placements[0], problem.domain,
-        title="Cable XLPE 95 mm2 -- seccion transversal",
+        layers, placement, problem.domain,
+        title="%s -- seccion transversal" % cable_title,
         save_path=geo_path,
     )
 
@@ -418,8 +441,8 @@ def main() -> None:
     print("-" * 62)
     trainer = SteadyStatePINNTrainer(
         model=model,
-        layers=problem.layers,
-        placement=problem.placements[0],
+        layers=layers,
+        placement=placement,
         domain=problem.domain,
         soil=problem.soil,
         bcs=problem.bcs,
@@ -449,9 +472,10 @@ def main() -> None:
         model, problem.domain, nx=300, ny=300,
         device=device, normalize=normalize,
     )
+    cable_label = "XLPE %d mm2 %s %.0f A" % (section_mm2, material, current_A) if section_mm2 > 0 else "XLPE"
     plot_temperature_field(
         X, Y, T,
-        title="T(x,y) [K] -- XLPE 95 mm2  [%s]" % profile,
+        title="T(x,y) [K] -- %s  [%s]" % (cable_label, profile),
         save_path=T_map_path,
     )
 
@@ -459,12 +483,11 @@ def main() -> None:
     T_max_pinn  = float(T.max())
     T_min_pinn  = float(T.min())
     T_amb_K     = scenario.T_amb
-    place       = problem.placements[0]
 
     # Evaluacion directa en el centro del conductor (mas precisa que grid)
     with torch.no_grad():
         model.eval()
-        pt = torch.tensor([[place.cx, place.cy]], device=device, dtype=torch.float32)
+        pt = torch.tensor([[placement.cx, placement.cy]], device=device, dtype=torch.float32)
         if normalize:
             mins = torch.tensor(
                 [problem.domain.xmin, problem.domain.ymin],
@@ -484,6 +507,8 @@ def main() -> None:
     C = 32  # column width
     print("\n" + "=" * 62)
     print("  RESULTADOS FINALES  [%s]" % profile.upper())
+    if section_mm2 > 0:
+        print("  Cable: XLPE %d mm2  %s  I=%.0f A" % (section_mm2, material, current_A))
     print("=" * 62)
     print("  %-*s  %10s  %10s  %8s" % (C, "Magnitud", "PINN", "IEC ref.", "Error"))
     print("  " + "-" * 58)
