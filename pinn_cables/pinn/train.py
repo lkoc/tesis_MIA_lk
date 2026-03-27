@@ -293,9 +293,18 @@ class SteadyStatePINNTrainer:
             all_bc = torch.cat(bc_parts, dim=0)
             losses["bc_dirichlet"] = mse(all_bc)
 
-        # Interface losses
-        ifc_T_parts: list[torch.Tensor] = []
-        ifc_F_parts: list[torch.Tensor] = []
+        # Interface flux-continuity losses.
+        # For each shared interface at r = layers[i].r_outer, enforce
+        #   k_inner * (dT/dr) == k_outer * (dT/dr)
+        # where k_inner is from layer[i] and k_outer is from layer[i+1]
+        # (or soil for the outermost layer).
+        #
+        # NOTE: with a *global* single-network PINN the gradient dT/dr is
+        # continuous, so this loss effectively penalises (k_inner - k_outer)
+        # * dT/dr.  For the residual formulation (T = T_bg + u) this is
+        # typically disabled (w_interface_flux = 0) because T_bg already
+        # captures the inter-layer physics.
+        ifc_flux_losses: list[torch.Tensor] = []
         for i, layer in enumerate(self.layers):
             key = f"r_{layer.name}"
             pts_raw = self.pts_ifc.get(key)
@@ -303,38 +312,32 @@ class SteadyStatePINNTrainer:
                 continue
             pts = self._fresh(pts_raw)
             T_at_ifc = self.model(self._norm(pts))
-            ifc_T_parts.append(T_at_ifc)
 
-            # Flux: k * dT/dn (radial direction)
+            # Radial unit normal at this interface
             gT = gradients(T_at_ifc, pts)
             dx = pts[:, 0:1] - self.placement.cx
             dy = pts[:, 1:2] - self.placement.cy
             r = torch.sqrt(dx * dx + dy * dy).clamp(min=1e-12)
             nr = torch.cat([dx / r, dy / r], dim=1)
-            k_inner = get_k(layer, pts, self.soil)
-            if not torch.is_tensor(k_inner):
-                k_inner = torch.tensor(k_inner, device=self.device)
-            flux_val = k_inner * (gT * nr).sum(dim=1, keepdim=True)
-            ifc_F_parts.append(flux_val)
+            dTdr = (gT * nr).sum(dim=1, keepdim=True)
 
-        # Pair consecutive interfaces for continuity
-        for j in range(len(ifc_T_parts) - 1):
-            losses[f"ifc_T_{j}"] = mse(ifc_T_parts[j] - ifc_T_parts[j + 1])
-            losses[f"ifc_F_{j}"] = mse(ifc_F_parts[j] - ifc_F_parts[j + 1])
+            # Inner-side conductivity (from layer i)
+            k_in = get_k(layer, pts, self.soil)
+            if not torch.is_tensor(k_in):
+                k_in = torch.tensor(k_in, device=self.device)
 
-        # Map interface losses to weight keys
-        ifc_T_vals = [v for k, v in losses.items() if k.startswith("ifc_T_")]
-        ifc_F_vals = [v for k, v in losses.items() if k.startswith("ifc_F_")]
-        if ifc_T_vals:
-            losses["interface_T"] = sum(ifc_T_vals) / len(ifc_T_vals)  # type: ignore[assignment]
-        if ifc_F_vals:
-            losses["interface_flux"] = sum(ifc_F_vals) / len(ifc_F_vals)  # type: ignore[assignment]
+            # Outer-side conductivity (from layer i+1 or soil)
+            if i + 1 < len(self.layers):
+                k_out = get_k(self.layers[i + 1], pts, self.soil)
+            else:
+                k_out = get_k(None, pts, self.soil)
+            if not torch.is_tensor(k_out):
+                k_out = torch.tensor(k_out, device=self.device)
 
-        # Clean up per-interface keys
-        losses = {
-            k: v for k, v in losses.items()
-            if not k.startswith("ifc_T_") and not k.startswith("ifc_F_")
-        }
+            ifc_flux_losses.append(mse(k_in * dTdr - k_out * dTdr))
+
+        if ifc_flux_losses:
+            losses["interface_flux"] = sum(ifc_flux_losses) / len(ifc_flux_losses)  # type: ignore[assignment]
 
         # Cable outer surface flux condition: k_soil × ∂T/∂r = -Q_lin/(2π×r)
         # This couples the cable heat source to the soil temperature field and

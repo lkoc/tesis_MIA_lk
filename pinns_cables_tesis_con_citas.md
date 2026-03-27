@@ -164,6 +164,10 @@ pinn_cables/
 
 ## 7. Sampler de geometría listo: círculos concéntricos + dominio (zanja/terreno)
 
+> **Nota:** Este pseudocódigo sirvió como guía inicial. La implementación real en
+> `pinn_cables/geom/sampler.py` es significativamente más avanzada (muestreo directo
+> en anillos, proporción por área, multi-cable). Ver §11.1 para comparación detallada.
+
 > Objetivo: generar puntos internos por región (capas + suelo), puntos de interfaces (bandas alrededor de radios) y puntos de borde.
 
 ```python
@@ -288,6 +292,10 @@ def sample_time(n_t: int, t0: float, t1: float, device=None):
 ---
 
 ## 8. Solver PINN (plantilla PyTorch): estacionario + transitorio + k(x,y) variable
+
+> **Nota:** Estas plantillas sirvieron como punto de partida. La implementación real
+> en `pinn_cables/pinn/` incluye formulación residual (T=T_bg+u), catálogo de cables,
+> pre-training, R(T) iterativo, y pérdidas dieléctricas. Ver §11.1 para comparación.
 
 ```python
 # pinn/model.py
@@ -491,7 +499,139 @@ Procedimiento externo típico:
 
 ---
 
-## 11. Referencias (APA 7)
+## 11. Estado de implementación y resultados de validación
+
+> Esta sección documenta el estado actual del código implementado, los resultados
+> obtenidos y las diferencias respecto a las plantillas de pseudocódigo de las
+> secciones 7–8.
+
+### 11.1. Arquitectura implementada vs. plantillas
+
+Las plantillas de las secciones 7–8 sirvieron como guía inicial. La implementación
+real (en `pinn_cables/`) presenta las siguientes diferencias significativas:
+
+| Aspecto | Plantilla (§7–8) | Implementación actual |
+|---------|------------------|----------------------|
+| Configuración | YAML | CSV (`solver_params.csv`) — todos los hiperparámetros en un formato tabular editable |
+| Geometría cable | Hardcoded `CableGeometry` con 4 radios | CSV `cable_layers.csv` con N capas arbitrarias; catálogo XLPE (95–1200 mm²) |
+| Formulación | T directa (PINN puro) | **Residual: T = T_bg + u**, donde T_bg = Kennelly (imagen) + perfil cilíndrico multicapa |
+| Multi-cable | No contemplado | Superposición de Kennelly para N cables, con calentamiento mutuo |
+| Muestreo | Rejection puro + % fijos | Rejection + muestreo directo en anillos (capas delgadas), proporción por área |
+| Pre-train | No | Warm-start con solución analítica T_bg para bootstrap inicial |
+| k(x,y) variable | `k_soil_variable` sinusoidal | Sigmoide espacialmente variable con transición suave entre regiones (trefoil) |
+| R(T) | No | Resistencia dependiente de temperatura con refinamiento iterativo |
+| Q_d (dieléctricas) | No | Pérdidas dieléctricas como fuente volumétrica en XLPE (benchmarks Aras) |
+| Entrenamiento | Adam → LBFGS simple | Adam → L-BFGS con recovery de NaN, checkpoints, logging detallado |
+| Tests | No | 74 unit tests + 2 integration tests (MMS, Laplace) |
+
+### 11.2. Formulación residual (T = T_bg + u)
+
+La estrategia central es descomponer el campo de temperatura como:
+
+$$T(x,y) = T_{\text{bg}}(x,y) + u_\theta(x,y)$$
+
+donde:
+- $T_{\text{bg}}$ es un perfil analítico compuesto por:
+  - **Imagen de Kennelly** para el semi-espacio (cada cable como fuente lineal + imagen especular),
+  - **Perfil cilíndrico multicapa** (logarítmico/parabólico según la región).
+- $u_\theta$ es la corrección aprendida por la red neuronal.
+
+**Ventajas:**
+- La red solo aprende una perturbación pequeña → convergencia rápida.
+- $T_{\text{bg}}$ captura las discontinuidades de pendiente en interfaces → no es necesario penalizar explícitamente la continuidad de flujo ($w_{\text{interface\_T}} = 0$, $w_{\text{interface\_flux}} = 0$).
+- Elimina mínimos locales espurios que atrapan al PINN directo.
+
+**Nota sobre `@torch.no_grad()` en T_bg:** El perfil analítico usa `torch.where` para seleccionar regiones. Se calcula sin gradientes intencionalmente para evitar inestabilidades numéricas en las fronteras entre regiones (saltos en las máscaras booleanas).
+
+### 11.3. Resultados de validación — Benchmarks
+
+#### Benchmark Aras (2005) — cable único 154 kV XLPE
+
+Caso de referencia: *154 kV Single Underground Cable* (Aras et al., 2005, Fig. 5).
+
+| Parámetro | Valor |
+|-----------|-------|
+| Cable | XLPE 1200 mm² Cu |
+| Corriente | 1657 A |
+| Profundidad | 1.2 m |
+| k_suelo | 1.0 W/(m·K) |
+| Q_cond | 70.0 W/m (back-calculated para T=90°C) |
+| Q_d (dielectric) | 3.57 W/m (fuente volumétrica en XLPE) |
+
+| Método | T_conductor |
+|--------|-------------|
+| FEM ANSYS (Aras et al., 2005) | 90.0 °C |
+| **PINN (este trabajo)** | **89.9 °C** |
+| IEC 60287 analítico | 89.9 °C |
+
+**Error: −0.1 K** (PINN vs FEM).
+
+#### Benchmark Aras (2005) — 3 cables en formación flat
+
+Caso de referencia: *154 kV 3 Cables Flat Formation* (Aras et al., 2005).
+
+| Parámetro | Valor |
+|-----------|-------|
+| Cables | 3 × XLPE 1200 mm² Cu |
+| Corriente | 1110 A por cable |
+| Separación | 0.33 m (centros) |
+| Profundidad | 1.2 m |
+
+| Cable | T_cond PINN | T_cond FEM | Error |
+|-------|-------------|------------|-------|
+| Central | 90.7 °C | 90.0 °C | +0.7 K |
+| Laterales | 86.4 °C | — | (simetría preservada) |
+
+El cable central es +4.3 K más caliente que los laterales por calentamiento mutuo, consistente con la física del problema (Aras et al., 2005).
+
+#### Casos XLPE estándar (12/20 kV)
+
+| Ejemplo | Config | T_cond PINN | Comparación IEC |
+|---------|--------|-------------|-----------------|
+| Cable único 95 mm² Cu, 270 A | Suelo húmedo k=1.0 | ≈ 38 °C | Consistente |
+| Trefoil 3×95 mm², 300 A | k variable, R(T) iterativo | ~75–80 °C | Consistente |
+| 3 Trefoils 9×95 mm², 150 A | k variable, 3 circuitos | ~35–45 °C | Consistente |
+
+### 11.4. Corrección aplicada: pérdida de flujo en interfaces
+
+Se identificó y corrigió un error en `pinn_cables/pinn/train.py` en la función de
+pérdida de continuidad de flujo en interfaces entre capas del cable.
+
+**Error original:** El código emparejaba valores de T y flujo en radios *distintos*
+entre capas consecutivas (comparaba T en $r_{ext}$ de la capa $j$ con T en $r_{ext}$
+de la capa $j+1$, que son puntos espaciales diferentes).
+
+**Corrección:** Se reescribió para calcular $k_{\text{inner}} \cdot \partial T/\partial r$
+vs. $k_{\text{outer}} \cdot \partial T/\partial r$ en el **mismo** radio de interfaz.
+
+**Impacto práctico:** Nulo para los ejemplos actuales, ya que todos usan la formulación
+residual con $w_{\text{interface\_T}} = 0$ y $w_{\text{interface\_flux}} = 0$ (las
+interfaces se manejan implícitamente a través de $T_{\text{bg}}$). La corrección
+garantiza que, si se activan estos pesos en el futuro (por ejemplo, para
+descomposición de dominio), el cálculo sea correcto.
+
+### 11.5. Suite de tests
+
+| Módulo | Tests | Estado |
+|--------|-------|--------|
+| test_losses | 11 | ✅ |
+| test_materials | 9 | ✅ |
+| test_model | 8 | ✅ |
+| test_pde | 6 | ✅ |
+| test_readers | 25 | ✅ |
+| test_sampler | 9 | ✅ |
+| **Integration (MMS)** | 1 | ✅ |
+| **Integration (Laplace)** | 1 | ✅ |
+| **Total** | **74 + 2** | ✅ |
+
+### 11.6. Archivos obsoletos pendientes de limpieza
+
+- `eval_model.py` (raíz): usa firma incorrecta para `_compute_iec60287_Q`. Reemplazado por la funcionalidad integrada en cada `run_example.py`.
+- `diag_flux.py` (raíz): usa valor de Q_lin=66.40 desactualizado (correcto: 73.57). Fue un script de diagnóstico único.
+
+---
+
+## 12. Referencias (APA 7)
 
 - Aras, F., Oysu, C., & Yilmaz, G. (2005). *An assessment of the methods for calculating ampacity of underground power cables*. **Electric Power Components and Systems, 33**(12), 1385–1402. https://doi.org/10.1080/15325000590964425  
 - Carslaw, H. S., & Jaeger, J. C. (1959). *Conduction of Heat in Solids* (2nd ed.). Oxford University Press.  

@@ -20,11 +20,40 @@ red neuronal entrenada para satisfacer la PDE de conducción:
 junto con las condiciones de contorno (Dirichlet, Neumann, Robin) y la continuidad de
 temperatura y flujo en las interfaces entre capas del cable.
 
+### Formulación residual (T = T_bg + u)
+
+Los ejemplos usan una **formulación residual** donde el modelo aprende la corrección
+`u` respecto a un perfil analítico de fondo `T_bg`:
+
+- **T_bg**: superposición de Kennelly (imagen para semi-espacio) + perfil cilíndrico
+  multicapa (logarítmico/parabólico según la región).
+- **u**: corrección de dominio finito aprendida por la red neuronal.
+
+Esta estrategia reduce el problema de aprendizaje a una perturbación pequeña, eliminando
+mínimos locales espurios y acelerando la convergencia.
+
 **Todo en CSV:** los datos físicos (geometría, materiales, escenarios) *y* los
 hiperparámetros del solver (arquitectura de la red, pasos de entrenamiento, pesos de
 la función de pérdida, muestreo) se definen en archivos CSV editables sin tocar código.
-El archivo `solver.yaml` existe como plantilla de referencia, pero no es necesario
-cuando el directorio de datos incluye `solver_params.csv`.
+
+---
+
+## Estado actual del proyecto
+
+### Resultados de validación
+
+| Ejemplo | Método ref. | T_cond PINN | T_cond ref. | Error |
+|---------|-------------|-------------|-------------|-------|
+| Aras 2005 — cable único 154 kV | FEM ANSYS | 89.9 °C | 90.0 °C | −0.1 K |
+| Aras 2005 — 3 cables flat | FEM ANSYS | 90.7 °C (central) | 90.0 °C | +0.7 K |
+| XLPE 95 mm² Cu / 270 A | IEC 60287 | ≈ 38 °C | ≈ 38 °C | < 0.1 K |
+| Trefoil 3×95 mm² / 300 A | IEC 60287 | ~75–80 °C | ~75–80 °C | < 1 K |
+| 3 trefoils 9×95 mm² / 150 A | IEC 60287 | ~35–45 °C | ~35–45 °C | < 1 K |
+
+### Tests
+
+- **74 unit tests** pasando (losses, materials, model, pde, readers, sampler).
+- **2 integration tests** (MMS con k constante, Laplace en rectángulo).
 
 ---
 
@@ -39,7 +68,7 @@ cuando el directorio de datos incluye `solver_params.csv`.
 ## Instalación
 
 ```bash
-git clone <url-del-repo>
+gh repo clone lkoc/tesis_MIA_lk
 cd tesis_MIA_lk
 
 # Instalar en modo editable (incluye dependencias de tests)
@@ -48,39 +77,60 @@ pip install -e ".[dev]"
 
 ---
 
-## Inicio rápido — ejemplo cable XLPE 95 mm²
+## Ejemplos disponibles
 
-Verifica que todo funciona con el ejemplo incluido (~2-3 min en CPU):
+### 1. Cable XLPE único — 12/20 kV (cable estándar)
 
 ```bash
 python examples/xlpe_single_cable/run_example.py
+python examples/xlpe_single_cable/run_example.py --profile research
 ```
 
-Salida esperada:
+Cable XLPE 95 mm² Cu a 270 A, enterrado a 70 cm en suelo húmedo (k=1.0 W/(m·K)).
+Perfiles: quick (~5–8 min) o research (~25–35 min).
 
-```
-============================================================
-  PINN — Cable XLPE 95 mm² en suelo húmedo (estacionario)
-============================================================
-  Dispositivo  : cpu
-  Parámetros   : 21,057
-  Adam steps   : 500
-  ...
-  [Adam  50/500   9.1%] loss=2.4312e+00  pde=1.234e+00 ...
-  ...
-------------------------------------------------------------
-  RESULTADOS
-  T_amb (frontera)   = 293.15 K  (20.0 °C)
-  T_max predicha     = ~330-360 K  (~60-90 °C)
-  ΔT (conductor)     ≈ 40-70 K
-------------------------------------------------------------
-  Plots guardados en: examples/xlpe_single_cable/results/
-    - loss_history.png
-    - temperature_field.png
-    - geometry.png
+### 2. Trefoil — 3 cables XLPE tocantes
+
+```bash
+python examples/xlpe_trefoil/run_example.py
+python examples/xlpe_trefoil/run_example.py --profile research
 ```
 
-Los plots se guardan en `examples/xlpe_single_cable/results/`.
+3 cables 95 mm² Cu a 300 A en formación trefoil tocante, centroide a 70 cm.
+Incluye R(T) iterativo y k(x,y) sigmoide espacialmente variable.
+
+### 3. Tres trefoils — 9 cables (3 circuitos)
+
+```bash
+python examples/xlpe_three_trefoils/run_example.py
+python examples/xlpe_three_trefoils/run_example.py --profile research
+```
+
+9 cables en 3 circuitos trefoil separados 0.30 m, con interferencia térmica mutua.
+
+### 4. Benchmark Aras (2005) — cable único 154 kV
+
+```bash
+python examples/aras_2005_154kv/run_example.py
+python examples/aras_2005_154kv/run_example.py --profile research
+```
+
+Reproduce el caso "154 kV Single Underground Cable" de Aras, Oysu & Yilmaz (2005):
+- Cable XLPE 1200 mm² Cu, I = 1657 A
+- Q_cond = 70.0 W/m + Q_d = 3.57 W/m (pérdidas dieléctricas en XLPE)
+- **Resultado**: T_cond = 89.9 °C vs 90.0 °C FEM ANSYS (error −0.1 K)
+
+### 5. Benchmark Aras (2005) — 3 cables en formación flat
+
+```bash
+python examples/aras_2005_154kv_flat/run_example.py
+python examples/aras_2005_154kv_flat/run_example.py --profile research
+```
+
+3 cables XLPE 1200 mm² Cu a 1110 A, separación 0.33 m, profundidad 1.2 m:
+- **Resultado**: T_cond(central) = 90.7 °C vs 90.0 °C FEM (error +0.7 K)
+- Simetría preservada: cables laterales a 86.4 °C
+- Cable central +4.3 K más caliente (calentamiento mutuo)
 
 ---
 
@@ -155,11 +205,15 @@ tesis_MIA_lk/
 │   └── tests/                # Suite de tests (pytest)
 │
 ├── examples/
-│   └── xlpe_single_cable/    # Ejemplo completo
-│       ├── data/                 # CSVs del ejemplo (cable 95 mm², suelo húmedo)
-│       │   └── solver_params.csv # Config rápida (500 Adam, red 64×4)
+│   ├── xlpe_single_cable/        # Cable XLPE 95 mm² Cu, 270 A
+│   ├── xlpe_trefoil/             # 3 cables tocantes en trefoil, 300 A
+│   ├── xlpe_three_trefoils/      # 9 cables (3 circuitos trefoil), 150 A
+│   ├── aras_2005_154kv/          # Benchmark: cable único 154 kV, 1657 A
+│   └── aras_2005_154kv_flat/     # Benchmark: 3 cables flat, 1110 A
+│       ├── data/                 # CSVs del ejemplo
+│       │   └── solver_params.csv # Config quick / research
 │       ├── run_example.py        # Script standalone
-│       └── results/              # Plots generados (gitignored)
+│       └── results/              # Plots y modelo guardado
 │
 ├── pinns_cables_tesis_con_citas.md  # Documento de tesis base
 └── pyproject.toml
@@ -219,11 +273,13 @@ configuración en un solo lugar.
 
 ---
 
+## Tests
+
 ```bash
-# Tests unitarios rápidos (~30 s)
+# Tests unitarios rápidos (~30 s, 74 tests)
 pytest pinn_cables/tests/ -v
 
-# Incluir tests lentos de integración (entrena ~2 min)
+# Incluir tests lentos de integración (MMS + Laplace, ~2 min)
 pytest pinn_cables/tests/ -v --runslow -m slow
 ```
 

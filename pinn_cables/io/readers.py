@@ -377,13 +377,26 @@ def load_cable_layers(path: str | Path) -> list[CableLayer]:
 def load_domain(path: str | Path) -> Domain2D:
     """Load domain extents from *domain.csv*.
 
-    Expected columns: ``param, value`` with rows for
-    ``xmin``, ``xmax``, ``ymin``, ``ymax``.
+    Accepted formats:
+
+    * **Wide** (one row): columns ``xmin, xmax, ymin, ymax``.
+    * **Long** (multiple rows): columns ``param, value`` with rows for
+      ``xmin``, ``xmax``, ``ymin``, ``ymax``.
     """
     rows = _read_csv(path)
     d: dict[str, float] = {}
-    for r in rows:
-        d[r["param"].strip()] = float(r["value"])
+    if rows and "param" in rows[0] and "value" in rows[0]:
+        # Long / key-value format
+        for r in rows:
+            d[r["param"].strip()] = float(r["value"])
+    else:
+        # Wide / columnar format - each column name is a parameter
+        if len(rows) != 1:
+            raise ValueError(
+                f"Wide-format domain.csv must have exactly 1 data row, got {len(rows)}"
+            )
+        for k, v in rows[0].items():
+            d[k.strip()] = float(v)
     required = {"xmin", "xmax", "ymin", "ymax"}
     missing = required - d.keys()
     if missing:

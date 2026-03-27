@@ -2,10 +2,10 @@
 
 Provides region-based thermal-conductivity and volumetric-heat-capacity
 look-ups used by the PDE residual computation.  Also includes the
-**XLPE cable catalog** for standard cable sections (95 – 600 mm²) in
-copper and aluminium, enabling automatic layer generation from the
-``cables_placement.csv`` parameters ``section_mm2``,
-``conductor_material`` and ``current_A``.
+**XLPE cable catalog** for standard cable sections (95 – 600 mm² at
+12/20 kV and a 154 kV 1200 mm² HV cable) in copper and aluminium,
+enabling automatic layer generation from the ``cables_placement.csv``
+parameters ``section_mm2``, ``conductor_material`` and ``current_A``.
 """
 
 from __future__ import annotations
@@ -35,7 +35,8 @@ class _CableSpec:
     R_dc_20_al: float         # DC resistance at 20 °C, aluminium [Ω/m]
 
 
-# Geometry based on typical 12/20 kV XLPE single-core cables (IEC 60502-2).
+# Geometry based on typical 12/20 kV XLPE single-core cables (IEC 60502-2)
+# and the 154 kV XLPE HV cable from Aras et al. (2005).
 _XLPE_SPECS: dict[int, _CableSpec] = {
     95: _CableSpec(
         section_mm2=95,
@@ -66,6 +67,16 @@ _XLPE_SPECS: dict[int, _CableSpec] = {
         r_conductor=0.0142, r_xlpe_outer=0.0210,
         r_screen_outer=0.0220, r_sheath_outer=0.0240,
         R_dc_20_cu=0.0000283, R_dc_20_al=0.0000469,
+    ),
+    # 154 kV HV cable — geometry from Aras, Oysu & Yilmaz (2005)
+    # D_cond=37.7 mm, D_xlpe=81.7 mm, D_screen=98.7 mm, D_cover=106.7 mm
+    # k_xlpe=0.2857 W/(mK), k_screen=384.6 W/(mK)
+    # R_dc_20 per IEC 60228 table for 1200 mm² class
+    1200: _CableSpec(
+        section_mm2=1200,
+        r_conductor=0.01885, r_xlpe_outer=0.04085,
+        r_screen_outer=0.04935, r_sheath_outer=0.05335,
+        R_dc_20_cu=0.0000151, R_dc_20_al=0.0000247,
     ),
 }
 

@@ -102,10 +102,10 @@ class PhysicsParams:
               k = k_bad + (k_good - k_bad) * sigmoid(-d / k_transition)
     """
     # --- R(T) ---
-    I_A: float = 300.0          # Corriente [A]
-    R_ref: float = 0.0001583    # Resistencia de referencia [Ohm/m]  (Cu 95mm2 a T_ref)
+    I_A: float = 0.0            # Corriente fallback [A] (0 = usar current_A del CSV)
+    R_ref: float = 0.0          # R_dc fallback [Ohm/m] (0 = usar catalogo)
     T_ref_R_K: float = 293.15   # Temperatura de referencia de R [K]
-    alpha_R: float = 0.00393    # Coeficiente de temperatura del Cu [1/K]
+    alpha_R: float = 0.00393    # Coeficiente de temperatura fallback [1/K]
     n_R_iter: int = 2           # Iteraciones para la auto-consistencia R(T) (0 = sin R(T))
 
     # --- k(x,y) sigmoide ---
