@@ -1,7 +1,10 @@
-"""Evaluation metrics, grid-based prediction, and benchmark helpers.
+"""Métricas de evaluación, predicción en grilla y helpers de benchmark.
 
-Provides L2/L-inf error computation, grid evaluation for plotting, and
-analytical-benchmark functions (MMS, Laplace rectangle, radial cylinder).
+Provee:
+- Errores L2/L-inf.
+- Evaluación en grilla 2-D para graficación.
+- Evaluación puntual de temperatura en centros de conductores.
+- Funciones analíticas de benchmark (MMS, Laplace, cilindro radial).
 """
 
 from __future__ import annotations
@@ -137,6 +140,49 @@ def evaluate_on_grid_transient(
 
     T = model(xyt).cpu().numpy().reshape(ny, nx)
     return X.cpu().numpy(), Y.cpu().numpy(), T
+
+
+# ---------------------------------------------------------------------------
+# Evaluación puntual en centros de conductores
+# ---------------------------------------------------------------------------
+
+@torch.no_grad()
+def eval_conductor_temps(
+    model: nn.Module,
+    placements: list,
+    domain: Domain2D,
+    device: torch.device,
+    normalize: bool = True,
+) -> list[float]:
+    """Evaluar temperatura PINN en el centro de cada conductor.
+
+    Normaliza coordenadas si ``normalize=True`` y retorna una lista de
+    temperaturas [K], una por cable (en el orden de *placements*).
+
+    Args:
+        model:      Modelo PINN entrenado.
+        placements: Lista de :class:`CablePlacement`.
+        domain:     Dominio computacional.
+        device:     Dispositivo de torch.
+        normalize:  Normalizar coordenadas a [-1, 1].
+
+    Returns:
+        Lista de temperaturas [K] en el centro de cada conductor.
+    """
+    coord_mins = torch.tensor(
+        [domain.xmin, domain.ymin], device=device, dtype=torch.float32,
+    )
+    coord_maxs = torch.tensor(
+        [domain.xmax, domain.ymax], device=device, dtype=torch.float32,
+    )
+    model.eval()
+    T_list: list[float] = []
+    for p in placements:
+        pt = torch.tensor([[p.cx, p.cy]], device=device, dtype=torch.float32)
+        if normalize:
+            pt = 2.0 * (pt - coord_mins) / (coord_maxs - coord_mins) - 1.0
+        T_list.append(float(model(pt).item()))
+    return T_list
 
 
 # ---------------------------------------------------------------------------

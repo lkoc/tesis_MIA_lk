@@ -302,6 +302,41 @@ class SolverParams:
         }
 
 
+# ---------------------------------------------------------------------------
+# Helpers para modificar capas de cable
+# ---------------------------------------------------------------------------
+
+def override_conductor_Q(
+    layers: list[CableLayer],
+    Q_total_lin: float,
+) -> list[CableLayer]:
+    """Reemplazar Q volumetrico del conductor para inyectar *Q_total_lin*.
+
+    Recalcula ``Q = Q_total_lin / A_conductor`` y devuelve una nueva
+    lista de capas con el conductor modificado.  Las demas capas se
+    mantienen iguales.
+
+    Args:
+        layers:       Lista original de CableLayer (la primera es el conductor).
+        Q_total_lin:  Calor total lineal a evacuar [W/m].
+
+    Returns:
+        Nueva lista de CableLayer.
+    """
+    conductor = layers[0]
+    A_cond = math.pi * conductor.r_outer ** 2
+    return [
+        CableLayer(
+            name=conductor.name,
+            r_inner=conductor.r_inner,
+            r_outer=conductor.r_outer,
+            k=conductor.k,
+            rho_c=conductor.rho_c,
+            Q=Q_total_lin / A_cond,
+        ),
+    ] + list(layers[1:])
+
+
 @dataclass
 class ProblemDefinition:
     """Complete problem assembled from all CSV files.

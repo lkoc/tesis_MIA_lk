@@ -1,0 +1,424 @@
+"""Custom training loop for multi-cable residual PINNs.
+
+Provides:
+- :func:`pretrain_multicable`  — warm-start on analytical T_bg + boundary.
+- :func:`sample_soil_pts`      — rejection sampling (optional PAC importance).
+- :func:`sample_bnd_pts`       — boundary edge sampling.
+- :func:`compute_pde_bc_loss`  — PDE (soil) + Dirichlet/Robin BC loss.
+- :func:`train_adam_lbfgs`     — Adam → L-BFGS with curriculum + safeguard.
+- :func:`init_output_bias`     — set last-layer bias to a given value.
+"""
+
+from __future__ import annotations
+
+import copy
+import math
+from typing import Callable
+
+import torch
+import torch.nn as nn
+
+from pinn_cables.physics.k_field import PhysicsParams
+from pinn_cables.physics.kennelly import multilayer_T_multi
+from pinn_cables.pinn.pde import pde_residual_steady
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def init_output_bias(model: nn.Module, value: float) -> None:
+    """Set the bias of the last ``nn.Linear`` layer to *value*."""
+    last_linear = None
+    for m in model.modules():
+        if isinstance(m, nn.Linear):
+            last_linear = m
+    if last_linear is not None:
+        last_linear.bias.data.fill_(value)
+
+
+def _norm_fn_factory(domain, device: torch.device):
+    """Return a normalisation closure [-1, 1]."""
+    coord_mins = torch.tensor(
+        [domain.xmin, domain.ymin], device=device, dtype=torch.float32,
+    )
+    coord_maxs = torch.tensor(
+        [domain.xmax, domain.ymax], device=device, dtype=torch.float32,
+    )
+
+    def norm_fn(xy: torch.Tensor) -> torch.Tensor:
+        return 2.0 * (xy - coord_mins) / (coord_maxs - coord_mins) - 1.0
+
+    return norm_fn
+
+
+# ---------------------------------------------------------------------------
+# Sampling
+# ---------------------------------------------------------------------------
+
+def sample_soil_pts(
+    domain,
+    placements: list,
+    r_sheaths: list[float],
+    n: int,
+    device: torch.device,
+    oversample: int = 8,
+    pp: PhysicsParams | None = None,
+    frac_pac_bnd: float = 0.30,
+) -> torch.Tensor:
+    """Sample *n* points in the soil, excluding cable interiors.
+
+    When *pp* is not None and ``pp.k_variable`` is True, a fraction
+    ``frac_pac_bnd`` of points are sampled near the PAC-zone boundary
+    (importance sampling) to resolve the conductivity gradient.
+    """
+    def _reject_cables(pts: torch.Tensor) -> torch.Tensor:
+        in_any = torch.zeros(pts.shape[0], dtype=torch.bool, device=device)
+        for idx, pl in enumerate(placements):
+            dx = pts[:, 0] - pl.cx
+            dy = pts[:, 1] - pl.cy
+            in_any |= (dx * dx + dy * dy < r_sheaths[idx] ** 2)
+        return pts[~in_any]
+
+    # --- PAC-boundary importance sampling ---
+    n_pac = 0
+    pac_pts: list[torch.Tensor] = []
+    if pp is not None and pp.k_variable and frac_pac_bnd > 0:
+        n_pac = int(n * frac_pac_bnd)
+        margin = max(4.0 * pp.k_transition, 0.15)
+        x_lo = max(pp.k_cx - pp.k_width / 2.0 - margin, domain.xmin)
+        x_hi = min(pp.k_cx + pp.k_width / 2.0 + margin, domain.xmax)
+        y_lo = max(pp.k_cy - pp.k_height / 2.0 - margin, domain.ymin)
+        y_hi = min(pp.k_cy + pp.k_height / 2.0 + margin, domain.ymax)
+        need_pac = n_pac
+        while need_pac > 0:
+            xs = x_lo + (x_hi - x_lo) * torch.rand(
+                need_pac * oversample, 1, device=device, dtype=torch.float32)
+            ys = y_lo + (y_hi - y_lo) * torch.rand(
+                need_pac * oversample, 1, device=device, dtype=torch.float32)
+            cands = torch.cat([xs, ys], dim=1)
+            cands = _reject_cables(cands)
+            pac_pts.append(cands)
+            need_pac = max(0, n_pac - sum(v.shape[0] for v in pac_pts))
+        pac_pts_t = torch.cat(pac_pts, dim=0)[:n_pac]
+    else:
+        pac_pts_t = torch.empty(0, 2, device=device, dtype=torch.float32)
+
+    # --- Uniform points ---
+    n_uniform = n - pac_pts_t.shape[0]
+    collected: list[torch.Tensor] = []
+    need = n_uniform
+    while need > 0:
+        xs = (domain.xmin + (domain.xmax - domain.xmin)
+              * torch.rand(need * oversample, 1, device=device, dtype=torch.float32))
+        ys = (domain.ymin + (domain.ymax - domain.ymin)
+              * torch.rand(need * oversample, 1, device=device, dtype=torch.float32))
+        pts = torch.cat([xs, ys], dim=1)
+        valid = _reject_cables(pts)
+        collected.append(valid)
+        need = max(0, n_uniform - sum(v.shape[0] for v in collected))
+    uniform_pts = torch.cat(collected, dim=0)[:n_uniform]
+
+    return torch.cat([pac_pts_t, uniform_pts], dim=0)
+
+
+def sample_bnd_pts(
+    domain, n: int, device: torch.device,
+) -> dict[str, torch.Tensor]:
+    """Sample n/4 random points on each domain edge."""
+    n_per = max(1, n // 4)
+    xmin, xmax = domain.xmin, domain.xmax
+    ymin, ymax = domain.ymin, domain.ymax
+    xr = torch.rand(n_per, 1, device=device, dtype=torch.float32)
+    yr = torch.rand(n_per, 1, device=device, dtype=torch.float32)
+    return {
+        "top":    torch.cat([xmin + (xmax - xmin) * xr,                      torch.full_like(xr, ymax)], dim=1),
+        "bottom": torch.cat([xmin + (xmax - xmin) * xr.clone(),              torch.full_like(xr, ymin)], dim=1),
+        "left":   torch.cat([torch.full_like(yr, xmin), ymin + (ymax - ymin) * yr],                      dim=1),
+        "right":  torch.cat([torch.full_like(yr, xmax), ymin + (ymax - ymin) * yr.clone()],              dim=1),
+    }
+
+
+# ---------------------------------------------------------------------------
+# Loss computation
+# ---------------------------------------------------------------------------
+
+def compute_pde_bc_loss(
+    model: nn.Module,
+    xy_soil: torch.Tensor,
+    bnd_pts: dict[str, torch.Tensor],
+    bcs: dict,
+    T_amb: float,
+    norm_fn: Callable,
+    normalize: bool,
+    k_fn: Callable[[torch.Tensor], torch.Tensor] | float,
+    w_pde: float,
+    w_bc: float,
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    """PDE residual (soil) + Dirichlet/Robin BC loss.
+
+    Returns ``(total, pde_detached, bc_detached)``.
+    """
+    pts = xy_soil.clone().detach().requires_grad_(True)
+    pts_in = norm_fn(pts) if normalize else pts
+    T_pred = model(pts_in)
+    k_vals = k_fn(pts) if callable(k_fn) else k_fn
+    res_pde = pde_residual_steady(T_pred, pts, k_vals, 0.0)
+    loss_pde = torch.mean(res_pde ** 2)
+
+    loss_bc = torch.tensor(0.0, device=xy_soil.device)
+    for edge, pts_b in bnd_pts.items():
+        bc = bcs.get(edge)
+        if bc is None:
+            continue
+        T_b = model(norm_fn(pts_b) if normalize else pts_b)
+        if bc.bc_type == "dirichlet":
+            val = bc.value if bc.value > 1.0 else T_amb
+            loss_bc = loss_bc + torch.mean((T_b - val) ** 2)
+        elif bc.bc_type == "robin":
+            loss_bc = loss_bc + torch.mean((T_b - bc.value) ** 2)
+
+    total = w_pde * loss_pde + w_bc * loss_bc
+    return total, loss_pde.detach(), loss_bc.detach()
+
+
+# ---------------------------------------------------------------------------
+# Pre-training
+# ---------------------------------------------------------------------------
+
+def pretrain_multicable(
+    model: nn.Module,
+    placements: list,
+    domain,
+    layers_list: list[list],
+    Q_lins: list[float],
+    k_soil: float,
+    T_amb: float,
+    device: torch.device,
+    normalize: bool = True,
+    Q_d: float = 0.0,
+    n_per_cable: int = 1000,
+    n_bc: int = 200,
+    n_steps: int = 800,
+    lr: float = 1e-3,
+) -> float:
+    """Pre-train on cable interiors (analytical T_bg) + domain boundaries.
+
+    The target for the full residual model is T_bg (i.e. u → 0).
+    Returns the final RMSE in K.
+    """
+    norm_fn = _norm_fn_factory(domain, device)
+
+    # Sample inside each cable
+    cable_pts_list: list[torch.Tensor] = []
+    cable_T_list: list[torch.Tensor] = []
+    all_layers = (
+        layers_list if len(layers_list) == len(placements)
+        else layers_list * len(placements)
+    )
+    for idx, pl in enumerate(placements):
+        r_sheath_i = all_layers[idx][-1].r_outer
+        angles = 2.0 * math.pi * torch.rand(n_per_cable, 1, device=device, dtype=torch.float32)
+        us = torch.rand(n_per_cable, 1, device=device, dtype=torch.float32)
+        rs = torch.sqrt(us) * r_sheath_i
+        x_c = pl.cx + rs * torch.cos(angles)
+        y_c = pl.cy + rs * torch.sin(angles)
+        xy_c = torch.cat([x_c, y_c], dim=1)
+        T_c = multilayer_T_multi(
+            xy_c, all_layers, placements, k_soil, T_amb, Q_lins, Q_d=Q_d,
+        )
+        cable_pts_list.append(xy_c)
+        cable_T_list.append(T_c)
+
+    # Boundary points (T_amb)
+    n_per = max(1, n_bc // 4)
+    xmin, xmax = domain.xmin, domain.xmax
+    ymin, ymax = domain.ymin, domain.ymax
+    xh = xmin + (xmax - xmin) * torch.rand(n_per, 1, device=device, dtype=torch.float32)
+    xh2 = xmin + (xmax - xmin) * torch.rand(n_per, 1, device=device, dtype=torch.float32)
+    yv = ymin + (ymax - ymin) * torch.rand(n_per, 1, device=device, dtype=torch.float32)
+    yv2 = ymin + (ymax - ymin) * torch.rand(n_per, 1, device=device, dtype=torch.float32)
+    xy_bc = torch.cat([
+        torch.cat([xh, torch.full_like(xh, ymax)], dim=1),
+        torch.cat([xh2, torch.full_like(xh2, ymin)], dim=1),
+        torch.cat([torch.full_like(yv, xmin), yv], dim=1),
+        torch.cat([torch.full_like(yv2, xmax), yv2], dim=1),
+    ], dim=0)
+    T_bc = torch.full((xy_bc.shape[0], 1), T_amb, device=device, dtype=torch.float32)
+
+    xy_all = torch.cat(cable_pts_list + [xy_bc], dim=0)
+    T_all = torch.cat(cable_T_list + [T_bc], dim=0)
+
+    opt = torch.optim.Adam(model.parameters(), lr=lr)
+    for _ in range(n_steps):
+        opt.zero_grad()
+        xy_in = norm_fn(xy_all) if normalize else xy_all
+        loss = torch.mean((model(xy_in) - T_all) ** 2)
+        loss.backward()
+        opt.step()
+
+    with torch.no_grad():
+        xy_in = norm_fn(xy_all) if normalize else xy_all
+        T_pred = model(xy_in)
+        rmse = float(torch.sqrt(torch.mean((T_pred - T_all) ** 2)).item())
+    return rmse
+
+
+# ---------------------------------------------------------------------------
+# Adam + L-BFGS training loop
+# ---------------------------------------------------------------------------
+
+def train_adam_lbfgs(
+    model: nn.Module,
+    domain,
+    placements: list,
+    bcs: dict,
+    T_amb: float,
+    r_sheaths: list[float],
+    k_fn: Callable[[torch.Tensor], torch.Tensor] | float,
+    adam_steps: int,
+    lbfgs_steps: int,
+    n_int: int,
+    n_bnd: int,
+    oversample: int,
+    w_pde: float,
+    w_bc: float,
+    lr: float,
+    print_every: int,
+    normalize: bool,
+    device: torch.device,
+    logger,
+    *,
+    step_offset: int = 0,
+    total_adam_budget: int = 0,
+    k_fn_warmup: Callable[[torch.Tensor], torch.Tensor] | float | None = None,
+    warmup_frac: float = 0.0,
+    pp: PhysicsParams | None = None,
+    lbfgs_history: int = 50,
+) -> dict[str, list[float]]:
+    """Adam (+ L-BFGS) with optional curriculum warm-up and best-state safeguard.
+
+    **Curriculum training** (when *k_fn_warmup* is given and *warmup_frac* > 0):
+    the first ``warmup_frac × adam_steps`` steps use *k_fn_warmup* (homogeneous k),
+    then switch to the variable *k_fn*.
+
+    **L-BFGS safeguard**: saves the best model state during L-BFGS and restores
+    it if L-BFGS diverges (NaN/Inf).
+
+    Returns a history dict with keys ``"total"``, ``"pde"``, ``"bc"``.
+    """
+    norm_fn = _norm_fn_factory(domain, device)
+    history: dict[str, list[float]] = {"total": [], "pde": [], "bc": []}
+
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    xy_soil: torch.Tensor | None = None
+    bnd_pts: dict | None = None
+    total_for_pct = total_adam_budget if total_adam_budget > 0 else adam_steps
+
+    # Curriculum threshold
+    warmup_step = int(adam_steps * warmup_frac) if k_fn_warmup is not None else 0
+    if warmup_step > 0:
+        logger.info("Curriculum: %d steps with homogeneous k, then variable k", warmup_step)
+
+    # ---- Adam phase ----
+    for step in range(1, adam_steps + 1):
+        # Select k function (curriculum)
+        use_k = k_fn_warmup if (step <= warmup_step and k_fn_warmup is not None) else k_fn
+        # PhysicsParams for importance sampling: None during warmup
+        use_pp = pp if (step > warmup_step) else None
+
+        # Force resample at curriculum transition
+        if step == warmup_step + 1 and warmup_step > 0:
+            logger.info(">>> Curriculum switch: homogeneous k -> variable k")
+            xy_soil = None
+
+        if xy_soil is None or (step - 1) % print_every == 0:
+            xy_soil = sample_soil_pts(
+                domain, placements, r_sheaths, n_int, device, oversample, pp=use_pp,
+            )
+            bnd_pts = sample_bnd_pts(domain, n_bnd, device)
+
+        optimizer.zero_grad()
+        total, l_pde, l_bc = compute_pde_bc_loss(
+            model, xy_soil, bnd_pts, bcs, T_amb,
+            norm_fn, normalize, use_k, w_pde, w_bc,
+        )
+        total.backward()
+        optimizer.step()
+
+        history["total"].append(float(total.detach()))
+        history["pde"].append(float(l_pde))
+        history["bc"].append(float(l_bc))
+
+        if step % print_every == 0:
+            global_step = step_offset + step
+            pct = 100.0 * global_step / total_for_pct
+            logger.info(
+                "[Adam %d/%d  %.1f%%] loss=%.4e  pde=%.3e  bc=%.3e",
+                global_step, total_for_pct, pct, float(total.detach()), float(l_pde), float(l_bc),
+            )
+
+    # ---- L-BFGS phase with best-state safeguard ----
+    if lbfgs_steps > 0:
+        max_iter = 20
+        n_events = max(1, lbfgs_steps // max_iter)
+        print_ev_l = max(1, n_events // 25)
+
+        lbfgs = torch.optim.LBFGS(
+            model.parameters(),
+            max_iter=max_iter,
+            history_size=lbfgs_history,
+            tolerance_grad=1e-9,
+            tolerance_change=1e-12,
+            line_search_fn="strong_wolfe",
+        )
+
+        # Save best state (from end of Adam)
+        best_loss = history["total"][-1] if history["total"] else float("inf")
+        best_state = copy.deepcopy(model.state_dict())
+        nan_streak = 0
+
+        for event in range(1, n_events + 1):
+            xy_s = sample_soil_pts(
+                domain, placements, r_sheaths, n_int, device, oversample, pp=pp,
+            )
+            bd_p = sample_bnd_pts(domain, n_bnd, device)
+
+            def closure_fn(xs=xy_s, bp=bd_p) -> torch.Tensor:
+                lbfgs.zero_grad()
+                tot, _, _ = compute_pde_bc_loss(
+                    model, xs, bp, bcs, T_amb, norm_fn, normalize, k_fn, w_pde, w_bc,
+                )
+                tot.backward()
+                return tot
+
+            loss_v = lbfgs.step(closure_fn)
+            current_loss = float(loss_v) if loss_v is not None else float("nan")
+
+            if math.isnan(current_loss) or math.isinf(current_loss):
+                nan_streak += 1
+                logger.warning(
+                    "L-BFGS step %d: NaN/Inf — restoring best state", event,
+                )
+                model.load_state_dict(best_state)
+                if nan_streak >= 3:
+                    logger.warning("L-BFGS diverged %d times, stopping early", nan_streak)
+                    break
+                continue
+
+            nan_streak = 0
+            if current_loss < best_loss:
+                best_loss = current_loss
+                best_state = copy.deepcopy(model.state_dict())
+
+            history["total"].append(current_loss)
+
+            if event % print_ev_l == 0:
+                pct = 100.0 * (step_offset + adam_steps + event) / (total_for_pct + n_events)
+                logger.info("[LBFGS %d/%d  %.1f%%] loss=%.4e", event, n_events, pct, current_loss)
+
+        # Restore best state found during L-BFGS
+        model.load_state_dict(best_state)
+        logger.info("L-BFGS done — restored best state (loss=%.4e)", best_loss)
+
+    return history

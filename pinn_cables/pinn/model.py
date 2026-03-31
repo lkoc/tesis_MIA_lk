@@ -4,6 +4,7 @@ Provides:
 - :class:`MLP` — plain multi-layer perceptron.
 - :class:`FourierFeatureMapping` — random Fourier feature layer.
 - :class:`FourierFeatureNet` — MLP preceded by Fourier encoding.
+- :class:`ResidualPINNModel` — T = T_bg(Kennelly) + u(NN).
 - :func:`build_model` — factory that reads the ``model`` section of the
   solver YAML and returns the appropriate network.
 """
@@ -210,3 +211,92 @@ def build_model(
     if device is not None:
         model = model.to(device)
     return model
+
+
+# ---------------------------------------------------------------------------
+# Residual PINN model: T = T_bg + u
+# ---------------------------------------------------------------------------
+
+class ResidualPINNModel(nn.Module):
+    """PINN that learns the correction u = T_total − T_bg (multi-cable).
+
+    T_total(x,y) = T_bg(x,y) + u(x,y)
+
+    - T_bg: Kennelly superposition + cylindrical multilayer per cable (analytical).
+    - u:    Neural-network correction learned by the PINN.
+
+    The trivially correct solution is u ≈ 0.
+
+    Supports:
+    - N cables with different layer stacks and Q_lin values.
+    - Dielectric losses Q_d in XLPE.
+    - Mutable ``_Q_lins`` for iterative R(T) updates.
+    - Optional gradient flow through T_bg (*enable_grad_Tbg*).
+
+    Args:
+        base:            Base MLP/FourierFeatureNet that outputs u(x,y).
+        layers_list:     List of layer stacks, one per cable (or a single
+                         shared list that will be broadcast).
+        placements:      Cable centre positions.
+        k_soil:          Effective soil k for Kennelly background [W/(m K)].
+        T_amb:           Ambient temperature [K].
+        Q_lins:          Linear heat per cable [W/m].
+        domain:          Computational domain (for normalisation bounds).
+        normalize:       Whether input coordinates are in [−1, 1].
+        Q_d:             Dielectric losses [W/m] (0 = disable).
+        enable_grad_Tbg: Allow gradients through T_bg (needed for variable-k PDE).
+    """
+
+    def __init__(
+        self,
+        base: nn.Module,
+        layers_list: list[list],
+        placements: list,
+        k_soil: float,
+        T_amb: float,
+        Q_lins: list[float],
+        domain,
+        normalize: bool = True,
+        Q_d: float = 0.0,
+        enable_grad_Tbg: bool = False,
+    ) -> None:
+        super().__init__()
+        self.base = base
+        self._layers_list = (
+            layers_list
+            if len(layers_list) == len(placements)
+            else layers_list * len(placements)
+        )
+        self._placements = placements
+        self._k_soil = k_soil
+        self._T_amb = T_amb
+        self._Q_lins = list(Q_lins)  # mutable for R(T) iteration
+        self._Q_d = Q_d
+        self._normalize = normalize
+        self._enable_grad_Tbg = enable_grad_Tbg
+        self._xmin = domain.xmin
+        self._xmax = domain.xmax
+        self._ymin = domain.ymin
+        self._ymax = domain.ymax
+
+    def _denormalize(self, xy_n: torch.Tensor) -> torch.Tensor:
+        lo = torch.tensor([self._xmin, self._ymin], device=xy_n.device, dtype=xy_n.dtype)
+        hi = torch.tensor([self._xmax, self._ymax], device=xy_n.device, dtype=xy_n.dtype)
+        return (xy_n + 1.0) * 0.5 * (hi - lo) + lo
+
+    def forward(self, xy_in: torch.Tensor) -> torch.Tensor:
+        from pinn_cables.physics.kennelly import multilayer_T_multi
+
+        xy_phys = self._denormalize(xy_in) if self._normalize else xy_in
+        T_bg = multilayer_T_multi(
+            xy_phys,
+            self._layers_list,
+            self._placements,
+            self._k_soil,
+            self._T_amb,
+            self._Q_lins,
+            Q_d=self._Q_d,
+            enable_grad=self._enable_grad_Tbg,
+        )
+        u = self.base(xy_in)
+        return T_bg + u

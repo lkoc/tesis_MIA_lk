@@ -65,25 +65,26 @@ DATA_DIR = HERE / "data"
 import matplotlib  # noqa: E402
 matplotlib.use("Agg")
 import torch  # noqa: E402
-import torch.nn as nn  # noqa: E402
 
 from pinn_cables.io.readers import (  # noqa: E402
-    CableLayer,
     load_problem,
     load_solver_params,
+    override_conductor_Q,
 )
-from pinn_cables.materials.props import (  # noqa: E402
-    get_R_dc_20,
-    get_alpha_R,
-)
-from pinn_cables.pinn.model import build_model  # noqa: E402
+from pinn_cables.physics.iec60287 import compute_iec60287_Q  # noqa: E402
+from pinn_cables.physics.kennelly import iec60287_estimate  # noqa: E402
+from pinn_cables.pinn.model import build_model, ResidualPINNModel  # noqa: E402
 from pinn_cables.pinn.train import SteadyStatePINNTrainer  # noqa: E402
+from pinn_cables.pinn.train_custom import (  # noqa: E402
+    init_output_bias,
+    pretrain_multicable,
+)
 from pinn_cables.pinn.utils import (  # noqa: E402
     get_device,
     set_seed,
     setup_logging,
 )
-from pinn_cables.post.eval import evaluate_on_grid  # noqa: E402
+from pinn_cables.post.eval import eval_conductor_temps, evaluate_on_grid  # noqa: E402
 from pinn_cables.post.plots import (  # noqa: E402
     plot_cable_geometry,
     plot_loss_history,
@@ -116,406 +117,12 @@ PAPER_K_SOIL_L2 = 1.351       # W/(mK) — soil layer 2 (CL)
 PAPER_K_SOIL_L3 = 1.517       # W/(mK) — soil layer 3 (CL)
 PAPER_LOAD_LOSS_FACTOR = 0.8  # KEPCO DS-6210
 PAPER_WIND_SPEED_SUMMER = 1.17  # m/s
-# h_c = 7.371 + 6.43 * v^0.75 ≈ 7.371 + 7.52 ≈ 14.9 ... paper uses Eq. 27
-# Actually: h_c = 7.371 * v^0.632 + 6.43 ... simplify to ~7.371 for low v
 
-# Posiciones de los 6 cables (Fig. 7b del paper):
-# Two-flat: fila inferior (B1, B2, B3) y fila superior (T1, T2, T3)
-# Separacion entre centros de columna ≈ 0.40 m
-# Separacion vertical entre filas ≈ 0.40 m
-# Profundidad eje inferior ≈ 1.6 m, superior ≈ 1.2 m
+# Posiciones de los 6 cables (Fig. 7b del paper)
 CABLE_SEP_H = 0.40   # m — separacion horizontal centro a centro
 CABLE_SEP_V = 0.40   # m — separacion vertical entre filas
 DEPTH_BOTTOM = 1.6    # m — profundidad fila inferior
 DEPTH_TOP = 1.2       # m — profundidad fila superior
-
-
-def _compute_iec60287_Q(
-    section_mm2: int,
-    material: str,
-    current_A: float,
-    T_op: float,
-    W_d: float,
-    freq: float = 50.0,
-) -> dict:
-    """Calculo de calor total segun IEC 60287 simplificado.
-
-    Incluye:
-    - R(T) a la temperatura de operacion
-    - Efecto piel (skin effect) para conductores solidos redondos
-    - Perdidas dielectricas
-    """
-    R_dc_20 = get_R_dc_20(section_mm2, material)
-    alpha_R = get_alpha_R(material)
-
-    R_dc_T = R_dc_20 * (1.0 + alpha_R * (T_op - 293.15))
-
-    xs_sq = 8.0 * math.pi * freq / (R_dc_T * 1e7)
-    xs_4 = xs_sq ** 2
-    ys = xs_4 / (192.0 + 0.8 * xs_4)
-
-    R_ac = R_dc_T * (1.0 + ys)
-    Q_cond = current_A ** 2 * R_ac
-    Q_total = Q_cond + W_d
-
-    return {
-        "R_dc_20": R_dc_20,
-        "R_dc_T": R_dc_T,
-        "ys": ys,
-        "R_ac": R_ac,
-        "Q_cond_W_per_m": Q_cond,
-        "W_d": W_d,
-        "Q_total_W_per_m": Q_total,
-        "ratio_vs_Rdc20": R_ac / R_dc_20,
-    }
-
-
-def _init_output_bias(model: nn.Module, value: float) -> None:
-    """Inicializar la ultima capa lineal en *value* (warm-start)."""
-    last_linear = None
-    for m in model.modules():
-        if isinstance(m, nn.Linear):
-            last_linear = m
-    if last_linear is not None:
-        last_linear.bias.data.fill_(value)
-
-
-# ---------------------------------------------------------------------------
-# T_bg analitico para 6 cables (superposicion Kennelly)
-# ---------------------------------------------------------------------------
-
-@torch.no_grad()
-def _multilayer_T_multi(
-    xy: torch.Tensor,
-    layers: list,
-    placements: list,
-    k_soil: float,
-    T_amb: float,
-    Q_lins: list[float],
-    Q_d: float = 0.0,
-) -> torch.Tensor:
-    """Temperatura analitica multi-cable con superposicion de Kennelly.
-
-    En el suelo: superpone las contribuciones de Kennelly de cada cable.
-    Dentro de cada cable: perfil cilindrico 1D mas contribucion mutua.
-    Q_d se distribuye volumetricamente en la capa XLPE.
-    """
-    N = xy.shape[0]
-    r_sheath = layers[-1].r_outer
-
-    # Fuente volumetrica dielectrica en XLPE
-    q_vol_d = 0.0
-    xlpe_ri = xlpe_ro = 0.0
-    if Q_d > 0.0:
-        for lyr in layers:
-            if lyr.name == 'xlpe':
-                xlpe_ri = lyr.r_inner
-                xlpe_ro = lyr.r_outer
-                q_vol_d = Q_d / (math.pi * (xlpe_ro ** 2 - xlpe_ri ** 2))
-                break
-
-    # --- 1) Contribucion del suelo por TODOS los cables ---
-    dT_soil_total = torch.zeros(N, 1, device=xy.device, dtype=xy.dtype)
-    for p, Q_lin in zip(placements, Q_lins):
-        cx, cy = p.cx, p.cy
-        d = abs(cy)
-        dx = xy[:, 0:1] - cx
-        dy_r = xy[:, 1:2] - cy
-        dy_img = xy[:, 1:2] - d  # imagen respecto a y=0
-
-        r_img_sq = (dx * dx + dy_img * dy_img).clamp(min=1e-20)
-        r_sq_clamped = (dx * dx + dy_r * dy_r).clamp(min=r_sheath ** 2)
-        dT_cable = Q_lin / (4.0 * math.pi * k_soil) * torch.log(
-            r_img_sq / r_sq_clamped
-        )
-        dT_soil_total = dT_soil_total + dT_cable.clamp(min=0.0)
-
-    T_soil = T_amb + dT_soil_total
-
-    # --- 2) Dentro de cada cable: perfil cilindrico + mutuo ---
-    result = T_soil
-
-    for cable_idx, (p, Q_lin) in enumerate(zip(placements, Q_lins)):
-        cx, cy = p.cx, p.cy
-        d = abs(cy)
-        dx = xy[:, 0:1] - cx
-        dy_r = xy[:, 1:2] - cy
-        r = torch.sqrt(dx * dx + dy_r * dy_r).clamp(min=1e-9)
-
-        # dT mutuo por otros cables en la posicion de este cable
-        dT_mutual = 0.0
-        for j, (p2, Q2) in enumerate(zip(placements, Q_lins)):
-            if j == cable_idx:
-                continue
-            cx2, cy2 = p2.cx, p2.cy
-            d2 = abs(cy2)
-            dx_m = cx - cx2
-            dy_m = cy - cy2
-            dy_img_m = cy - d2
-            r_real = math.sqrt(dx_m ** 2 + dy_m ** 2)
-            r_image = math.sqrt(dx_m ** 2 + dy_img_m ** 2)
-            r_eff = max(r_real, r_sheath)
-            dT_mutual += Q2 / (4.0 * math.pi * k_soil) * math.log(
-                r_image ** 2 / r_eff ** 2
-            )
-
-        # T en la superficie exterior del sheath
-        T_sheath_outer = (
-            T_amb
-            + Q_lin / (2.0 * math.pi * k_soil) * math.log(2.0 * d / r_sheath)
-            + dT_mutual
-        )
-
-        # Temperaturas en el borde exterior de cada capa
-        layer_T_outer: dict[str, float] = {}
-        T_curr = T_sheath_outer
-        for layer in reversed(layers):
-            layer_T_outer[layer.name] = T_curr
-            r_out = layer.r_outer
-            r_in = max(layer.r_inner, 1e-9)
-            if layer.name == 'xlpe' and Q_d > 0.0:
-                Q_cond_eff = Q_lin - Q_d
-                T_curr += (Q_cond_eff / (2.0 * math.pi * layer.k)
-                           * math.log(r_out / r_in)
-                           + q_vol_d / (2.0 * layer.k) * (
-                               (r_out ** 2 - r_in ** 2) / 2.0
-                               - r_in ** 2 * math.log(r_out / r_in)))
-            elif layer.r_inner == 0.0 and Q_lin > 0.0:
-                Q_cond_eff = Q_lin - Q_d
-                Q_vol = Q_cond_eff / (math.pi * r_out ** 2)
-                T_curr += Q_vol / (4.0 * layer.k) * r_out ** 2
-            else:
-                T_curr += Q_lin / (2.0 * math.pi * layer.k) * math.log(
-                    r_out / r_in)
-
-        # Asignar T dentro de cada capa de este cable
-        for layer in reversed(layers):
-            r_out = layer.r_outer
-            r_in = max(layer.r_inner, 1e-9)
-            T_out_layer = layer_T_outer[layer.name]
-            mask = (r >= layer.r_inner) & (r < r_out)
-            if layer.name == 'xlpe' and Q_d > 0.0:
-                Q_cond_eff = Q_lin - Q_d
-                r_c = r.clamp(min=r_in)
-                log_ro_r = torch.log(r_out / r_c)
-                T_layer = (T_out_layer
-                           + Q_cond_eff / (2.0 * math.pi * layer.k) * log_ro_r
-                           + q_vol_d / (2.0 * layer.k) * (
-                               (r_out ** 2 - r_c ** 2) / 2.0
-                               - r_in ** 2 * log_ro_r))
-            elif layer.r_inner == 0.0 and Q_lin > 0.0:
-                Q_cond_eff = Q_lin - Q_d
-                Q_vol = Q_cond_eff / (math.pi * r_out ** 2)
-                T_layer = T_out_layer + Q_vol / (4.0 * layer.k) * (
-                    r_out ** 2 - r.clamp(min=r_in) ** 2
-                )
-            else:
-                T_layer = T_out_layer + Q_lin / (2.0 * math.pi * layer.k) * torch.log(
-                    r_out / r.clamp(min=r_in)
-                )
-            result = torch.where(mask, T_layer, result)
-
-    return result
-
-
-def _pretrain_multi_cable(
-    model: nn.Module,
-    placements: list,
-    domain,
-    layers: list,
-    Q_lins: list[float],
-    k_soil: float,
-    T_amb: float,
-    device: torch.device,
-    normalize: bool,
-    Q_d: float = 0.0,
-    n_per_cable: int = 1500,
-    n_bc: int = 200,
-    n_steps: int = 500,
-    lr: float = 1e-3,
-) -> float:
-    """Pre-entrenar con: interior de cada cable (T analitica) + contornos."""
-    r_sheath = layers[-1].r_outer
-    cable_pts = []
-
-    for p in placements:
-        angles = 2.0 * math.pi * torch.rand(
-            n_per_cable, 1, device=device, dtype=torch.float32)
-        us = torch.rand(n_per_cable, 1, device=device, dtype=torch.float32)
-        rs = torch.sqrt(us) * r_sheath
-        x_c = p.cx + rs * torch.cos(angles)
-        y_c = p.cy + rs * torch.sin(angles)
-        cable_pts.append(torch.cat([x_c, y_c], dim=1))
-
-    xy_cable = torch.cat(cable_pts, dim=0)
-    T_cable = _multilayer_T_multi(
-        xy_cable, layers, placements, k_soil, T_amb, Q_lins, Q_d=Q_d)
-
-    n_per = max(1, n_bc // 4)
-    xmin, xmax = domain.xmin, domain.xmax
-    ymin, ymax = domain.ymin, domain.ymax
-    xh = xmin + (xmax - xmin) * torch.rand(
-        n_per, 1, device=device, dtype=torch.float32)
-    xh2 = xmin + (xmax - xmin) * torch.rand(
-        n_per, 1, device=device, dtype=torch.float32)
-    yv = ymin + (ymax - ymin) * torch.rand(
-        n_per, 1, device=device, dtype=torch.float32)
-    yv2 = ymin + (ymax - ymin) * torch.rand(
-        n_per, 1, device=device, dtype=torch.float32)
-    xy_bc = torch.cat([
-        torch.cat([xh, torch.full_like(xh, ymax)], dim=1),
-        torch.cat([xh2, torch.full_like(xh2, ymin)], dim=1),
-        torch.cat([torch.full_like(yv, xmin), yv], dim=1),
-        torch.cat([torch.full_like(yv2, xmax), yv2], dim=1),
-    ], dim=0)
-    T_bc = torch.full(
-        (xy_bc.shape[0], 1), T_amb, device=device, dtype=torch.float32)
-
-    xy_all = torch.cat([xy_cable, xy_bc], dim=0)
-    T_all = torch.cat([T_cable, T_bc], dim=0)
-
-    coord_mins = torch.tensor(
-        [xmin, ymin], device=device, dtype=torch.float32)
-    coord_maxs = torch.tensor(
-        [xmax, ymax], device=device, dtype=torch.float32)
-
-    opt = torch.optim.Adam(model.parameters(), lr=lr)
-    for _ in range(n_steps):
-        opt.zero_grad()
-        xy_in = (2.0 * (xy_all - coord_mins) / (coord_maxs - coord_mins) - 1.0
-                 if normalize else xy_all)
-        loss = torch.mean((model(xy_in) - T_all) ** 2)
-        loss.backward()
-        opt.step()
-
-    with torch.no_grad():
-        xy_in = (2.0 * (xy_all - coord_mins) / (coord_maxs - coord_mins) - 1.0
-                 if normalize else xy_all)
-        T_pred = model(xy_in)
-        rmse = float(torch.sqrt(torch.mean((T_pred - T_all) ** 2)).item())
-    return rmse
-
-
-class ResidualPINNModel(nn.Module):
-    """PINN que aprende la correccion u = T - T_analitico (multi-cable)."""
-
-    def __init__(
-        self,
-        base: nn.Module,
-        layers: list,
-        placements: list,
-        k_soil: float,
-        T_amb: float,
-        Q_lins: list[float],
-        domain,
-        normalize: bool = True,
-        Q_d: float = 0.0,
-    ) -> None:
-        super().__init__()
-        self.base = base
-        self._layers = layers
-        self._placements = placements
-        self._k_soil = k_soil
-        self._T_amb = T_amb
-        self._Q_lins = Q_lins
-        self._Q_d = Q_d
-        self._normalize = normalize
-        self._xmin = domain.xmin
-        self._xmax = domain.xmax
-        self._ymin = domain.ymin
-        self._ymax = domain.ymax
-
-    def _denormalize(self, xy_n: torch.Tensor) -> torch.Tensor:
-        lo = torch.tensor(
-            [self._xmin, self._ymin], device=xy_n.device, dtype=xy_n.dtype)
-        hi = torch.tensor(
-            [self._xmax, self._ymax], device=xy_n.device, dtype=xy_n.dtype)
-        return (xy_n + 1.0) * 0.5 * (hi - lo) + lo
-
-    def forward(self, xy_in: torch.Tensor) -> torch.Tensor:
-        xy_phys = self._denormalize(xy_in) if self._normalize else xy_in
-        T_bg = _multilayer_T_multi(
-            xy_phys,
-            self._layers,
-            self._placements,
-            self._k_soil,
-            self._T_amb,
-            self._Q_lins,
-            Q_d=self._Q_d,
-        )
-        u = self.base(xy_in)
-        return T_bg + u
-
-
-def _iec60287_estimate_6cable(
-    layers, placements, k_soil: float, Q_lins: list[float], T_amb: float,
-    Q_d: float = 0.0,
-) -> dict:
-    """Estimacion analitica IEC 60287 para 6 cables (two-flat).
-
-    Calcula temperatura del conductor con maxima interferencia termica
-    mutua (cable B1 — central fila inferior, indice 1).
-    """
-    r_sheath = layers[-1].r_outer
-
-    # Cable B1 central bottom es el peor caso (indice 1: cx=0, cy=-1.6)
-    worst_idx = 1
-    p_worst = placements[worst_idx]
-    Q_worst = Q_lins[worst_idx]
-    d = abs(p_worst.cy)
-
-    # dT por capas cilindricas
-    dT_layers: dict[str, float] = {}
-    for layer in layers:
-        r_in = max(layer.r_inner, 1e-9)
-        r_out = layer.r_outer
-        if r_out <= r_in:
-            continue
-        if layer.name == 'xlpe' and Q_d > 0.0:
-            Q_cond_eff = Q_worst - Q_d
-            q_vol_d = Q_d / (math.pi * (r_out ** 2 - r_in ** 2))
-            dT_layers[layer.name] = (
-                Q_cond_eff / (2.0 * math.pi * layer.k) * math.log(r_out / r_in)
-                + q_vol_d / (2.0 * layer.k) * (
-                    (r_out ** 2 - r_in ** 2) / 2.0
-                    - r_in ** 2 * math.log(r_out / r_in)))
-        elif layer.r_inner == 0.0:
-            Q_cond_eff = Q_worst - Q_d
-            Q_vol_c = Q_cond_eff / (math.pi * r_out ** 2)
-            dT_layers[layer.name] = Q_vol_c / (4.0 * layer.k) * r_out ** 2
-        else:
-            dT_layers[layer.name] = Q_worst / (2.0 * math.pi * layer.k) * math.log(
-                r_out / r_in)
-
-    # dT propio en suelo (Kennelly)
-    dT_soil_self = Q_worst / (2.0 * math.pi * k_soil) * math.log(
-        2.0 * d / r_sheath)
-
-    # dT mutuo por los otros 5 cables
-    dT_mutual = 0.0
-    for j, (pj, Qj) in enumerate(zip(placements, Q_lins)):
-        if j == worst_idx:
-            continue
-        cx_j, cy_j = pj.cx, pj.cy
-        d_j = abs(cy_j)
-        dx = p_worst.cx - cx_j
-        dy = p_worst.cy - cy_j
-        r_real = math.sqrt(dx ** 2 + dy ** 2)
-        r_image = math.sqrt(dx ** 2 + (p_worst.cy - d_j) ** 2)
-        dT_mutual += Qj / (4.0 * math.pi * k_soil) * math.log(
-            r_image ** 2 / max(r_real, r_sheath) ** 2)
-
-    dT_total = sum(dT_layers.values()) + dT_soil_self + dT_mutual
-    T_cond = T_amb + dT_total
-    return {
-        "worst_idx": worst_idx,
-        "Q_lin_W_per_m": Q_worst,
-        "dT_by_layer": dT_layers,
-        "dT_soil_self": dT_soil_self,
-        "dT_mutual": dT_mutual,
-        "dT_total": dT_total,
-        "T_cond_K": T_cond,
-    }
 
 
 def main() -> None:
@@ -558,33 +165,18 @@ def main() -> None:
     # -----------------------------------------------------------------
     # Calculo de calor del paper
     # -----------------------------------------------------------------
-    # IEC 60287 a T_op = 70.6°C (temperatura max del conductor con PAC)
     T_op_K = PAPER_T_MAX_PAC
-    iec_q = _compute_iec60287_Q(
+    iec_q = compute_iec60287_Q(
         section_mm2, material_lc, current_A,
         T_op=T_op_K, W_d=PAPER_W_D, freq=PAPER_FREQ,
     )
 
-    # Usar Q_cond del IEC para el caso de 1026A @ 70.6°C
     Q_cond_iec = iec_q["Q_cond_W_per_m"]
     Q_d = PAPER_W_D
     Q_total_lin = Q_cond_iec + Q_d
 
     # Sobreescribir Q_vol del conductor
-    conductor = layers_template[0]
-    A_cond = math.pi * conductor.r_outer ** 2
-    Q_vol_corrected = Q_total_lin / A_cond
-
-    layers = [
-        CableLayer(
-            name=conductor.name,
-            r_inner=conductor.r_inner,
-            r_outer=conductor.r_outer,
-            k=conductor.k,
-            rho_c=conductor.rho_c,
-            Q=Q_vol_corrected,
-        ),
-    ] + list(layers_template[1:])
+    layers = override_conductor_Q(layers_template, Q_total_lin)
 
     Q_lins = [Q_total_lin] * n_cables
 
@@ -644,22 +236,32 @@ def main() -> None:
         problem.domain.xmin, problem.domain.xmax,
         problem.domain.ymin, problem.domain.ymax))
 
-    # Estimacion analitica
-    iec = _iec60287_estimate_6cable(
-        layers, all_placements, scenario.k_soil, Q_lins, scenario.T_amb,
-        Q_d=Q_d,
+    # Estimacion analitica (unified)
+    layers_list = [layers] * n_cables
+    iec = iec60287_estimate(
+        layers_list, all_placements, scenario.k_soil, scenario.T_amb,
+        Q_lins=Q_lins, Q_d=Q_d,
     )
-    T_ref_K = iec["T_cond_K"]
+    T_ref_K = iec["T_cond_ref"]
+    worst_idx = iec["hottest_idx"]
+
+    # Compute self+mutual split for display
+    r_sheath = layers[-1].r_outer
+    d_worst = abs(all_placements[worst_idx].cy)
+    dT_soil_self = Q_lins[worst_idx] / (2.0 * math.pi * scenario.k_soil) * math.log(
+        2.0 * d_worst / r_sheath)
+    dT_mutual = iec["cables"][worst_idx]["dT_soil"] - dT_soil_self
 
     print("\n  Referencia analitica (cable B1 central bottom, peor caso):")
     print("  Q total (lin.)   : %.2f W/m (cond %.2f + diel %.2f)" % (
-        iec["Q_lin_W_per_m"], Q_cond_iec, Q_d))
+        Q_total_lin, Q_cond_iec, Q_d))
     for name, dT in iec["dT_by_layer"].items():
         print("  dT %-10s   : %+.2f K" % (name, dT))
-    print("  dT suelo propio  : %+.2f K" % iec["dT_soil_self"])
-    print("  dT mutual (otros): %+.2f K" % iec["dT_mutual"])
+    print("  dT suelo propio  : %+.2f K" % dT_soil_self)
+    print("  dT mutual (otros): %+.2f K" % dT_mutual)
+    dT_total = T_ref_K - scenario.T_amb
     print("  dT TOTAL         : %+.2f K  -->  T_cond = %.1f K (%.1f degC)" % (
-        iec["dT_total"], T_ref_K, T_ref_K - 273.15))
+        dT_total, T_ref_K, T_ref_K - 273.15))
 
     print("\n  Referencia FEM Kim et al. (2024):")
     print("  T_max cable B1 (PAC, verano)  : %.1f degC" % (
@@ -669,7 +271,8 @@ def main() -> None:
     print("  T_max cable B1 (PAC, invierno): %.1f degC" % (
         PAPER_T_MAX_PAC_W - 273.15))
 
-    # Configuracion y modelo
+    # Modelo residual: T = T_bg(Kennelly 6 cables) + u(MLP)
+    # T_bg captura interferencia termica entre cables; u corrige CC.
     set_seed(solver_cfg.get("seed", 42))
     device = get_device(solver_cfg.get("device", "auto"))
     logger = setup_logging(str(RESULTS_DIR), name="example_kim2024_" + profile)
@@ -678,7 +281,7 @@ def main() -> None:
     base_model = build_model(solver_cfg["model"], in_dim=2, device=device)
     model = ResidualPINNModel(
         base_model,
-        layers,
+        layers_list,
         all_placements,
         scenario.k_soil,
         scenario.T_amb,
@@ -687,13 +290,13 @@ def main() -> None:
         normalize=normalize,
         Q_d=Q_d,
     )
-    _init_output_bias(model.base, 0.0)
+    init_output_bias(model.base, 0.0)
     n_params = sum(p.numel() for p in model.parameters())
 
     print("\n  Pre-entrenando en perfil multicable (500 pasos)...", flush=True)
-    rmse_pre = _pretrain_multi_cable(
+    rmse_pre = pretrain_multicable(
         model, all_placements, problem.domain,
-        layers, Q_lins, scenario.k_soil, scenario.T_amb,
+        layers_list, Q_lins, scenario.k_soil, scenario.T_amb,
         device=device, normalize=normalize, Q_d=Q_d,
         n_per_cable=1500, n_bc=200, n_steps=500, lr=1e-3,
     )
@@ -717,7 +320,7 @@ def main() -> None:
         save_path=geo_path,
     )
 
-    # Entrenamiento PINN
+    # Entrenamiento: Adam (explorac. global) + L-BFGS (refinamiento)
     print("\n" + "-" * 72)
     print("  ENTRENAMIENTO  (Adam --> L-BFGS)")
     print("  Columnas del log:  [fase paso/total pct%%] loss  pde  bc  ifc")
@@ -768,26 +371,12 @@ def main() -> None:
     T_min_pinn = float(T.min())
 
     # Evaluar T en el centro de CADA conductor
-    T_cond_pinns = []
-    with torch.no_grad():
-        model.eval()
-        for p in all_placements:
-            pt = torch.tensor(
-                [[p.cx, p.cy]], device=device, dtype=torch.float32)
-            if normalize:
-                mins = torch.tensor(
-                    [problem.domain.xmin, problem.domain.ymin],
-                    device=device, dtype=torch.float32)
-                maxs = torch.tensor(
-                    [problem.domain.xmax, problem.domain.ymax],
-                    device=device, dtype=torch.float32)
-                pt_in = 2.0 * (pt - mins) / (maxs - mins) - 1.0
-            else:
-                pt_in = pt
-            T_cond_pinns.append(float(model(pt_in).item()))
+    T_cond_pinns = eval_conductor_temps(
+        model, all_placements, problem.domain, device, normalize,
+    )
 
-    # Cable B1 (central bottom, indice 1) es el peor caso
-    T_cond_worst = T_cond_pinns[iec["worst_idx"]]
+    # Cable B1 (central bottom) es el peor caso
+    T_cond_worst = T_cond_pinns[worst_idx]
     T_cond_max = max(T_cond_pinns)
     loss_final = history["total"][-1]
     error_K = T_cond_worst - T_ref_K
@@ -804,7 +393,7 @@ def main() -> None:
     for i, (p, Tc) in enumerate(zip(all_placements, T_cond_pinns)):
         row = "B" if abs(p.cy) > 1.3 else "T"
         col = {-0.40: "izq", 0.00: "cen", 0.40: "der"}.get(round(p.cx, 2), "?")
-        tag = " (*)" if i == iec["worst_idx"] else ""
+        tag = " (*)" if i == worst_idx else ""
         print("  Cable %d (%s%s, cx=%+.2f cy=%.2f)%s : T = %.2f K (%.1f degC)" % (
             i + 1, row, col, p.cx, p.cy, tag, Tc, Tc - 273.15))
 
