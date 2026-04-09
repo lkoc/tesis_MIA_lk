@@ -218,6 +218,8 @@ class SolverParams:
     adam_steps: int = 20_000
     lbfgs_steps: int = 5_000
     lbfgs_history: int = 50
+    adam2_steps: int = 0
+    adam2_lr: float = 1e-5
     print_every: int = 200
     save_every: int = 0
     resample_every: int = 0
@@ -281,6 +283,8 @@ class SolverParams:
                 "adam_steps": self.adam_steps,
                 "lbfgs_steps": self.lbfgs_steps,
                 "lbfgs_history": self.lbfgs_history,
+                "adam2_steps": self.adam2_steps,
+                "adam2_lr": self.adam2_lr,
                 "print_every": self.print_every,
                 "save_every": self.save_every,
                 "resample_every": self.resample_every,
@@ -545,13 +549,13 @@ def load_solver_params(path: str | Path) -> SolverParams:
     # Explicit type mapping for every field in SolverParams.
     _INT_FIELDS = {
         "model_width", "model_depth", "model_fourier_mapping_size",
-        "adam_steps", "lbfgs_steps", "lbfgs_history",
+        "adam_steps", "lbfgs_steps", "lbfgs_history", "adam2_steps",
         "print_every", "save_every", "resample_every",
         "n_interior", "n_interface", "n_boundary", "oversample", "min_per_region",
         "n_time", "seed",
     }
     _FLOAT_FIELDS = {
-        "model_fourier_scale", "lr",
+        "model_fourier_scale", "lr", "adam2_lr",
         "w_pde", "w_bc_dirichlet", "w_bc_neumann", "w_bc_robin",
         "w_interface_T", "w_interface_flux", "w_ic", "w_cable_flux",
     }

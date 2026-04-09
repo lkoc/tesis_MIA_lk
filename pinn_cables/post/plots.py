@@ -16,6 +16,7 @@ import numpy as np
 import torch
 
 from pinn_cables.io.readers import CableLayer, CablePlacement, Domain2D
+from pinn_cables.physics.k_field import KFieldModel
 
 
 def _finish(save_path: str | Path | None) -> None:
@@ -376,6 +377,7 @@ def plot_k_field(
     *,
     k_soil_base: float | None = None,
     title: str | None = None,
+    k_model: "KFieldModel | None" = None,
 ) -> None:
     """Mapa del campo de conductividad termica k(x,y).
 
@@ -383,24 +385,50 @@ def plot_k_field(
     *pp.k_variable=True* con transicion sigmoide, junto con las
     posiciones de los cables.
 
+    When *k_model* is supplied it takes precedence over *pp* for
+    evaluating the k field.  Soil layer band interfaces are drawn as
+    dashed horizontal lines and annotated with their conductivity values.
+
     Args:
         domain:      Dominio computacional.
-        pp:          PhysicsParams con config de zona k(x,y).
+        pp:          PhysicsParams con config de zona k(x,y).  Use ``None``
+                     together with *k_model* to plot a multilayer-only field.
         placements:  Posiciones de cables.
         layers_list: Capas por cable.
         save_path:   Ruta para guardar.
-        k_soil_base: k del suelo base (para caso no-variable).
+        k_soil_base: k del suelo base (for legend; inferred when omitted).
         title:       Titulo del grafico.
+        k_model:     :class:`KFieldModel` instance.  When given, the field
+                     is evaluated via ``k_model.k_scalar`` and soil-layer
+                     interfaces are annotated.
     """
+    # Decide how to compute effective background k for colorbar limits
+    if k_model is not None:
+        k_bad_val = k_model.k_soil
+        k_good_val = (
+            k_model.pac_params.k_good
+            if k_model.has_pac
+            else max((b.k for b in k_model.soil_bands), default=k_bad_val)
+        )
+    elif pp is not None:
+        k_bad_val = pp.k_bad if k_soil_base is None else k_soil_base
+        k_good_val = pp.k_good if pp.k_variable else k_bad_val
+    else:
+        k_bad_val = k_soil_base if k_soil_base is not None else 1.0
+        k_good_val = k_bad_val
+
     if k_soil_base is None:
-        k_soil_base = pp.k_bad
+        k_soil_base = k_bad_val
 
     nx, ny = 300, 200
     xs = np.linspace(domain.xmin, domain.xmax, nx)
     ys = np.linspace(domain.ymin, domain.ymax, ny)
     X, Y = np.meshgrid(xs, ys)
 
-    if pp.k_variable:
+    if k_model is not None:
+        # Vectorised evaluation via KFieldModel scalar (numpy-friendly loop)
+        K_field = np.vectorize(k_model.k_scalar)(X, Y)
+    elif pp is not None and pp.k_variable:
         dx_np = np.abs(X - pp.k_cx) - pp.k_width / 2.0
         dy_np = np.abs(Y - pp.k_cy) - pp.k_height / 2.0
         d_np = np.maximum(dx_np, dy_np)
@@ -410,8 +438,8 @@ def plot_k_field(
         K_field = np.full_like(X, k_soil_base)
 
     fig, ax = plt.subplots(figsize=(10, 6))
-    vmin = min(pp.k_bad, k_soil_base) * 0.95
-    vmax = max(pp.k_good, k_soil_base) * 1.05
+    vmin = k_bad_val * 0.95
+    vmax = k_good_val * 1.05
     cf = ax.contourf(X, Y, K_field, levels=40, cmap="YlOrRd_r", vmin=vmin, vmax=vmax)
     plt.colorbar(cf, ax=ax, label="k suelo [W/(m·K)]")
 
@@ -424,22 +452,44 @@ def plot_k_field(
         )
         ax.add_patch(circle)
 
-    # Rectangulo de la zona mejorada
-    if pp.k_variable:
+    # ---- PAC zone rectangle ----
+    pac_src = k_model.pac_params if k_model is not None else (pp if pp is not None and pp.k_variable else None)
+    if pac_src is not None:
         box = plt.Rectangle(
-            (pp.k_cx - pp.k_width / 2.0, pp.k_cy - pp.k_height / 2.0),
-            pp.k_width, pp.k_height,
+            (pac_src.k_cx - pac_src.k_width / 2.0, pac_src.k_cy - pac_src.k_height / 2.0),
+            pac_src.k_width, pac_src.k_height,
             fill=False, edgecolor="white", linestyle="--", linewidth=1.5, zorder=6,
         )
         ax.add_patch(box)
         ax.text(
-            pp.k_cx, pp.k_cy + pp.k_height / 2.0 + 0.08,
-            "k = %.1f W/(m·K)" % pp.k_good,
+            pac_src.k_cx, pac_src.k_cy + pac_src.k_height / 2.0 + 0.08,
+            "k = %.3f W/(m·K)" % pac_src.k_good,
             ha="center", va="bottom", color="white", fontsize=9, zorder=7,
         )
+
+    # ---- Soil layer band annotations ----
+    if k_model is not None and k_model.has_layers:
+        for i, band in enumerate(k_model.soil_bands[:-1]):
+            y_iface = band.y_bottom
+            if domain.ymin <= y_iface <= domain.ymax:
+                ax.axhline(y_iface, color="cornflowerblue", linestyle="--",
+                           linewidth=1.0, alpha=0.8, zorder=4)
+                ax.text(
+                    domain.xmin + 0.5, y_iface + 0.05,
+                    "k=%.3f" % band.k, fontsize=7,
+                    color="cornflowerblue", va="bottom", zorder=7,
+                )
+        # Annotate deepest band
+        last = k_model.soil_bands[-1]
         ax.text(
-            pp.k_cx, domain.ymin + 0.15,
-            "k = %.1f W/(m·K)" % pp.k_bad,
+            domain.xmin + 0.5, domain.ymin + 0.30,
+            "k=%.3f" % last.k, fontsize=7,
+            color="cornflowerblue", va="bottom", zorder=7,
+        )
+    elif pp is not None and not pp.k_variable:
+        ax.text(
+            pac_src.k_cx if pac_src else 0.0, domain.ymin + 0.15,
+            "k = %.3f W/(m·K)" % k_soil_base,
             ha="center", va="bottom", color="black", fontsize=9, zorder=7,
         )
 

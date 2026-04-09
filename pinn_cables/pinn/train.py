@@ -62,6 +62,8 @@ class TrainConfig:
         adam_steps:       Number of Adam iterations.
         lbfgs_steps:     Number of L-BFGS outer iterations.
         lbfgs_history:   L-BFGS history size.
+        adam2_steps:     Second Adam fine-tuning steps after L-BFGS (0 = disabled).
+        adam2_lr:        Learning rate for the second Adam phase.
         print_every:     Logging frequency (Adam steps).
         save_every:      Checkpoint frequency (0 = no checkpointing).
         resample_every:  Re-sample collocation points every N Adam steps.
@@ -72,6 +74,8 @@ class TrainConfig:
     adam_steps: int = 20_000
     lbfgs_steps: int = 5_000
     lbfgs_history: int = 50
+    adam2_steps: int = 0
+    adam2_lr: float = 1e-5
     print_every: int = 500
     save_every: int = 0
     resample_every: int = 0
@@ -86,6 +90,8 @@ class TrainConfig:
             adam_steps=cfg.get("adam_steps", 20_000),
             lbfgs_steps=cfg.get("lbfgs_steps", 5_000),
             lbfgs_history=cfg.get("lbfgs_history", 50),
+            adam2_steps=cfg.get("adam2_steps", 0),
+            adam2_lr=cfg.get("adam2_lr", 1e-5),
             print_every=cfg.get("print_every", 500),
             save_every=cfg.get("save_every", 0),
             resample_every=cfg.get("resample_every", 0),
@@ -452,6 +458,25 @@ class SteadyStatePINNTrainer:
                     pct = min(completed / total_steps * 100, 100.0)
                     self.logger.info(
                         "[LBFGS %d/%d  %.1f%%] loss=%.4e", oi, outer_iters, pct, current_loss,
+                    )
+
+        # --- Optional second Adam fine-tuning phase ---
+        if cfg.adam2_steps > 0:
+            self.logger.info(
+                "Adam2 fine-tuning: %d steps at lr=%.1e", cfg.adam2_steps, cfg.adam2_lr,
+            )
+            opt2 = torch.optim.Adam(self.model.parameters(), lr=cfg.adam2_lr)
+            for step2 in range(1, cfg.adam2_steps + 1):
+                if cfg.resample_every > 0 and step2 % cfg.resample_every == 0:
+                    self._sample_all()
+                opt2.zero_grad()
+                total2, _ = self._compute_loss()
+                total2.backward()
+                opt2.step()
+                history["total"].append(float(total2.detach()))
+                if step2 % cfg.print_every == 0:
+                    self.logger.info(
+                        "[Adam2 %d/%d] loss=%.4e", step2, cfg.adam2_steps, float(total2.detach()),
                     )
 
         self.logger.info("Training complete (100%%). Final loss=%.4e", history["total"][-1])

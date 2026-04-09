@@ -213,6 +213,60 @@ def generate_cable_layers(
 # Spatially-variable soil conductivity
 # ---------------------------------------------------------------------------
 
+def get_kim2024_cable_layers(Q_lin: float) -> list[CableLayer]:
+    """Generate cable layers for the Kim et al. (2024) 154 kV XLPE cable.
+
+    The cable structure follows Table 2 of the paper and includes:
+
+    * 9 concentric layers (conductor → CLSM → PE casing pipe).
+    * Corrugated aluminium sheath with PE outer jacket.
+    * CLSM (Controlled Low-Strength Material) backfill inside the casing
+      pipe — this is the key feature absent from the Aras 2005 model.
+    * Polyethylene casing pipe (outer conduit).
+
+    Geometry and material data summary (all radii in metres):
+
+    +----+-------------------+----------+----------+-----------------+
+    | #  | Layer             | r_inner  | r_outer  | k [W/(m·K)]     |
+    +====+===================+==========+==========+=================+
+    | 1  | Conductor (Cu)    | 0.000    | 0.02120  | 400.0           |
+    | 2  | Cond. screen      | 0.02120  | 0.02320  | 0.2857          |
+    | 3  | XLPE insulation   | 0.02320  | 0.04020  | 0.2857          |
+    | 4  | Ins. screen       | 0.04020  | 0.04150  | 0.2857          |
+    | 5  | Semi-conductive   | 0.04150  | 0.04250  | 0.167           |
+    | 6  | Al sheath (corr.) | 0.04250  | 0.04500  | 237.0           |
+    | 7  | PE jacket         | 0.04500  | 0.05000  | 0.2857          |
+    | 8  | CLSM              | 0.05000  | 0.10000  | 2.150           |
+    | 9  | PE casing pipe    | 0.10000  | 0.11000  | 0.2857          |
+    +----+-------------------+----------+----------+-----------------+
+
+    The volumetric power source (Q) is assigned to the conductor layer.
+    All other layers have Q = 0.
+
+    Args:
+        Q_lin: Linear heat dissipation rate I²R [W/m] per cable.
+
+    Returns:
+        List of 9 :class:`CableLayer` objects, innermost first.
+    """
+    # Conductor area for volumetric conversion
+    r_cond = 0.02120
+    area_cond = math.pi * r_cond ** 2
+    Q_vol = Q_lin / area_cond if area_cond > 0 else 0.0
+
+    return [
+        CableLayer(name="conductor",    r_inner=0.00000, r_outer=0.02120, k=400.0,   rho_c=3.45e6, Q=Q_vol),
+        CableLayer(name="cond_screen",  r_inner=0.02120, r_outer=0.02320, k=0.2857,  rho_c=1.9e6,  Q=0.0),
+        CableLayer(name="xlpe",         r_inner=0.02320, r_outer=0.04020, k=0.2857,  rho_c=1.9e6,  Q=0.0),
+        CableLayer(name="ins_screen",   r_inner=0.04020, r_outer=0.04150, k=0.2857,  rho_c=1.9e6,  Q=0.0),
+        CableLayer(name="semi_tape",    r_inner=0.04150, r_outer=0.04250, k=0.1670,  rho_c=1.5e6,  Q=0.0),
+        CableLayer(name="al_sheath",    r_inner=0.04250, r_outer=0.04500, k=237.0,   rho_c=2.42e6, Q=0.0),
+        CableLayer(name="pe_jacket",    r_inner=0.04500, r_outer=0.05000, k=0.2857,  rho_c=1.9e6,  Q=0.0),
+        CableLayer(name="clsm",         r_inner=0.05000, r_outer=0.10000, k=2.150,   rho_c=2.1e6,  Q=0.0),
+        CableLayer(name="pe_casing",    r_inner=0.10000, r_outer=0.11000, k=0.2857,  rho_c=1.9e6,  Q=0.0),
+    ]
+
+
 def k_soil_variable(
     xy: torch.Tensor,
     k0: float,

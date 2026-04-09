@@ -18,7 +18,7 @@ from typing import Callable
 import torch
 import torch.nn as nn
 
-from pinn_cables.physics.k_field import PhysicsParams
+from pinn_cables.physics.k_field import KFieldModel, PhysicsParams
 from pinn_cables.physics.kennelly import multilayer_T_multi
 from pinn_cables.pinn.pde import pde_residual_steady
 
@@ -65,12 +65,30 @@ def sample_soil_pts(
     oversample: int = 8,
     pp: PhysicsParams | None = None,
     frac_pac_bnd: float = 0.30,
+    k_model: "KFieldModel | None" = None,
 ) -> torch.Tensor:
     """Sample *n* points in the soil, excluding cable interiors.
 
-    When *pp* is not None and ``pp.k_variable`` is True, a fraction
-    ``frac_pac_bnd`` of points are sampled near the PAC-zone boundary
-    (importance sampling) to resolve the conductivity gradient.
+    Transition-region importance sampling adapts to the active k field:
+
+    * When *k_model* is given, transition hints are read from
+      :meth:`KFieldModel.transition_hints` and a fraction
+      ``frac_pac_bnd`` of points are distributed across **all** hints
+      (soil-layer interfaces + PAC boundary).  This supersedes *pp*.
+
+    * When only *pp* is given (backward-compat path), the original
+      PAC-boundary sampling is used.
+
+    Args:
+        domain:       Computational domain.
+        placements:   List of cable placements.
+        r_sheaths:    Outer radius of each cable's outermost layer [m].
+        n:            Total number of points to return.
+        device:       PyTorch device.
+        oversample:   Over-sampling factor for rejection sampling.
+        pp:           Legacy PhysicsParams (used when k_model is None).
+        frac_pac_bnd: Fraction of *n* to allocate to transition regions.
+        k_model:      :class:`KFieldModel` instance (preferred over *pp*).
     """
     def _reject_cables(pts: torch.Tensor) -> torch.Tensor:
         in_any = torch.zeros(pts.shape[0], dtype=torch.bool, device=device)
@@ -80,29 +98,58 @@ def sample_soil_pts(
             in_any |= (dx * dx + dy * dy < r_sheaths[idx] ** 2)
         return pts[~in_any]
 
-    # --- PAC-boundary importance sampling ---
-    n_pac = 0
-    pac_pts: list[torch.Tensor] = []
-    if pp is not None and pp.k_variable and frac_pac_bnd > 0:
-        n_pac = int(n * frac_pac_bnd)
+    # --- Build list of transition bounding boxes ---
+    hint_boxes: list[tuple[float, float, float, float]] = []   # (x_lo, x_hi, y_lo, y_hi)
+
+    if k_model is not None and frac_pac_bnd > 0:
+        for hint in k_model.transition_hints():
+            if hint["type"] == "horizontal_strip":
+                yc = hint["y_centre"]
+                hw = hint["half_width"]
+                hint_boxes.append((domain.xmin, domain.xmax, yc - hw, yc + hw))
+            elif hint["type"] == "pac_boundary":
+                hint_boxes.append((hint["x_lo"], hint["x_hi"], hint["y_lo"], hint["y_hi"]))
+    elif pp is not None and pp.k_variable and frac_pac_bnd > 0:
+        # Backward-compat: keep original PAC sampling
         margin = max(4.0 * pp.k_transition, 0.15)
-        x_lo = max(pp.k_cx - pp.k_width / 2.0 - margin, domain.xmin)
-        x_hi = min(pp.k_cx + pp.k_width / 2.0 + margin, domain.xmax)
-        y_lo = max(pp.k_cy - pp.k_height / 2.0 - margin, domain.ymin)
-        y_hi = min(pp.k_cy + pp.k_height / 2.0 + margin, domain.ymax)
-        need_pac = n_pac
-        while need_pac > 0:
+        hint_boxes.append((
+            max(pp.k_cx - pp.k_width / 2.0 - margin, domain.xmin),
+            min(pp.k_cx + pp.k_width / 2.0 + margin, domain.xmax),
+            max(pp.k_cy - pp.k_height / 2.0 - margin, domain.ymin),
+            min(pp.k_cy + pp.k_height / 2.0 + margin, domain.ymax),
+        ))
+
+    # Clamp hint boxes to domain
+    hint_boxes = [
+        (max(xl, domain.xmin), min(xh, domain.xmax),
+         max(yl, domain.ymin), min(yh, domain.ymax))
+        for xl, xh, yl, yh in hint_boxes
+        if xl < xh and yl < yh
+    ]
+
+    # Distribute transition fraction evenly across hints
+    n_per_hint = int(n * frac_pac_bnd / len(hint_boxes)) if hint_boxes else 0
+    n_hints_total = n_per_hint * len(hint_boxes)
+
+    hint_pts_all: list[torch.Tensor] = []
+    for (x_lo, x_hi, y_lo, y_hi) in hint_boxes:
+        collected_h: list[torch.Tensor] = []
+        need_h = n_per_hint
+        while need_h > 0:
             xs = x_lo + (x_hi - x_lo) * torch.rand(
-                need_pac * oversample, 1, device=device, dtype=torch.float32)
+                need_h * oversample, 1, device=device, dtype=torch.float32)
             ys = y_lo + (y_hi - y_lo) * torch.rand(
-                need_pac * oversample, 1, device=device, dtype=torch.float32)
-            cands = torch.cat([xs, ys], dim=1)
-            cands = _reject_cables(cands)
-            pac_pts.append(cands)
-            need_pac = max(0, n_pac - sum(v.shape[0] for v in pac_pts))
-        pac_pts_t = torch.cat(pac_pts, dim=0)[:n_pac]
-    else:
-        pac_pts_t = torch.empty(0, 2, device=device, dtype=torch.float32)
+                need_h * oversample, 1, device=device, dtype=torch.float32)
+            cands = _reject_cables(torch.cat([xs, ys], dim=1))
+            collected_h.append(cands)
+            need_h = max(0, n_per_hint - sum(v.shape[0] for v in collected_h))
+        hint_pts_all.append(torch.cat(collected_h, dim=0)[:n_per_hint])
+
+    pac_pts_t = (
+        torch.cat(hint_pts_all, dim=0)
+        if hint_pts_all
+        else torch.empty(0, 2, device=device, dtype=torch.float32)
+    )
 
     # --- Uniform points ---
     n_uniform = n - pac_pts_t.shape[0]
@@ -295,6 +342,9 @@ def train_adam_lbfgs(
     warmup_frac: float = 0.0,
     pp: PhysicsParams | None = None,
     lbfgs_history: int = 50,
+    k_model: "KFieldModel | None" = None,
+    adam2_steps: int = 0,
+    adam2_lr: float = 1e-5,
 ) -> dict[str, list[float]]:
     """Adam (+ L-BFGS) with optional curriculum warm-up and best-state safeguard.
 
@@ -302,8 +352,17 @@ def train_adam_lbfgs(
     the first ``warmup_frac × adam_steps`` steps use *k_fn_warmup* (homogeneous k),
     then switch to the variable *k_fn*.
 
+    **L-BFGS fixed sample**: collocation points are sampled once before the event
+    loop and reused throughout, giving L-BFGS a consistent objective so its
+    quasi-Newton Hessian accumulates correctly.  Re-sampling inside the loop
+    (the previous behaviour) corrupts the Hessian and causes the 100-1000x loss
+    jumps observed in the logs.
+
     **L-BFGS safeguard**: saves the best model state during L-BFGS and restores
     it if L-BFGS diverges (NaN/Inf).
+
+    **Adam2 fine-tuning** (when *adam2_steps* > 0): a second Adam phase at
+    *adam2_lr* after L-BFGS, useful as a fallback when L-BFGS is unstable.
 
     Returns a history dict with keys ``"total"``, ``"pde"``, ``"bc"``.
     """
@@ -334,7 +393,8 @@ def train_adam_lbfgs(
 
         if xy_soil is None or (step - 1) % print_every == 0:
             xy_soil = sample_soil_pts(
-                domain, placements, r_sheaths, n_int, device, oversample, pp=use_pp,
+                domain, placements, r_sheaths, n_int, device, oversample,
+                pp=use_pp, k_model=k_model if step > warmup_step else None,
             )
             bnd_pts = sample_bnd_pts(domain, n_bnd, device)
 
@@ -373,27 +433,31 @@ def train_adam_lbfgs(
             line_search_fn="strong_wolfe",
         )
 
-        # Save best state (from end of Adam)
+        # Sample ONCE — fixed objective for the entire L-BFGS phase so the
+        # quasi-Newton Hessian accumulates on a consistent loss landscape.
+        xy_s_lbfgs = sample_soil_pts(
+            domain, placements, r_sheaths, n_int, device, oversample,
+            pp=pp, k_model=k_model,
+        )
+        bd_p_lbfgs = sample_bnd_pts(domain, n_bnd, device)
+
+        def closure_lbfgs() -> torch.Tensor:
+            lbfgs.zero_grad()
+            tot, _, _ = compute_pde_bc_loss(
+                model, xy_s_lbfgs, bd_p_lbfgs, bcs, T_amb, norm_fn, normalize, k_fn, w_pde, w_bc,
+            )
+            tot.backward()
+            return tot
+
+        # Use final Adam loss as the initial best-loss baseline for safeguard.
         best_loss = history["total"][-1] if history["total"] else float("inf")
         best_state = copy.deepcopy(model.state_dict())
+        logger.info("L-BFGS start — Adam final loss (baseline): %.4e", best_loss)
         nan_streak = 0
 
         for event in range(1, n_events + 1):
-            xy_s = sample_soil_pts(
-                domain, placements, r_sheaths, n_int, device, oversample, pp=pp,
-            )
-            bd_p = sample_bnd_pts(domain, n_bnd, device)
-
-            def closure_fn(xs=xy_s, bp=bd_p) -> torch.Tensor:
-                lbfgs.zero_grad()
-                tot, _, _ = compute_pde_bc_loss(
-                    model, xs, bp, bcs, T_amb, norm_fn, normalize, k_fn, w_pde, w_bc,
-                )
-                tot.backward()
-                return tot
-
-            loss_v = lbfgs.step(closure_fn)
-            current_loss = float(loss_v) if loss_v is not None else float("nan")
+            loss_v = lbfgs.step(closure_lbfgs)
+            current_loss = float(loss_v.detach()) if loss_v is not None else float("nan")
 
             if math.isnan(current_loss) or math.isinf(current_loss):
                 nan_streak += 1
@@ -420,5 +484,34 @@ def train_adam_lbfgs(
         # Restore best state found during L-BFGS
         model.load_state_dict(best_state)
         logger.info("L-BFGS done — restored best state (loss=%.4e)", best_loss)
+
+    # ---- Optional second Adam fine-tuning phase ----
+    if adam2_steps > 0:
+        logger.info("Adam2 fine-tuning: %d steps at lr=%.1e", adam2_steps, adam2_lr)
+        optimizer2 = torch.optim.Adam(model.parameters(), lr=adam2_lr)
+        xy_soil = None
+        bnd_pts = None
+        for step in range(1, adam2_steps + 1):
+            if xy_soil is None or (step - 1) % print_every == 0:
+                xy_soil = sample_soil_pts(
+                    domain, placements, r_sheaths, n_int, device, oversample,
+                    pp=pp, k_model=k_model,
+                )
+                bnd_pts = sample_bnd_pts(domain, n_bnd, device)
+            optimizer2.zero_grad()
+            total, l_pde, l_bc = compute_pde_bc_loss(
+                model, xy_soil, bnd_pts, bcs, T_amb,
+                norm_fn, normalize, k_fn, w_pde, w_bc,
+            )
+            total.backward()
+            optimizer2.step()
+            history["total"].append(float(total.detach()))
+            history["pde"].append(float(l_pde))
+            history["bc"].append(float(l_bc))
+            if step % print_every == 0:
+                logger.info(
+                    "[Adam2 %d/%d] loss=%.4e  pde=%.3e  bc=%.3e",
+                    step, adam2_steps, float(total.detach()), float(l_pde), float(l_bc),
+                )
 
     return history

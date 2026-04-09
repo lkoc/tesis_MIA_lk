@@ -8,7 +8,7 @@ import pytest
 import torch
 
 from pinn_cables.io.readers import BoundaryCondition, CablePlacement, Domain2D, CableLayer
-from pinn_cables.physics.k_field import PhysicsParams
+from pinn_cables.physics.k_field import KFieldModel, PhysicsParams, SoilLayerBand
 from pinn_cables.pinn.model import MLP, ResidualPINNModel
 from pinn_cables.pinn.train_custom import (
     compute_pde_bc_loss,
@@ -270,3 +270,75 @@ class TestTrainAdamLbfgs:
         assert len(history["total"]) == 20
         # Loss should be finite
         assert all(0.0 <= v < 1e10 for v in history["total"])
+
+
+# ---------------------------------------------------------------------------
+# sample_soil_pts — k_model path (new KFieldModel parameter)
+# ---------------------------------------------------------------------------
+
+class TestSampleSoilPtsKModel:
+    """Verify that the k_model parameter in sample_soil_pts works correctly."""
+
+    @pytest.fixture
+    def two_band_model(self, small_domain):
+        """KFieldModel with 2 soil layers (interface at y=-1.0)."""
+        bands = [
+            SoilLayerBand(y_top=0.0,  y_bottom=-1.0, k=1.8),
+            SoilLayerBand(y_top=-1.0, y_bottom=-2.0, k=1.3),
+        ]
+        return KFieldModel(k_soil=1.5, soil_bands=bands)
+
+    def test_output_shape_with_k_model(self, small_domain, placements_simple, device, two_band_model):
+        pts = sample_soil_pts(
+            small_domain, placements_simple, [0.028], n=300, device=device,
+            k_model=two_band_model, frac_pac_bnd=0.3,
+        )
+        assert pts.shape == (300, 2)
+
+    def test_k_model_within_domain(self, small_domain, placements_simple, device, two_band_model):
+        pts = sample_soil_pts(
+            small_domain, placements_simple, [0.028], n=400, device=device,
+            k_model=two_band_model, frac_pac_bnd=0.3,
+        )
+        assert (pts[:, 0] >= small_domain.xmin - 1e-5).all()
+        assert (pts[:, 0] <= small_domain.xmax + 1e-5).all()
+        assert (pts[:, 1] >= small_domain.ymin - 1e-5).all()
+        assert (pts[:, 1] <= small_domain.ymax + 1e-5).all()
+
+    def test_k_model_excludes_cable(self, small_domain, placements_simple, device, two_band_model):
+        r = 0.028
+        pts = sample_soil_pts(
+            small_domain, placements_simple, [r], n=400, device=device,
+            k_model=two_band_model, frac_pac_bnd=0.3,
+        )
+        dx = pts[:, 0] - 0.0
+        dy = pts[:, 1] - (-1.0)
+        assert (dx * dx + dy * dy >= r ** 2 - 1e-6).all()
+
+    def test_k_model_layer_interface_sampled(self, small_domain, placements_simple, device, two_band_model):
+        """With frac_pac_bnd=0.5, a meaningful fraction of points should be
+        near the y=-1.0 soil interface."""
+        pts = sample_soil_pts(
+            small_domain, placements_simple, [0.028], n=400, device=device,
+            k_model=two_band_model, frac_pac_bnd=0.5,
+        )
+        # Hint band around y=-1.0 (half-width ≥ 0.10)
+        near_iface = ((pts[:, 1] >= -1.20) & (pts[:, 1] <= -0.80))
+        assert near_iface.sum().item() > 20
+
+    def test_k_model_pac_sampled(self, small_domain, placements_simple, device):
+        """KFieldModel with both layers and PAC: both transitions sampled."""
+        bands = [
+            SoilLayerBand(y_top=0.0,  y_bottom=-1.0, k=1.8),
+            SoilLayerBand(y_top=-1.0, y_bottom=-2.0, k=1.3),
+        ]
+        pp = PhysicsParams(
+            k_variable=True, k_good=2.0, k_bad=1.0,
+            k_cx=0.0, k_cy=-1.0, k_width=0.4, k_height=0.4, k_transition=0.05,
+        )
+        model = KFieldModel(k_soil=1.5, soil_bands=bands, pac_params=pp)
+        pts = sample_soil_pts(
+            small_domain, placements_simple, [0.028], n=400, device=device,
+            k_model=model, frac_pac_bnd=0.5,
+        )
+        assert pts.shape == (400, 2)
