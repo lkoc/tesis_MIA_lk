@@ -219,11 +219,9 @@ def compute_pde_bc_loss(
         if bc is None:
             continue
         T_b = model(norm_fn(pts_b) if normalize else pts_b)
-        if bc.bc_type == "dirichlet":
-            val = bc.value if bc.value > 1.0 else T_amb
-            loss_bc = loss_bc + torch.mean((T_b - val) ** 2)
-        elif bc.bc_type == "robin":
-            loss_bc = loss_bc + torch.mean((T_b - bc.value) ** 2)
+        if bc.bc_type in ("dirichlet", "robin"):
+            T_tgt = bc.T_target(pts_b, T_amb)
+            loss_bc = loss_bc + torch.mean((T_b - T_tgt) ** 2)
 
     total = w_pde * loss_pde + w_bc * loss_bc
     return total, loss_pde.detach(), loss_bc.detach()

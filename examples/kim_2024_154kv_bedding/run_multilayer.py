@@ -68,6 +68,7 @@ from pinn_cables.io.readers import (  # noqa: E402
     load_problem,
     load_solver_params,
 )
+from pinn_cables.io.report import write_bc_report  # noqa: E402
 from pinn_cables.materials.props import get_kim2024_cable_layers  # noqa: E402
 from pinn_cables.physics.iec60287 import compute_iec60287_Q  # noqa: E402
 from pinn_cables.physics.k_field import (  # noqa: E402
@@ -325,6 +326,10 @@ def main() -> None:
     print("  BENCHMARK Kim et al. (2024) — MULTILAYER SOIL + CLSM CABLE")
     print("  154 kV XLPE 6 cables two-flat  |  Profile: %s" % args.profile)
     print(SEP)
+    write_bc_report(
+        problem, RESULTS_DIR,
+        label="Kim (2024) — multilayer soil CLSM — %s" % args.profile.upper(),
+    )
     print("\n  Soil layers (Table 6, Kim 2024):")
     for b in soil_bands:
         print("    Layer y=[%.2f, %.2f] m:  k = %.3f W/(mK)" % (

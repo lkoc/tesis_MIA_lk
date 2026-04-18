@@ -132,6 +132,46 @@ python examples/aras_2005_154kv_flat/run_example.py --profile research
 - Simetría preservada: cables laterales a 86.4 °C
 - Cable central +4.3 K más caliente (calentamiento mutuo)
 
+### 6. Benchmark Kim et al. (2024) — 6 cables 154 kV + PAC bedding
+
+```bash
+# Base (k homogéneo efectivo)
+python examples/kim_2024_154kv_bedding/run_example.py --profile quick
+python examples/kim_2024_154kv_bedding/run_example.py --profile research
+
+# PAC explícito (k variable con zona PAC)
+python examples/kim_2024_154kv_bedding/run_research_pac.py --profile quick
+python examples/kim_2024_154kv_bedding/run_research_pac.py --profile research
+
+# Suelo multicapa + CLSM + PAC (Case A/B)
+python examples/kim_2024_154kv_bedding/run_multilayer.py --profile quick
+python examples/kim_2024_154kv_bedding/run_multilayer.py --profile research
+```
+
+El benchmark Kim 2024 usa perfil lateral de frontera dependiente de profundidad
+en formato piecewise linear (`boundary_profiles.csv`), con decaimiento rápido
+de 26.1 °C (superficie) a 15.2 °C (3.6 m).
+
+Resultados comparativos completos (evaluados con `eval_all.py` sin reentrenar):
+
+| Script | Perfil | T_PINN (°C) | T_FEM ref (°C) | Error |
+|--------|--------|-------------|----------------|-------|
+| `run_example.py` | quick | 77.6 | 70.6 (PAC) | +7.0 K |
+| `run_example.py` | research | 66.0 | 70.6 (PAC) | −4.6 K |
+| `run_research_pac.py` | quick | 72.9 | 70.6 (PAC) | +2.3 K |
+| `run_research_pac.py` | research | **69.0** | 70.6 (PAC) | **−1.6 K** |
+| `run_multilayer.py` Case A | quick | **77.4** | 77.6 (sand) | **−0.2 K** |
+| `run_multilayer.py` Case B | quick | 69.2 | 70.6 (PAC) | −1.4 K |
+| `run_multilayer.py` Case A | research | 72.1 | 77.6 (sand) | −5.5 K |
+| `run_multilayer.py` Case B | research | 63.2 | 70.6 (PAC) | −7.4 K |
+
+Referencia FEM Kim 2024 (verano):
+
+| Caso FEM | T_max |
+|----------|-------|
+| Sand bedding | 77.6 °C |
+| PAC bedding | 70.6 °C |
+
 ---
 
 ## Uso completo (solver de alta precisión)

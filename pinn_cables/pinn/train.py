@@ -283,9 +283,9 @@ class SteadyStatePINNTrainer:
             pts = self._fresh(pts_raw)
             T_b = self.model(self._norm(pts))
             if bc.bc_type == "dirichlet":
-                target = bc.value if bc.value != 0 else self.scenario.T_amb
+                T_tgt = bc.T_target(pts, self.scenario.T_amb)
                 bc_parts.append(
-                    (T_b - target).view(-1, 1)
+                    (T_b - T_tgt).view(-1, 1)
                 )
             elif bc.bc_type == "neumann":
                 normal = _normal_tensor(edge, pts.shape[0], self.device)
@@ -567,8 +567,8 @@ class TransientPINNTrainer(SteadyStatePINNTrainer):
             xyt_b = append_time(self._fresh(pts_raw), self._fresh(self.t_samples))
             T_b = self.model(self._norm(xyt_b))
             if bc.bc_type == "dirichlet":
-                target = bc.value if bc.value != 0 else self.scenario.T_amb
-                bc_parts.append((T_b - target).view(-1, 1))
+                T_tgt = bc.T_target(xyt_b[:, :2], self.scenario.T_amb)
+                bc_parts.append((T_b - T_tgt).view(-1, 1))
             elif bc.bc_type == "neumann":
                 normal_2d = _normal_tensor(edge, xyt_b.shape[0], self.device)
                 gT = gradients(T_b, xyt_b)

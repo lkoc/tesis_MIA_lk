@@ -63,6 +63,7 @@ from pinn_cables.io.readers import (  # noqa: E402
     load_solver_params,
     override_conductor_Q,
 )
+from pinn_cables.io.report import write_bc_report  # noqa: E402
 from pinn_cables.physics.iec60287 import compute_iec60287_Q  # noqa: E402
 from pinn_cables.physics.k_field import (  # noqa: E402
     load_physics_params,
@@ -167,6 +168,9 @@ def main() -> None:
 
     adam_n = solver_cfg["training"]["adam_steps"]
     lbfgs_n = solver_cfg["training"]["lbfgs_steps"]
+    lbfgs_hist = solver_cfg["training"].get("lbfgs_history", 50)
+    adam2_n = solver_cfg["training"].get("adam2_steps", 0)
+    adam2_lr_val = solver_cfg["training"].get("adam2_lr", 1e-5)
     print_ev = solver_cfg["training"]["print_every"]
     width = solver_cfg["model"]["width"]
     depth = solver_cfg["model"]["depth"]
@@ -214,7 +218,10 @@ def main() -> None:
     print("  Cable XLPE %d mm² %s / I = %.0f A" % (section_mm2, material, current_A))
     print("  Perfil: %s  |  Solver: %s" % (profile, solver_csv))
     print(SEP)
-
+    write_bc_report(
+        problem, RESULTS_DIR,
+        label="Kim (2024) — PAC zona k variable — %s" % profile_tag,
+    )
     if pp.k_variable:
         print("\n  ZONA PAC (duct-bank) — patron sigmoide:")
         print("    k_good (PAC)  = %.3f W/(mK)" % pp.k_good)
@@ -272,7 +279,9 @@ def main() -> None:
     print("\n  Red: MLP %dx%d (%d params)%s" % (
         width, depth, n_params,
         ", Fourier features" if solver_cfg["model"].get("fourier_features", False) else ""))
-    print("  Entrenamiento: %d Adam + %d L-BFGS" % (adam_n, lbfgs_n))
+    print("  Entrenamiento: %d Adam + %d L-BFGS%s" % (
+        adam_n, lbfgs_n,
+        " + %d Adam2" % adam2_n if adam2_n > 0 else ""))
 
     # Pre-entrenamiento
     print("\n  Pre-entrenando (1000 pasos, 2000 pts/cable)...", flush=True)
@@ -317,6 +326,7 @@ def main() -> None:
         k_fn=k_fn_pde,
         adam_steps=adam_n,
         lbfgs_steps=lbfgs_n,
+        lbfgs_history=lbfgs_hist,
         n_int=n_int,
         n_bnd=n_bnd,
         oversample=oversamp,
@@ -330,6 +340,8 @@ def main() -> None:
         pp=pp,
         k_fn_warmup=k_fn_homog if pp.k_variable else None,
         warmup_frac=WARMUP_FRAC,
+        adam2_steps=adam2_n,
+        adam2_lr=adam2_lr_val,
     )
     print("-" * 72)
 

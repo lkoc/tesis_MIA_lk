@@ -8,9 +8,13 @@ from __future__ import annotations
 
 import csv
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    import torch
+    from pinn_cables.physics.ground_temp import GroundTempProfile
 
 
 # ---------------------------------------------------------------------------
@@ -103,12 +107,21 @@ class BoundaryCondition:
         boundary: Edge name (``"top"`` / ``"bottom"`` / ``"left"`` / ``"right"``).
         bc_type:  ``"dirichlet"`` | ``"neumann"`` | ``"robin"``.
         value:    Prescribed temperature [K] (Dirichlet) or flux [W/m^2] (Neumann).
+                  Used only when *profile* is ``None``.
         h:        Convection coefficient [W/(m^2 K)] (Robin only).
+        profile:  Optional spatially-varying temperature profile
+                  (:class:`~pinn_cables.physics.ground_temp.GroundTempProfile`).
+                  When set, overrides the scalar *value* for Dirichlet targets.
+                  Not loaded from CSV — set programmatically via
+                  ``dataclasses.replace(bc, profile=my_profile)``.
     """
     boundary: str
     bc_type: str
     value: float
     h: float
+    profile: "GroundTempProfile | None" = field(
+        default=None, compare=False, hash=False, repr=False
+    )
 
     _VALID_TYPES = {"dirichlet", "neumann", "robin"}
 
@@ -118,6 +131,25 @@ class BoundaryCondition:
                 f"Unknown BC type '{self.bc_type}'; "
                 f"valid: {self._VALID_TYPES}"
             )
+
+    def T_target(self, xy: "torch.Tensor", T_amb: float = 0.0) -> "torch.Tensor":
+        """Return the target temperature tensor ``(N, 1)`` [K] at *xy*.
+
+        If a *profile* is attached, delegates to it (spatially-varying).
+        Otherwise falls back to the scalar *value* (or *T_amb* when
+        *value* is 0, preserving legacy behaviour).
+
+        Args:
+            xy:    ``(N, 2)`` coordinate tensor [m].
+            T_amb: Fallback ambient temperature [K] used when ``value == 0``.
+
+        Returns:
+            ``(N, 1)`` temperature tensor [K].
+        """
+        if self.profile is not None:
+            return self.profile(xy)
+        val = self.value if self.value != 0 else T_amb
+        return xy.new_full((xy.shape[0], 1), val)
 
 
 @dataclass(frozen=True)
@@ -485,6 +517,73 @@ def load_boundary_conditions(
     return bcs
 
 
+def load_boundary_profiles(
+    path: str | Path,
+) -> "dict[str, PiecewiseLinearProfile]":
+    """Load piecewise-linear BC profiles from *boundary_profiles.csv*.
+
+    Expected columns: ``boundary, depth_m, T_K``.
+
+    Each boundary can have an arbitrary number of rows (knots), and rows
+    do not need to be sorted — the loader sorts them by depth.
+    Returns a dict keyed by boundary name.
+
+    Example file::
+
+        boundary,depth_m,T_K
+        left,0.0,299.15
+        left,1.4,294.26
+        left,5.0,288.35
+        right,0.0,299.15
+        right,1.4,294.26
+        right,5.0,288.35
+        bottom,0.0,288.35
+    """
+    from pinn_cables.physics.ground_temp import PiecewiseLinearProfile
+
+    rows = _read_csv(path)
+    knots: dict[str, list[tuple[float, float]]] = {}
+    for r in rows:
+        name = r["boundary"].strip()
+        knots.setdefault(name, []).append(
+            (float(r["depth_m"]), float(r["T_K"]))
+        )
+    return {
+        name: PiecewiseLinearProfile(
+            depths=[k[0] for k in pts],
+            temps=[k[1] for k in pts],
+        )
+        for name, pts in knots.items()
+    }
+
+
+def with_profiles(
+    bcs: dict[str, BoundaryCondition],
+    profiles: "dict[str, GroundTempProfile]",
+) -> dict[str, BoundaryCondition]:
+    """Return a new BC dict with temperature profiles attached.
+
+    Uses :func:`dataclasses.replace` so the original dict is unchanged.
+    Boundaries whose name is not in *profiles* are returned as-is.
+
+    Args:
+        bcs:      Original BC dict (e.g. from :func:`load_boundary_conditions`).
+        profiles: Dict mapping boundary name to a
+                  :class:`~pinn_cables.physics.ground_temp.GroundTempProfile`.
+
+    Returns:
+        New dict with profiles attached to matching boundaries.
+    """
+    import dataclasses
+
+    return {
+        name: dataclasses.replace(bc, profile=profiles[name])
+        if name in profiles
+        else bc
+        for name, bc in bcs.items()
+    }
+
+
 def load_soil_properties(path: str | Path) -> SoilProperties:
     """Load soil properties from *soil_properties.csv*.
 
@@ -621,11 +720,16 @@ def load_problem(data_dir: str | Path) -> ProblemDefinition:
                 )
             # else: will fall back to default `layers`
 
+    bcs = load_boundary_conditions(d / "boundary_conditions.csv")
+    bp_path = d / "boundary_profiles.csv"
+    if bp_path.exists():
+        bcs = with_profiles(bcs, load_boundary_profiles(bp_path))
+
     return ProblemDefinition(
         layers=layers,
         domain=load_domain(d / "domain.csv"),
         placements=placements,
-        bcs=load_boundary_conditions(d / "boundary_conditions.csv"),
+        bcs=bcs,
         soil=load_soil_properties(d / "soil_properties.csv"),
         scenarios=load_scenarios(d / "scenarios.csv"),
         solver_params=solver_params,

@@ -71,6 +71,7 @@ from pinn_cables.io.readers import (  # noqa: E402
     load_solver_params,
     override_conductor_Q,
 )
+from pinn_cables.io.report import write_bc_report  # noqa: E402
 from pinn_cables.physics.iec60287 import compute_iec60287_Q  # noqa: E402
 from pinn_cables.physics.kennelly import iec60287_estimate  # noqa: E402
 from pinn_cables.pinn.model import build_model, ResidualPINNModel  # noqa: E402
@@ -188,6 +189,10 @@ def main() -> None:
         material, current_A))
     print("  Perfil de ejecucion : %s" % profile.upper())
     print(SEP)
+    write_bc_report(
+        problem, RESULTS_DIR,
+        label="Kim (2024) — 6 cables two-flat PAC — %s" % profile.upper(),
+    )
 
     # Cargar config
     params_csv = DATA_DIR / (

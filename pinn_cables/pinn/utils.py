@@ -81,24 +81,6 @@ def load_config(config_path: str | Path) -> dict:
         return yaml.safe_load(fh) or {}
 
 
-def load_config_with_override(
-    base_path: str | Path,
-    override_path: str | Path,
-) -> dict:
-    """Load a base YAML and deep-merge an override file on top.
-
-    Args:
-        base_path:     Path to the base configuration.
-        override_path: Path to the override file.
-
-    Returns:
-        Merged configuration dictionary.
-    """
-    base = load_config(base_path)
-    over = load_config(override_path)
-    return _deep_merge(base, over)
-
-
 # ---------------------------------------------------------------------------
 # Coordinate normalisation
 # ---------------------------------------------------------------------------
