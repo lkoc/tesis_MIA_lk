@@ -75,10 +75,10 @@ from pinn_cables.io.report import write_bc_report  # noqa: E402
 from pinn_cables.physics.iec60287 import compute_iec60287_Q  # noqa: E402
 from pinn_cables.physics.kennelly import iec60287_estimate  # noqa: E402
 from pinn_cables.pinn.model import build_model, ResidualPINNModel  # noqa: E402
-from pinn_cables.pinn.train import SteadyStatePINNTrainer  # noqa: E402
 from pinn_cables.pinn.train_custom import (  # noqa: E402
     init_output_bias,
     pretrain_multicable,
+    train_adam_lbfgs,
 )
 from pinn_cables.pinn.utils import (  # noqa: E402
     get_device,
@@ -96,34 +96,18 @@ from pinn_cables.post.plots import (  # noqa: E402
 # ---------------------------------------------------------------------------
 # Paper constants — Kim et al. (2024) Table 10 case 5 (summer critical)
 # ---------------------------------------------------------------------------
-PAPER_T_MAX_PAC = 343.75     # K  (70.6 degC)  — max cable B1, PAC summer
-PAPER_T_MAX_SAND = 350.75    # K  (77.6 degC)  — max cable B1, sand summer
-PAPER_T_MAX_PAC_W = 323.05   # K  (49.9 degC)  — max cable B1, PAC winter
-PAPER_T_MAX_SAND_W = 330.25  # K  (57.1 degC)  — max cable B1, sand winter
-PAPER_T_MAX = 363.15         # K  (90 degC)  — XLPE limit
-PAPER_W_D = 3.57             # W/m  — dielectric losses in XLPE
-PAPER_K_XLPE = 0.2857        # W/(mK)
-PAPER_K_SCREEN = 384.6       # W/(mK)
-PAPER_FREQ = 50.0            # Hz
-PAPER_CURRENT = 1026.0       # A — critical ampacity (case 5)
-PAPER_T_AMB_AIR = 300.35     # K  (27.2 degC)
-PAPER_T_SUR = 290.15         # K  (17.0 degC) — cable-surrounding ground temp
-PAPER_T_G = 288.35           # K  (15.2 degC) — constant ground temp at depth
-PAPER_K_PAC = 2.094           # W/(mK) — PAC thermal conductivity
-PAPER_K_NC = 2.093            # W/(mK) — normal concrete
-PAPER_K_SAND = 1.365          # W/(mK) — natural sand
-PAPER_K_CLSM = 2.150          # W/(mK) — CLSM filling casing pipe
-PAPER_K_SOIL_L1 = 1.804       # W/(mK) — soil layer 1 (SC)
-PAPER_K_SOIL_L2 = 1.351       # W/(mK) — soil layer 2 (CL)
-PAPER_K_SOIL_L3 = 1.517       # W/(mK) — soil layer 3 (CL)
-PAPER_LOAD_LOSS_FACTOR = 0.8  # KEPCO DS-6210
-PAPER_WIND_SPEED_SUMMER = 1.17  # m/s
+PAPER_T_MAX_PAC = 343.75   # K  (70.6 degC)  — max cable B1, PAC summer
+PAPER_T_MAX_SAND = 350.75  # K  (77.6 degC)  — max cable B1, sand summer
+PAPER_T_MAX_PAC_W = 323.05  # K  (49.9 degC)  — max cable B1, PAC winter
+PAPER_W_D = 3.57            # W/m  — dielectric losses in XLPE
+PAPER_FREQ = 50.0           # Hz
+PAPER_T_AMB_AIR = 300.35   # K  (27.2 degC)
+PAPER_T_G = 288.35          # K  (15.2 degC) — constant ground temp at depth
+PAPER_K_PAC = 2.094         # W/(mK) — PAC thermal conductivity
 
 # Posiciones de los 6 cables (Fig. 7b del paper)
-CABLE_SEP_H = 0.40   # m — separacion horizontal centro a centro
-CABLE_SEP_V = 0.40   # m — separacion vertical entre filas
-DEPTH_BOTTOM = 1.6    # m — profundidad fila inferior
-DEPTH_TOP = 1.2       # m — profundidad fila superior
+CABLE_SEP_H = 0.40  # m — separacion horizontal centro a centro
+CABLE_SEP_V = 0.40  # m — separacion vertical entre filas
 
 
 def main() -> None:
@@ -203,12 +187,17 @@ def main() -> None:
 
     adam_n = solver_cfg["training"]["adam_steps"]
     lbfgs_n = solver_cfg["training"]["lbfgs_steps"]
+    lbfgs_hist = solver_cfg["training"].get("lbfgs_history", 50)
+    adam2_n = solver_cfg["training"].get("adam2_steps", 0)
+    adam2_lr_val = solver_cfg["training"].get("adam2_lr", 1e-5)
     print_ev = solver_cfg["training"]["print_every"]
     width = solver_cfg["model"]["width"]
     depth = solver_cfg["model"]["depth"]
     n_int = solver_cfg["sampling"]["n_interior"]
-    n_ifc = solver_cfg["sampling"]["n_interface"]
     n_bnd = solver_cfg["sampling"]["n_boundary"]
+    oversamp = solver_cfg["sampling"].get("oversample", 5)
+    w_pde = solver_cfg["loss_weights"].get("pde", 1.0)
+    w_bc = solver_cfg["loss_weights"].get("bc_dirichlet", 10.0)
 
     print("\n  Problema fisico:")
     print("  Escenario       : %s  (%s)" % (scenario.scenario_id, scenario.mode))
@@ -294,6 +283,7 @@ def main() -> None:
         problem.domain,
         normalize=normalize,
         Q_d=Q_d,
+        enable_grad_Tbg=True,
     )
     init_output_bias(model.base, 0.0)
     n_params = sum(p.numel() for p in model.parameters())
@@ -309,8 +299,9 @@ def main() -> None:
 
     print("\n  Configuracion del solver:")
     print("  Red neuronal : MLP %dx%d  (%d params)" % (width, depth, n_params))
-    print("  Puntos       : int=%d  ifc=%d  bnd=%d" % (n_int, n_ifc, n_bnd))
-    print("  Entrenamiento: %d Adam + %d L-BFGS" % (adam_n, lbfgs_n))
+    print("  Puntos       : int=%d  bnd=%d" % (n_int, n_bnd))
+    print("  Entrenamiento: %d Adam + %d L-BFGS%s" % (
+        adam_n, lbfgs_n, " + %d Adam2" % adam2_n if adam2_n > 0 else ""))
     print("  Avance cada  : %d pasos Adam" % print_ev)
     logger.info(
         "Device=%s | Perfil=%s | red MLP%dx%d (%d params)",
@@ -325,24 +316,46 @@ def main() -> None:
         save_path=geo_path,
     )
 
+    # Fuente de calor: los 6 cables via r_sheaths (Neumann en carcasa exterior)
+    r_sheaths = [layers[-1].r_outer] * n_cables
+
+    # Conductividad homogenea (sin zona PAC)
+    k_soil_val = scenario.k_soil
+    def k_fn(xy_phys: torch.Tensor) -> torch.Tensor:
+        return torch.full(
+            (xy_phys.shape[0], 1), k_soil_val,
+            device=xy_phys.device, dtype=xy_phys.dtype,
+        )
+
     # Entrenamiento: Adam (explorac. global) + L-BFGS (refinamiento)
     print("\n" + "-" * 72)
-    print("  ENTRENAMIENTO  (Adam --> L-BFGS)")
-    print("  Columnas del log:  [fase paso/total pct%%] loss  pde  bc  ifc")
+    print("  ENTRENAMIENTO  (Adam --> L-BFGS) — fuente volumetrica 6 cables")
+    print("  Columnas del log:  [fase paso/total pct%%] loss  pde  bc")
     print("-" * 72)
-    trainer = SteadyStatePINNTrainer(
+    history = train_adam_lbfgs(
         model=model,
-        layers=layers,
-        placement=all_placements[0],
         domain=problem.domain,
-        soil=problem.soil,
+        placements=all_placements,
         bcs=problem.bcs,
-        scenario=scenario,
-        solver_cfg=solver_cfg,
+        T_amb=scenario.T_amb,
+        r_sheaths=r_sheaths,
+        k_fn=k_fn,
+        adam_steps=adam_n,
+        lbfgs_steps=lbfgs_n,
+        lbfgs_history=lbfgs_hist,
+        n_int=n_int,
+        n_bnd=n_bnd,
+        oversample=oversamp,
+        w_pde=w_pde,
+        w_bc=w_bc,
+        lr=solver_cfg["training"]["lr"],
+        print_every=print_ev,
+        normalize=normalize,
         device=device,
         logger=logger,
+        adam2_steps=adam2_n,
+        adam2_lr=adam2_lr_val,
     )
-    history = trainer.train()
     print("-" * 72)
 
     # Guardar modelo
@@ -382,7 +395,6 @@ def main() -> None:
 
     # Cable B1 (central bottom) es el peor caso
     T_cond_worst = T_cond_pinns[worst_idx]
-    T_cond_max = max(T_cond_pinns)
     loss_final = history["total"][-1]
     error_K = T_cond_worst - T_ref_K
     error_vs_fem = T_cond_worst - PAPER_T_MAX_PAC

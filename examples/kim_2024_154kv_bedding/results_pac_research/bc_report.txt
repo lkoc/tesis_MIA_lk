@@ -1,0 +1,37 @@
+========================================================================
+  CONDICIONES DE FRONTERA  —  Kim (2024) — PAC zona k variable — RESEARCH
+========================================================================
+  Dominio : x ∈ [-45.5, 45.5] m   y ∈ [-45.5, 0.0] m
+  Escenario : summer_pac  (steady)
+  T_amb     : 290.15 K  (17.00 °C)  |  k_suelo = 1.550 W/(m·K)
+
+  Frontera  Tipo          Valor CSV       h [W/m²K]   Perfil adjunto
+  ------------------------------------------------------------------------
+  top       robin         300.35 K  (27.20 °C)  7.371       scalar (CSV value)
+  bottom    dirichlet     288.35 K  (15.20 °C)  —           scalar (CSV value)
+  left      dirichlet     288.35 K  (15.20 °C)  —           PiecewiseLinear  z=[0.0, 0.5, 1.0, 1.4, 2.0, 3.0, 3.6] m  T=[26.1, 23.7, 21.5, 19.9, 18.0, 15.8, 15.2] °C
+  right     dirichlet     288.35 K  (15.20 °C)  —           PiecewiseLinear  z=[0.0, 0.5, 1.0, 1.4, 2.0, 3.0, 3.6] m  T=[26.1, 23.7, 21.5, 19.9, 18.0, 15.8, 15.2] °C
+  ------------------------------------------------------------------------
+
+  Detalle de perfiles activos:
+    [left]  PiecewiseLinearProfile
+         z [m]      T [K]     T [°C]
+         0.000    299.250     26.100
+         0.500    296.830     23.680
+         1.000    294.610     21.460
+         1.400    293.040     19.890
+         2.000    291.100     17.950
+         3.000    288.970     15.820
+         3.600    288.350     15.200
+    [right]  PiecewiseLinearProfile
+         z [m]      T [K]     T [°C]
+         0.000    299.250     26.100
+         0.500    296.830     23.680
+         1.000    294.610     21.460
+         1.400    293.040     19.890
+         2.000    291.100     17.950
+         3.000    288.970     15.820
+         3.600    288.350     15.200
+
+  NOTA: 2 frontera(s) usan perfil T(z) cargado de boundary_profiles.csv (sobreescribe valor CSV).
+========================================================================

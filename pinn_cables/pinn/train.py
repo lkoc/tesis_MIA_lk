@@ -465,6 +465,11 @@ class SteadyStatePINNTrainer:
             self.logger.info(
                 "Adam2 fine-tuning: %d steps at lr=%.1e", cfg.adam2_steps, cfg.adam2_lr,
             )
+            # Save pre-Adam2 state so we can restore if Adam2 makes things worse
+            pre_adam2_loss = history["total"][-1] if history["total"] else float("inf")
+            best_adam2_loss = pre_adam2_loss
+            best_adam2_state = {k: v.clone() for k, v in self.model.state_dict().items()}
+
             opt2 = torch.optim.Adam(self.model.parameters(), lr=cfg.adam2_lr)
             for step2 in range(1, cfg.adam2_steps + 1):
                 if cfg.resample_every > 0 and step2 % cfg.resample_every == 0:
@@ -473,11 +478,23 @@ class SteadyStatePINNTrainer:
                 total2, _ = self._compute_loss()
                 total2.backward()
                 opt2.step()
-                history["total"].append(float(total2.detach()))
+                loss2_val = float(total2.detach())
+                history["total"].append(loss2_val)
+                if loss2_val < best_adam2_loss:
+                    best_adam2_loss = loss2_val
+                    best_adam2_state = {k: v.clone() for k, v in self.model.state_dict().items()}
                 if step2 % cfg.print_every == 0:
                     self.logger.info(
-                        "[Adam2 %d/%d] loss=%.4e", step2, cfg.adam2_steps, float(total2.detach()),
+                        "[Adam2 %d/%d] loss=%.4e", step2, cfg.adam2_steps, loss2_val,
                     )
+
+            # Restore best state found during Adam2 (may be pre-Adam2 state if it diverged)
+            if best_adam2_loss < float(history["total"][-1]) or best_adam2_loss < pre_adam2_loss:
+                self.model.load_state_dict(best_adam2_state)
+                self.logger.info(
+                    "Adam2 done — restored best state (loss=%.4e, pre-Adam2 was %.4e)",
+                    best_adam2_loss, pre_adam2_loss,
+                )
 
         self.logger.info("Training complete (100%%). Final loss=%.4e", history["total"][-1])
         return history

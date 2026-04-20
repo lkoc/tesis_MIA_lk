@@ -222,7 +222,10 @@ def write_bc_report(
     report = _build_report(problem, label)
 
     # --- terminal ---
-    print(report, flush=True)
+    import sys
+    sys.stdout.buffer.write(report.encode("utf-8"))
+    sys.stdout.buffer.write(b"\n")
+    sys.stdout.buffer.flush()
 
     # --- file ---
     out_dir = Path(out_dir)
