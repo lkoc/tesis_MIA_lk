@@ -226,7 +226,7 @@ def _fmt_row(label, T_worst, T_ref, profile, final_loss=None, pde_rms=None, rmse
     err = T_worst - T_ref
     loss_str = ("%.4e" % final_loss) if final_loss is not None else "—"
     pde_str  = ("%.3e" % pde_rms)   if pde_rms  is not None else "—"
-    pair_str = ("%.2f K" % rmse_pair) if rmse_pair is not None else "—"
+    pair_str = ("%.2f K" % rmse_pair) if isinstance(rmse_pair, (int, float)) else (rmse_pair if rmse_pair is not None else "—")
     return (label, profile,
             "%.1f" % (T_worst - 273.15),
             "%.1f" % (T_ref - 273.15),

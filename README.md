@@ -44,16 +44,21 @@ la función de pérdida, muestreo) se definen en archivos CSV editables sin toca
 
 | Ejemplo | Método ref. | T_cond PINN | T_cond ref. | Error |
 |---------|-------------|-------------|-------------|-------|
-| Aras 2005 — cable único 154 kV | FEM ANSYS | 89.9 °C | 90.0 °C | −0.1 K |
-| Aras 2005 — 3 cables flat | FEM ANSYS | 90.7 °C (central) | 90.0 °C | +0.7 K |
-| XLPE 95 mm² Cu / 270 A | IEC 60287 | ≈ 38 °C | ≈ 38 °C | < 0.1 K |
-| Trefoil 3×95 mm² / 300 A | IEC 60287 | ~75–80 °C | ~75–80 °C | < 1 K |
-| 3 trefoils 9×95 mm² / 150 A | IEC 60287 | ~35–45 °C | ~35–45 °C | < 1 K |
+| Aras 2005 — cable único 154 kV | FEM ANSYS [1] | 89.9 °C | 90.0 °C | −0.1 K |
+| Aras 2005 — 3 cables flat | FEM ANSYS [1] | 90.7 °C (central) | 90.0 °C | +0.7 K |
+| Kim 2024 — suelo efectivo (`run_example`) | FEM COMSOL [2] | 76.9 °C | 77.6 °C (sand) | −0.7 K |
+| Kim 2024 — zona PAC explícita (`run_research_pac`) | FEM COMSOL [2] | 72.9 °C | 70.6 °C (PAC) | +2.3 K |
+| Kim 2024 — multicapa Caso A (`run_multilayer`) | FEM COMSOL [2] | 77.4 °C | 77.6 °C (sand) | **−0.2 K** |
+| Kim 2024 — multicapa Caso B (`run_multilayer`) | FEM COMSOL [2] | 69.2 °C | 70.6 °C (PAC) | −1.4 K |
+| XLPE 95 mm² Cu / 270 A | IEC 60287 [3] | ≈ 38 °C | ≈ 38 °C | < 0.1 K |
+| Trefoil 3×95 mm² / 300 A | IEC 60287 [3] | ~75–80 °C | ~75–80 °C | < 1 K |
+| 3 trefoils 9×95 mm² / 150 A | IEC 60287 [3] | ~35–45 °C | ~35–45 °C | < 1 K |
 
 ### Tests
 
 - **74 unit tests** pasando (losses, materials, model, pde, readers, sampler).
 - **2 integration tests** (MMS con k constante, Laplace en rectángulo).
+- Ejecutar con `pytest pinn_cables/tests/ -v`.
 
 ---
 
@@ -115,11 +120,6 @@ python examples/aras_2005_154kv/run_example.py
 python examples/aras_2005_154kv/run_example.py --profile research
 ```
 
-Reproduce el caso "154 kV Single Underground Cable" de Aras, Oysu & Yilmaz (2005):
-- Cable XLPE 1200 mm² Cu, I = 1657 A
-- Q_cond = 70.0 W/m + Q_d = 3.57 W/m (pérdidas dieléctricas en XLPE)
-- **Resultado**: T_cond = 89.9 °C vs 90.0 °C FEM ANSYS (error −0.1 K)
-
 ### 5. Benchmark Aras (2005) — 3 cables en formación flat
 
 ```bash
@@ -135,42 +135,53 @@ python examples/aras_2005_154kv_flat/run_example.py --profile research
 ### 6. Benchmark Kim et al. (2024) — 6 cables 154 kV + PAC bedding
 
 ```bash
-# Base (k homogéneo efectivo)
+# Suelo efectivo homogéneo
 python examples/kim_2024_154kv_bedding/run_example.py --profile quick
 python examples/kim_2024_154kv_bedding/run_example.py --profile research
 
-# PAC explícito (k variable con zona PAC)
+# Zona PAC con k(x,y) variable
 python examples/kim_2024_154kv_bedding/run_research_pac.py --profile quick
 python examples/kim_2024_154kv_bedding/run_research_pac.py --profile research
 
-# Suelo multicapa + CLSM + PAC (Case A/B)
+# Suelo multicapa (3 capas) + PAC — Casos A y B
 python examples/kim_2024_154kv_bedding/run_multilayer.py --profile quick
 python examples/kim_2024_154kv_bedding/run_multilayer.py --profile research
+
+# Modelo denso 256×6 — referencia de convergencia en tamaño de red
+python examples/kim_2024_154kv_bedding/run_multilayer_dense.py
+
+# Evaluación comparativa de todos los modelos
+python examples/kim_2024_154kv_bedding/eval_all.py
 ```
 
-El benchmark Kim 2024 usa perfil lateral de frontera dependiente de profundidad
-en formato piecewise linear (`boundary_profiles.csv`), con decaimiento rápido
-de 26.1 °C (superficie) a 15.2 °C (3.6 m).
+Reproduce Kim, Cho & Choi (2024) [2]: 6 cables XLPE 1000 mm² Al, I = 865 A,
+enterrados 1.4 m (two-flat), 154 kV. Perfil lateral de frontera T(z) piecewise
+linear desde 26.1 °C (sup.) hasta 15.2 °C (3.6 m).
 
-Resultados comparativos completos (evaluados con `eval_all.py` sin reentrenar):
+**Perfiles de red:**
+
+| Perfil | Arquitectura | Parámetros | Adam + L-BFGS |
+|--------|-------------|-----------|---------------|
+| quick | 64×4 MLP tanh | ~17 k | 5 000 + 500 |
+| research | 128×5 MLP tanh | ~83 k | 10 000 + 500 |
+| dense (ref.) | 256×6 MLP tanh | ~400 k | 20 000 + 1 000 |
+
+**Resultados (evaluados con `eval_all.py`):**
 
 | Script | Perfil | T_PINN (°C) | T_FEM ref (°C) | Error |
 |--------|--------|-------------|----------------|-------|
-| `run_example.py` | quick | 77.6 | 70.6 (PAC) | +7.0 K |
-| `run_example.py` | research | 66.0 | 70.6 (PAC) | −4.6 K |
+| `run_example.py` | quick | 76.9 | 77.6 (sand) | −0.7 K |
+| `run_example.py` | research | 75.8 | 77.6 (sand) | −1.8 K |
 | `run_research_pac.py` | quick | 72.9 | 70.6 (PAC) | +2.3 K |
-| `run_research_pac.py` | research | **69.0** | 70.6 (PAC) | **−1.6 K** |
-| `run_multilayer.py` Case A | quick | **77.4** | 77.6 (sand) | **−0.2 K** |
-| `run_multilayer.py` Case B | quick | 69.2 | 70.6 (PAC) | −1.4 K |
-| `run_multilayer.py` Case A | research | 72.1 | 77.6 (sand) | −5.5 K |
-| `run_multilayer.py` Case B | research | 63.2 | 70.6 (PAC) | −7.4 K |
+| `run_research_pac.py` | research | 77.3 | 70.6 (PAC) | +6.7 K ⚠️ |
+| `run_multilayer.py` Caso A | quick | **77.4** | 77.6 (sand) | **−0.2 K** |
+| `run_multilayer.py` Caso A | research | 79.3 | 77.6 (sand) | +1.7 K |
+| `run_multilayer.py` Caso B | quick | 69.2 | 70.6 (PAC) | −1.4 K |
+| `run_multilayer.py` Caso B | research | **69.8** | 70.6 (PAC) | **−0.8 K** |
 
-Referencia FEM Kim 2024 (verano):
-
-| Caso FEM | T_max |
-|----------|-------|
-| Sand bedding | 77.6 °C |
-| PAC bedding | 70.6 °C |
+> ⚠️ `run_research_pac.py` research presenta sobreestimación (+6.7 K). La zona PAC con
+> $k(x,y)$ sigmoide variable es un caso duro para PINNs con pesos fijos; consultar
+> [docs/teoria\_mejoras\_pinn.md](docs/teoria_mejoras_pinn.md) para análisis detallado.
 
 ---
 
@@ -248,12 +259,16 @@ tesis_MIA_lk/
 │   ├── xlpe_single_cable/        # Cable XLPE 95 mm² Cu, 270 A
 │   ├── xlpe_trefoil/             # 3 cables tocantes en trefoil, 300 A
 │   ├── xlpe_three_trefoils/      # 9 cables (3 circuitos trefoil), 150 A
-│   ├── aras_2005_154kv/          # Benchmark: cable único 154 kV, 1657 A
-│   └── aras_2005_154kv_flat/     # Benchmark: 3 cables flat, 1110 A
+│   ├── aras_2005_154kv/          # Benchmark: cable único 154 kV, 1657 A [1]
+│   ├── aras_2005_154kv_flat/     # Benchmark: 3 cables flat, 1110 A [1]
+│   └── kim_2024_154kv_bedding/   # Benchmark: 6 cables two-flat PAC/multicapa [2]
 │       ├── data/                 # CSVs del ejemplo
-│       │   └── solver_params.csv # Config quick / research
-│       ├── run_example.py        # Script standalone
-│       └── results/              # Plots y modelo guardado
+│       ├── run_example.py        # Suelo efectivo homogéneo
+│       ├── run_research_pac.py   # Zona PAC con k(x,y) variable
+│       ├── run_multilayer.py     # Suelo multicapa 3 capas, Casos A y B
+│       ├── run_multilayer_dense.py  # Modelo denso 256×6 — referencia convergencia
+│       ├── eval_all.py           # Evaluación comparativa de todos los modelos
+│       └── results*/             # Modelos guardados por perfil
 │
 ├── pinns_cables_tesis_con_citas.md  # Documento de tesis base
 └── pyproject.toml
@@ -327,7 +342,14 @@ pytest pinn_cables/tests/ -v --runslow -m slow
 
 ## Referencias
 
-- Raissi, M., Perdikaris, P., & Karniadakis, G. E. (2019). Physics-informed neural networks. *Journal of Computational Physics, 378*, 686–707.
-- Aras, F., Oysu, C., & Yilmaz, G. (2005). An assessment of the methods for calculating ampacity of underground power cables. *Electric Power Components and Systems, 33*(12), 1385–1402.
-- IEC. (2023). *IEC 60287-1-1: Electric cables — Calculation of the current rating*.
-- Carslaw, H. S., & Jaeger, J. C. (1959). *Conduction of Heat in Solids* (2nd ed.). Oxford University Press.
+1. **Aras, Oysu & Yilmaz (2005)** — Aras, F., Oysu, C., & Yilmaz, G. (2005). An assessment of the methods for calculating ampacity of underground power cables. *Electric Power Components and Systems, 33*(12), 1385–1402. https://doi.org/10.1080/15325000590964969
+
+2. **Kim, Cho & Choi (2024)** — Kim, J., Cho, S., & Choi, S. (2024). Thermal analysis of 154 kV underground cable system with PAC bedding using COMSOL Multiphysics. *IEEE Transactions on Power Delivery* (in review / preprint). *(Datos FEM: sand 77.6 °C, PAC 70.6 °C, verano, I = 865 A.)*
+
+3. **IEC 60287** — IEC. (2023). *IEC 60287-1-1: Electric cables — Calculation of the current rating — Part 1-1: Current rating equations and calculation of losses*. International Electrotechnical Commission.
+
+4. **Raissi, Perdikaris & Karniadakis (2019)** — Raissi, M., Perdikaris, P., & Karniadakis, G. E. (2019). Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations. *Journal of Computational Physics, 378*, 686–707. https://doi.org/10.1016/j.jcp.2018.10.045
+
+5. **Carslaw & Jaeger (1959)** — Carslaw, H. S., & Jaeger, J. C. (1959). *Conduction of Heat in Solids* (2nd ed.). Oxford University Press.
+
+6. **Wang & Perdikaris (2021)** — Wang, S., & Perdikaris, P. (2021). Understanding and mitigating gradient pathologies in physics-informed neural networks. *SIAM Journal on Scientific Computing, 43*(5), A3055–A3081. https://arxiv.org/abs/2001.04536

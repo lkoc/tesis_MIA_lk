@@ -246,10 +246,19 @@ def pretrain_multicable(
     n_bc: int = 200,
     n_steps: int = 800,
     lr: float = 1e-3,
+    bc_temps: dict | None = None,
 ) -> float:
     """Pre-train on cable interiors (analytical T_bg) + domain boundaries.
 
     The target for the full residual model is T_bg (i.e. u → 0).
+
+    *bc_temps* optionally overrides the boundary target temperature for each
+    edge ('top', 'bottom', 'left', 'right').  When None (default) all edges
+    use *T_amb*, preserving backward-compatible behaviour.  Providing actual
+    Dirichlet BC values here is important when those values differ significantly
+    from *T_amb* (e.g. a cold bottom isotherm with a warm surface), so that
+    the NN starts main training with a correctly-initialized residual.
+
     Returns the final RMSE in K.
     """
     norm_fn = _norm_fn_factory(domain, device)
@@ -275,7 +284,7 @@ def pretrain_multicable(
         cable_pts_list.append(xy_c)
         cable_T_list.append(T_c)
 
-    # Boundary points (T_amb)
+    # Boundary points — per-edge target temperatures
     n_per = max(1, n_bc // 4)
     xmin, xmax = domain.xmin, domain.xmax
     ymin, ymax = domain.ymin, domain.ymax
@@ -283,13 +292,23 @@ def pretrain_multicable(
     xh2 = xmin + (xmax - xmin) * torch.rand(n_per, 1, device=device, dtype=torch.float32)
     yv = ymin + (ymax - ymin) * torch.rand(n_per, 1, device=device, dtype=torch.float32)
     yv2 = ymin + (ymax - ymin) * torch.rand(n_per, 1, device=device, dtype=torch.float32)
+    # Four edges: top (ymax), bottom (ymin), left (xmin), right (xmax)
+    _T_top    = bc_temps.get("top",    T_amb) if bc_temps else T_amb
+    _T_bottom = bc_temps.get("bottom", T_amb) if bc_temps else T_amb
+    _T_left   = bc_temps.get("left",   T_amb) if bc_temps else T_amb
+    _T_right  = bc_temps.get("right",  T_amb) if bc_temps else T_amb
     xy_bc = torch.cat([
-        torch.cat([xh, torch.full_like(xh, ymax)], dim=1),
-        torch.cat([xh2, torch.full_like(xh2, ymin)], dim=1),
-        torch.cat([torch.full_like(yv, xmin), yv], dim=1),
-        torch.cat([torch.full_like(yv2, xmax), yv2], dim=1),
+        torch.cat([xh,  torch.full_like(xh,  ymax)], dim=1),   # top
+        torch.cat([xh2, torch.full_like(xh2, ymin)], dim=1),   # bottom
+        torch.cat([torch.full_like(yv,  xmin), yv ], dim=1),   # left
+        torch.cat([torch.full_like(yv2, xmax), yv2], dim=1),   # right
     ], dim=0)
-    T_bc = torch.full((xy_bc.shape[0], 1), T_amb, device=device, dtype=torch.float32)
+    T_bc = torch.cat([
+        torch.full((n_per, 1), _T_top,    device=device, dtype=torch.float32),
+        torch.full((n_per, 1), _T_bottom, device=device, dtype=torch.float32),
+        torch.full((n_per, 1), _T_left,   device=device, dtype=torch.float32),
+        torch.full((n_per, 1), _T_right,  device=device, dtype=torch.float32),
+    ], dim=0)
 
     xy_all = torch.cat(cable_pts_list + [xy_bc], dim=0)
     T_all = torch.cat(cable_T_list + [T_bc], dim=0)
@@ -343,6 +362,7 @@ def train_adam_lbfgs(
     k_model: "KFieldModel | None" = None,
     adam2_steps: int = 0,
     adam2_lr: float = 1e-5,
+    frac_pac_bnd: float = 0.30,
 ) -> dict[str, list[float]]:
     """Adam (+ L-BFGS) with optional curriculum warm-up and best-state safeguard.
 
@@ -364,6 +384,13 @@ def train_adam_lbfgs(
 
     Returns a history dict with keys ``"total"``, ``"pde"``, ``"bc"``.
     """
+    import logging as _logging
+    if logger is None:
+        logger = _logging.getLogger("train_null")
+        logger.addHandler(_logging.NullHandler())
+    if print_every <= 0:
+        print_every = 10 ** 9
+
     norm_fn = _norm_fn_factory(domain, device)
     history: dict[str, list[float]] = {"total": [], "pde": [], "bc": []}
 
@@ -393,6 +420,7 @@ def train_adam_lbfgs(
             xy_soil = sample_soil_pts(
                 domain, placements, r_sheaths, n_int, device, oversample,
                 pp=use_pp, k_model=k_model if step > warmup_step else None,
+                frac_pac_bnd=frac_pac_bnd,
             )
             bnd_pts = sample_bnd_pts(domain, n_bnd, device)
 

@@ -46,14 +46,24 @@ donde $T_\text{bg}$ es la superposición de Kennelly (solución analítica para
 cables en suelo homogéneo). Esto reduce drásticamente la magnitud del
 residuo que debe aprender la red.
 
-### 2.2 Backbone MLP con Fourier features
+### 2.2 Backbone MLP tanh
 
-**Perfil research** (128×5, Fourier scale=10, mapping=64):
-- ~97 000 parámetros
+Todos los perfiles de producción usan **MLP puro con activación tanh** (sin Fourier features):
+
+| Perfil | Arquitectura | Parámetros |
+|--------|-------------|------------|
+| quick | 64×4 MLP tanh | ~17 k |
+| research | 128×5 MLP tanh | ~83 k |
+| dense (ref.) | 256×6 MLP tanh | ~400 k |
+
 - Entradas: $(x, y)$ normalizadas a $[-1, 1]$
-- Fourier encoding: $\phi(x) = [\cos(2\pi B x),\, \sin(2\pi B x)]$, $B \sim \mathcal{N}(0, 10^2)$
+- Salida: corrección escalar $u(x,y)$ (temperatura residual en K)
 
-**Referencia:** Tancik et al. (2020), *"Fourier Features Let Networks Learn High Frequency Functions in Low Dimensional Domains"*, NeurIPS 2020. `arXiv:2006.10739`
+> **Nota sobre Fourier features:** se probaron con $\sigma = 3.0$ y $m = 64$ en el
+> perfil research, pero introdujeron una sobreestimación de +6.7 K en la zona PAC
+> (`run_research_pac.py`), probablemente por amplificación de altas frecuencias
+> espurias en la interfaz sigmoide. Se eliminaron del perfil de producción.
+> Referencia teórica: Tancik et al. (2020).
 
 ### 2.3 Función de pérdida
 
@@ -133,17 +143,44 @@ El operador $-\nabla\cdot(k\nabla\cdot)$ tiene un cuadrado hermitiano cuyo condi
 
 ## 4. Mejoras concretas implementadas / por implementar
 
-### 4.1 ✅ Implementado: reducción de lr en perfil research
+### 4.1 ✅ Implementado: formulación residual con Kennelly
 
-El archivo `solver_params_research.csv` usa `lr = 5.0e-4` (en lugar de `1.0e-3`). Una red 128×5 genera gradientes ~2× mayores que 64×4 — usar la misma lr provoca inestabilidad en Adam.
+La red aprende $u = T - T_{bg}$ donde $T_{bg}$ es la superposición de Kennelly.
+Reduce el problema de aprendizaje a una perturbación pequeña, eliminando mínimos
+locales espurios.
 
-### 4.2 ✅ Implementado: Adam2 fine-tuning post-LBFGS
+### 4.2 ✅ Implementado: lr reducida en perfil research
 
-**Motivación:** L-BFGS puede terminar en un mínimo local con pérdida baja pero con artefactos locales cerca de interfaces. 500 pasos adicionales de Adam con lr$= 10^{-5}$ (re-muestreo de puntos de colocación) eliminan artefactos locales.
+El archivo `solver_params_research.csv` usa `lr = 1.0e-3` (igual que quick).
+Una red 128×5 genera gradientes más grandes que 64×4 — la misma lr es aceptable
+gracias a la formulación residual que amortigua la magnitud de las salidas.
+
+### 4.3 ✅ Implementado: Adam2 fine-tuning post-L-BFGS
+
+**Motivación:** L-BFGS puede terminar en un mínimo local con pérdida baja pero
+con artefactos locales cerca de interfaces. 500–1000 pasos adicionales de Adam
+con lr$= 10^{-5}$ (re-muestreo de puntos de colocación) eliminan artefactos locales.
 
 **Activado en:** `solver_params_research.csv` → `adam2_steps = 500`.
 
-### 4.3 Propuesta futura: pesos adaptativos (Wang & Perdikaris 2020)
+### 4.4 ✅ Implementado: curriculum warmup con k homogéneo
+
+El 30 % inicial de los pasos Adam se entrena con $k(x,y) = k_\text{soil}$ constante.
+Estabiliza la red antes de activar la discontinuidad PAC/multicapa.
+
+### 4.5 ✅ Implementado: estudio de convergencia en tamaño de red
+
+El perfil `dense` (256×6, ~400 k parámetros, 22 000 pasos) actúa como
+**pseudo-referencia de campo completo** análoga a la malla fina en FEM. Permite
+calcular $\text{RMSE}_\text{zona}$ del campo $T(x,y)$ alrededor de los cables
+para quick y research, superando la limitación del punto único $T_\max$ del paper.
+
+Se corre con:
+```bash
+python examples/kim_2024_154kv_bedding/run_multilayer_dense.py
+```
+
+### 4.6 Propuesta futura: pesos adaptativos (Wang & Perdikaris 2021)
 
 Implementar en `pinn_cables/pinn/train_custom.py` dentro del bucle Adam:
 
@@ -160,7 +197,7 @@ if step % weight_update_every == 0:
     w_bc = float(max_grad_pde / (mean_grad_bc + 1e-8))
 ```
 
-### 4.4 Propuesta futura: R3 Sampling adaptativo
+### 4.7 Propuesta futura: R3 Sampling adaptativo
 
 Implementar en `pinn_cables/pinn/train_custom.py` como alternativa al muestreo fijo:
 
@@ -175,7 +212,7 @@ if resample_every > 0 and step % resample_every == 0:
         xy_soil = xy_soil[idx]
 ```
 
-### 4.5 ✅ Implementado: módulo FNO (Fourier Neural Operator)
+### 4.8 ✅ Implementado: módulo FNO (Fourier Neural Operator)
 
 Ubicado en `pinn_cables/fno/`. Ver sección 5 para detalles.
 
@@ -290,18 +327,28 @@ Esto obliga a la red a satisfacer **también** las condiciones de continuidad de
 
 ```
 Prioridad 1 (implementado):
-  ✅ lr = 5.0e-4 en perfil research
-  ✅ adam2_steps = 500 (fine-tuning post-LBFGS)
+  ✅ Formulación residual T = T_bg + u_theta (Kennelly)
+  ✅ Curriculum warmup 30% pasos Adam (k homogéneo → k variable)
+  ✅ Adam2 post-L-BFGS (research: 500 pasos, dense: 1000 pasos)
+  ✅ Perfil denso 256x6 (~400k params) como referencia de convergencia
+  ✅ eval_all.py con RMSE del campo T(x,y) vs solución densa
   ✅ Módulo FNO en pinn_cables/fno/
 
 Prioridad 2 (corto plazo):
-  □ Pesos adaptativos de pérdida (Wang & Perdikaris 2020)
+  □ Pesos adaptativos de pérdida (Wang & Perdikaris 2021)
   □ R3 Sampling como alternativa al muestreo fijo
   
+  ⚠️ run_research_pac.py con perfil research sigue sobreestimando (+6.7 K).
+     Causa probable: gradientes desbalanceados en zona PAC sigmoide con red 128x5.
+     Pesos adaptativos son la mejora más probable para resolver este caso.
+
 Prioridad 3 (mediano plazo):
-  □ gPINN: añadir L_grad = MSE(∂r/∂x, 0) + MSE(∂r/∂y, 0)
+  □ gPINN: añadir L_grad = MSE(dr/dx, 0) + MSE(dr/dy, 0)
   □ FNO: generación de dataset paramétrico + entrenamiento completo
   
+  Especialmente relevante: gPINN para el caso multicapa, donde las
+  interfaces de k generan discontinuidades en el gradiente de T.
+
 Prioridad 4 (contribución diferenciadora):
   □ Comparación PINN vs FNO en benchmarks Aras (2005) + Kim (2024)
   □ Publicable como artículo de journal (IEEE Trans. Power Delivery)
@@ -311,70 +358,101 @@ Prioridad 4 (contribución diferenciadora):
 
 ## 8. Referencias bibliográficas completas
 
-1. **Wang & Perdikaris (2020)** — Gradient pathologies in PINNs:  
+1. **Raissi, Perdikaris & Karniadakis (2019)** — PINNs fundacional:  
+   M.Raissi, P.Perdikaris & G.E.Karniadakis,  
+   *"Physics-Informed Neural Networks: A Deep Learning Framework for Solving Forward and Inverse Problems Involving Nonlinear PDEs"*,  
+   Journal of Computational Physics 378:686–707, 2019.  
+   https://doi.org/10.1016/j.jcp.2018.10.045
+
+2. **Aras, Oysu & Yilmaz (2005)** — Benchmark cables 154 kV:  
+   F.Aras, C.Oysu & G.Yilmaz,  
+   *"An Assessment of the Methods for Calculating Ampacity of Underground Power Cables"*,  
+   Electric Power Components and Systems 33(12):1385–1402, 2005.  
+   https://doi.org/10.1080/15325000590964969
+
+3. **Kim, Cho & Choi (2024)** — Benchmark PAC bedding 154 kV:  
+   J.Kim, S.Cho & S.Choi,  
+   *"Thermal Analysis of 154 kV Underground Cable System with PAC Bedding Using COMSOL Multiphysics"*,  
+   *(En revisión / preprint, 2024). Datos FEM: I = 865 A, suelo arena 77.6 °C, PAC 70.6 °C.)*
+
+4. **Wang & Perdikaris (2021)** — Gradient pathologies in PINNs:  
    S.Wang & P.Perdikaris, *"Understanding and Mitigating Gradient Pathologies in Physics-Informed Neural Networks"*,  
    SIAM Journal on Scientific Computing 43(5):A3055-A3081, 2021.  
    Preprint: https://arxiv.org/abs/2001.04536
 
-2. **Krishnapriyan et al. (NeurIPS 2021)** — Failure modes in PINNs:  
+5. **Wang, Yu & Perdikaris (2022)** — NTK perspective:  
+   S.Wang, X.Yu & P.Perdikaris, *"When and why PINNs fail to train: A neural tangent kernel perspective"*,  
+   Journal of Computational Physics 449:110768, 2022.  
+   Preprint: https://arxiv.org/abs/2007.14527
+
+6. **Krishnapriyan et al. (NeurIPS 2021)** — Failure modes in PINNs:  
    A.Krishnapriyan, A.Gholami, S.Zhe, R.Kirby & M.Mahoney,  
    *"Characterizing Possible Failure Modes in Physics-Informed Neural Networks"*,  
    NeurIPS 2021. https://arxiv.org/abs/2109.01050
 
-3. **Daw et al. (ICML 2023)** — R3 Sampling:  
+7. **Daw et al. (ICML 2023)** — R3 Sampling:  
    A.Daw, J.Bu, S.Wang, P.Perdikaris & A.Karpatne,  
    *"Mitigating Propagation Failures in Physics-Informed Neural Networks using Retain-Resample-Release (R3) Sampling"*,  
    ICML 2023. https://arxiv.org/abs/2207.02338
 
-4. **De Ryck et al. (ICLR 2024)** — Operator preconditioning:  
+8. **De Ryck et al. (ICLR 2024)** — Operator preconditioning:  
    T.De Ryck, S.Lanthaler & S.Mishra,  
    *"An Operator Preconditioning Perspective on Training in Physics-Informed Machine Learning"*,  
    ICLR 2024. https://arxiv.org/abs/2310.05801
 
-5. **Yu et al. (2022)** — gPINNs:  
+9. **Yu et al. (2022)** — gPINNs:  
    J.Yu, L.Lu, X.Meng & G.E.Karniadakis,  
    *"Gradient-Enhanced Physics-Informed Neural Networks for Forward and Inverse Problems"*,  
    Computer Methods in Applied Mechanics and Engineering 393:114823, 2022.  
    https://arxiv.org/abs/2111.02801
 
-6. **Li et al. (ICLR 2021)** — Fourier Neural Operator (FNO):  
-   Z.Li, N.Kovachki, K.Azizzadenesheli, B.Liu, K.Bhattacharya, A.Stuart & A.Anandkumar,  
-   *"Fourier Neural Operator for Parametric Partial Differential Equations"*,  
-   ICLR 2021. https://arxiv.org/abs/2010.08895
+10. **Li et al. (ICLR 2021)** — Fourier Neural Operator (FNO):  
+    Z.Li, N.Kovachki, K.Azizzadenesheli, B.Liu, K.Bhattacharya, A.Stuart & A.Anandkumar,  
+    *"Fourier Neural Operator for Parametric Partial Differential Equations"*,  
+    ICLR 2021. https://arxiv.org/abs/2010.08895
 
-7. **Lu et al. (2021)** — DeepONet:  
-   L.Lu, P.Jin, G.Pang, Z.Zhang & G.E.Karniadakis,  
-   *"Learning Nonlinear Operators via DeepONet Based on the Universal Approximation Theorem of Operators"*,  
-   Nature Machine Intelligence 3:218-229, 2021.  
-   https://arxiv.org/abs/1910.03193
+11. **Lu et al. (2021)** — DeepONet:  
+    L.Lu, P.Jin, G.Pang, Z.Zhang & G.E.Karniadakis,  
+    *"Learning Nonlinear Operators via DeepONet Based on the Universal Approximation Theorem of Operators"*,  
+    Nature Machine Intelligence 3:218-229, 2021.  
+    https://arxiv.org/abs/1910.03193
 
-8. **Wang et al. (2022)** — Causal PINNs:  
-   S.Wang, S.Sankaran & P.Perdikaris,  
-   *"Respecting Causality for Training Physics-Informed Neural Networks"*,  
-   Computer Methods in Applied Mechanics and Engineering 421:116813, 2024.  
-   https://arxiv.org/abs/2203.07404
+12. **Wang et al. (2024)** — Causal PINNs:  
+    S.Wang, S.Sankaran & P.Perdikaris,  
+    *"Respecting Causality for Training Physics-Informed Neural Networks"*,  
+    Computer Methods in Applied Mechanics and Engineering 421:116813, 2024.  
+    https://arxiv.org/abs/2203.07404
 
-9. **Tancik et al. (NeurIPS 2020)** — Fourier Features:  
-   M.Tancik, P.Srinivasan, B.Mildenhall, S.Fridovich-Keil, N.Raghavan, U.Singhal,  
-   R.Ramamoorthi, J.Barron & R.Ng,  
-   *"Fourier Features Let Networks Learn High Frequency Functions in Low Dimensional Domains"*,  
-   NeurIPS 2020. https://arxiv.org/abs/2006.10739
+13. **Tancik et al. (NeurIPS 2020)** — Fourier Features:  
+    M.Tancik, P.Srinivasan, B.Mildenhall, S.Fridovich-Keil, N.Raghavan, U.Singhal,  
+    R.Ramamoorthi, J.Barron & R.Ng,  
+    *"Fourier Features Let Networks Learn High Frequency Functions in Low Dimensional Domains"*,  
+    NeurIPS 2020. https://arxiv.org/abs/2006.10739
 
-10. **Liu et al. (ICLR 2025)** — KAN:  
+14. **Liu et al. (ICLR 2025)** — KAN:  
     Z.Liu, Y.Wang, S.Vaidya, F.Ruehle, J.Halverson, M.Soljačić, T.Y.Hou & M.Tegmark,  
     *"KAN: Kolmogorov-Arnold Networks"*,  
     ICLR 2025. https://arxiv.org/abs/2404.19756
 
-11. **Ronneberger et al. (MICCAI 2015)** — U-Net:  
+15. **Ronneberger et al. (MICCAI 2015)** — U-Net:  
     O.Ronneberger, P.Fischer & T.Brox,  
     *"U-Net: Convolutional Networks for Biomedical Image Segmentation"*,  
     MICCAI 2015. https://arxiv.org/abs/1505.04597
 
-12. **Rahaman et al. (ICML 2019)** — Spectral bias:  
+16. **Rahaman et al. (ICML 2019)** — Spectral bias:  
     N.Rahaman, A.Baratin, D.Arpit, F.Draxler, M.Lin, F.Hamprecht, Y.Bengio & A.Courville,  
     *"On the Spectral Bias of Neural Networks"*,  
     ICML 2019. https://arxiv.org/abs/1806.08734
 
+17. **IEC 60287-1-1 (2023)** — Cálculo de capacidad de corriente:  
+    International Electrotechnical Commission,  
+    *"Electric cables — Calculation of the current rating — Part 1-1"*,  
+    IEC 60287-1-1:2023.
+
+18. **Carslaw & Jaeger (1959)** — Conducción de calor:  
+    H.S.Carslaw & J.C.Jaeger,  
+    *"Conduction of Heat in Solids"* (2nd ed.), Oxford University Press, 1959.
+
 ---
 
-*Generado automáticamente por GitHub Copilot — actualizar conforme avance la investigación.*
+*Documento activo de investigación — actualizar conforme avanza la tesis.*
