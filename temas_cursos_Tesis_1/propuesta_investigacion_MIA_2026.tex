@@ -13,6 +13,7 @@
 \usepackage{hyperref}
 \usepackage{tikz}
 \usetikzlibrary{shapes.geometric, arrows.meta, positioning, backgrounds, fit}
+\graphicspath{{graficos_ppt/}}
 
 \setbeamertemplate{navigation symbols}{}
 \setbeamertemplate{footline}[frame number]
@@ -28,6 +29,18 @@
 \subtitle{Trabajo de Investigación I\\MIA 3er Ciclo A 2026-1 $\cdot$ Grupo 9B}
 \author{Luis Koc \and Herbert Meléndez}
 \date{\today}
+
+% Diapositivas separadoras de sección
+\AtBeginSection[]{%
+  \begin{frame}[plain, noframenumbering]
+    \vfill
+    \centering
+    \begin{beamercolorbox}[sep=12pt,center,shadow=true,rounded=true]{title}
+      \usebeamerfont{title}\insertsectionhead\par%
+    \end{beamercolorbox}
+    \vfill
+  \end{frame}
+}
 
 \begin{document}
 
@@ -54,9 +67,7 @@
 del conductor en cables subterráneos: modelado numérico 2D y análisis de la
 brecha normativa}
 \par\vspace{0.35em}
-\scriptsize\textcolor{gray!80!black}{$X$: conductividad térmica del suelo
-$k(x,y)$ variable \quad$\longrightarrow$\quad $Y$: temperatura del conductor
-$T_{\text{cond}}$ / ampacidad estimada}
+
 \end{block}
 
 \vspace{0.8em}
@@ -150,15 +161,15 @@ evacuación de energía en parques solares y eólicos.
               minimum height=0.85cm, text width=2.4cm, inner sep=4pt}]
 
   % Fila 1: subestación
-  \node[box, fill=yellow!30] (sub) at (0, 3.4) {Subestación\\de transmisión};
+  \node[box, fill=yellow!30] (sub) at (0, 5.4) {Subestación\\de transmisión};
 
   % Fila 2: cable
-  \node[box, fill=gray!25] (cable) at (0, 2.1)
+  \node[box, fill=gray!25] (cable) at (0, 4.1)
         {Cable\\subterráneo\\(tramo único)};
 
   % Fila 3: consumidores (izq y der), bien separados
-  \node[box, fill=blue!15]  (ciudad) at (-2.6, 0.5) {Red\\urbana};
-  \node[box, fill=green!15] (solar)  at ( 2.6, 0.5) {Parque\\solar/eólico};
+  \node[box, fill=blue!15]  (ciudad) at (-2.6, 2.5) {Red\\urbana};
+  \node[box, fill=green!15] (solar)  at ( 2.6, 2.5) {Parque\\solar/eólico};
 
   % Fila 4: falla (debajo del cable, entre los anteriores)
   \node[box, fill=red!15, draw=red!70!black, dashed] (falla) at (0, 0.5)
@@ -199,23 +210,10 @@ funciones eléctricas y térmicas bien definidas
 \end{itemize}
 
 \column{0.44\textwidth}
-\small\textbf{Propiedades térmicas clave}
-\vspace{0.15em}
-\begin{center}\scriptsize
-\begin{tabular}{lcc}
-\toprule
-\textbf{Capa / material} & \textbf{$k$} & \textbf{$T_{\max}$}\\
-                         & (W/m\,K)     & (\textdegree{}C)\\
-\midrule
-Conductor Cu        & 385          & 90 \\
-Aislamiento XLPE    & 0{,}286      & 90 \\
-Cubierta PE/PVC     & 0{,}2--0{,}4 & --- \\
-Suelo húmedo        & 1{,}0--2{,}0 & --- \\
-Suelo seco (arena)  & 0{,}4--0{,}9 & --- \\
-Lecho estabilizado  & 1{,}0--2{,}5 & --- \\
-\bottomrule
-\end{tabular}
-\end{center}
+\centering
+\includegraphics[width=0.94\linewidth]{kim2025_cable_xsection}\\
+{\tiny\color{gray} Sección transversal cable XLPE 154~kV (7 capas concéntricas).\\
+\refcite{Kim et al.\ (2025) [R5]}}
 \vspace{0.2em}
 \begin{alertblock}{}\scriptsize
 La resistividad térmica del suelo ($\rho_T = 1/k$) es el parámetro de
@@ -249,21 +247,10 @@ cuyo diseño determina cómo se disipa el calor
           reducen $T_\text{cond}$ y aumentan la ampacidad sin cambiar el cable.
 \end{itemize}
 \column{0.42\textwidth}
-\small\textbf{Impacto del material de bedding}
-\vspace{0.15em}
-\begin{center}\scriptsize
-\begin{tabular}{lcc}
-\toprule
-\textbf{Material bedding}   & \textbf{$k$}  & \textbf{Ampacidad} \\
-                             & (W/m\,K)      & (relativa) \\
-\midrule
-Tierra nativa seca           & 0{,}3--0{,}6  & base ($-$) \\
-Arena compactada             & 0{,}9--1{,}2  & +10--15\,\% \\
-Arena húmeda                 & 1{,}2--2{,}0  & +20--30\,\% \\
-FTB (cemento+arena)          & 2{,}0--3{,}0  & +30--45\,\% \\
-\bottomrule
-\end{tabular}
-\end{center}
+\centering
+\includegraphics[width=\linewidth]{enescu_trench_xsection}\\
+{\tiny\color{gray} Cable enterrado en backfill: sección transversal de zanja.\\
+\refcite{Enescu et al.\ (2021) [R7]}}
 \vspace{0.2em}
 \begin{exampleblock}{}\scriptsize
 Optimizar el bedding es una palanca directa de diseño para
@@ -378,6 +365,56 @@ espacial del entorno ni el secado en condiciones reales.
 \end{frame}
 
 % ---------------------------------------------------------------------------
+\begin{frame}{Sensores y medios de recolección de datos térmicos}
+\begin{columns}[T]
+\column{0.48\textwidth}
+\begin{block}{Sensores distribuidos de temperatura (DTS)}
+\scriptsize\justifying
+Tecnología de referencia para monitoreo continuo en cables de alta
+tensión \refcite{(Li et al., 2006; Enescu et al., 2021)}:
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+    \item Principio: dispersión Raman en fibra óptica embebida o
+          co-instalada junto al cable.
+    \item Resolución espacial: 0{,}5--2~m; alcance: hasta 30--50~km.
+    \item Precisión: $\pm$0{,}1--0{,}5~\textdegree{}C; adquisición cada
+          1--5~min.
+    \item Localiza puntos calientes y cuellos de botella térmicos
+          invisibles para sensores discretos.
+\end{itemize}
+\end{block}
+\vspace{0.2em}
+\begin{block}{Sensores puntuales}
+\scriptsize
+PT100/PT1000 o termopares en empalmes, subestaciones y cámaras.
+Alta precisión ($\pm$0{,}1~\textdegree{}C) pero cobertura espacial
+discreta; no revelan la distribución a lo largo del tendido.
+\end{block}
+
+\column{0.48\textwidth}
+\centering
+\includegraphics[width=0.96\linewidth]{enescu_thermal_circuit}\\
+{\tiny\color{gray} Modelo RC termoeléctrico del cable: capas conductor--aislamiento--bedding--suelo.
+\refcite{Enescu et al.\ (2021) [R7]}}
+\vspace{0.2em}
+\begin{block}{SCADA / plataformas DTR}
+\scriptsize
+Integran corriente, tensión, temperatura y datos ambientales para
+calcular la ampacidad disponible en tiempo real
+(\textit{Dynamic Thermal Rating}).
+\refcite{(Fariz et al., 2026; Enescu et al., 2021)}
+\end{block}
+\vspace{0.2em}
+\begin{alertblock}{Brecha de monitoreo}
+\scriptsize
+La mayoría de instalaciones no cuenta con DTS ni sensores de suelo.
+El operador desconoce $T_\text{cond}$ y la distribución real de
+$k(x,y)$ a lo largo del tendido.
+\refcite{(Enescu et al., 2021, p.~14)}
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
 \begin{frame}{¿Qué determina la temperatura del conductor?}
 \justifying\small
 La temperatura en el conductor depende de la \textbf{disipación de calor hacia
@@ -472,6 +509,25 @@ PINNs. \refcite{(Aras et al., 2005; Raissi et al., 2019)}
 \end{frame}
 
 % ---------------------------------------------------------------------------
+\begin{frame}{Campo $T(x,y)$ resuelto — caso de referencia Aras (2005)}
+\begin{columns}[T]
+\column{0.48\textwidth}
+\centering
+\includegraphics[width=\linewidth]{own_aras_geometry}\\
+\vspace{0.2em}
+{\scriptsize\color{gray} Dominio de cómputo y geometría del cable.}
+\column{0.48\textwidth}
+\centering
+\includegraphics[width=\linewidth]{own_aras_T_field}\\
+\vspace{0.2em}
+{\scriptsize\color{gray} Campo $T(x,y)$ estacionario: $T_\text{cond} \approx 67{,}5$~\textdegree{}C.}
+\end{columns}
+\vspace{0.3em}
+\refcite{Resultados propios. Caso de referencia: Aras et al.\ (2005) [R4].
+Suelo homogéneo: $k=1{,}0$~W/(m\,K); $I=565$~A; $T_s=20$~\textdegree{}C.}
+\end{frame}
+
+% ---------------------------------------------------------------------------
 \begin{frame}{El dominio del problema: geometría, zonas y condiciones de contorno}
 \begin{columns}[T]
 \column{0.55\textwidth}
@@ -556,6 +612,25 @@ PINNs. \refcite{(Aras et al., 2005; Raissi et al., 2019)}
 \end{columns}
 \end{frame}
 
+% ---------------------------------------------------------------------------
+\begin{frame}{Suelo estratificado: $k(x,y)$ variable y campo $T$ resultante}
+\begin{columns}[T]
+\column{0.48\textwidth}
+\centering
+\includegraphics[width=\linewidth]{own_kim_k_field_A}\\
+\vspace{0.2em}
+{\scriptsize\color{gray} Campo $k(x,y)$: tres capas de suelo con conductividades distintas (Caso A).}
+\column{0.48\textwidth}
+\centering
+\includegraphics[width=\linewidth]{own_kim_T_field_A}\\
+\vspace{0.2em}
+{\scriptsize\color{gray} Campo $T(x,y)$ resultante: isotermas deformadas por la heterogeneidad.}
+\end{columns}
+\vspace{0.3em}
+\refcite{Kim et al.\ (2025) [R5]; resultados propios.
+Cable 154~kV en arreglo trefoil; tres capas de suelo con $k$ variable.}
+\end{frame}
+
 % ===========================================================================
 \section{Núcleo del problema}
 % ===========================================================================
@@ -608,56 +683,31 @@ desconoce la temperatura real y opera con incertidumbre no cuantificada.
 \end{frame}
 
 % ---------------------------------------------------------------------------
-\begin{frame}{Sensores y medios de recolección de datos térmicos}
+\begin{frame}{La brecha en números: IEC 60287 vs.\ FEM vs.\ PINN}
 \begin{columns}[T]
-\column{0.48\textwidth}
-\begin{block}{Sensores distribuidos de temperatura (DTS)}
+\column{0.62\textwidth}
+\centering
+\includegraphics[width=\linewidth]{own_kim_comparison_bar}
+\column{0.35\textwidth}
+\vspace{1em}
 \scriptsize\justifying
-Tecnología de referencia para monitoreo continuo en cables de alta
-tensión \refcite{(Li et al., 2006; Enescu et al., 2021)}:
-\begin{itemize}[leftmargin=*,itemsep=1pt]
-    \item Principio: dispersión Raman en fibra óptica embebida o
-          co-instalada junto al cable.
-    \item Resolución espacial: 0{,}5--2~m; alcance: hasta 30--50~km.
-    \item Precisión: $\pm$0{,}1--0{,}5~\textdegree{}C; adquisición cada
-          1--5~min.
-    \item Localiza puntos calientes y cuellos de botella térmicos
-          invisibles para sensores discretos.
+\textbf{Mismo cable (154~kV), distinto modelo:}
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+    \item IEC~60287: 67{,}4~\textdegree{}C
+    \item FEM (arena): 77{,}6~\textdegree{}C
+    \item FEM + PAC: 70{,}6~\textdegree{}C
+    \item PINN + PAC: 76{,}9~\textdegree{}C
 \end{itemize}
-\end{block}
-\vspace{0.2em}
-\begin{block}{Sensores puntuales}
+\vspace{0.5em}
+\begin{alertblock}{}
 \scriptsize
-PT100/PT1000 o termopares en empalmes, subestaciones y cámaras.
-Alta precisión ($\pm$0{,}1~\textdegree{}C) pero cobertura espacial
-discreta; no revelan la distribución a lo largo del tendido.
-\end{block}
-
-\column{0.48\textwidth}
-\begin{block}{Estimación indirecta (modelo de carga)}
-\scriptsize
-La temperatura se calcula a partir de la corriente medida mediante
-modelos térmicos (IEC~60287 o circuito $RC$ térmico equivalente). No
-requiere sensores en el cable, pero depende de los parámetros del suelo
-asumidos.
-\end{block}
-\vspace{0.2em}
-\begin{block}{SCADA / plataformas DTR}
-\scriptsize
-Integran corriente, tensión, temperatura y datos ambientales para
-calcular la ampacidad disponible en tiempo real
-(\textit{Dynamic Thermal Rating}).
-\refcite{(Fariz et al., 2026; Enescu et al., 2021)}
-\end{block}
-\vspace{0.2em}
-\begin{alertblock}{Brecha de monitoreo}
-\scriptsize
-La mayoría de instalaciones no cuenta con DTS ni sensores de suelo.
-El operador desconoce $T_\text{cond}$ y la distribución real de
-$k(x,y)$ a lo largo del tendido.
-\refcite{(Enescu et al., 2021, p.~14)}
+Diferencia de hasta \textbf{10~K} entre modelos.\\
+Límite XLPE: 90~\textdegree{}C.\\
+El margen de seguridad real es \textbf{menor} que el que estima la norma.
 \end{alertblock}
 \end{columns}
+\vspace{0.2em}
+\refcite{Kim et al.\ (2025) [R5]; resultados propios.}
 \end{frame}
 
 \begin{frame}{Estado actual: métodos predominantes y sus supuestos}
@@ -958,6 +1008,18 @@ mantenimiento predictivo y DTR.
 \refcite{(Fariz et al., 2026); (Al-Dulaimi et al., 2024)}
 \end{block}
 \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Alta fidelidad del modelo PINN vs.\ FEM de referencia}
+\centering
+\includegraphics[width=0.88\linewidth]{own_kim_fem_zoom}\\
+\vspace{0.3em}
+\small 4 paneles: campo $T$ del FEM de referencia y tres variantes PINN
+(Kim et al.\ 2025, Caso B).
+$|\Delta T|_{\max} < 0{,}5$~K entre FEM y la mejor variante PINN.\\
+\vspace{0.2em}
+\refcite{Kim et al.\ (2025) [R5]; resultados propios.}
 \end{frame}
 
 % ===========================================================================
