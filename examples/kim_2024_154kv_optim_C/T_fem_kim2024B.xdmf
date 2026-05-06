@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE Xdmf SYSTEM "Xdmf.dtd" []>
+<Xdmf Version="3.0" xmlns:xi="https://www.w3.org/2001/XInclude">
+  <Domain>
+    <Grid Name="mesh" GridType="Uniform">
+      <Topology TopologyType="Triangle" NumberOfElements="6983242" NodesPerElement="3">
+        <DataItem Dimensions="6983242 3" NumberType="Int" Format="HDF">T_fem_kim2024B.h5:/Mesh/mesh/topology</DataItem>
+      </Topology>
+      <Geometry GeometryType="XY">
+        <DataItem Dimensions="3492715 2" Format="HDF">T_fem_kim2024B.h5:/Mesh/mesh/geometry</DataItem>
+      </Geometry>
+    </Grid>
+    <Grid Name="T_K" GridType="Collection" CollectionType="Temporal">
+      <Grid Name="T_K" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0" />
+        <Attribute Name="T_K" AttributeType="Scalar" Center="Node">
+          <DataItem Dimensions="3492715 1" Format="HDF">T_fem_kim2024B.h5:/Function/T_K/0</DataItem>
+        </Attribute>
+      </Grid>
+    </Grid>
+  </Domain>
+</Xdmf>
