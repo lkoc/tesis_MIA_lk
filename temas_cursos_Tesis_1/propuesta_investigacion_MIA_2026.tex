@@ -27,7 +27,7 @@
 % ---------------------------------------------------------------------------
 \title{Propuesta de Investigación}
 \subtitle{Trabajo de Investigación I\\MIA 3er Ciclo A 2026-1 $\cdot$ Grupo 9B}
-\author{Luis Koc \and Herbert Meléndez}
+\author{Luis Koc \and \\ Herbert Meléndez}
 \date{\today}
 
 % Diapositivas separadoras de sección
@@ -392,9 +392,7 @@ discreta; no revelan la distribución a lo largo del tendido.
 
 \column{0.48\textwidth}
 \centering
-\includegraphics[width=0.96\linewidth]{enescu_thermal_circuit}\\
-{\tiny\color{gray} Modelo RC termoeléctrico del cable: capas conductor--aislamiento--bedding--suelo.
-\refcite{Enescu et al.\ (2021) [R7]}}
+
 \vspace{0.2em}
 \begin{block}{SCADA / plataformas DTR}
 \scriptsize
@@ -403,7 +401,7 @@ calcular la ampacidad disponible en tiempo real
 (\textit{Dynamic Thermal Rating}).
 \refcite{(Fariz et al., 2026; Enescu et al., 2021)}
 \end{block}
-\vspace{0.2em}
+\vspace{1.5em}
 \begin{alertblock}{Brecha de monitoreo}
 \scriptsize
 La mayoría de instalaciones no cuenta con DTS ni sensores de suelo.
@@ -461,127 +459,52 @@ el modelo simplificado ya no predice bien la temperatura real del conductor.
 
 % ---------------------------------------------------------------------------
 \begin{frame}{Física del problema: ecuación de conducción de calor}
+\begin{columns}[T]
+\column{0.8\textwidth}
 \justifying\small
-La temperatura en el cable y su entorno está gobernada por la
-\textbf{ecuación de conducción de calor en 2D con coeficientes variables}
+La temperatura está gobernada por la
+\textbf{ecuación de conducción de calor 2D con coeficientes variables}
 \refcite{(Carslaw \& Jaeger, 1959; Aras et al., 2005)}:
-
 \begin{equation*}
-\frac{\partial}{\partial x}\!\left(k(x,y)\,\frac{\partial T}{\partial x}\right)+
-\frac{\partial}{\partial y}\!\left(k(x,y)\,\frac{\partial T}{\partial y}\right)
-+Q(x,y) = \rho c_p\,\frac{\partial T}{\partial t}
+\frac{\partial}{\partial x}\!\left(k\,\frac{\partial T}{\partial x}\right)+
+\frac{\partial}{\partial y}\!\left(k\,\frac{\partial T}{\partial y}\right)
++Q = \rho c_p\,\frac{\partial T}{\partial t}
 \end{equation*}
-
-\vspace{0.1em}
-\begin{columns}[T]
-\column{0.48\textwidth}
-\begin{block}{Variables y parámetros}
+\begin{block}{Variables clave}
 \scriptsize
 \begin{itemize}[leftmargin=*,itemsep=1pt]
-    \item $k(x,y)$: conductividad térmica variable --- distinta en
-          conductor, XLPE, pantalla, suelo y relleno.
-    \item $Q(x,y)$: calor generado (W/m\textsuperscript{3}); no nulo en
-          conductor ($I^2 R_\text{ac}$) y pantalla.
-    \item $\rho c_p$: capacidad calorífica volumétrica (J/m\textsuperscript{3}\,K).
-\end{itemize}
-\end{block}
-
-\column{0.48\textwidth}
-\begin{block}{Formas de interés}
-\scriptsize
-\begin{itemize}[leftmargin=*,itemsep=1pt]
-    \item \textbf{Estacionario} ($\partial T/\partial t = 0$): base de
+    \item $k(x,y)$: conductividad térmica variable en conductor, XLPE,
+          relleno y suelo.
+    \item $Q(x,y)$: fuente de calor (W/m\textsuperscript{3});
+          activa en conductor ($I^2R_\text{ac}$) y pantalla.
+    \item \textbf{Estacionario} ($\partial T/\partial t=0$): base de
           IEC~60287; dimensionamiento de ampacidad.
-    \item \textbf{Transitorio}: ciclos de carga, sobrecargas, DTR en
-          tiempo real.
-    \item \textbf{Problema inverso}: estimar $k(x,y)$ del suelo a partir
-          de mediciones de temperatura (fibra DTS).
+    \item \textbf{Transitorio}: ciclos de carga, sobrecargas, DTR.
 \end{itemize}
 \end{block}
-\end{columns}
-
-\vspace{0.2em}
+\vspace{0.1em}
 \begin{exampleblock}{}\centering\scriptsize
-IEC~60287 asume $k=\text{const}$ (suelo uniforme). Con $k(x,y)$ variable
-no existe solución analítica cerrada: se requiere FEM, FDM o enfoques como
-PINNs. \refcite{(Aras et al., 2005; Raissi et al., 2019)}
+IEC~60287 asume $k=\text{const}$. Con $k(x,y)$ variable no existe solución
+analítica: se requiere FEM, FDM o PINNs. \refcite{(Aras et al., 2005; Raissi et al., 2019)}
 \end{exampleblock}
-\end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Campo $T(x,y)$ resuelto — caso de referencia Aras (2005)}
-\begin{columns}[T]
-\column{0.48\textwidth}
-\centering
-\includegraphics[width=\linewidth]{own_aras_geometry}\\
-\vspace{0.2em}
-{\scriptsize\color{gray} Dominio de cómputo y geometría del cable.}
-\column{0.48\textwidth}
-\centering
-\includegraphics[width=\linewidth]{own_aras_T_field}\\
-\vspace{0.2em}
-{\scriptsize\color{gray} Campo $T(x,y)$ estacionario: $T_\text{cond} \approx 67{,}5$~\textdegree{}C.}
 \end{columns}
-\vspace{0.3em}
-\refcite{Resultados propios. Caso de referencia: Aras et al.\ (2005) [R4].
-Suelo homogéneo: $k=1{,}0$~W/(m\,K); $I=565$~A; $T_s=20$~\textdegree{}C.}
 \end{frame}
 
 % ---------------------------------------------------------------------------
 \begin{frame}{El dominio del problema: geometría, zonas y condiciones de contorno}
 \begin{columns}[T]
-\column{0.55\textwidth}
+\column{0.4\textwidth}
 \centering
-\begin{tikzpicture}[scale=0.92, >=Stealth,
-  lyr/.style={font=\tiny, align=center}]
+\includegraphics[width=\linewidth]{kim2025_BC}\\
+\vspace{0.2em}
+{\scriptsize\color{gray}
+Dominio computacional: 3 capas de suelo estratificado, lecho de relleno
+(bedding) y 6 cables trefoil.\\
+CC superior: convección libre; CC inferior: $T=15{,}2$\,°C (Dirichlet).\\
+\refcite{(Kim et al., 2025 [R5], Fig.\,7)}}
 
-  % Superficie del suelo
-  \fill[brown!18] (-3.2,-0.1) rectangle (3.2,-5.6);
-  \draw[thick, dashed] (-3.2,0) -- (3.2,0);
-  \node[lyr, above] at (0,0.05) {Superficie del suelo \quad $T_s$};
-
-  % Zona suelo nativo (lejos del cable)
-  \node[lyr, gray] at (-2.2,-1.3) {Suelo\\nativo\\$k_1$};
-  \node[lyr, gray] at ( 2.2,-1.3) {Suelo\\nativo\\$k_1$};
-
-  % Backfill / bedding
-  \fill[orange!22, draw=orange!60, rounded corners=6pt]
-    (-1.5,-0.8) rectangle (1.5,-3.8);
-  \node[lyr] at (0,-0.55) {\textbf{Relleno / bedding} $k_2$};
-
-  % Cable externo (chaqueta)
-  \fill[gray!50, draw=gray!80] (0,-2.3) circle (0.85);
-  \node[lyr] at (0,-3.45) {Chaqueta};
-
-  % Aislamiento XLPE  -- etiqueta lado izquierdo
-  \fill[yellow!60, draw=yellow!70!black] (0,-2.3) circle (0.60);
-  \node[lyr, anchor=east] (xlpelbl) at (-1.55,-1.65) {Aisl.\\XLPE};
-  \draw[->, gray!70] (xlpelbl.east) -- (-0.44,-1.96);
-
-  % Conductor
-  \fill[orange!70, draw=orange!80] (0,-2.3) circle (0.25);
-  \node[font=\tiny\bfseries, white] at (0,-2.3) {Cu};
-
-  % Isotermas esquîmáticas
-  \draw[blue!40, dashed, thick] (0,-2.3) circle (1.25);
-  \draw[blue!25, dashed]        (0,-2.3) circle (1.85);
-  \draw[blue!15, dashed]        (0,-2.3) circle (2.6);
-  \node[lyr, blue!50] at (2.55,-4.2) {isotermas};
-
-  % Profundidad
-  \draw[<->, gray] (-3.0,0) -- (-3.0,-2.3)
-    node[midway, left, font=\tiny, gray] {$z$};
-
-  % Temperatura conductor
-  \draw[->, red!70!black, thick] (0.2,-2.1) -- (1.7,-1.1)
-    node[right, font=\tiny, red!70!black] {$T_{\text{cond}}$ (Y)};
-
-  % k variable
-  \node[lyr, orange!70!black] at (-2.2,-3.4) {$k(x,y)$\\variable\\(X)};
-  \draw[->, orange!70!black] (-1.55,-3.2) -- (-1.0,-2.8);
-\end{tikzpicture}
-
-\column{0.42\textwidth}
+\column{0.55\textwidth}
 \justifying\small
 \textbf{Zonas del dominio $\Omega$}
 \begin{itemize}[leftmargin=*]\scriptsize
@@ -610,25 +533,6 @@ Suelo homogéneo: $k=1{,}0$~W/(m\,K); $I=565$~A; $T_s=20$~\textdegree{}C.}
 \textcolor{gray}{\scriptsize\refcite{(Carslaw \& Jaeger, 1959 [A13]);
 (Aras et al., 2005 [R4])}}
 \end{columns}
-\end{frame}
-
-% ---------------------------------------------------------------------------
-\begin{frame}{Suelo estratificado: $k(x,y)$ variable y campo $T$ resultante}
-\begin{columns}[T]
-\column{0.48\textwidth}
-\centering
-\includegraphics[width=\linewidth]{own_kim_k_field_A}\\
-\vspace{0.2em}
-{\scriptsize\color{gray} Campo $k(x,y)$: tres capas de suelo con conductividades distintas (Caso A).}
-\column{0.48\textwidth}
-\centering
-\includegraphics[width=\linewidth]{own_kim_T_field_A}\\
-\vspace{0.2em}
-{\scriptsize\color{gray} Campo $T(x,y)$ resultante: isotermas deformadas por la heterogeneidad.}
-\end{columns}
-\vspace{0.3em}
-\refcite{Kim et al.\ (2025) [R5]; resultados propios.
-Cable 154~kV en arreglo trefoil; tres capas de suelo con $k$ variable.}
 \end{frame}
 
 % ===========================================================================

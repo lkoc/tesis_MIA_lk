@@ -78,8 +78,10 @@ EXTRACTIONS = [
     ("kim2025", 2,  "kim2025_geometry.png",        150),
     # Kim 2025 – Fig.2: sección transversal cable XLPE (7 capas rotuladas)
     ("kim2025", 3,  "kim2025_cable_xsection.png",  150),
-    # Kim 2025 – Fig.7: condiciones de contorno del dominio
+    # Kim 2025 – Fig.7: condiciones de contorno del dominio (suelo 3 capas, BCs)
     ("kim2025", 7,  "kim2025_BC.png",              150),
+    # Kim 2025 – Fig.19: distribución de temperatura UPCS (arena, verano/invierno)
+    ("kim2025", 14, "kim2025_T_contour.png",        150),
     # Khumalo – Fig.2: circuito resistivo térmico del cable (capas conductor→suelo)
     ("khumalo", 4,  "khumalo_thermal_circuit.png", 150),
     # Enescu 2021 – Fig.1: cable enterrado en backfill, sección zanja (diagram limpio)
@@ -88,6 +90,8 @@ EXTRACTIONS = [
     ("enescu",  6,  "enescu_thermal_circuit.png",  150),
     # Aras 2005 – Fig.1: vista transversal cable 154 kV (XLPE/CONDUCTOR/SCREEN/COVER)
     ("aras",    5,  "aras_cable_xsection.png",     150),
+    # Aras 2005 – Fig.2: dominio 2D (18×10m), cable a 1.2m de prof., BCs T=20°C
+    ("aras",    6,  "aras_domain_BC.png",          150),
     # Ocloń 2015 – Fig.1: instalación flat/trefoil + Fig.2: sección cable 400 kV
     ("oclon",   2,  "oclon_install_types.png",     150),
 ]
