@@ -225,6 +225,54 @@ modificar la ampacidad en más del 20\,\%.
 \end{frame}
 
 % ---------------------------------------------------------------------------
+\begin{frame}{Fuentes de calor y circuito térmico equivalente del cable}
+\begin{columns}[T]
+\column{0.52\textwidth}
+\textbf{\small Pérdidas por unidad de longitud (W/m)}
+\begin{itemize}[leftmargin=*]\scriptsize
+    \item \textbf{Efecto Joule en el conductor}:
+          $W_c = I^2\,R_\text{ac}$, donde la resistencia alterna
+          incorpora efecto piel ($y_s$) y de proximidad ($y_p$):\\
+          $R_\text{ac} = R_\text{dc}[1+\alpha(T{-}20)](1+y_s+y_p)$.
+    \item \textbf{Pérdidas dieléctricas} (cables $\geq$66~kV):\\
+          $W_d = \omega\,C\,U_0^2\,\tan\delta$;\;
+          $\tan\delta \approx 4\times10^{-4}$ para XLPE en servicio
+          continuo. Despreciables en distribución ($<$36~kV).
+    \item \textbf{Pantalla metálica}:
+          $W_s = \lambda_1\,I^2\,R_\text{ac}$; el factor $\lambda_1$
+          depende de la configuración (trefoil/plana) y del modo de
+          aterrizaje de la pantalla.
+\end{itemize}
+\begin{exampleblock}{}\scriptsize
+$W_\text{total} = W_c(1+\lambda_1)+W_d$~(W/m).
+En cables de distribución ($<$36~kV), $W_d\approx0$ y domina~$W_c$.
+\refcite{(IEC~60287-1-1, 2023; Neher \& McGrath, 1957)}
+\end{exampleblock}
+\column{0.44\textwidth}
+\textbf{\small Resistencias térmicas en serie (IEC~60287)}
+\begin{center}\scriptsize
+\begin{tabular}{ll}
+\toprule
+\textbf{Zona}              & \textbf{$T_i$~(K$\cdot$m/W)} \\
+\midrule
+XLPE (aislamiento)         & $\dfrac{\rho_1}{2\pi}\ln\!\dfrac{D_i}{d_c}$ \\[6pt]
+Cubierta exterior          & $T_3$ (tabulada) \\[2pt]
+Suelo (IEC, uniforme)      & $\dfrac{\rho_{T,s}}{2\pi}\ln\!\dfrac{4\,h}{D_e}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{alertblock}{}\scriptsize
+$T_\text{cond} = T_\text{amb} + W_\text{total}\!\sum T_i$\\[2pt]
+Con $\rho_{T,s}=\text{const}$ (IEC) hay solución analítica
+cerrada. Si $\rho_{T,s}(x,y)$ varía con la posición, $T_4$ debe
+calcularse numéricamente: es la principal fuente de la brecha
+investigada.
+\refcite{(IEC~60287-1-1, 2023; Anders, 2005; Thue, 2012)}
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
 \begin{frame}{El entorno de instalación: zanja, bedding y backfill}
 \begin{columns}[T]
 \column{0.54\textwidth}
@@ -391,9 +439,22 @@ discreta; no revelan la distribución a lo largo del tendido.
 \end{block}
 
 \column{0.48\textwidth}
-\centering
-
-\vspace{0.2em}
+\begin{block}{Medición de propiedades térmicas del suelo}
+\scriptsize\justifying
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+    \item \textbf{Sonda de aguja} (ASTM~D5334 / IEEE~442): fuente de
+          calor lineal transitoria embebida in-situ; mide $k$ del
+          suelo con $\pm$3\,\% de precisión. Método estándar en
+          proyectos de cable subterráneo.
+    \item \textbf{TPS} (\textit{Transient Plane Source}): en
+          laboratorio; determina $k$, $\rho c_p$ y difusividad
+          $\alpha = k/(\rho c_p)$ simultáneamente sobre muestras.
+    \item \textbf{Sensores de humedad} (TDR / FDR): cuantifican el
+          contenido volumétrico de agua; crítico para anticipar
+          y detectar el secado térmico.
+\end{itemize}
+\end{block}
+\vspace{0.15em}
 \begin{block}{SCADA / plataformas DTR}
 \scriptsize
 Integran corriente, tensión, temperatura y datos ambientales para
@@ -401,7 +462,7 @@ calcular la ampacidad disponible en tiempo real
 (\textit{Dynamic Thermal Rating}).
 \refcite{(Fariz et al., 2026; Enescu et al., 2021)}
 \end{block}
-\vspace{1.5em}
+\vspace{0.3em}
 \begin{alertblock}{Brecha de monitoreo}
 \scriptsize
 La mayoría de instalaciones no cuenta con DTS ni sensores de suelo.
@@ -460,34 +521,55 @@ el modelo simplificado ya no predice bien la temperatura real del conductor.
 % ---------------------------------------------------------------------------
 \begin{frame}{Física del problema: ecuación de conducción de calor}
 \begin{columns}[T]
-\column{0.8\textwidth}
+\column{0.55\textwidth}
 \justifying\small
 La temperatura está gobernada por la
 \textbf{ecuación de conducción de calor 2D con coeficientes variables}
 \refcite{(Carslaw \& Jaeger, 1959; Aras et al., 2005)}:
 \begin{equation*}
-\frac{\partial}{\partial x}\!\left(k\,\frac{\partial T}{\partial x}\right)+
-\frac{\partial}{\partial y}\!\left(k\,\frac{\partial T}{\partial y}\right)
-+Q = \rho c_p\,\frac{\partial T}{\partial t}
+\underbrace{
+  \frac{\partial}{\partial x}\!\left(k\tfrac{\partial T}{\partial x}\right)
+ +\frac{\partial}{\partial y}\!\left(k\tfrac{\partial T}{\partial y}\right)
+}_{\nabla\cdot(k\,\nabla T)\;\text{difusión}}
++\underbrace{Q}_{\text{fuentes}}
+= \underbrace{\rho c_p\,\frac{\partial T}{\partial t}}_{\text{acumulación}}
 \end{equation*}
-\begin{block}{Variables clave}
+\begin{block}{\scriptsize Término fuente $Q(x,y)$ (W/m\textsuperscript{3})}
 \scriptsize
 \begin{itemize}[leftmargin=*,itemsep=1pt]
-    \item $k(x,y)$: conductividad térmica variable en conductor, XLPE,
-          relleno y suelo.
-    \item $Q(x,y)$: fuente de calor (W/m\textsuperscript{3});
-          activa en conductor ($I^2R_\text{ac}$) y pantalla.
-    \item \textbf{Estacionario} ($\partial T/\partial t=0$): base de
-          IEC~60287; dimensionamiento de ampacidad.
-    \item \textbf{Transitorio}: ciclos de carga, sobrecargas, DTR.
+    \item $\Omega_\text{cond}$:\enspace $Q_c = I^2 R_\text{ac}/A_c$
+          \hfill (efecto Joule)
+    \item $\Omega_\text{pantalla}$:\enspace $Q_s = \lambda_1 I^2
+          R_\text{ac}/A_s$
+    \item $\Omega_\text{xlpe},\;\Omega_\text{suelo}$:\enspace $Q=0$
+          (sólo conducen el calor generado aguas arriba)
+    \item $k(x,y)$: varía de $\approx0{,}25$~W/(m\,K) (suelo seco) a
+          385~W/(m\,K) (Cu): contraste de 3 órdenes de magnitud.
 \end{itemize}
 \end{block}
-\vspace{0.1em}
+\column{0.41\textwidth}
+\begin{block}{\scriptsize Régimen estacionario ($\partial T/\partial t=0$)}
+\scriptsize
+$\nabla\cdot(k\,\nabla T)+Q=0$ \quad base de IEC~60287.\\[3pt]
+\textbf{Si} $k=\text{const}$: solución analítica de Kelvin
+(fuente lineal en medio homogéneo).\\[3pt]
+\textbf{Si} $k=k(x,y)$: no existe solución analítica
+$\Rightarrow$ FEM, FDM o PINNs.
+\refcite{(Aras et al., 2005)}
+\end{block}
+\vspace{0.15em}
+\begin{block}{\scriptsize Régimen transitorio}
+\scriptsize
+$\rho c_p\,\partial T/\partial t = \nabla\cdot(k\,\nabla T)+Q$.\\[3pt]
+La capacidad térmica $\rho c_p$ de cada material controla la
+respuesta ante ciclos de carga, sobrecargas y DTR dinámico.
+\end{block}
+\vspace{0.15em}
 \begin{exampleblock}{}\centering\scriptsize
-IEC~60287 asume $k=\text{const}$. Con $k(x,y)$ variable no existe solución
-analítica: se requiere FEM, FDM o PINNs. \refcite{(Aras et al., 2005; Raissi et al., 2019)}
+IEC~60287 adopta $k=\text{const}$ por zona y $\partial T/\partial t=0$:
+da solución cerrada pero limitada a condiciones homogéneas.
+\refcite{(Aras et al., 2005; Raissi et al., 2019)}
 \end{exampleblock}
-
 \end{columns}
 \end{frame}
 
