@@ -26,7 +26,7 @@
 % Portada
 % ---------------------------------------------------------------------------
 \title{Propuesta de Investigación}
-\subtitle{Trabajo de Investigación I\\MIA 3er Ciclo A 2026-1 $\cdot$ Grupo 9B}
+\subtitle{Trabajo de Investigación I\\MIA 3er Ciclo A 2026-1 $\cdot$ Grupo G91}
 \author{Luis Koc \and \\ Herbert Meléndez}
 \date{\today}
 
@@ -54,42 +54,48 @@
 \begin{frame}{Estructura de la presentación}
 \tableofcontents[hideallsubsections]
 \end{frame}
-
-% ===========================================================================
-\section{Título tentativo e idea central}
-% ===========================================================================
-
+% ---------------------------------------------------------------------------
+% Introducción (sin numerar como sección temática)
+% ---------------------------------------------------------------------------
 \begin{frame}{Título tentativo}
 
 \begin{block}{}
 \centering\large
-\textbf{Efecto de la heterogeneidad térmica del entorno sobre la temperatura
-del conductor en cables subterráneos: modelado numérico 2D y análisis de la
-brecha normativa}
+\textbf{Efecto de la heterogeneidad térmica del entorno sobre la temperatura del conductor en cables eléctricos subterráneos: modelado numérico 2D}
 \par\vspace{0.35em}
 
 \end{block}
 
 \vspace{0.8em}
 \begin{columns}[T]
-\column{0.45\textwidth}
+\column{0.3\textwidth}
 \textbf{Campo disciplinario}
 \begin{itemize}[leftmargin=*]\small
     \item Sistemas eléctricos de potencia
     \item Transferencia de calor computacional
     \item Modelado numérico e IA aplicada
 \end{itemize}
-\column{0.50\textwidth}
+\column{0.30\textwidth}
 \textbf{Etapa del proceso investigativo}
 \begin{itemize}[leftmargin=*]\small
     \item Comprensión y formulación del problema
     \item Identificación de la brecha
-    \item Esbozo de posibles soluciones
+    \item Enfoque preliminar de solución
 \end{itemize}
+
+\column{0.30\textwidth}
+\textbf{Palabras clave}
+\begin{itemize}[leftmargin=*]\small
+    \item Underground power cable
+    \item power cable ampacity
+    \item Soil thermal heterogeneity
+    \item Physics-informed neural networks
+    \item Dynamic thermal rating
+\end{itemize}
+
 \end{columns}
 \end{frame}
 
-% ---------------------------------------------------------------------------
 \begin{frame}{Idea central}
 \justifying
 
@@ -126,8 +132,9 @@ de infraestructura crítica.
 (Aras et al., 2005); (Kim et al., 2025)}
 \end{frame}
 
+
 % ===========================================================================
-\section{El cable y su entorno de instalación}
+\section{Problemática}
 % ===========================================================================
 
 \begin{frame}{Cables subterráneos: infraestructura crítica sin margen de error}
@@ -187,7 +194,160 @@ evacuación de energía en parques solares y eólicos.
 \end{columns}
 \end{frame}
 
-% ---------------------------------------------------------------------------
+\begin{frame}{El problema duele: consecuencias reales de la brecha}
+\begin{columns}[T]
+\column{0.48\textwidth}
+\begin{alertblock}{Cuando se subestima la temperatura}
+\scriptsize
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+    \item Temperatura real supera el límite del aislamiento
+    \item Deterioro acelerado del XLPE (polietileno reticulado)
+    \item Falla prematura, no prevista, difícil de diagnosticar
+    \item Especialmente grave en cruces urbanos o zonas de alta densidad
+\end{itemize}
+\end{alertblock}
+\column{0.48\textwidth}
+\begin{exampleblock}{Cuando se sobreestima la temperatura}
+\scriptsize
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+    \item Cable opera por debajo de su capacidad real
+    \item Sobredimensionamiento innecesario o subutilización del activo
+    \item Pérdida de capacidad para integrar más renovables
+    \item El DTR (calificación térmica dinámica) estático es conservador:
+          capacidad dinámica real no aprovechada \refcite{(Fariz et al., 2026)}
+\end{itemize}
+\end{exampleblock}
+\end{columns}
+
+\vspace{0.2em}
+\begin{columns}[T]
+\column{0.48\textwidth}
+\begin{block}{Diseños fuera de premisas normativas}
+\scriptsize
+Instalaciones con múltiples circuitos, cruces de vías o ductos en bancos se
+salen de los supuestos de IEC~60287. El cálculo correcto requiere
+FEM (elementos finitos) o FVM (volúmenes finitos), que no son accesibles para todos.
+\refcite{(Anders, 2005, pp.~1--15); (Aras et al., 2005)}
+\end{block}
+\column{0.48\textwidth}
+\begin{block}{Monitoreo operacional insuficiente}
+\scriptsize
+La mayoría de instalaciones no cuentan con sensores DTS (sensado de
+temperatura distribuida por fibra óptica) ni termopares. El operador
+desconoce la temperatura real y opera con incertidumbre no cuantificada.
+\refcite{(Fariz et al., 2026); (Enescu et al., 2021, p.~14)}
+\end{block}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Estado actual: métodos predominantes y sus supuestos}
+\begin{columns}[T]
+\column{0.48\textwidth}
+\begin{alertblock}{Normas aplicables}
+\scriptsize\justifying
+\textbf{IEC (Comisión Electrotécnica Internacional) 60287 / Neher-McGrath:} ampacidad en régimen
+estacionario (100\% factor de carga), con $k_s$ constante, temperatura
+ambiente fija y geometría estándar. Válida para el ``caso base''; menos precisa en instalaciones complejas.
+\refcite{(Neher y McGrath, 1957); (IEC 60287-1-1, 2023)}
+
+\vspace{0.2em}
+\textbf{IEC 60853 / factores de derateo:} maneja carga cíclica y
+emergencias; la parte 3 considera secado parcial, pero mantiene hipótesis
+fuertes de uniformidad del entorno.
+\refcite{(IEC 60853-1, 1985); (IEC 60853-3, 2002)}
+\end{alertblock}
+
+\column{0.48\textwidth}
+\begin{alertblock}{Modelos de Elementos Finitos (FEM)}
+\scriptsize\justifying
+Precisos y flexibles para geometrías complejas y $k(x,y)$ variable. Sin
+embargo:
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+    \item Requieren configuración experta y mallado cuidadoso
+    \item Cada nueva configuración exige una nueva simulación
+    \item No son prácticos para operación en tiempo real
+    \item Barreras de acceso: licencias costosas, curva de aprendizaje
+          lenta, tiempo de cómputo elevado
+    \item No diseñados para el \textit{problema inverso} (estimar
+          $k$ desde mediciones)
+\end{itemize}
+\refcite{(Aras et al., 2005); (CIGRÉ WG B1.56, 2022)}
+\end{alertblock}
+\end{columns}
+
+\vspace{0.2em}
+\refcite{(Anders, 2005); (Al-Dulaimi et al., 2024, p.~2)}
+\end{frame}
+
+\begin{frame}{Estado actual: casos donde los métodos vigentes fallan}
+
+\begin{columns}[T]
+\column{0.48\textwidth}
+
+\begin{block}{Cruces y entornos de alta densidad}
+\small Múltiples circuitos, cables en bancos o ductos, cruces de vías.
+La interacción térmica entre cables y la variabilidad del relleno superan
+las premisas de las normas. FEM es el camino pero no suele implementarse.
+\refcite{(Anders, 2005, pp.~50--80); (Atoccsa et al., 2024)}
+\end{block}
+\vspace{0.3em}
+\begin{block}{Variación estacional y climática}
+\small La temperatura del suelo varía entre verano e invierno; la humedad
+cambia con las lluvias. La ampacidad real no es fija sino variable durante
+el año. Los ratings estáticos no capturan esto.
+\refcite{(Möbius et al., 2025); (Kim et al., 2025)}
+\end{block}
+
+\column{0.48\textwidth}
+
+\begin{block}{Secado térmico local}
+\small Bajo carga sostenida, el suelo cerca del cable se seca, su
+resistividad sube de 1.0 a más de 2.5 K·m/W, y la temperatura del
+conductor aumenta de forma no lineal y no capturada por los modelos
+estáticos. \refcite{(Khumalo et al., 2025, pp.~6--10)}
+\end{block}
+\vspace{0.3em}
+\begin{block}{DTR en cargas fluctuantes}
+\small Para energía renovable la carga varía continuamente. Los modelos de
+red térmica equivalente pierden precisión bajo variaciones rápidas. Se
+necesita un modelo dinámico robusto.
+\refcite{(Enescu et al., 2021, pp.~8--12); (Fariz et al., 2026)}
+\end{block}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Estado deseable}
+\begin{exampleblock}{¿Cómo debería ser?}
+\justifying\small
+Contar con un modelo computacional de la transferencia de calor en cables
+subterráneos que sea capaz de:
+\begin{itemize}[leftmargin=*]
+    \item representar geometrías e instalaciones complejas con conductividad
+          térmica variable por zonas $k(x,y)$, sin supuestos de uniformidad;
+    \item resolver el \textbf{problema directo} (temperatura dada la carga y
+          el entorno) y el \textbf{problema inverso} (estimar $k$ del suelo o
+          backfill desde mediciones de temperatura operativa);
+    \item ser \textbf{adaptable} para distintas configuraciones de diseño sin
+          reconfiguración experta compleja;
+    \item ser \textbf{eficiente} para escenarios de diseño, optimización,
+          DTR y mantenimiento predictivo (no solo para simulación estática);
+    \item ser \textbf{validable} con casos de referencia publicados
+          (CIGRÉ [Consejo Internacional de Grandes Redes Eléctricas] WG~B1.56, literatura) y con código abierto y reproducible;
+    \item poder \textbf{integrarse con señales operacionales} (sensores,
+          SCADA [control supervisorio y adquisición de datos]) para actualización de parámetros y estimación de temperatura
+          en tiempo real o cuasi-real.
+\end{itemize}
+\end{exampleblock}
+\vspace{0.2em}
+\refcite{(Fariz et al., 2026); (CIGRÉ WG B1.56, 2022); (Al-Dulaimi et al., 2024);
+(Billah et al., 2023)}
+\end{frame}
+
+
+% ===========================================================================
+\section{Objeto de estudio}
+% ===========================================================================
+
 \begin{frame}{Estructura interna de un cable subterráneo de potencia}
 \begin{columns}[T]
 \column{0.52\textwidth}
@@ -224,7 +384,6 @@ modificar la ampacidad en más del 20\,\%.
 \end{columns}
 \end{frame}
 
-% ---------------------------------------------------------------------------
 \begin{frame}{Fuentes de calor y circuito térmico equivalente del cable}
 \begin{columns}[T]
 \column{0.52\textwidth}
@@ -272,7 +431,6 @@ investigada.
 \end{columns}
 \end{frame}
 
-% ---------------------------------------------------------------------------
 \begin{frame}{El entorno de instalación: zanja, bedding y backfill}
 \begin{columns}[T]
 \column{0.54\textwidth}
@@ -309,7 +467,6 @@ no distingue entre bedding y suelo nativo.
 \end{columns}
 \end{frame}
 
-% ---------------------------------------------------------------------------
 \begin{frame}{El suelo como medio térmico: variabilidad y estratificación}
 \begin{columns}[T]
 \column{0.50\textwidth}
@@ -362,7 +519,6 @@ localizados que los modelos uniformes no predicen.
 \end{columns}
 \end{frame}
 
-% ---------------------------------------------------------------------------
 \begin{frame}{Factores dinámicos: ciclos de carga y secado térmico}
 \begin{columns}[T]
 \column{0.50\textwidth}
@@ -412,7 +568,143 @@ espacial del entorno ni el secado en condiciones reales.
 \end{columns}
 \end{frame}
 
-% ---------------------------------------------------------------------------
+\begin{frame}{¿Qué determina la temperatura del conductor?}
+\justifying\small
+La temperatura en el conductor depende de la \textbf{disipación de calor hacia
+el entorno}. Ese entorno \emph{no} es uniforme ni estático:
+
+\vspace{0.2em}
+\begin{columns}[T]
+\column{0.48\textwidth}
+\textbf{\small Variables del suelo y del medio}
+\begin{itemize}[leftmargin=*]\scriptsize
+    \item Conductividad térmica $k(x,y)$: varía con humedad,
+          compactación y temperatura \refcite{(Kolawole et al., 2024)}
+    \item Temperatura del suelo $T_s$ y del aire $T_\text{amb}$:
+          estacional, profundidad \refcite{(Kim et al., 2025, pp.~3--5)}
+    \item Secado térmico: la carga sostenida reduce la humedad local y
+          eleva la resistividad
+          \refcite{(Khumalo et al., 2025, pp.~4--6)}
+\end{itemize}
+\column{0.48\textwidth}
+\textbf{\small Variables de instalación y operación}
+\begin{itemize}[leftmargin=*]\scriptsize
+    \item Material de relleno/bedding: $k$ entre 0.5 y 3.0 K·m/W
+          \refcite{(Ocłoń et al., 2015)}
+    \item Separación entre cables y agrupamientos
+          \refcite{(Aras et al., 2005)}
+    \item Profundidad de enterramiento $z$
+    \item Perfil de carga $I(t)$: cíclico, variaciones rápidas, emergencias
+          \refcite{(Enescu et al., 2021)}
+    \item Cruces con tuberías u otras fuentes de calor
+\end{itemize}
+\end{columns}
+
+\vspace{0.2em}
+\begin{exampleblock}{}
+\centering\small
+Cuando estas variables se alejan de los supuestos normativos,
+el modelo simplificado ya no predice bien la temperatura real del conductor.
+\end{exampleblock}
+\end{frame}
+
+\begin{frame}{Física del problema: ecuación de conducción de calor}
+\begin{columns}[T]
+\column{0.55\textwidth}
+\justifying\small
+La temperatura está gobernada por la
+\textbf{ecuación de conducción de calor 2D con coeficientes variables}
+\refcite{(Carslaw \& Jaeger, 1959; Aras et al., 2005)}:
+\begin{equation*}
+\underbrace{
+  \frac{\partial}{\partial x}\!\left(k\tfrac{\partial T}{\partial x}\right)
+ +\frac{\partial}{\partial y}\!\left(k\tfrac{\partial T}{\partial y}\right)
+}_{\nabla\cdot(k\,\nabla T)\;\text{difusión}}
++\underbrace{Q}_{\text{fuentes}}
+= \underbrace{\rho c_p\,\frac{\partial T}{\partial t}}_{\text{acumulación}}
+\end{equation*}
+\begin{block}{\scriptsize Término fuente $Q(x,y)$ (W/m\textsuperscript{3})}
+\scriptsize
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+    \item $\Omega_\text{cond}$:\enspace $Q_c = I^2 R_\text{ac}/A_c$
+          \hfill (efecto Joule)
+    \item $\Omega_\text{pantalla}$:\enspace $Q_s = \lambda_1 I^2
+          R_\text{ac}/A_s$
+    \item $\Omega_\text{xlpe},\;\Omega_\text{suelo}$:\enspace $Q=0$
+          (sólo conducen el calor generado aguas arriba)
+    \item $k(x,y)$: varía de $\approx0{,}25$~W/(m\,K) (suelo seco) a
+          385~W/(m\,K) (Cu): contraste de 3 órdenes de magnitud.
+\end{itemize}
+\end{block}
+\column{0.41\textwidth}
+\begin{block}{\scriptsize Régimen estacionario ($\partial T/\partial t=0$)}
+\scriptsize
+$\nabla\cdot(k\,\nabla T)+Q=0$ \quad base de IEC~60287.\\[3pt]
+\textbf{Si} $k=\text{const}$: solución analítica de Kelvin
+(fuente lineal en medio homogéneo).\\[3pt]
+\textbf{Si} $k=k(x,y)$: no existe solución analítica
+$\Rightarrow$ FEM, FDM o PINNs.
+\refcite{(Aras et al., 2005)}
+\end{block}
+\vspace{0.15em}
+\begin{block}{\scriptsize Régimen transitorio}
+\scriptsize
+$\rho c_p\,\partial T/\partial t = \nabla\cdot(k\,\nabla T)+Q$.\\[3pt]
+La capacidad térmica $\rho c_p$ de cada material controla la
+respuesta ante ciclos de carga, sobrecargas y DTR dinámico.
+\end{block}
+\vspace{0.15em}
+\begin{exampleblock}{}\centering\scriptsize
+IEC~60287 adopta $k=\text{const}$ por zona y $\partial T/\partial t=0$:
+da solución cerrada pero limitada a condiciones homogéneas.
+\refcite{(Aras et al., 2005; Raissi et al., 2019)}
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}{El dominio del problema: geometría, zonas y condiciones de contorno}
+\begin{columns}[T]
+\column{0.4\textwidth}
+\centering
+\includegraphics[width=\linewidth]{kim2025_BC}\\
+\vspace{0.2em}
+{\scriptsize\color{gray}
+Dominio computacional: 3 capas de suelo estratificado, lecho de relleno
+(bedding) y 6 cables trefoil.\\
+CC superior: convección libre; CC inferior: $T=15{,}2$\,°C (Dirichlet).\\
+\refcite{(Kim et al., 2025 [R5], Fig.\,7)}}
+
+\column{0.55\textwidth}
+\justifying\small
+\textbf{Zonas del dominio $\Omega$}
+\begin{itemize}[leftmargin=*]\scriptsize
+    \item $\Omega_\text{cond}$: conductor --- fuente de calor
+          $Q = I^2 R_\text{ac}$~(W/m\textsuperscript{3})
+    \item $\Omega_\text{xlpe}$: aislamiento XLPE --- barrera térmica
+          principal; $k\approx 0{,}286$~W/(m\,K)
+    \item $\Omega_\text{bedding}$: lecho de relleno --- $k_2$
+          diseñado o estimado en campo
+    \item $\Omega_\text{suelo}$: suelo nativo --- $k_1(x,y)$ variable
+          (principal fuente de incertidumbre)
+\end{itemize}
+\vspace{0.25em}
+\textbf{Condiciones de contorno}
+\begin{itemize}[leftmargin=*]\scriptsize
+    \item $\Gamma_\text{sup}$: temperatura superficial
+          $T = T_s(t)$ (Dirichlet, variación estacional)
+    \item $\Gamma_\infty$: frontera lejana ---
+          $T = T_\infty$ o $\partial T/\partial n = 0$
+    \item Ejes de simetría:
+          flujo nulo $\partial T/\partial n = 0$ (Neumann)
+    \item Interfaz entre capas: continuidad de $T$ y del
+          flujo térmico $k_i\nabla T\cdot\hat{n}$
+\end{itemize}
+\vspace{0.15em}
+\textcolor{gray}{\scriptsize\refcite{(Carslaw \& Jaeger, 1959 [A13]);
+(Aras et al., 2005 [R4])}}
+\end{columns}
+\end{frame}
+
 \begin{frame}{Sensores y medios de recolección de datos térmicos}
 \begin{columns}[T]
 \column{0.48\textwidth}
@@ -473,309 +765,11 @@ $k(x,y)$ a lo largo del tendido.
 \end{columns}
 \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{¿Qué determina la temperatura del conductor?}
-\justifying\small
-La temperatura en el conductor depende de la \textbf{disipación de calor hacia
-el entorno}. Ese entorno \emph{no} es uniforme ni estático:
-
-\vspace{0.2em}
-\begin{columns}[T]
-\column{0.48\textwidth}
-\textbf{\small Variables del suelo y del medio}
-\begin{itemize}[leftmargin=*]\scriptsize
-    \item Conductividad térmica $k(x,y)$: varía con humedad,
-          compactación y temperatura \refcite{(Kolawole et al., 2024)}
-    \item Temperatura del suelo $T_s$ y del aire $T_\text{amb}$:
-          estacional, profundidad \refcite{(Kim et al., 2025, pp.~3--5)}
-    \item Secado térmico: la carga sostenida reduce la humedad local y
-          eleva la resistividad
-          \refcite{(Khumalo et al., 2025, pp.~4--6)}
-\end{itemize}
-\column{0.48\textwidth}
-\textbf{\small Variables de instalación y operación}
-\begin{itemize}[leftmargin=*]\scriptsize
-    \item Material de relleno/bedding: $k$ entre 0.5 y 3.0 K·m/W
-          \refcite{(Ocłoń et al., 2015)}
-    \item Separación entre cables y agrupamientos
-          \refcite{(Aras et al., 2005)}
-    \item Profundidad de enterramiento $z$
-    \item Perfil de carga $I(t)$: cíclico, variaciones rápidas, emergencias
-          \refcite{(Enescu et al., 2021)}
-    \item Cruces con tuberías u otras fuentes de calor
-\end{itemize}
-\end{columns}
-
-\vspace{0.2em}
-\begin{exampleblock}{}
-\centering\small
-Cuando estas variables se alejan de los supuestos normativos,
-el modelo simplificado ya no predice bien la temperatura real del conductor.
-\end{exampleblock}
-\end{frame}
 
 % ===========================================================================
-\section{El problema físico}
+\section{Problema}
 % ===========================================================================
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Física del problema: ecuación de conducción de calor}
-\begin{columns}[T]
-\column{0.55\textwidth}
-\justifying\small
-La temperatura está gobernada por la
-\textbf{ecuación de conducción de calor 2D con coeficientes variables}
-\refcite{(Carslaw \& Jaeger, 1959; Aras et al., 2005)}:
-\begin{equation*}
-\underbrace{
-  \frac{\partial}{\partial x}\!\left(k\tfrac{\partial T}{\partial x}\right)
- +\frac{\partial}{\partial y}\!\left(k\tfrac{\partial T}{\partial y}\right)
-}_{\nabla\cdot(k\,\nabla T)\;\text{difusión}}
-+\underbrace{Q}_{\text{fuentes}}
-= \underbrace{\rho c_p\,\frac{\partial T}{\partial t}}_{\text{acumulación}}
-\end{equation*}
-\begin{block}{\scriptsize Término fuente $Q(x,y)$ (W/m\textsuperscript{3})}
-\scriptsize
-\begin{itemize}[leftmargin=*,itemsep=1pt]
-    \item $\Omega_\text{cond}$:\enspace $Q_c = I^2 R_\text{ac}/A_c$
-          \hfill (efecto Joule)
-    \item $\Omega_\text{pantalla}$:\enspace $Q_s = \lambda_1 I^2
-          R_\text{ac}/A_s$
-    \item $\Omega_\text{xlpe},\;\Omega_\text{suelo}$:\enspace $Q=0$
-          (sólo conducen el calor generado aguas arriba)
-    \item $k(x,y)$: varía de $\approx0{,}25$~W/(m\,K) (suelo seco) a
-          385~W/(m\,K) (Cu): contraste de 3 órdenes de magnitud.
-\end{itemize}
-\end{block}
-\column{0.41\textwidth}
-\begin{block}{\scriptsize Régimen estacionario ($\partial T/\partial t=0$)}
-\scriptsize
-$\nabla\cdot(k\,\nabla T)+Q=0$ \quad base de IEC~60287.\\[3pt]
-\textbf{Si} $k=\text{const}$: solución analítica de Kelvin
-(fuente lineal en medio homogéneo).\\[3pt]
-\textbf{Si} $k=k(x,y)$: no existe solución analítica
-$\Rightarrow$ FEM, FDM o PINNs.
-\refcite{(Aras et al., 2005)}
-\end{block}
-\vspace{0.15em}
-\begin{block}{\scriptsize Régimen transitorio}
-\scriptsize
-$\rho c_p\,\partial T/\partial t = \nabla\cdot(k\,\nabla T)+Q$.\\[3pt]
-La capacidad térmica $\rho c_p$ de cada material controla la
-respuesta ante ciclos de carga, sobrecargas y DTR dinámico.
-\end{block}
-\vspace{0.15em}
-\begin{exampleblock}{}\centering\scriptsize
-IEC~60287 adopta $k=\text{const}$ por zona y $\partial T/\partial t=0$:
-da solución cerrada pero limitada a condiciones homogéneas.
-\refcite{(Aras et al., 2005; Raissi et al., 2019)}
-\end{exampleblock}
-\end{columns}
-\end{frame}
-
-% ---------------------------------------------------------------------------
-\begin{frame}{El dominio del problema: geometría, zonas y condiciones de contorno}
-\begin{columns}[T]
-\column{0.4\textwidth}
-\centering
-\includegraphics[width=\linewidth]{kim2025_BC}\\
-\vspace{0.2em}
-{\scriptsize\color{gray}
-Dominio computacional: 3 capas de suelo estratificado, lecho de relleno
-(bedding) y 6 cables trefoil.\\
-CC superior: convección libre; CC inferior: $T=15{,}2$\,°C (Dirichlet).\\
-\refcite{(Kim et al., 2025 [R5], Fig.\,7)}}
-
-\column{0.55\textwidth}
-\justifying\small
-\textbf{Zonas del dominio $\Omega$}
-\begin{itemize}[leftmargin=*]\scriptsize
-    \item $\Omega_\text{cond}$: conductor --- fuente de calor
-          $Q = I^2 R_\text{ac}$~(W/m\textsuperscript{3})
-    \item $\Omega_\text{xlpe}$: aislamiento XLPE --- barrera térmica
-          principal; $k\approx 0{,}286$~W/(m\,K)
-    \item $\Omega_\text{bedding}$: lecho de relleno --- $k_2$
-          diseñado o estimado en campo
-    \item $\Omega_\text{suelo}$: suelo nativo --- $k_1(x,y)$ variable
-          (principal fuente de incertidumbre)
-\end{itemize}
-\vspace{0.25em}
-\textbf{Condiciones de contorno}
-\begin{itemize}[leftmargin=*]\scriptsize
-    \item $\Gamma_\text{sup}$: temperatura superficial
-          $T = T_s(t)$ (Dirichlet, variación estacional)
-    \item $\Gamma_\infty$: frontera lejana ---
-          $T = T_\infty$ o $\partial T/\partial n = 0$
-    \item Ejes de simetría:
-          flujo nulo $\partial T/\partial n = 0$ (Neumann)
-    \item Interfaz entre capas: continuidad de $T$ y del
-          flujo térmico $k_i\nabla T\cdot\hat{n}$
-\end{itemize}
-\vspace{0.15em}
-\textcolor{gray}{\scriptsize\refcite{(Carslaw \& Jaeger, 1959 [A13]);
-(Aras et al., 2005 [R4])}}
-\end{columns}
-\end{frame}
-
-% ===========================================================================
-\section{Núcleo del problema}
-% ===========================================================================
-
-% ---------------------------------------------------------------------------
-\begin{frame}{El problema duele: consecuencias reales de la brecha}
-\begin{columns}[T]
-\column{0.48\textwidth}
-\begin{alertblock}{Cuando se subestima la temperatura}
-\scriptsize
-\begin{itemize}[leftmargin=*,itemsep=1pt]
-    \item Temperatura real supera el límite del aislamiento
-    \item Deterioro acelerado del XLPE (polietileno reticulado)
-    \item Falla prematura, no prevista, difícil de diagnosticar
-    \item Especialmente grave en cruces urbanos o zonas de alta densidad
-\end{itemize}
-\end{alertblock}
-\column{0.48\textwidth}
-\begin{exampleblock}{Cuando se sobreestima la temperatura}
-\scriptsize
-\begin{itemize}[leftmargin=*,itemsep=1pt]
-    \item Cable opera por debajo de su capacidad real
-    \item Sobredimensionamiento innecesario o subutilización del activo
-    \item Pérdida de capacidad para integrar más renovables
-    \item El DTR (calificación térmica dinámica) estático es conservador:
-          capacidad dinámica real no aprovechada \refcite{(Fariz et al., 2026)}
-\end{itemize}
-\end{exampleblock}
-\end{columns}
-
-\vspace{0.2em}
-\begin{columns}[T]
-\column{0.48\textwidth}
-\begin{block}{Diseños fuera de premisas normativas}
-\scriptsize
-Instalaciones con múltiples circuitos, cruces de vías o ductos en bancos se
-salen de los supuestos de IEC~60287. El cálculo correcto requiere
-FEM (elementos finitos) o FVM (volúmenes finitos), que no son accesibles para todos.
-\refcite{(Anders, 2005, pp.~1--15); (Aras et al., 2005)}
-\end{block}
-\column{0.48\textwidth}
-\begin{block}{Monitoreo operacional insuficiente}
-\scriptsize
-La mayoría de instalaciones no cuentan con sensores DTS (sensado de
-temperatura distribuida por fibra óptica) ni termopares. El operador
-desconoce la temperatura real y opera con incertidumbre no cuantificada.
-\refcite{(Fariz et al., 2026); (Enescu et al., 2021, p.~14)}
-\end{block}
-\end{columns}
-\end{frame}
-
-% ---------------------------------------------------------------------------
-\begin{frame}{Estado actual: métodos predominantes y sus supuestos}
-\begin{columns}[T]
-\column{0.48\textwidth}
-\begin{alertblock}{Normas y analogía eléctrica}
-\scriptsize\justifying
-\textbf{IEC (Comisión Electrotécnica Internacional) 60287 / Neher-McGrath:} ampacidad en régimen
-estacionario (100\% factor de carga), con $k_s$ constante, temperatura
-ambiente fija y geometría estándar. Válida para el ``caso base''; menos
-precisa en instalaciones complejas.
-\refcite{(Neher y McGrath, 1957); (IEC 60287-1-1, 2023)}
-
-\vspace{0.2em}
-\textbf{IEC 60853 / factores de derateo:} maneja carga cíclica y
-emergencias; la parte 3 considera secado parcial, pero mantiene hipótesis
-fuertes de uniformidad del entorno.
-\refcite{(IEC 60853-1, 1985); (IEC 60853-3, 2002)}
-\end{alertblock}
-
-\column{0.48\textwidth}
-\begin{alertblock}{Modelos FEM/FDM (diferencias finitas)/FVM}
-\scriptsize\justifying
-Precisos y flexibles para geometrías complejas y $k(x,y)$ variable. Sin
-embargo:
-\begin{itemize}[leftmargin=*,itemsep=1pt]
-    \item Requieren configuración experta y mallado cuidadoso
-    \item Cada nueva configuración exige una nueva simulación
-    \item No son prácticos para operación en tiempo real
-    \item Barreras de acceso: licencias costosas, curva de aprendizaje
-          lenta, tiempo de cómputo elevado
-    \item No diseñados para el \textit{problema inverso} (estimar
-          $k$ desde mediciones)
-\end{itemize}
-\refcite{(Aras et al., 2005); (CIGRÉ WG B1.56, 2022)}
-\end{alertblock}
-\end{columns}
-
-\vspace{0.2em}
-\refcite{(Anders, 2005); (Al-Dulaimi et al., 2024, p.~2)}
-\end{frame}
-
-% ---------------------------------------------------------------------------
-\begin{frame}{Estado actual: casos donde los métodos vigentes fallan}
-
-\begin{columns}[T]
-\column{0.48\textwidth}
-
-\begin{block}{Cruces y entornos de alta densidad}
-\small Múltiples circuitos, cables en bancos o ductos, cruces de vías.
-La interacción térmica entre cables y la variabilidad del relleno superan
-las premisas de las normas. FEM es el camino pero no suele implementarse.
-\refcite{(Anders, 2005, pp.~50--80); (Atoccsa et al., 2024)}
-\end{block}
-\vspace{0.3em}
-\begin{block}{Variación estacional y climática}
-\small La temperatura del suelo varía entre verano e invierno; la humedad
-cambia con las lluvias. La ampacidad real no es fija sino variable durante
-el año. Los ratings estáticos no capturan esto.
-\refcite{(Möbius et al., 2025); (Kim et al., 2025)}
-\end{block}
-
-\column{0.48\textwidth}
-
-\begin{block}{Secado térmico local}
-\small Bajo carga sostenida, el suelo cerca del cable se seca, su
-resistividad sube de 1.0 a más de 2.5 K·m/W, y la temperatura del
-conductor aumenta de forma no lineal y no capturada por los modelos
-estáticos. \refcite{(Khumalo et al., 2025, pp.~6--10)}
-\end{block}
-\vspace{0.3em}
-\begin{block}{DTR en cargas fluctuantes}
-\small Para energía renovable la carga varía continuamente. Los modelos de
-red térmica equivalente pierden precisión bajo variaciones rápidas. Se
-necesita un modelo dinámico robusto.
-\refcite{(Enescu et al., 2021, pp.~8--12); (Fariz et al., 2026)}
-\end{block}
-\end{columns}
-\end{frame}
-
-% ---------------------------------------------------------------------------
-\begin{frame}{Estado deseable}
-\begin{exampleblock}{¿Cómo debería ser?}
-\justifying\small
-Contar con un modelo computacional de la transferencia de calor en cables
-subterráneos que sea capaz de:
-\begin{itemize}[leftmargin=*]
-    \item representar geometrías e instalaciones complejas con conductividad
-          térmica variable por zonas $k(x,y)$, sin supuestos de uniformidad;
-    \item resolver el \textbf{problema directo} (temperatura dada la carga y
-          el entorno) y el \textbf{problema inverso} (estimar $k$ del suelo o
-          backfill desde mediciones de temperatura operativa);
-    \item ser \textbf{adaptable} para distintas configuraciones de diseño sin
-          reconfiguración experta compleja;
-    \item ser \textbf{eficiente} para escenarios de diseño, optimización,
-          DTR y mantenimiento predictivo (no solo para simulación estática);
-    \item ser \textbf{validable} con casos de referencia publicados
-          (CIGRÉ [Consejo Internacional de Grandes Redes Eléctricas] WG~B1.56, literatura) y con código abierto y reproducible;
-    \item poder \textbf{integrarse con señales operacionales} (sensores,
-          SCADA [control supervisorio y adquisición de datos]) para actualización de parámetros y estimación de temperatura
-          en tiempo real o cuasi-real.
-\end{itemize}
-\end{exampleblock}
-\vspace{0.2em}
-\refcite{(Fariz et al., 2026); (CIGRÉ WG B1.56, 2022); (Al-Dulaimi et al., 2024);
-(Billah et al., 2023)}
-\end{frame}
-
-% ---------------------------------------------------------------------------
 \begin{frame}{La brecha: de dónde venimos y a dónde queremos llegar}
 
 \begin{center}
@@ -839,7 +833,6 @@ subterráneos que sea capaz de:
 \end{center}
 \end{frame}
 
-% ---------------------------------------------------------------------------
 \begin{frame}{Formulación del problema}
 \begin{exampleblock}{Síntesis}
 \justifying\small
@@ -866,8 +859,9 @@ predictivo de activos críticos sin redundancia.
 (Anders, 2005)}
 \end{frame}
 
+
 % ===========================================================================
-\section{Preguntas y objetivos}
+\section{Preguntas de investigación}
 % ===========================================================================
 
 \begin{frame}{Pregunta de investigación}
@@ -899,7 +893,11 @@ ampacidad estimada?
 \end{itemize}
 \end{frame}
 
-% ---------------------------------------------------------------------------
+
+% ===========================================================================
+\section{Objetivos}
+% ===========================================================================
+
 \begin{frame}{Objetivos}
 
 \begin{block}{Objetivo general}
@@ -930,7 +928,12 @@ brecha y los requisitos para cerrarla.
 \end{enumerate}
 \end{frame}
 
-% ---------------------------------------------------------------------------
+
+
+% ===========================================================================
+\section{Enfoque preliminar de solución}
+% ===========================================================================
+
 \begin{frame}{Esbozo de posibles enfoques de solución (preliminar)}
 \justifying\scriptsize
 El problema identificado orienta hacia las siguientes posibilidades
@@ -969,24 +972,12 @@ mantenimiento predictivo y DTR.
 \end{columns}
 \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Alta fidelidad del modelo PINN vs.\ FEM de referencia}
-\centering
-\includegraphics[width=0.88\linewidth]{own_kim_fem_zoom}\\
-\vspace{0.3em}
-\small 4 paneles: campo $T$ del FEM de referencia y tres variantes PINN
-(Kim et al.\ 2025, Caso B).
-$|\Delta T|_{\max} < 0{,}5$~K entre FEM y la mejor variante PINN.\\
-\vspace{0.2em}
-\refcite{Kim et al.\ (2025) [R5]; resultados propios.}
-\end{frame}
-
 % ===========================================================================
 \section{Referencias}
 % ===========================================================================
 
 % ---- Refs R1-R3 -----------------------------------------------------------
-\begin{frame}{Referencias principales (1/7)}
+\begin{frame}{Referencias principales (1/8)}
 \small\justifying
 
 \textbf{[R1]} Neher, J. H., \& McGrath, M. H. (1957). The calculation of the
@@ -1014,7 +1005,7 @@ industria para los límites del enfoque normativo.}
 \end{frame}
 
 % ---- Refs R4-R6 -----------------------------------------------------------
-\begin{frame}{Referencias principales (2/7)}
+\begin{frame}{Referencias principales (2/8)}
 \small\justifying
 
 \textbf{[R4]} Aras, F., Oysu, C., \& Yilmaz, G. (2005). An assessment of the
@@ -1044,7 +1035,7 @@ resistividad térmica y degrada la ampacidad; señala los límites de IEC~60853-
 \end{frame}
 
 % ---- Refs R7-R9 -----------------------------------------------------------
-\begin{frame}{Referencias principales (3/7)}
+\begin{frame}{Referencias principales (3/8)}
 \small\justifying
 
 \textbf{[R7]} Enescu, D. et al. (2021). Concepts and methods to assess the
@@ -1075,7 +1066,7 @@ e inverso propuesto en esta investigación.}
 \end{frame}
 
 % ---- Refs R10, A1, A2 -----------------------------------------------------
-\begin{frame}{Referencias adicionales (4/7)}
+\begin{frame}{Referencias adicionales (4/8)}
 \small\justifying
 
 \textbf{[R10]} Lawal, Z. K. et al. (2022). Physics-informed neural network
@@ -1105,7 +1096,7 @@ cuantificable sobre la temperatura del conductor.}
 \end{frame}
 
 % ---- Refs A3-A5 -----------------------------------------------------------
-\begin{frame}{Referencias adicionales (5/7)}
+\begin{frame}{Referencias adicionales (5/8)}
 \small\justifying
 
 \textbf{[A3]} Al-Dulaimi, A. et al. (2024). Adaptive FEM-BPNN model for
@@ -1136,7 +1127,7 @@ necesidad de modelos dinámicos que superen las normas estáticas.}
 \end{frame}
 
 % ---- Refs A6-A8 -----------------------------------------------------------
-\begin{frame}{Referencias adicionales (6/7)}
+\begin{frame}{Referencias adicionales (6/8)}
 \small\justifying
 
 \textbf{[A6]} Billah, M. M. et al. (2023). Physics-informed deep neural
@@ -1166,7 +1157,7 @@ brecha que se busca cerrar.}
 \end{frame}
 
 % ---- Refs A9-A11 ----------------------------------------------------------
-\begin{frame}{Referencias adicionales (7/7)}
+\begin{frame}{Referencias adicionales (7/8)}
 \small\justifying
 
 \textbf{[A9]} Kolawole, O. et al. (2024). Evaluating soil thermal
@@ -1195,6 +1186,12 @@ dominio con $k$ variable usando PINNs; caso directamente análogo al problema
 de esta investigación, con geometría y ecuación gobernante equivalentes.}
 
 \medskip
+\end{frame}
+
+% ---- Refs A12-A13 ---------------------------------------------------------
+\begin{frame}{Referencias adicionales (8/8)}
+\small\justifying
+
 \textbf{[A12]} Thue, W. A. (2012). \textit{Electrical Power Cable Engineering}
 (3rd ed.). CRC Press / Taylor \& Francis.\\
 \textcolor{purple!70!black}{\footnotesize\textit{Tipo: Libro de referencia (ingeniería de cables)}} \quad
