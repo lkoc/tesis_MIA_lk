@@ -3,46 +3,64 @@
 %%  Datos extraídos del PDF en Zotero (38 pp, Energies MDPI)
 %%  Compilar: pdflatex enescu_review_beamer.tex  (x2)
 %% ============================================================
-\documentclass[12pt,aspectratio=169]{beamer}
+\documentclass[aspectratio=169]{beamer}
+\usetheme{Madrid}
+\usecolortheme{default}
+\usefonttheme{professionalfonts}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[spanish]{babel}
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage{lmodern}
+\usepackage{ragged2e}
 \usepackage{booktabs}
+\usepackage{enumitem}
 \usepackage{hyperref}
 \usepackage{tikz}
-\usetikzlibrary{positioning,arrows.meta,shapes.geometric}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, backgrounds, fit}
 
-%% ── Tema ────────────────────────────────────────────────────
-\usetheme{Madrid}
-\usecolortheme{whale}
 \setbeamertemplate{navigation symbols}{}
 \setbeamertemplate{footline}[frame number]
+\setbeamertemplate{bibliography item}[text]
 
-%% Colores personalizados
+\newcommand{\smallrefs}[1]{{\tiny\color{gray} #1}}
+\newcommand{\refcite}[1]{{\footnotesize\color{gray!70!black} #1}}
+
+%% Colores del proyecto (usados en tikz y bloques)
 \definecolor{azulTesis}{RGB}{26,35,126}
 \definecolor{verdeDTR}{RGB}{13,71,161}
 \definecolor{rojoAccent}{RGB}{183,28,28}
 \definecolor{grisClaro}{RGB}{245,245,245}
 \definecolor{azulClaro}{RGB}{232,234,246}
 
-\setbeamercolor{title}{bg=azulTesis, fg=white}
-\setbeamercolor{frametitle}{bg=azulTesis, fg=white}
 \setbeamercolor{block title}{bg=azulTesis!85, fg=white}
 \setbeamercolor{block title alerted}{bg=rojoAccent, fg=white}
 \setbeamercolor{block title example}{bg=verdeDTR, fg=white}
 \setbeamercolor{item projected}{bg=azulTesis, fg=white}
 
-%% ── Metadatos ───────────────────────────────────────────────
-\title[Enescu et al.\ 2020]
+%% ── Portada ─────────────────────────────────────────────────
+\title[Enescu et al.\ 2020 --- Resumen]
       {Thermal Assessment of Power Cables and Impacts\\
        on Cable Current Rating: An Overview}
-\subtitle{Revisión crítica del paper y aportes al proyecto de tesis MIA}
-\author{Enescu, D. \and Colella, P. \and Russo, A.}
-\institute[Valahia / Polito]{%
-  $^1$University Valahia of Targoviste, Romania\\
-  $^2$Politecnico di Torino, Italy}
-\date{Energies 2020, 13(20), 5319 \quad|\quad doi:10.3390/en13205319}
+\subtitle{Resumen de Paper $\cdot$ Trabajo de Investigación I\\
+          MIA 3er Ciclo A 2026-1 $\cdot$ Grupo G91}
+\author{Luis Koc \and \\ Herbert Meléndez}
+\institute[FIIS-UNI]{%
+  Facultad de Ingeniería Industrial y de Sistemas\\
+  Universidad Nacional de Ingeniería}
+\date{\today}
+
+%% Separadores automáticos de sección
+\AtBeginSection[]{%
+  \begin{frame}[plain, noframenumbering]
+    \vfill
+    \centering
+    \begin{beamercolorbox}[sep=12pt,center,shadow=true,rounded=true]{title}
+      \usebeamerfont{title}\insertsectionhead\par%
+    \end{beamercolorbox}
+    \vfill
+  \end{frame}
+}
 
 %% ============================================================
 \begin{document}
@@ -54,7 +72,281 @@
 
 %% ── Índice ───────────────────────────────────────────────────
 \begin{frame}{Contenido}
-  \tableofcontents
+  \begin{columns}[t]
+    \column{0.48\textwidth}
+      \tableofcontents[sections={1-5}]
+    \column{0.48\textwidth}
+      \tableofcontents[sections={6-10}]
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+%% ESTRUCTURA MÍNIMA DE EXPOSICIÓN — slides nuevos
+%% ============================================================
+
+%%────────────────────────────────────────────────────────────
+\section{Mi investigación}
+
+\begin{frame}{Título de la investigación}
+  \begin{block}{Proyecto de tesis --- Maestría en Inteligencia Artificial (MIA) / FIIS-UNI}
+    \centering\small
+    \textbf{Efecto de la heterogeneidad térmica del entorno sobre la
+    temperatura del conductor en cables eléctricos subterráneos:
+    modelado numérico 2D}
+  \end{block}
+  \vspace{0.3em}
+  \begin{columns}[T]
+    \column{0.32\textwidth}
+      \begin{alertblock}{\small Campo disciplinario}
+        \footnotesize
+        \begin{itemize}
+          \item Sistemas eléctricos de potencia
+          \item Transferencia de calor computacional
+          \item Modelado numérico e IA aplicada
+        \end{itemize}
+      \end{alertblock}
+    \column{0.33\textwidth}
+      \begin{block}{\small Etapa del proceso investigativo}
+        \footnotesize
+        \begin{itemize}
+          \item Comprensión y formulación del problema
+          \item Identificación de la brecha
+          \item Enfoque preliminar de solución
+        \end{itemize}
+      \end{block}
+    \column{0.32\textwidth}
+      \begin{exampleblock}{\small Palabras clave}
+        \footnotesize
+        \begin{itemize}
+          \item Underground power cable
+          \item power cable ampacity
+          \item Soil thermal heterogeneity
+          \item Physics-informed neural networks
+          \item Dynamic thermal rating
+        \end{itemize}
+      \end{exampleblock}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{String de búsqueda --- Estado del arte del \emph{problema}}
+  \begin{columns}[T]
+    \column{0.55\textwidth}
+      \begin{exampleblock}{Términos del \textbf{problema} (Scopus / Web of Science)}
+        \small
+        \texttt{"underground power cable"}\\
+        \texttt{OR "buried cable"}\\
+        \texttt{OR "cable ampacity"}\\
+        \texttt{OR "cable current rating"}\\
+        \texttt{OR "cable thermal rating"}\\[4pt]
+        \texttt{AND} \textit{[palabras orientadoras]}
+      \end{exampleblock}
+      \vspace{0.3em}
+      \begin{block}{\small Orientación deliberada}
+        \footnotesize
+        Búsqueda enfocada en el \textbf{problema del cable},
+        \emph{no} en la técnica PINN,
+        para identificar el estado del arte
+        del campo de aplicación
+      \end{block}
+    \column{0.41\textwidth}
+      \begin{alertblock}{Palabras orientadoras (\texttt{AND})}
+        \small
+        \begin{itemize}
+          \item \textbf{State of the art}
+          \item \textbf{Survey}
+          \item \textbf{Review}
+          \item \textbf{Current state}
+          \item \textbf{Recent developments}
+          \item \textbf{Advances}
+          \item \textbf{Trends}
+          \item \textbf{Progress}
+          \item \textbf{Emerging technologies}
+        \end{itemize}
+      \end{alertblock}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Proceso de selección de papers}
+  \begin{columns}[c]
+    \column{0.44\textwidth}
+      \centering
+      \begin{tikzpicture}[>=Stealth, node distance=0.48cm,
+          box/.style={draw=azulTesis, rounded corners=3pt,
+                      fill=azulClaro, text width=3.6cm,
+                      align=center, font=\footnotesize,
+                      inner sep=5pt, minimum height=0.75cm}]
+        \node[box] (b1) {Scopus + Web of Science\\[2pt]
+                         {\tiny string de búsqueda aplicado}};
+        \node[box, below=0.42cm of b1, fill=grisClaro] (b2)
+              {Filtro por título / abstract\\[2pt]
+               {\tiny remoción de duplicados}};
+        \node[box, below=0.42cm of b2] (b3)
+              {Lectura de resúmenes\\[2pt]
+               {\tiny selección por relevancia}};
+        \node[box, below=0.42cm of b3, fill=verdeDTR!20,
+              draw=verdeDTR] (b4)
+              {\textbf{Descarga y clasificación}\\[2pt]
+               {\tiny Zotero --- 146 ítems}};
+        \draw[->, azulTesis, thick] (b1) -- (b2);
+        \draw[->, azulTesis, thick] (b2) -- (b3);
+        \draw[->, azulTesis, thick] (b3) -- (b4);
+      \end{tikzpicture}
+    \column{0.52\textwidth}
+      \begin{block}{Criterios de inclusión}
+        \small
+        \begin{itemize}
+          \item Tipo revisión, survey u overview
+          \item Trata el \textbf{problema térmico del cable}\\
+                (temperatura, ampacidad, DTR)
+          \item Publicado en revista indexada (Scopus)
+          \item Acceso OA o institucional disponible
+        \end{itemize}
+      \end{block}
+      \vspace{0.3em}
+      \begin{alertblock}{Criterios de exclusión}
+        \small
+        \begin{itemize}
+          \item Solo cables aéreos o en aire
+          \item Revisiones ajenas al dominio térmico
+          \item Sin información cuantitativa de temperatura
+        \end{itemize}
+      \end{alertblock}
+  \end{columns}
+\end{frame}
+
+%%────────────────────────────────────────────────────────────
+\section{Biblioteca de referencias (Zotero)}
+
+\begin{frame}{Papers del estado del arte descargados}
+  \begin{block}{Revisiones del problema térmico en cables --- selección}
+    \footnotesize
+    \begin{tabular}{c p{7.2cm} c}
+      \toprule
+      \textbf{Año} & \textbf{Referencia (abreviada)} & \textbf{Fuente}\\
+      \midrule
+      \textbf{2020}
+        & Enescu, Colella \& Russo ---
+          \textit{Thermal Assessment of Power Cables\ldots\ Overview}
+        & Energies~\textcolor{rojoAccent}{$\star$}\\
+      [3pt]
+      2026
+        & Aut.\ varios ---
+          \textit{A Systematic Mapping of DTR for UG Cables}
+        & Electr.\ Power Syst.\ Res.\\
+      [3pt]
+      2021
+        & Aut.\ varios ---
+          \textit{Concepts and Methods to Assess DTR of UG Cables}
+        & IEEE Trans.\ Power Del.\\
+      [3pt]
+      2019
+        & Autor ---
+          \textit{Dynamic Rating of Power Cables: Transient Temp.\ Calc.}
+        & Tesis doctoral\\
+      [3pt]
+      2008
+        & Swaffield et al.\ ---
+          \textit{Assessment of Methods for Calculating Ampacity}
+        & IET Electr.\ Power Appl.\\
+      [3pt]
+      2007
+        & Autor ---
+          \textit{Thermal Bottleneck Determination in UG Power Cables}
+        & Tesis doctoral\\
+      \bottomrule
+    \end{tabular}
+  \end{block}
+  \vspace{0.2em}
+  \small\textcolor{rojoAccent}{$\star$}~Paper seleccionado para el resumen de esta exposición
+\end{frame}
+
+\begin{frame}{Papers de aporte y otros}
+  \begin{columns}[T]
+    \column{0.55\textwidth}
+      \begin{block}{\small Papers de aporte (PINN + IA aplicada a cables)}
+        \tiny
+        \begin{itemize}
+          \item Raissi, Perdikaris \& Karniadakis (2019) ---
+                \textit{PINNs: A deep learning framework for solving PDE}
+                [\textit{JCP}]
+          \item Kim et al.\ (2025) ---
+                \textit{Effect of ambient air and ground temps.\ on heat
+                transfer in UG cable bedding material}
+                [\textit{Energies}]
+          \item Al-Dulaimi et al.\ (2024) ---
+                \textit{Adaptive FEM-BPNN model for predicting UG cable temp.}
+                [\textit{JESTCH}]
+          \item Moutassem et al.\ (2025) ---
+                \textit{Physics-enhanced CNN-LSTM for condition monitoring
+                UG cables} [\textit{Algorithms}]
+          \item Atoccsa et al.\ (2024) ---
+                \textit{Optimization of ampacity in HV UG cables with
+                thermal backfill} [\textit{Energies}]
+          \item + 16 papers adicionales: PINNs, FEM y transferencia de calor
+        \end{itemize}
+      \end{block}
+    \column{0.41\textwidth}
+      \begin{exampleblock}{\small Normas y libros de referencia}
+        \tiny
+        \begin{itemize}
+          \item IEC 60287-1-1 (ampacidad permanente)
+          \item IEC 60853-1/2/3 (ciclos y emergencias)
+          \item IEC 60502-2 (cables MT/AT)
+          \item IEEE~442 (resistividad térmica suelo)
+          \item IEEE~835 (tablas de ampacidad)
+          \item \textit{Rating of Electric Power Cables} (1997)
+          \item \textit{Heat Transfer Handbook} (Bejan, 2003)
+          \item \textit{Heat Transfer: Practical Approach} (Cengel, 2002)
+        \end{itemize}
+      \end{exampleblock}
+      \vspace{0.2em}
+      \begin{alertblock}{\small Total en Zotero}
+        \tiny
+        \textbf{146 ítems} catalogados:\\[-2pt]
+        21 PINN \textbullet\ 30 cables/ampacidad\\[-2pt]
+        15 transferencia de calor\\[-2pt]
+        10 normas/estándares\\[-2pt]
+        70 libros, tesis y técnicos
+      \end{alertblock}
+  \end{columns}
+\end{frame}
+
+%%────────────────────────────────────────────────────────────
+\section{Paper seleccionado para el resumen}
+
+\begin{frame}{Paper seleccionado --- Identificación y reconocimiento}
+  \begin{columns}[T]
+    \column{0.54\textwidth}
+      \begin{block}{Datos del paper}
+        \small
+        \textbf{Enescu, D., Colella, P. \& Russo, A.} (2020).\\[2pt]
+        \textit{Thermal Assessment of Power Cables and Impacts
+        on Cable Current Rating: An Overview.}\\[4pt]
+        \textbf{Revista:} Energies (MDPI), 13(20), 5319\\[2pt]
+        \textbf{Año:} 2020 \quad
+        \textbf{Tipo:} Revisión / Overview\\[2pt]
+        \textbf{Universidades:}\\[1pt]
+        $^1$~University Valahia of Targoviste, Romania\\[1pt]
+        $^2$~Politecnico di Torino, Italy\\[2pt]
+        \textbf{doi:}
+        \href{https://doi.org/10.3390/en13205319}
+             {\texttt{10.3390/en13205319}}
+      \end{block}
+    \column{0.42\textwidth}
+      \begin{exampleblock}{Reconocimiento y métricas}
+        \small
+        \textbf{Revista Energies (MDPI)}\\[2pt]
+        Open Access, ISSN 1996-1073\\[2pt]
+        Indexada en Scopus (Q2) y WOS\\[2pt]
+        Factor de impacto: $\approx$\,3.2\\[4pt]
+        \textbf{Autores:}\\[1pt]
+        Recibido: 14 ago 2020\\[1pt]
+        Aceptado: 10 oct 2020\\[1pt]
+        Publicado: 13 oct 2020\\[4pt]
+        \textbf{113 referencias bibliográficas}\\[1pt]
+        \textbf{38 páginas} --- sin financiamiento externo
+      \end{exampleblock}
+  \end{columns}
 \end{frame}
 
 %% ============================================================
@@ -174,7 +466,7 @@
     %% ── Problema ──────────────────────────────────────────
     \column{0.18\textwidth}
       \centering
-      \colorbox{rojoAccent!18}{\parbox{0.95\linewidth}{%
+      \colorbox{rojoAccent!18}{\parbox{\dimexpr0.95\linewidth-2\fboxsep\relax}{%
         \centering\small\color{rojoAccent}\textbf{PROBLEMA}\\[3pt]
         \footnotesize\color{black}
         ¿Cuál es la\\máx.\ corriente\\admisible del\\cable?
@@ -187,17 +479,17 @@
     %% ── Bloques metodológicos ──────────────────────────────
     \column{0.50\textwidth}
       \setlength{\fboxsep}{4pt}
-      \fcolorbox{azulTesis}{azulClaro}{\parbox{\linewidth}{%
+      \fcolorbox{azulTesis}{azulClaro}{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{%
         \footnotesize\textbf{Sec.\,2 --- Transferencia de calor}\\[-1pt]
         \tiny Ecuación de Fourier $\cdot$ Conducción, convección, radiación $\cdot$
         Propiedades del suelo ($k$, humedad)
       }}\\[4pt]
-      \fcolorbox{azulTesis}{azulClaro}{\parbox{\linewidth}{%
+      \fcolorbox{azulTesis}{azulClaro}{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{%
         \footnotesize\textbf{Sec.\,3 --- Modelos térmicos}\\[-1pt]
         \tiny Analogía electrotérmica ($R_t$, $C_t$) $\cdot$ Métodos analíticos
         $\cdot$ FDM y FEM (COMSOL, ANSYS)
       }}\\[4pt]
-      \fcolorbox{azulTesis}{azulClaro}{\parbox{\linewidth}{%
+      \fcolorbox{azulTesis}{azulClaro}{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{%
         \footnotesize\textbf{Sec.\,4 --- Corriente admisible}\\[-1pt]
         \tiny IEC~60287 (permanente) $\cdot$ IEC~60853 (transitorio) $\cdot$
         Armónicos $\cdot$ Modelos probabilísticos
@@ -210,7 +502,7 @@
     %% ── Resultado ─────────────────────────────────────────
     \column{0.20\textwidth}
       \centering
-      \colorbox{verdeDTR!20}{\parbox{0.95\linewidth}{%
+      \colorbox{verdeDTR!20}{\parbox{\dimexpr0.95\linewidth-2\fboxsep\relax}{%
         \centering\small\color{verdeDTR}\textbf{RESULTADO}\\[3pt]
         \footnotesize\color{black}
         Estado del\\arte $+$\\recomend.\\DTR
@@ -230,19 +522,19 @@
 
 \begin{frame}{Estructura del paper (38 pp, 5 secciones)}
   \centering
-  \begin{tikzpicture}[>=Stealth, node distance=0.55cm,
+  \begin{tikzpicture}[>=Stealth, node distance=0.45cm,
       sec/.style={draw=azulTesis, rounded corners=3pt, fill=azulClaro,
-                  text width=3.5cm, align=center, font=\footnotesize,
-                  inner sep=5pt, minimum height=0.85cm},
+                  text width=2.1cm, align=center, font=\footnotesize,
+                  inner sep=3pt, minimum height=0.75cm},
       sub/.style={draw=gray!50, rounded corners=2pt, fill=grisClaro,
-                  text width=3.2cm, align=left, font=\tiny,
-                  inner sep=4pt}]
+                  text width=2.1cm, align=left, font=\tiny,
+                  inner sep=3pt}]
 
     \node[sec] (s1) {Sec.\,1\\Introducción};
-    \node[sec, right=0.4cm of s1] (s2) {Sec.\,2\\Transferencia de Calor};
-    \node[sec, right=0.4cm of s2] (s3) {Sec.\,3\\Modelos Térmicos};
-    \node[sec, right=0.4cm of s3] (s4) {Sec.\,4\\Corriente Admisible};
-    \node[sec, right=0.4cm of s4] (s5) {Sec.\,5\\Conclusiones};
+    \node[sec, right=0.25cm of s1] (s2) {Sec.\,2\\Transferencia de Calor};
+    \node[sec, right=0.25cm of s2] (s3) {Sec.\,3\\Modelos Térmicos};
+    \node[sec, right=0.25cm of s3] (s4) {Sec.\,4\\Corriente Admisible};
+    \node[sec, right=0.25cm of s4] (s5) {Sec.\,5\\Conclusiones};
 
     \node[sub, below=0.4cm of s2]
       {Cond.\ Fourier, conv., rad.\\Propiedades del suelo\\Saturación/humedad};
@@ -264,7 +556,7 @@
   \begin{columns}[T]
     \column{0.50\textwidth}
       \begin{block}{Modelos térmicos del cable}
-        \begin{itemize}\small
+        \begin{itemize}\footnotesize
           \item Ecuación de Fourier 2D con coeficientes variables $k(x,y)$
           \item Analogía electrotérmica: $R_t$ (resistencias), $C_t$ (capacitancias)
           \item Modelos de red térmica (ladder network)
@@ -272,7 +564,7 @@
         \end{itemize}
       \end{block}
       \begin{block}{Suelo y backfill}
-        \begin{itemize}\small
+        \begin{itemize}\footnotesize
           \item $k_\text{soil}$ varía con humedad, densidad y mineralogía
           \item Zona seca alrededor del cable (drying-out): reduce ampacidad
           \item Backfill especial: mejora conductividad térmica
@@ -280,7 +572,7 @@
       \end{block}
     \column{0.46\textwidth}
       \begin{block}{Corriente admisible (ampacidad)}
-        \begin{itemize}\small
+        \begin{itemize}\footnotesize
           \item \textbf{IEC 60287}: régimen estacionario, $k$ homogénea, método
                 analítico estándar
           \item \textbf{IEC 60853}: régimen transitorio/cíclico
@@ -289,7 +581,7 @@
         \end{itemize}
       \end{block}
       \begin{alertblock}{Tendencia emergente (conclusiones)}
-        \small
+        \footnotesize
         DTR (\textit{dynamic thermal rating}) reconocido como la aplicación
         que permite mejor explotación de los cables en tiempo real.
       \end{alertblock}
@@ -306,7 +598,7 @@
     maximum current at which the cable can operate without exceeding the
     temperature limits for the insulation material.''}
   \end{block}
-  \vspace{0.3em}
+  \vspace{0.15em}
   \begin{block}{Clasificación térmica dinámica --- DTR (p.\,2)}
     \small
     \textit{``[Dynamic cable rating] consists of the determination of the
@@ -316,9 +608,9 @@
     alongside the parameters and thermal conditions of the cable and the
     environment.''}
   \end{block}
-  \vspace{0.3em}
+  \vspace{0.1em}
   \begin{exampleblock}{Mecanismos de transferencia de calor (p.\,4)}
-    \small
+    \footnotesize
     \begin{itemize}
       \item \textbf{Conducción}: transferencia por contacto directo; rige en el interior del cable y en el suelo
       \item \textbf{Convección}: relevante en cables en aire o agua; no aplica en cables enterrados
@@ -327,23 +619,23 @@
   \end{exampleblock}
 \end{frame}
 
-\begin{frame}{Definiciones de modelos y magnitudes (Sec.\,2--3)}
+\begin{frame}[shrink=7]{Definiciones de modelos y magnitudes (Sec.\,2--3)}
   \begin{columns}[T]
     \column{0.50\textwidth}
       \begin{block}{Fuentes de calor internas $\dot{Q}_\text{gen}$ (p.\,4)}
-        \small
+        \footnotesize
         \textit{``Heat flow rate generated inside a specific power cable,
-        by \textbf{Joule, dielectric and ferromagnetic losses}.''}\\[0.4em]
+        by \textbf{Joule, dielectric and ferromagnetic losses}.''}\\[0.1em]
         Pérdidas en el conductor: efecto Joule\\
         Pérdidas en la aislación: pérdidas dieléctricas\\
         Pérdidas en pantallas metálicas: corrientes inducidas
       \end{block}
-      \vspace{0.4em}
+      \vspace{0.1em}
       \begin{block}{Estabilidad térmica del suelo (p.\,12)}
-        \small
+        \footnotesize
         \textit{``The ability of the soil to keep its \textbf{thermal resistivity
         constant} in the presence of a heat source is named \textbf{thermal
-        stability} of the soil.''}\\[0.3em]
+        stability} of the soil.''}\\[0.1em]
         Su degradación genera la zona seca (\textit{drying-out}) que
         reduce la ampacidad del cable.
       \end{block}
@@ -351,7 +643,7 @@
       \begin{block}{Analogía electrotérmica (Sec.\,3)}
         \small
         Mapa de equivalencia calor $\leftrightarrow$ circuito eléctrico:
-        \begin{center}\small
+        \begin{center}\footnotesize
         \begin{tabular}{ll}
           \toprule
           \textbf{Magnitud térmica} & \textbf{Análoga eléctrica}\\
@@ -384,7 +676,7 @@
     frente a los modelos analíticos (IEC 60287) y de elementos finitos
     existentes, sin incremento del costo computacional.''}
   \end{block}
-  \vspace{0.5em}
+  \vspace{0.2em}
   \begin{columns}[T]
     \column{0.48\textwidth}
       \textbf{Lo que Enescu 2020 deja abierto:}
@@ -408,7 +700,7 @@
 \end{frame}
 
 \begin{frame}{Tabla de posicionamiento}
-  \centering\small
+  \centering\footnotesize\setlength{\tabcolsep}{4pt}
   \begin{tabular}{lccc}
     \toprule
     \textbf{Aspecto} & \textbf{IEC 60287} & \textbf{FEM} & \textbf{PINN (tesis)} \\
@@ -428,6 +720,87 @@
     la tesis demuestra que el PINN alcanza esa precisión
     con la velocidad de un modelo analítico.
   \end{alertblock}
+\end{frame}
+
+%%────────────────────────────────────────────────────────────
+\section{Conclusiones}
+
+\begin{frame}{Conclusiones del paper (Sec.\,5)}
+  \begin{columns}[T]
+    \column{0.50\textwidth}
+      \begin{block}{Conclusiones principales de Enescu (2020)}
+        \footnotesize
+        \begin{enumerate}
+          \item FEM 2D/3D (COMSOL, ANSYS) es la referencia de
+                mayor precisión para geometría compleja de instalación
+          \item IEC\,60287 sobreestima la ampacidad cuando
+                $k_\text{soil}$ es variable o la geometría irregular
+          \item La zona seca (\textit{drying-out}) puede reducir
+                la ampacidad hasta en 40\,\% --- no modelado en IEC
+          \item Los armónicos elevan $R_\text{AC}$ y reducen
+                la ampacidad en cables de distribución
+          \item DTR es la tendencia dominante para la mejor
+                explotación de la capacidad instalada en tiempo real
+        \end{enumerate}
+      \end{block}
+    \column{0.46\textwidth}
+      \begin{alertblock}{Gap identificado --- relevante para la tesis}
+        \footnotesize
+        \begin{itemize}
+          \item FEM requiere remallado por escenario ($\to$ lento)
+          \item IEC no maneja $k(x,y)$ heterogéneo
+          \item Ningún método permite evaluación en tiempo real
+          \item \textbf{PINN} cubre los tres gaps simultáneamente
+        \end{itemize}
+      \end{alertblock}
+      \vspace{0.1em}
+      \begin{exampleblock}{Aporte del paper a la tesis}
+        \footnotesize
+        Establece el \textbf{estado del arte} del problema térmico
+        del cable: fundamentos, normas y métodos numéricos
+        que la tesis supera en velocidad y flexibilidad con PINNs
+      \end{exampleblock}
+  \end{columns}
+\end{frame}
+
+%%────────────────────────────────────────────────────────────
+\section{Preguntas}
+
+\begin{frame}{Preguntas libres}
+  \begin{alertblock}{}
+    \centering\large
+    \textbf{¿El paper expone solo el problema,
+    o también las técnicas de solución?}
+  \end{alertblock}
+  \smallskip
+  \small
+  \textbf{Respuesta:} Es un \textit{overview} completo:
+  expone el \textbf{problema físico} (temperatura, ampacidad,
+  transferencia de calor) \textbf{y} las \textbf{técnicas}
+  (analítico IEC\,60287, FDM, FEM con COMSOL/ANSYS, probabilístico).
+  No evalúa PINN ni IA.\par\medskip
+  \begin{columns}[T]
+    \column{0.44\textwidth}
+      \begin{block}{¿Número de referencias en el paper?}
+        \centering\Large
+        \textbf{113 referencias}\\{}
+        \small 38\,pp $\cdot$ Energies (MDPI) $\cdot$ Open Access\\
+        Publicado: 13 oct 2020
+      \end{block}
+    \column{0.52\textwidth}
+      \begin{exampleblock}{\small ¿Algún paper del estado del arte que hayas
+        descargado, identificado también en el paper?}
+        \small
+        \textbf{Sí.} Papers citados en Enescu\,(2020) y presentes
+        en la biblioteca Zotero del proyecto:
+        \begin{itemize}\footnotesize
+          \item IEC\,60287-1-1 (norma fundamental de ampacidad)
+          \item IEC\,60853 (ciclos y emergencias)
+          \item Aras et al.\ (2005) --- benchmark FEM 154\,kV\\{}
+                [\textit{benchmark principal de la tesis}]
+        \end{itemize}
+      \end{exampleblock}
+  \end{columns}
 \end{frame}
 
 %% ── Cierre ──────────────────────────────────────────────────
