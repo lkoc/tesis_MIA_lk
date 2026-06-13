@@ -1,14 +1,24 @@
 % !TeX program = lualatex
 % Compilacion recomendada: latexmk -lualatex plan_tesis_cables_pinn.tex
+\RequirePackage{fix-cm}
 \documentclass[11pt,a4paper,oneside]{report}
 
 \usepackage{fontspec}
 \setmainfont{Arial}
 \setsansfont{Arial}
+\newfontface\poppinsbold[Path=fonts/]{Poppins-Bold.ttf}
 \usepackage[spanish,es-nodecimaldot,es-noshorthands]{babel}
 \usepackage{csquotes}
 \usepackage{geometry}
-\geometry{left=3cm,top=3cm,right=2.5cm,bottom=2.5cm}
+\geometry{
+  a4paper,
+  left=3cm,
+  top=3cm,
+  right=2.5cm,
+  bottom=2.5cm,
+  headheight=14pt,
+  headsep=0.6cm
+}
 \usepackage{setspace}
 \onehalfspacing
 \usepackage{microtype}
@@ -24,10 +34,13 @@
 \usepackage{pdflscape}
 \usepackage{ragged2e}
 \usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
 \usepackage{amsmath,amssymb,mathtools}
 \usepackage{siunitx}
 \sisetup{output-decimal-marker={,},per-mode=symbol}
 \usepackage{xcolor}
+\usepackage{colortbl}
 \definecolor{unired}{HTML}{8B1A1A}
 \definecolor{darkblue}{HTML}{17365D}
 \definecolor{lightblue}{HTML}{DCE6F1}
@@ -41,8 +54,8 @@
 \captionsetup{font=small,labelfont=bf,justification=centering}
 \usepackage[hidelinks]{hyperref}
 \hypersetup{
-  pdftitle={Plan de tesis - Cables subterraneos y PINN},
-  pdfauthor={Luis Koc y Herbert Melendez},
+  pdftitle={Diseño y evaluación de una red neuronal informada por física para estimar la temperatura y la ampacidad en cables subterráneos con heterogeneidad térmica},
+  pdfauthor={Luis Enrique Koc Góngora y Herbert Antonio Meléndez García},
   pdfsubject={Maestria en Inteligencia Artificial, FIIS-UNI}
 }
 \usepackage{bookmark}
@@ -52,20 +65,80 @@
 \DeclareDelimFormat{postnotedelim}{\addcolon}
 \addbibresource{referencias_plan_tesis.bib}
 
+\newcommand{\tesisbodyfont}{\fontsize{11}{13.6}\selectfont}
 \setlength{\parindent}{1.25cm}
-\setlength{\parskip}{0pt}
+% Equivale al espacio posterior de 12 pt de un procesador de textos.
+\setlength{\parskip}{12pt}
 \setlength{\emergencystretch}{3em}
-\setlist{nosep,leftmargin=1.1cm}
+\setlist{
+  leftmargin=1.1cm,
+  before=\begin{spacing}{1}\tesisbodyfont,
+  after=\end{spacing},
+  topsep=.5\baselineskip,
+  itemsep=0pt,
+  parsep=0pt,
+  partopsep=0pt
+}
 \renewcommand{\arraystretch}{1.18}
-\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
-\newcolumntype{L}[1]{>{\RaggedRight\arraybackslash}p{#1}}
-\newcolumntype{C}[1]{>{\Centering\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{%
+  \RaggedRight
+  \setlength{\parindent}{0pt}%
+  \arraybackslash
+}X}
+\newcolumntype{J}{>{%
+  \justifying
+  \setlength{\parindent}{0pt}%
+  \arraybackslash
+}X}
+\newcolumntype{L}[1]{>{%
+  \RaggedRight
+  \setlength{\parindent}{0pt}%
+  \arraybackslash
+}p{#1}}
+\newcolumntype{C}[1]{>{%
+  \Centering
+  \setlength{\parindent}{0pt}%
+  \arraybackslash
+}p{#1}}
+
+% El Anexo III prescribe Arial 11 para el cuerpo. Los niveles de titulo
+% conservan ese tamaño y se distinguen mediante negrita y numeracion.
+\titleformat{\chapter}[hang]
+  {\normalfont\bfseries\fontsize{11}{13.2}\selectfont}
+  {\chaptername\ \thechapter.}{0.75em}{}
+\titleformat{name=\chapter,numberless}[block]
+  {\normalfont\bfseries\fontsize{11}{13.2}\selectfont}
+  {}{0pt}{}
+\titlespacing*{\chapter}{0pt}{0pt}{1.5\baselineskip}
+\titleformat{\section}
+  {\normalfont\bfseries\fontsize{11}{13.2}\selectfont}
+  {\thesection}{0.75em}{}
+\titlespacing*{\section}{0pt}{1.5\baselineskip}{0.75\baselineskip}
+\titleformat{\subsection}
+  {\normalfont\bfseries\fontsize{11}{13.2}\selectfont}
+  {\thesubsection}{0.75em}{}
+\titlespacing*{\subsection}{0pt}{1.25\baselineskip}{0.5\baselineskip}
+
+% Numeracion romana y arabiga en la esquina superior derecha.
+\fancypagestyle{tesis}{
+  \fancyhf{}
+  \fancyhead[R]{\normalfont\fontsize{11}{13.2}\selectfont\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyhead[R]{\normalfont\fontsize{11}{13.2}\selectfont\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+\pagestyle{tesis}
 
 \newcommand{\Tmax}{T_{\max}}
 \newcommand{\Imax}{I_{\max}}
 \newcommand{\kx}{k(x,y)}
 \newcommand{\pct}{\mbox{\char37}}
-\newcommand{\tituloTesis}{Efecto de la heterogeneidad térmica sobre temperatura y ampacidad de cables subterráneos mediante redes neuronales informadas por la física}
+\newcommand{\tituloTesis}{Diseño y evaluación de una red neuronal informada por física para estimar la temperatura y la ampacidad en cables subterráneos con heterogeneidad térmica}
 
 \begin{document}
 \hypersetup{pageanchor=false}
@@ -75,89 +148,112 @@
 % ---------------------------------------------------------------------------
 \begin{titlepage}
 \thispagestyle{empty}
+\begin{singlespace}
+\setlength{\parskip}{0pt}
 \begin{center}
-{\fontsize{22}{26}\selectfont\bfseries UNIVERSIDAD NACIONAL DE INGENIERÍA\par}
+{\poppinsbold\fontsize{22}{26.4}\selectfont
+\makebox[\textwidth][c]{UNIVERSIDAD NACIONAL DE INGENIERÍA}\par}
 \vspace{0.55cm}
-{\fontsize{16}{19}\selectfont\bfseries UNIDAD DE POSGRADO DE LA FACULTAD DE INGENIERÍA INDUSTRIAL Y DE SISTEMAS\par}
-{\fontsize{16}{19}\selectfont\bfseries ESCUELA DE POSGRADO\par}
+{\fontsize{16}{19.2}\selectfont\bfseries UNIDAD DE POSGRADO DE LA FACULTAD DE INGENIERÍA INDUSTRIAL Y DE SISTEMAS\par}
+{\fontsize{16}{19.2}\selectfont\bfseries ESCUELA DE POSGRADO\par}
 
-\vspace{0.8cm}
-\includegraphics[width=4.4cm]{logo_UNI.png}
+\vspace{0.4cm}
+\includegraphics[width=7.5cm]{logo_UNI.png}
 
-\vspace{0.8cm}
-{\fontsize{14}{17}\selectfont\bfseries PLAN DE TESIS\par}
+\vspace{0.4cm}
+{\fontsize{14}{16.8}\selectfont\bfseries PLAN DE TESIS\par}
 \vspace{0.25cm}
-{\fontsize{14}{18}\selectfont\bfseries\MakeUppercase{\tituloTesis}\par}
+{\fontsize{14}{16.8}\selectfont\bfseries\MakeUppercase{\tituloTesis}\par}
 
 \vfill
-{\fontsize{12}{15}\selectfont
+{\fontsize{12}{14.4}\selectfont
 PARA OBTENER EL GRADO ACADÉMICO DE\par
-\textbf{MAESTRO EN INTELIGENCIA ARTIFICIAL}\par}
+MAESTRO CON MENCIÓN EN:\par
+INTELIGENCIA ARTIFICIAL\par}
 
 \vspace{0.6cm}
-{\fontsize{12}{15}\selectfont\bfseries ELABORADA POR:\par}
+{\fontsize{12}{14.4}\selectfont\bfseries ELABORADA POR:\par}
 \vspace{0.2cm}
-{\fontsize{12}{15}\selectfont\bfseries LUIS KOC\par}
-{\fontsize{12}{15}\selectfont\bfseries HERBERT MELÉNDEZ\par}
+{\fontsize{12}{14.4}\selectfont\bfseries LUIS ENRIQUE KOC GÓNGORA\par}
+{\fontsize{12}{14.4}\selectfont\bfseries HERBERT ANTONIO MELÉNDEZ GARCÍA\par}
 
 \vspace{0.55cm}
-{\fontsize{12}{15}\selectfont\bfseries ASESOR: POR DESIGNAR\par}
+{\fontsize{12}{14.4}\selectfont\bfseries ASESOR: WESTER ZELA MORAYA\par}
 
 \vfill
-{\fontsize{14}{17}\selectfont\bfseries LIMA, PERÚ\par}
+{\fontsize{14}{16.8}\selectfont\bfseries LIMA, PERÚ\par}
 \vspace{0.15cm}
-{\fontsize{12}{15}\selectfont\bfseries 2026\par}
+{\fontsize{12}{14.4}\selectfont\bfseries 2026\par}
 \end{center}
+\end{singlespace}
 \end{titlepage}
 
+\tesisbodyfont
 \hypersetup{pageanchor=true}
 \pagenumbering{roman}
 \setcounter{page}{2}
 
 \chapter*{Datos generales}
-\thispagestyle{empty}
 \addcontentsline{toc}{chapter}{Datos generales}
-\begin{table}[htbp]
-\centering
-\begin{tabularx}{\textwidth}{L{5.0cm}Y}
+\vspace{0.35cm}
+
+\begingroup
+\singlespacing
+\setlength{\parskip}{0pt}
+\setlength{\parindent}{0pt}
+\setlength{\tabcolsep}{10pt}
+\renewcommand{\arraystretch}{1.28}
+\noindent
+\begin{tabularx}{\textwidth}{
+  >{\bfseries\RaggedRight\setlength{\parindent}{0pt}\arraybackslash}p{4.15cm}
+  J
+}
 \toprule
+\rowcolor{lightgray}
 \textbf{Elemento} & \textbf{Descripción} \\
 \midrule
-Título & \tituloTesis. \\
-Autores & Luis Koc y Herbert Meléndez. \\
+Título del plan & \tituloTesis. \\
+\addlinespace[5pt]
+Tesistas & \mbox{Luis Enrique Koc Góngora};\newline
+           \mbox{Herbert Antonio Meléndez García}. \\
+\addlinespace[5pt]
 Programa & Maestría en Inteligencia Artificial. \\
+\addlinespace[5pt]
 Unidad académica & Unidad de Posgrado de la Facultad de Ingeniería Industrial y de Sistemas, Universidad Nacional de Ingeniería. \\
+\addlinespace[5pt]
 Área involucrada & Inteligencia artificial científica, modelado computacional y sistemas eléctricos de potencia. \\
+\addlinespace[5pt]
 Lugar de desarrollo & Entorno computacional de la FIIS-UNI y casos de referencia documentados de instalaciones de cables eléctricos subterráneos. \\
+\addlinespace[5pt]
 Duración estimada & Doce meses, desde julio de 2026 hasta junio de 2027. \\
+\addlinespace[5pt]
 Tipo de graduación & Maestría de especialización o profesionalizante. \\
-Artefacto de investigación & Modelo y prototipo computacional 2D basado en redes neuronales informadas por la física para analizar campos térmicos y ampacidad en entornos heterogéneos. \\
+\addlinespace[5pt]
+Artefacto de\newline investigación & Modelo y prototipo computacional 2D basado en redes neuronales informadas por física para analizar campos térmicos y ampacidad en entornos heterogéneos. \\
 \bottomrule
 \end{tabularx}
-\end{table}
+\endgroup
 
 \chapter*{Resumen ejecutivo}
-\thispagestyle{empty}
 \addcontentsline{toc}{chapter}{Resumen ejecutivo}
 \justifying
 El desempeño de un cable eléctrico subterráneo está limitado por la temperatura alcanzada por su conductor, la cual depende de las pérdidas internas y de la capacidad del entorno para evacuar calor. Los métodos normativos de ampacidad son indispensables como referencia de ingeniería, pero representan el terreno mediante resistencias térmicas equivalentes y supuestos simplificados; en campo, la humedad, el secado, los estratos, el \textit{bedding} y el \textit{backfill} producen una conductividad térmica espacialmente variable. Esta diferencia puede ocultar puntos calientes o inducir estimaciones conservadoras de capacidad \parencites[4--6]{enescu2021}[41--42]{cigre2025}.
 
-La investigación propone diseñar y evaluar, bajo el paradigma \textit{Design Science Research} (DSR), un artefacto computacional que incorpore la ecuación de conducción de calor, las condiciones de contorno e interfaz y el campo heterogéneo $\kx$ dentro del entrenamiento de una red neuronal informada por la física (PINN). El artefacto será demostrado en casos analíticos, benchmarks FEM y escenarios documentados de cables subterráneos; su evaluación considerará exactitud térmica, conservación de energía, robustez, costo computacional y capacidad para estimar la ampacidad. La secuencia metodológica adapta las actividades de identificación del problema, objetivos de solución, diseño, demostración, evaluación y comunicación de DSRM, con ciclos formativos de refinamiento durante el desarrollo \parencites[55--56]{peffers2007}[200--202]{delport2024}.
+La investigación propone diseñar y evaluar, bajo el paradigma \textit{Design Science Research} (DSR), un artefacto computacional que incorpore la ecuación de conducción de calor, las condiciones de contorno e interfaz y el campo heterogéneo $\kx$ dentro del entrenamiento de una red neuronal informada por física (PINN). El artefacto será demostrado en casos analíticos, benchmarks FEM y escenarios documentados de cables subterráneos; su evaluación considerará exactitud térmica, conservación de energía, robustez, costo computacional y capacidad para estimar la ampacidad. La secuencia metodológica adapta las actividades de identificación del problema, objetivos de solución, diseño, demostración, evaluación y comunicación de DSRM, con ciclos formativos de refinamiento durante el desarrollo \parencites[55--56]{peffers2007}[200--202]{delport2024}.
 
 Se espera producir un modelo lógico, un prototipo reproducible, un conjunto de escenarios y principios de diseño transferibles a la clase de problemas de conducción térmica 2D multimaterial. La contribución no se reducirá al software: incluirá criterios de representación de heterogeneidad, procedimientos de verificación y evidencia sobre cuándo la aproximación homogénea puede sesgar la temperatura máxima o la corriente admisible \parencites[343--350]{gregor2013}[93--99]{cigre2025}.
 
-\noindent\textbf{Palabras clave:} cable subterráneo; ampacidad; heterogeneidad térmica; conductividad del suelo; red neuronal informada por la física; ciencia del diseño.
+\noindent\textbf{Palabras clave:} cable subterráneo; ampacidad; heterogeneidad térmica; conductividad del suelo; red neuronal informada por física; ciencia del diseño.
 
+\begingroup
+\singlespacing
+\tesisbodyfont
 \tableofcontents
-\thispagestyle{empty}
 \listoffigures
-\thispagestyle{empty}
 \listoftables
-\thispagestyle{empty}
 \listofformulas
-\thispagestyle{empty}
 \listofprocedures
-\thispagestyle{empty}
+\endgroup
 
 \clearpage
 \pagenumbering{arabic}
@@ -168,13 +264,13 @@ Se espera producir un modelo lógico, un prototipo reproducible, un conjunto de 
 
 \section{Introducción conceptual}
 
-Un cable eléctrico subterráneo es un sistema multicapa que transporta corriente mientras disipa las pérdidas generadas en el conductor, el aislamiento y las pantallas hacia el terreno circundante. Su \emph{ampacidad} es la corriente máxima que puede transportar sin superar el límite térmico definido para sus materiales y condiciones de operación. Por ello, el cálculo no depende únicamente de la sección del conductor: requiere representar el camino térmico formado por el cable, el material de asiento, el relleno de la zanja y el suelo nativo \parencites[752--756]{neher1957}[3--5]{enescu2020}.
+Un cable eléctrico subterráneo es un sistema multicapa que transporta corriente mientras disipa las pérdidas generadas en el conductor, el aislamiento y las pantallas hacia el terreno circundante. Su ampacidad es la corriente máxima que puede transportar sin superar el límite térmico definido para sus materiales y condiciones de operación. Por ello, el cálculo no depende únicamente de la sección del conductor: requiere representar el camino térmico formado por el cable, el material de asiento, el relleno de la zanja y el suelo nativo \parencites[752--756]{neher1957}[3--5]{enescu2020}.
 
 La conducción de calor se describe mediante una ecuación diferencial parcial cuya solución es el campo de temperatura $T(x,y)$. La propiedad que vincula el gradiente de temperatura con el flujo de calor es la conductividad térmica $k$; su inversa es la resistividad térmica. Cuando el dominio contiene estratos, zonas secas o rellenos con propiedades distintas, $k$ deja de ser un único valor y se representa como un campo $\kx$. En tal situación, la posición y extensión de cada material influyen en el flujo y no solo su valor promedio \parencites[3--4]{enescu2021}[3]{xing2023}.
 
 Los métodos normalizados IEC 60287 e IEC 60853 y el enfoque clásico de Neher--McGrath proporcionan una base consolidada para estimar temperatura y corriente admisible. Sin embargo, su formulación equivalente no reproduce de forma explícita cualquier distribución bidimensional arbitraria de materiales. La revisión técnica contemporánea distingue, por ello, entre modelos analíticos, circuitos térmicos y métodos de campo como FEM, y recomienda verificar cuidadosamente cualquier herramienta numérica antes de emplearla para rating \parencites[752--760]{neher1957}[4--6]{enescu2021}[3--4]{cigre2025}.
 
-Una red neuronal informada por la física incorpora la ecuación gobernante y sus condiciones auxiliares en la función de pérdida. En vez de aprender exclusivamente pares de entrada y salida, aproxima una función de temperatura cuyo incumplimiento de la física es penalizado durante el entrenamiento. Este principio permite abordar problemas directos e inversos de ecuaciones diferenciales y ofrece una vía sin malla convencional para reconstruir campos térmicos, aunque su convergencia, balance entre pérdidas y exactitud deben comprobarse en cada clase de problema \parencites[686--690]{raissi2019}[1--2]{lawal2022}[3,16]{pan2025}.
+Una red neuronal informada por física incorpora la ecuación gobernante y sus condiciones auxiliares en la función de pérdida. En vez de aprender exclusivamente pares de entrada y salida, aproxima una función de temperatura cuyo incumplimiento de la física es penalizado durante el entrenamiento. Este principio permite abordar problemas directos e inversos de ecuaciones diferenciales y ofrece una vía sin malla convencional para reconstruir campos térmicos, aunque su convergencia, balance entre pérdidas y exactitud deben comprobarse en cada clase de problema \parencites[686--690]{raissi2019}[1--2]{lawal2022}[3,16]{pan2025}.
 
 La investigación se formula como DSR porque su producto central es un artefacto creado para resolver una clase de problemas y evaluado mediante evidencia. En DSR, el artefacto puede adoptar la forma de modelo, método o instanciación; la contribución se fortalece cuando, además del prototipo, se explicitan principios de diseño y condiciones de aplicación que permiten trasladar el conocimiento a otros casos \parencites[55--56]{peffers2007}[342--344]{gregor2013}.
 
@@ -538,7 +634,7 @@ Los efectos de factores se estimarán mediante gráficos de efectos, análisis d
 
 \section{Verificación, validación y criterios de evaluación DSR}
 
-La \emph{verificación} responderá si las ecuaciones fueron resueltas correctamente; la \emph{validación}, si el modelo representa de manera suficiente la respuesta física dentro de su dominio. IEC se usará como línea base normativa y no como verdad de campo para todo entorno heterogéneo. La referencia principal será una solución analítica/manufacturada o FEM con estudio de convergencia, complementada por datos experimentales o publicados cuando sean comparables \parencites[3--4,93--99]{cigre2025}[1,6--7]{khumalo2025}[9--10,16]{kim2025}.
+La verificación responderá si las ecuaciones fueron resueltas correctamente; la validación, si el modelo representa de manera suficiente la respuesta física dentro de su dominio. IEC se usará como línea base normativa y no como verdad de campo para todo entorno heterogéneo. La referencia principal será una solución analítica/manufacturada o FEM con estudio de convergencia, complementada por datos experimentales o publicados cuando sean comparables \parencites[3--4,93--99]{cigre2025}[1,6--7]{khumalo2025}[9--10,16]{kim2025}.
 
 \begin{table}[htbp]
 \centering
@@ -618,7 +714,7 @@ Su atractivo para esta tesis es triple: representación continua del campo, inte
 
 \section{Ciencia del diseño y naturaleza de la contribución}
 
-DSR busca conocimiento prescriptivo a través de artefactos útiles y rigurosamente evaluados. En este plan, el problema práctico es la estimación térmica bajo heterogeneidad; el artefacto situado será el prototipo; la contribución más abstracta estará formada por requisitos, arquitectura, protocolo de evaluación y principios de diseño. La investigación se posiciona principalmente como \emph{mejora}: aplica y adapta PINN existentes a una clase de problema cuyo tratamiento actual puede perfeccionarse \parencites[343--349]{gregor2013}.
+DSR busca conocimiento prescriptivo a través de artefactos útiles y rigurosamente evaluados. En este plan, el problema práctico es la estimación térmica bajo heterogeneidad; el artefacto situado será el prototipo; la contribución más abstracta estará formada por requisitos, arquitectura, protocolo de evaluación y principios de diseño. La investigación se posiciona principalmente como mejora: aplica y adapta PINN existentes a una clase de problema cuyo tratamiento actual puede perfeccionarse \parencites[343--349]{gregor2013}.
 
 Los principios iniciales son: conservar explícitamente la física; representar interfaces sin promediar de forma inadvertida; separar verificación de validación; mantener incertidumbre numérica por debajo del efecto analizado; y preservar trazabilidad de cada ejecución. Estos principios son proposiciones de diseño sujetas a evaluación y refinamiento, no conclusiones anticipadas.
 
@@ -710,10 +806,15 @@ El financiamiento base será propio. Se postulará a fondos universitarios o ins
 \end{enumerate}
 
 \clearpage
+\begin{singlespace}
+\tesisbodyfont
 \printbibliography[title={Referencias}]
+\end{singlespace}
 
 % ===========================================================================
 \appendix
+\begin{singlespace}
+\tesisbodyfont
 \begin{landscape}
 \chapter{Matriz de consistencia}
 \thispagestyle{empty}
@@ -792,7 +893,7 @@ Calidad del artefacto & Estabilidad y costo. & Robustez y eficiencia & CV entre 
 \textbf{Actividad DSR} & \textbf{Producto de tesis} & \textbf{Evidencia de cumplimiento} \\
 \midrule
 Problema y motivación & Planteamiento, diagnóstico y brecha. & Datos, contrastación bibliográfica y preguntas. \\
-Objetivos de solución & Requisitos y criterios de aceptación. & Matriz problema--objetivo--hipótesis--métrica. \\
+Objetivos de solución & Requisitos y criterios de aceptación. & Matriz de problemas, objetivos, hipótesis y métricas. \\
 Diseño y desarrollo & Arquitectura lógica y prototipo. & Bitácora, versiones, decisiones y pruebas formativas. \\
 Demostración & Casos analíticos, FEM, publicados y heterogéneos. & Entradas, salidas y reproducción de escenarios. \\
 Evaluación & Informe de validez, utilidad, calidad y eficacia. & Métricas, comparaciones, incertidumbre y límites. \\
@@ -823,4 +924,5 @@ Duplicación & Versión final y registro canónico. & Copias duplicadas de la mi
 \end{tabularx}
 \end{table}
 
+\end{singlespace}
 \end{document}
