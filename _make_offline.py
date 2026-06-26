@@ -6,6 +6,8 @@ Genera una versión completamente offline de zotero_network.html:
 Salida: zotero_offline/zotero_network.html  +  zotero_offline/pdfs/*.pdf
 """
 import re, json, os, shutil, pathlib, urllib.request
+from urllib.parse import urlparse
+from urllib.request import url2pathname
 
 SRC_HTML  = r"c:\usr\ths_mia_fiis\tesis_MIA_lk\zotero_network.html"
 OUT_DIR   = r"c:\usr\ths_mia_fiis\tesis_MIA_lk\zotero_offline"
@@ -14,7 +16,7 @@ PDFS_DIR  = os.path.join(OUT_DIR, "pdfs")
 STORE     = r"C:\Users\QU1267\Zotero\storage"
 
 VIS_JS  = "https://unpkg.com/vis-network@9.1.9/dist/vis-network.min.js"
-VIS_CSS = "https://unpkg.com/vis-network@9.1.9/dist/dist/vis-network.min.css"
+VIS_CSS = "https://unpkg.com/vis-network@9.1.9/styles/vis-network.min.css"
 
 os.makedirs(PDFS_DIR, exist_ok=True)
 
@@ -60,8 +62,12 @@ for n in nodes:
     lp = n.get("local_pdf", "")
     if not lp:
         continue
-    # lp es  file:///C:/Users/.../storage/KEY/filename.pdf
-    src_path = lp.replace("file:///", "").replace("/", os.sep)
+    # lp es file:///C:/Users/.../storage/KEY/filename.pdf
+    parsed = urlparse(lp)
+    if parsed.scheme == "file":
+        src_path = url2pathname(parsed.path)
+    else:
+        src_path = lp
     filename = os.path.basename(src_path)
     dst_path = os.path.join(PDFS_DIR, filename)
 
@@ -69,11 +75,11 @@ for n in nodes:
         shutil.copy2(src_path, dst_path)
         n["local_pdf"] = f"./pdfs/{filename}"
         copied += 1
-        print(f"  ✓ {filename}")
+        print(f"  OK {filename}")
     else:
         n["local_pdf"] = ""
         skipped += 1
-        print(f"  ✗ MISSING {filename}")
+        print(f"  MISSING {filename}")
 
 print(f"\nPDFs copiados: {copied}, faltantes: {skipped}")
 

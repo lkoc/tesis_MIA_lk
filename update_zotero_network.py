@@ -276,7 +276,9 @@ def extract_records(
     db: Path,
     root_collection: str,
 ) -> tuple[list[dict], dict]:
-    con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+    # Zotero can keep the SQLite database locked while the desktop app is open.
+    # Read-only + nolock lets this reporting script refresh from the active DB.
+    con = sqlite3.connect(f"file:{db}?mode=ro&nolock=1", uri=True)
     con.row_factory = sqlite3.Row
     cur = con.cursor()
     library_id, item_ids = collection_tree_items(cur, root_collection)

@@ -34,6 +34,7 @@
 \usepackage{pdflscape}
 \usepackage{ragged2e}
 \usepackage{enumitem}
+\usepackage{etoolbox}
 \usepackage{titlesec}
 \usepackage{fancyhdr}
 \usepackage{amsmath,amssymb,mathtools}
@@ -48,10 +49,13 @@
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,calc}
 \usepackage{newfloat}
+\usepackage{float}
 \DeclareFloatingEnvironment[fileext=loe,listname={Listado de fórmulas},name=Fórmula,placement=htbp]{formula}
 \DeclareFloatingEnvironment[fileext=lop,listname={Listado de procedimientos},name=Procedimiento,placement=htbp]{procedure}
 \usepackage{caption}
 \captionsetup{font=small,labelfont=bf,justification=centering}
+\captionsetup[table]{font=footnotesize}
+\AtBeginEnvironment{table}{\footnotesize}
 \usepackage[hidelinks]{hyperref}
 %\usepackage{xurl}
 
@@ -445,8 +449,9 @@ La Tabla~\ref{tab:dimensiones-operativas} resume esa organización y separa el s
 
 Con base en esa clasificación, la Figura~\ref{fig:modelo-conceptual} representa el encadenamiento que guiará el análisis: la conductividad térmica espacialmente variable $\kx$ modifica el campo térmico y este, a su vez, determina el límite operativo; los controles se mantienen explícitos para que las diferencias observadas puedan atribuirse al entorno térmico y no a cambios de geometría, pérdidas o condiciones numéricas.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
+\resizebox{0.9\textwidth}{!}{%
 \begin{tikzpicture}[
   var/.style={draw,rounded corners=3pt,align=center,text width=3.5cm,minimum height=1.2cm,font=\small},
   arr/.style={-{Stealth[length=3mm]},thick}]
@@ -460,14 +465,19 @@ Con base en esa clasificación, la Figura~\ref{fig:modelo-conceptual} representa
 \draw[arr,dashed] (c) -- (t);
 \draw[arr,dashed] (c) -- (i);
 \end{tikzpicture}
+}%
 \caption{Modelo conceptual de las relaciones evaluadas.}
 \label{fig:modelo-conceptual}
 \end{figure}
 
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
 \caption{Dimensiones operativas principales de la investigación.}
 \label{tab:dimensiones-operativas}
+\begingroup
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.5}
 \begin{tabularx}{\textwidth}{L{3.0cm}L{2.4cm}Y Y}
 \toprule
 \textbf{Dimensión} & \textbf{Papel en el estudio} & \textbf{Definición conceptual} & \textbf{Componentes o indicadores} \\
@@ -480,6 +490,7 @@ Exactitud y calidad del artefacto & Criterio de evaluación DSR & Grado en que e
 Geometría, pérdidas y contornos & Condiciones de control & Condiciones que deben permanecer constantes en comparaciones pareadas. & Diámetros; profundidad; separación; corriente; pérdidas; temperatura ambiente; tamaño del dominio y condiciones de borde. \\
 \bottomrule
 \end{tabularx}
+\endgroup
 \end{table}
 
 
