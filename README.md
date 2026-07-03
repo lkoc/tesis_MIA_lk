@@ -82,6 +82,25 @@ pip install -e ".[dev]"
 
 ---
 
+## Criterio de numeración en el documento LaTeX
+
+- **Niveles numéricos:** Se usan tres niveles numerados con formato habitual: `\section`, `\subsection`, `\subsubsection`.
+- **Cuarto nivel con letras:** El cuarto nivel se implementa con `\paragraph` y usa numeración en letras minúsculas con paréntesis de cierre: `a)`, `b)`, `c)`.
+- **Índice (TOC):** Todos los niveles aparecen en el índice general mediante `\setcounter{tocdepth}{4}` y `\setcounter{secnumdepth}{4}`.
+- **Archivo modificado:** Ver [Plan/plan_tesis_cables_pinn.tex](Plan/plan_tesis_cables_pinn.tex) para la implementación.
+
+Ejemplo de configuración insertada en el preámbulo del `.tex`:
+
+```tex
+% Incluir hasta cuarto nivel en el índice y numeración de secciones
+\setcounter{tocdepth}{4}
+\setcounter{secnumdepth}{4}
+% Numeración de cuarto nivel por letras
+\renewcommand\theparagraph{\alph{paragraph})}
+	itleformat{\paragraph}{\normalfont\bfseries\fontsize{11}{13.2}\selectfont}{\theparagraph}{0.75em}{}
+```
+
+
 ## Ejemplos disponibles
 
 ### 1. Cable XLPE único — 12/20 kV (cable estándar)
