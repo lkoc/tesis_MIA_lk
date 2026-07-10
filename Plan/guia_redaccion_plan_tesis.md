@@ -20,7 +20,7 @@ Ejemplo de configuración (preambulo):
 \setcounter{secnumdepth}{4}
 % Numeración de cuarto nivel por letras
 \renewcommand\theparagraph{\alph{paragraph})}
-	itleformat{\paragraph}{\normalfont\bfseries}{\theparagraph}{0.75em}{}
+\titleformat{\paragraph}{\normalfont\bfseries}{\theparagraph}{0.75em}{}
 ```
 
 Ver la implementación en [Plan/plan_tesis_cables_pinn.tex](Plan/plan_tesis_cables_pinn.tex).
@@ -33,7 +33,8 @@ La forma preferida es impersonal o institucional:
 
 - `La investigación analiza...`
 - `El estudio propone...`
-- `La tesis evalúa...`
+- `La investigación evalúa...`
+- `El análisis compara...`
 - `El artefacto permite...`
 - `Se observa...`
 - `Se evaluará...`
@@ -44,6 +45,36 @@ No usar primera persona ni segunda persona:
 - no usar `tú`, `usted`, `ustedes`, `debes`, `puedes`.
 - no dirigirse al lector.
 
+## Autorreferencia Académica
+
+Evitar la repetición de frases como `en esta tesis` cuando el sujeto real pueda ser más específico. La expresión no es incorrecta, pero su uso excesivo vuelve el texto autorreferencial y menos discursivo.
+
+Preferir:
+
+- `Esta investigación...` cuando se hable del proceso investigativo.
+- `El estudio...` cuando se hable del alcance, la metodología o la evaluación.
+- `El análisis...` cuando se hable de comparaciones, interpretación o resultados.
+- `El modelo...` o `el artefacto...` cuando se hable de la herramienta construida.
+- Formas impersonales como `se evaluará`, `se registrará`, `se comparará` cuando el énfasis esté en la acción metodológica.
+
+Ejemplos:
+
+Antes:
+
+> En esta tesis, FEM funciona como referencia de campo.
+
+Después:
+
+> FEM funcionará como referencia numérica convergente del campo térmico.
+
+Antes:
+
+> En esta tesis se medirá la temperatura del sistema.
+
+Después:
+
+> El estudio calculará y comparará la temperatura mediante casos analíticos, bibliográficos y computacionales.
+
 ## Uso Como Skill Para LLM
 
 Cuando un LLM use esta guía, debe aplicar estas reglas antes de generar el texto:
@@ -51,7 +82,7 @@ Cuando un LLM use esta guía, debe aplicar estas reglas antes de generar el text
 1. Conservar el contenido técnico, las citas, las etiquetas LaTeX, las fórmulas y los datos numéricos.
 2. Reescribir en tercera persona, con tono académico, técnico y formal.
 3. Mantener lenguaje simple, directo y preciso.
-4. Separar ideas largas en oraciones de 25 a 35 palabras cuando sea posible.
+4. Mantener oraciones de hasta 45 palabras, con una tolerancia de 5 palabras si la idea no debe truncarse.
 5. Usar conectores para mostrar causa, contraste, secuencia o consecuencia.
 6. No inventar citas, datos, resultados ni fuentes.
 7. No agregar referencias de estilo al archivo `.bib` ni al documento de tesis.
@@ -62,14 +93,94 @@ Cuando un LLM use esta guía, debe aplicar estas reglas antes de generar el text
 12. Verificar que toda figura tenga fuente en el caption.
 13. Usar referencias cruzadas internas cuando ayuden a conectar capítulos, secciones, figuras, tablas o anexos.
 14. Incluir una apertura y un cierre discursivo en cada capítulo; en secciones extensas, aplicar la misma regla.
+15. Evitar sangría en el primer renglón de los párrafos.
+16. Agregar nuevas fuentes solo si son necesarias; deben existir realmente y tener URL, DOI o ISBN verificado.
+17. Evitar autorreferencias repetidas como `en esta tesis`; preferir `esta investigación`, `el estudio`, `el análisis`, `el modelo`, `el artefacto` o formas impersonales según el sujeto lógico.
+18. No llamar `mediciones` a cálculos, estimaciones, registros computacionales o valores tomados de fuentes bibliográficas si no existe levantamiento directo de campo.
 
 Salida esperada del LLM:
 
 - texto corregido en español académico.
 - redacción en tercera persona.
-- párrafos breves.
+- párrafos proporcionados, sin fragmentación innecesaria.
 - citas técnicas conservadas.
 - sin explicación externa, salvo que se pida una justificación de cambios.
+
+## Enfoque operacional por loops y agentes para LLMs
+
+La guía de redacción puede usarse no solo como lista de reglas, sino como un flujo de trabajo repetible para un LLM. Este enfoque mejora la consistencia de la redacción y reduce la probabilidad de que el modelo cambie el sentido del texto.
+
+### Loop 1: Comprensión del bloque a redactar
+
+Objetivo: identificar qué debe decir la sección, qué ideas debe sostener y qué elementos técnicos deben conservarse.
+
+Tareas:
+- leer el contenido fuente o el borrador previo;
+- identificar la idea principal del párrafo o sección;
+- detectar datos, citas, fórmulas, etiquetas LaTeX y restricciones formales.
+
+Salida esperada:
+- una versión breve de la intención del bloque y de sus elementos no negociables.
+
+### Loop 2: Planificación del texto
+
+Objetivo: decidir cómo se organizará la redacción antes de escribir.
+
+Tareas:
+- ordenar las ideas en secuencia lógica;
+- separar contexto, problema, evidencia, análisis y conclusión;
+- asignar la función de cada párrafo.
+
+Salida esperada:
+- un esquema mínimo de redacción para el bloque.
+
+### Loop 3: Redacción del bloque
+
+Objetivo: producir el texto en el registro académico, técnico y formal definido por esta guía.
+
+Tareas:
+- escribir en tercera persona y con lenguaje claro;
+- mantener las citas, fórmulas y etiquetas LaTeX;
+- respetar la longitud de oraciones y párrafos recomendada.
+
+Salida esperada:
+- un texto coherente, formal y alineado con el contenido técnico.
+
+### Loop 4: Revisión y corrección
+
+Objetivo: detectar problemas de estilo, lógica y trazabilidad antes de aceptar el texto.
+
+Tareas:
+- verificar que las ideas estén conectadas;
+- confirmar que no haya frases ambiguas, adjetivos no justificados o referencias débiles;
+- revisar que la redacción conserve el sentido técnico del contenido original.
+
+Salida esperada:
+- una versión revisada y más robusta del bloque.
+
+### Loop 5: Integración y cierre
+
+Objetivo: incorporar el bloque en el documento sin romper la continuidad del texto.
+
+Tareas:
+- revisar transiciones entre párrafos y secciones;
+- asegurar que el hilo conductor se mantenga;
+- ajustar apertura y cierre cuando corresponda.
+
+Salida esperada:
+- una versión del texto lista para integrarse al documento completo.
+
+### Roles de agente recomendados
+
+Para facilitar el uso por un LLM, conviene pensar en roles temporales de trabajo:
+
+- Agente de contenido: conserva la información técnica y la intención del texto.
+- Agente de estilo: aplica la redacción académica, formal y en tercera persona.
+- Agente de lógica: organiza ideas, párrafos y secuencias argumentativas.
+- Agente de revisión: detecta incoherencias, sobreexplicaciones y desviaciones del sentido.
+- Agente de trazabilidad: verifica que las citas, referencias cruzadas y fórmulas sigan siendo correctas.
+
+Este enfoque permite que el LLM trabaje por ciclos cortos y controlados, en lugar de intentar corregir todo el documento de una vez.
 
 ## Marco de revisión
 
@@ -195,7 +306,7 @@ Los términos especializados se aceptan cuando son necesarios. Sin embargo, debe
 
 ### Integración De Tipos De Redacción
 
-La tesis puede combinar exposición, descripción y argumentación. La exposición explica conceptos; la descripción precisa sistemas, variables o escenarios; la argumentación justifica decisiones metodológicas.
+El documento puede combinar exposición, descripción y argumentación. La exposición explica conceptos; la descripción precisa sistemas, variables o escenarios; la argumentación justifica decisiones metodológicas.
 
 La narración solo debe usarse cuando ordena una secuencia de trabajo, como las fases DSR o el procedimiento de evaluación.
 
@@ -206,7 +317,7 @@ El hilo conductor debe poder seguirse entre capítulos. La lectura esperada es:
 1. El problema surge porque el entorno térmico real del cable enterrado es heterogéneo.
 2. Esa heterogeneidad puede cambiar el campo de temperatura y la ampacidad.
 3. Las representaciones homogéneas pueden ocultar ese cambio.
-4. La tesis propone un artefacto PINN para representar $\kx$ y estimar $T(x,y)$.
+4. La investigación propone un artefacto PINN para representar $\kx$ y estimar $T(x,y)$.
 5. Los objetivos, hipótesis y dimensiones operativas traducen la brecha en tareas evaluables.
 6. La metodología DSR organiza la construcción, verificación y evaluación del artefacto.
 7. El marco teórico aporta las bases físicas, normativas, numéricas y metodológicas.
@@ -332,7 +443,9 @@ Estos términos deben estar definidos en la sección de definición de términos
 
 ## Oraciones
 
-Las oraciones deben tener, en lo posible, entre 25 y 35 palabras. Se acepta una oración algo más larga cuando contiene una cita o una expresión técnica necesaria.
+Las oraciones deben tener, en lo posible, hasta 45 palabras. Se acepta una tolerancia de 5 palabras cuando cortar la oración debilita la idea o separa una cita necesaria.
+
+Cuando una oración contiene subordinadas que conectan causa, contraste, condición o consecuencia, el límite puede duplicarse. Este recurso es deseable cuando mejora la continuidad lógica y evita que las ideas queden como frases sueltas.
 
 La estructura preferida es:
 
@@ -342,7 +455,7 @@ Ejemplo:
 
 > La conductividad térmica del suelo cambia la temperatura máxima del conductor.
 
-Se pueden usar oraciones subordinadas, pero solo si ayudan a relacionar ideas.
+Se deben usar oraciones subordinadas cuando ayuden a relacionar ideas. Su función es mostrar causa, condición, contraste, concesión, secuencia o consecuencia.
 
 Ejemplo:
 
@@ -352,9 +465,15 @@ Evitar oraciones que unan demasiadas funciones. Si una oración define, justific
 
 ## Párrafos
 
-Cada párrafo debe desarrollar una sola idea. En general, debe tener una o dos oraciones.
+Cada párrafo debe desarrollar una sola idea. Puede tener entre dos y cuatro oraciones cuando la idea requiere contexto, comparación, contraste, detalle o consecuencia.
 
-La primera oración presenta la idea. La segunda la justifica, la conecta o indica su consecuencia.
+Los párrafos de una sola oración son aceptables solo cuando introducen una fórmula, declaran un objetivo, formulan una hipótesis o cumplen una función de transición clara. Si no cumplen esa función, deben integrarse con el párrafo anterior o posterior.
+
+El uso de varias oraciones en un párrafo debe tener una función lógica. Puede comparar, contrastar, detallar, explicar una consecuencia o conectar la idea con el hilo conductor del documento.
+
+Evitar párrafos muy cortos que parezcan ideas sueltas o viñetas desconectadas. El texto debe conservar continuidad discursiva, ritmo académico y una explicación con vida, no una sucesión de enunciados aislados.
+
+La primera oración presenta la idea. Las siguientes la justifican, la comparan, la precisan o indican su consecuencia.
 
 Ejemplo:
 
@@ -368,7 +487,9 @@ Evitar párrafos que mezclen:
 - resultado esperado
 - justificación
 
-Si aparecen varias funciones en un mismo párrafo, dividirlo.
+Si aparecen varias funciones no relacionadas en un mismo párrafo, dividirlo.
+
+Los párrafos no deben tener sangría en el primer renglón. En LaTeX, el preámbulo debe mantener `\setlength{\parindent}{0pt}`.
 
 ## Conectores
 
@@ -418,6 +539,12 @@ Las citas deben sostener afirmaciones específicas. No deben colocarse al final 
 Regla práctica:
 
 Si una oración afirma un dato, una relación física o una recomendación técnica, debe tener una fuente cercana.
+
+Cada párrafo debe contener las citas necesarias para sostener sus afirmaciones. Un párrafo de organización interna, apertura o cierre puede no citar fuentes si solo explica la estructura del documento.
+
+Cuando falte una cita, primero se debe revisar la biblioteca local de Zotero y su base `zotero.sqlite`. Si no existe una fuente adecuada, se puede buscar una fuente adicional en internet.
+
+Las fuentes nuevas deben agregarse a Zotero y al archivo `.bib` solo después de verificar que existen. Deben incluir URL y, cuando corresponda, DOI o ISBN real. No se deben inventar DOI, ISBN, autores, páginas ni títulos.
 
 Ejemplo:
 
@@ -483,7 +610,7 @@ Antes:
 
 Después:
 
-> La tesis evaluará si el método reduce el error frente a una referencia FEM dentro del dominio definido.
+> La investigación evaluará si el método reduce el error frente a una referencia FEM dentro del dominio definido.
 
 Antes:
 
@@ -492,6 +619,30 @@ Antes:
 Después:
 
 > El modelo se considerará estable si la variación de $\Tmax$ entre semillas permanece dentro del criterio definido.
+
+## Datos, Mediciones y Registros
+
+El documento debe distinguir entre mediciones directas, datos bibliográficos, casos analíticos, escenarios parametrizados y registros computacionales. Si la investigación no realiza trabajo de campo, no debe afirmar que medirá variables en una instalación real.
+
+Usar `medición` solo cuando exista obtención directa de datos mediante instrumentos, ensayos o campaña de campo. En los demás casos, preferir `cálculo`, `estimación`, `registro`, `métrica`, `valor bibliográfico`, `caso analítico`, `caso manufacturado`, `referencia FEM` o `escenario parametrizado`.
+
+Ejemplos:
+
+Antes:
+
+> La investigación medirá temperatura, errores y variaciones de ampacidad.
+
+Después:
+
+> La investigación calculará y comparará temperatura, errores y variaciones de ampacidad mediante casos analíticos, bibliográficos y computacionales.
+
+Antes:
+
+> Los instrumentos de medición serán el artefacto PINN y el protocolo de verificación.
+
+Después:
+
+> Los instrumentos de registro y evaluación serán el artefacto PINN y el protocolo de verificación.
 
 ## Figuras y tablas
 
@@ -510,6 +661,53 @@ Si la figura fue adaptada desde una referencia, debe indicarse `Fuente: Elaborac
 Si la figura se toma directamente de una referencia, debe indicarse `Fuente: \textcite[fig.~x]{...}.`.
 
 Las tablas también deben permitir rastrear su origen. Cuando sean matrices o tablas construidas para la tesis, se puede usar el texto previo o una nota metodológica para indicar que forman parte de la organización propia del estudio.
+
+## Fórmulas
+
+Toda fórmula desplegada debe integrarse al discurso. No debe aparecer como un objeto aislado ni como una interrupción visual sin explicación.
+
+Antes de la fórmula, indicar qué relación se va a formalizar y por qué es necesaria en esa parte del documento.
+
+Después de la fórmula, citarla de forma natural con `Fórmula~\ref{...}` y explicar sus componentes, su significado y su relevancia para el estudio.
+
+También debe indicarse el origen conceptual de la fórmula. La redacción debe aclarar si la fórmula:
+
+- proviene de una ley, modelo, norma o método de la literatura;
+- fue adaptada al caso 2D, estacionario, transitorio o multimaterial del estudio;
+- fue definida operacionalmente para organizar la evaluación del artefacto.
+
+Cuando la fórmula provenga de literatura, norma o método publicado, debe incluirse una cita cercana antes o después de la fórmula. Cuando sea una definición operacional del estudio, debe decirse de forma explícita y justificarse con el criterio metodológico que la respalda.
+
+Las fórmulas deben usar numeración matemática entre paréntesis, alineada a la derecha. Para ello, deben escribirse dentro de `equation` o `aligned` dentro de `equation`, no dentro de `equation*` ni `align*`.
+
+El `caption` de cada fórmula debe ubicarse siempre debajo de la ecuación. La etiqueta `\label{...}` debe colocarse dentro del entorno `equation`, para que la referencia cruzada apunte al número matemático de la fórmula.
+
+Formato recomendado:
+
+```latex
+\begin{formula}
+\centering
+\begin{equation}
+\label{for:nombre-formula}
+...
+\end{equation}
+\caption{Descripción breve de la fórmula.}
+\end{formula}
+```
+
+Ejemplo de redacción:
+
+> La relación térmica se formaliza en la Fórmula~\ref{for:calor}, porque el artefacto debe resolver el balance de energía del dominio.
+>
+> La Fórmula~\ref{for:calor} expresa el balance estacionario. En ella, `Q` representa las pérdidas internas y `k(x,y)` representa la conductividad espacial. Por tanto, la fórmula conecta la física del cable con las métricas de temperatura y ampacidad.
+
+Ejemplo de trazabilidad:
+
+> Esta forma se toma de la ecuación clásica de conducción de calor y se adapta al dominio 2D del estudio \parencites{fuente1,fuente2}.
+
+> La métrica se define operacionalmente para comparar el escenario heterogéneo con el homogéneo. Por tanto, no se presenta como un umbral universal, sino como un criterio de reporte del estudio.
+
+No usar fórmulas sin referencia cruzada interna. Tampoco dejar una fórmula sin interpretación, aunque su significado parezca evidente para un lector técnico.
 
 ## Listas
 
@@ -539,6 +737,46 @@ Al corregir el archivo `.tex`, se deben conservar:
 - tablas, figuras y entornos.
 
 No cambiar una cita de lugar si no se revisa la oración que sostiene. No eliminar una cita técnica sin comprobar que la afirmación ya no la necesita.
+
+## Redacción De La Introducción
+
+La introducción del plan de tesis debe funcionar como entrada argumental del documento. Su función no es resumir todos los capítulos ni desarrollar el marco teórico completo, sino orientar al lector sobre el contexto, la brecha, la importancia del problema y la dirección general del estudio.
+
+La introducción debe escribirse pensando en un lector académico y técnico: asesor, jurado, revisor metodológico o investigador que necesita evaluar si el plan tiene sentido, evidencia y viabilidad. Por tanto, debe explicar el tema sin asumir que el lector conoce todos los detalles del proyecto, pero tampoco debe repetir conocimiento básico cuando el público previsto es especializado.
+
+La estructura recomendada es de embudo:
+
+1. iniciar con el sistema, fenómeno o situación real que sostiene el estudio;
+2. presentar el contexto técnico necesario para entender el tema;
+3. mostrar la dificultad, tensión o brecha que justifica la investigación;
+4. explicar por qué esa brecha importa;
+5. anunciar la orientación general de la propuesta o del método;
+6. cerrar con una transición hacia la problemática, el problema, los objetivos o la metodología.
+
+En este proyecto, la introducción debe partir del sistema cable--instalación--entorno térmico. Luego debe avanzar hacia la heterogeneidad térmica, la limitación de las representaciones homogéneas, la necesidad de estimar \(T(x,y)\), \(\Tmax\) e \(\Imax\), y la orientación general del artefacto PINN. No debe iniciar directamente con PINN, porque primero debe quedar claro el problema físico que hace necesaria la propuesta.
+
+La introducción puede mencionar la problemática, el problema, los objetivos, las variables, las fuentes de datos y la metodología, pero solo en nivel de orientación. El desarrollo detallado corresponde a sus secciones propias:
+
+- la problemática amplía la evidencia y las consecuencias;
+- el planteamiento formula el problema;
+- los objetivos convierten el problema en dirección de trabajo;
+- el marco teórico explica los conceptos y métodos necesarios;
+- la metodología define cómo se construirá, verificará y evaluará la propuesta.
+
+El nivel de profundidad debe ser selectivo. La introducción debe permitir entender qué se estudia, por qué importa, qué brecha existe y cómo se orienta el plan. No debe convertirse en una revisión bibliográfica extensa, una lista de autores, una descripción metodológica completa ni una repetición del resumen.
+
+El tiempo verbal debe responder a la función de cada oración:
+
+- usar presente para definiciones, relaciones técnicas vigentes y conocimiento establecido;
+- usar pasado para estudios, resultados o aportes ya publicados;
+- usar futuro o forma impersonal proyectiva para acciones que el plan realizará, como `se evaluará`, `se comparará` o `el estudio construirá`;
+- evitar presentar como resultado una acción que todavía será evaluada.
+
+La extensión debe definirse por función, no por relleno. En un plan breve puede ocupar una o dos páginas. En un plan técnico con varios conceptos conectados puede ocupar tres o cuatro páginas, siempre que cada párrafo avance el embudo y no repita contenido de otras secciones.
+
+Las referencias pueden citarse en la introducción cuando sostienen definiciones, antecedentes, evidencia de la brecha o decisiones técnicas. Deben colocarse cerca de la afirmación que respaldan. No deben ponerse al final de un párrafo que contiene varias ideas distintas, porque se pierde trazabilidad. La introducción debe citar con selección: suficientes fuentes para sostener el argumento, pero no tantas como para reemplazar al marco teórico.
+
+El cierre de la introducción debe preparar la sección siguiente. Una forma útil es establecer qué queda delimitado y qué se desarrollará después, sin repetir mecánicamente el índice del documento.
 
 ## Referencias De Estilo
 
@@ -574,8 +812,12 @@ Antes de cerrar una sección, verificar:
 - Las ideas siguen la secuencia problema, evidencia, análisis y conclusión.
 - Las oraciones muestran relaciones de causa, contraste, secuencia o consecuencia.
 - Cada párrafo desarrolla una sola idea.
-- Las oraciones no son innecesariamente largas.
+- Las oraciones no superan 45 palabras, salvo tolerancia justificada o subordinación necesaria.
+- Los párrafos tienen como máximo cuatro oraciones enfocadas en la misma idea.
+- Los párrafos muy cortos se integran con ideas cercanas cuando parecen fragmentos aislados.
+- Los párrafos no tienen sangría en el primer renglón.
 - Las afirmaciones técnicas tienen fuente o justificación.
+- Las fuentes nuevas, si se agregan, tienen existencia verificada, URL y DOI o ISBN cuando corresponda.
 - Los conectores muestran relación lógica.
 - No hay adjetivos exagerados sin criterio.
 - La matriz de consistencia conecta las partes del plan.
