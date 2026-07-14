@@ -48,6 +48,8 @@
 \definecolor{lightgray}{HTML}{F2F2F2}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,calc}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
 \usepackage{newfloat}
 \usepackage{float}
 \DeclareFloatingEnvironment[fileext=loe,listname={Listado de fórmulas},name=Fórmula,placement=htbp]{formula}
@@ -60,7 +62,7 @@
 %\usepackage{xurl}
 
 \hypersetup{
-  pdftitle={Diseño y evaluación de una red neuronal informada por física para estimar la temperatura y la ampacidad en cables enterrados con heterogeneidad térmica},
+  pdftitle={Diseño y evaluación de un artefacto computacional basado en redes neuronales informadas por física para estimar la temperatura y la ampacidad de cables eléctricos enterrados en entornos térmicamente heterogéneos},
   pdfauthor={Luis Enrique Koc Góngora y Herbert Antonio Meléndez García},
   pdfsubject={Maestría en Inteligencia Artificial, Facultad de Ingeniería Industrial y de Sistemas, Universidad Nacional de Ingeniería}
 }
@@ -134,7 +136,19 @@
   {\thesection}{0.75em}{\MakeUppercase}
 \titlespacing*{\section}{0pt}{1.0\baselineskip}{0.25\baselineskip}
 \makeatletter
-\renewcommand*\l@section{\@dottedtocline{1}{1.5em}{6.2em}}
+\newcommand*\tesis@tocnumberline[1]{#1.\enspace}
+\renewcommand*\l@section[2]{%
+  \begingroup
+    \let\numberline\tesis@tocnumberline
+    \@dottedtocline{1}{1.5em}{0pt}{#1}{#2}%
+  \endgroup
+}
+\renewcommand*\l@subsection[2]{%
+  \begingroup
+    \let\numberline\tesis@tocnumberline
+    \@dottedtocline{2}{3.8em}{0pt}{#1}{#2}%
+  \endgroup
+}
 \renewcommand*\l@paragraph{\@dottedtocline{4}{8.8em}{3.0em}}
 \makeatother
 \titleformat{\subsection}
@@ -172,7 +186,7 @@
 \newcommand{\Imax}{I_{\max}}
 \newcommand{\kx}{k(x,y)}
 \newcommand{\pct}{\mbox{\char37}}
-\newcommand{\tituloTesis}{Diseño y evaluación de una red neuronal informada por física para estimar la temperatura y la ampacidad en cables enterrados con heterogeneidad térmica}
+\newcommand{\tituloTesis}{Diseño y evaluación de un artefacto computacional basado en redes neuronales informadas por física para estimar la temperatura y la ampacidad de cables eléctricos enterrados en entornos térmicamente heterogéneos}
 
 \begin{document}
 \hypersetup{pageanchor=false}
@@ -300,55 +314,130 @@ Este capítulo establece el hilo conductor del plan de tesis. Primero presenta e
 
 \section{INTRODUCCIÓN}
 
-Un cable eléctrico es un sistema multicapa que conduce corriente y disipa calor hacia su entorno. Ese calor proviene, principalmente, de las pérdidas por efecto Joule. La ampacidad se define como la máxima corriente que el cable puede conducir sin superar sus límites térmicos \parencites[752--756]{neher1957}[3--5]{enescu2020}. Por tanto, la ampacidad no depende solo del diseño del cable, sino también del medio que recibe y evacúa el calor generado.
+En los sistemas eléctricos, los cables subterráneos permiten transportar energía cuando existen restricciones de espacio, seguridad, servidumbre o integración con otras infraestructuras \parencite{cigre2020tb815}. Su capacidad de transporte no depende únicamente del conductor, sino del sistema cable--instalación--entorno térmico y de la forma en que este conjunto disipa el calor. Comprender esa relación es necesario para aprovechar la infraestructura instalada sin comprometer la temperatura admisible, la confiabilidad ni la vida útil de los cables \parencites[1--3]{enescu2020}[41--42]{cigre2025}.
 
-En instalaciones enterradas, ese medio incluye el arreglo de cables, los rellenos de mejora térmica, la zanja y el suelo nativo \parencites[3--6]{enescu2021}{ieee442}[1,10]{kim2025}. Sin embargo, el terreno real rara vez se comporta como un medio homogéneo. La humedad, los estratos, los rellenos y las interfaces entre materiales forman un entorno térmico heterogéneo. En consecuencia, cambian la disipación del calor y la temperatura máxima del conductor \parencites[4--6]{enescu2021}[1,6--7]{khumalo2025}[1--3]{aldulaimi2024}.
+Durante la operación, un cable conduce corriente eléctrica y disipa hacia el entorno el calor generado, principalmente, debido a las pérdidas por efecto Joule. En este estudio, la ampacidad \(\Imax\) se entiende como la máxima corriente que puede circular sin que el conductor supere su temperatura admisible \parencites[752]{neher1957}[1]{enescu2020}. Por tanto, su estimación requiere considerar tanto el diseño del cable como las condiciones térmicas de la instalación.
 
-Esta condición produce una dificultad técnica para el cálculo de ampacidad. Las propiedades equivalentes simplifican el entorno, pero pueden ocultar variaciones relevantes de temperatura. En cambio, una representación más detallada del terreno exige métodos numéricos con mayor costo de preparación, cálculo y repetición de escenarios \parencites[41--42,93--99]{cigre2025}[1--3,12]{aldulaimi2024}.
+En instalaciones enterradas, el entorno incluye el arreglo de cables, los rellenos de mejora térmica, la zanja y el suelo nativo \parencites{enescu2021}{ieee442}{kim2025}. La humedad, los estratos del suelo, los rellenos y las interfaces entre materiales hacen que ese entorno sea térmicamente heterogéneo y modifican la disipación del calor y la temperatura máxima del conductor \(\Tmax\) \parencites[1,6--7]{khumalo2025}[1--3]{aldulaimi2024}. Una representación que no capture esas variaciones puede sobreestimar la capacidad térmica y elevar el riesgo durante la operación; una aproximación demasiado conservadora puede, en cambio, dejar capacidad instalada sin utilizar \parencite[41--42]{cigre2025}.
 
-La conducción de calor se describe mediante una ecuación diferencial en derivadas parciales. Su solución representa el campo de temperatura $T(x,y)$. Cuando el entorno térmico es heterogéneo, el modelo debe representar la variación espacial de la conductividad térmica $\kx$ \parencites[3--4]{enescu2021}[3]{xing2023}. Esta relación conecta el sistema físico con el cálculo de la temperatura máxima $\Tmax$ y de la corriente admisible $\Imax$.
+Los métodos normalizados para calcular la ampacidad representan el sistema mediante redes de resistencias térmicas y propiedades equivalentes \parencites[752--760]{neher1957}{iec60287}{iec60853}. Esta simplificación facilita el cálculo, pero puede ocultar variaciones relevantes del campo de temperatura \(T(x,y)\) cuando la conductividad térmica \(\kx\) cambia espacialmente \parencites[41--42]{cigre2025}[1--3]{aldulaimi2024}. Los métodos numéricos, como el método de elementos finitos (FEM), permiten describir el terreno con mayor detalle, aunque requieren preparar el dominio, la discretización y cada escenario de cálculo \parencites[93--99]{cigre2025}[1--3,12]{aldulaimi2024}.
 
-\textcite[752--760]{neher1957} establecieron una base clásica para estimar temperatura y ampacidad mediante analogías térmicas con las leyes de Kirchhoff. Las normas IEC 60287 e IEC 60853 formalizan esta tradición como referencia central para el diseño de cables enterrados \parencites{iec60287}{iec60853}. No obstante, este enfoque representa el entorno mediante propiedades homogéneas o equivalentes. Por ello, su uso en terrenos heterogéneos requiere evaluar cuánto cambian $\Tmax$ e $\Imax$ cuando $\kx$ varía en el espacio.
+La problemática central surge de la diferencia entre el entorno térmico heterogéneo de una instalación enterrada y su representación simplificada en el cálculo de la ampacidad. Para examinar esta brecha, se necesita una forma verificable de representar la conductividad térmica \(\kx\), estimar el campo de temperaturas \(T(x,y)\) y cuantificar en qué medida la heterogeneidad térmica modifica \(\Tmax\) e \(\Imax\). Esta necesidad vincula el problema físico con la búsqueda de una alternativa computacional que pueda evaluarse frente a referencias conocidas.
 
-Los métodos numéricos, como FEM, FDM y FVM, permiten resolver campos térmicos con mayor detalle \parencites[4--6]{enescu2021}[3--4,93--99]{cigre2025}{patankar1980numerical}[1--3,12]{aldulaimi2024}[1--4]{oclon2015}[1--3]{atoccsa2024}. Sin embargo, su aplicación repetida demanda preparar modelos, definir dominios, generar mallas o discretizaciones y recalcular cada configuración. Esta carga aumenta cuando se comparan escenarios con distintos rellenos, estratos o condiciones térmicas del suelo.
+Para abordar la brecha, el estudio construirá un artefacto computacional abierto y verificable basado en una red neuronal informada por física (PINN). En este enfoque, la ecuación de conducción de calor y las condiciones de frontera e interfaz se incorporan al proceso de entrenamiento para aproximar el campo térmico \parencite{raissi2019}. Sin embargo, no se asumirá que la PINN constituye una mejora automática, porque la convergencia, los pesos de pérdida, las interfaces y el costo de entrenamiento pueden condicionar su desempeño \parencites[1--2,14--17]{lawal2022}[2--6]{ren2025}.
 
-La brecha que aborda el estudio se ubica entre el entorno térmico real y su representación simplificada en el cálculo de ampacidad. El punto crítico no es solo disponer de otro algoritmo, sino contar con una forma verificable de representar $\kx$, estimar $T(x,y)$ y observar el efecto de la heterogeneidad sobre $\Tmax$ e $\Imax$.
+El estudio seguirá el paradigma de la ciencia del diseño (DSR), de acuerdo con la secuencia metodológica de \textcite[55--56]{peffers2007}. Este enfoque permitirá construir el artefacto y evaluar su utilidad dentro del sistema cable--instalación--entorno térmico. La evaluación comparará sus resultados con casos analíticos, referencias FEM y escenarios documentados, conforme a los criterios de construcción y evaluación de artefactos propuestos por \textcite[342--344]{gregor2013}.
 
-Para atender esa brecha, el estudio propone un artefacto computacional abierto y verificable basado en una red neuronal informada por física (PINN). En una PINN, la ecuación diferencial, las condiciones de frontera y las condiciones de interfaz se incorporan en la función de pérdida. Así, la red aproxima el campo térmico y, al mismo tiempo, penaliza el incumplimiento de la física del problema \parencite[686--690]{raissi2019}.
-
-Las PINN son pertinentes para este estudio porque producen una representación continua del campo de temperatura y usan puntos de colocación sin requerir una malla FEM para cada caso \parencites[686--690]{raissi2019}[3--4]{xing2023}{cuomo2022}. Además, han sido aplicadas en problemas de conducción térmica 2D y 3D, reconstrucción de temperatura y problemas inversos relacionados con campos térmicos \parencites[1--3]{xing2023}[1,5]{pan2025}[1--2]{liu2026}{billah2023}{chen2024}.
-
-Sin embargo, el uso de PINN en cables enterrados no debe asumirse como una mejora automática. La convergencia, los pesos de pérdida, las condiciones de interfaz y el costo de entrenamiento pueden condicionar su desempeño \parencites[1--2,14--17]{lawal2022}[2--6]{ren2025}. Por tanto, el artefacto debe evaluarse con criterios explícitos y con referencias que permitan juzgar su utilidad dentro del dominio definido.
-
-El estudio se organiza bajo la ciencia del diseño (DSR), de acuerdo con la secuencia metodológica de \textcite[55--56]{peffers2007}. Esta elección es adecuada porque la investigación construye y evalúa un artefacto para estudiar el sistema cable--instalación--entorno térmico. La evaluación considerará casos analíticos, referencias FEM y escenarios documentados, en línea con los criterios de construcción y evaluación de artefactos propuestos por \textcite[342--344]{gregor2013}.
-
-En síntesis, la investigación parte de un problema físico concreto: la ampacidad de cables enterrados depende de un entorno térmico que puede ser heterogéneo. A partir de esa condición, el estudio propone evaluar un artefacto PINN capaz de aproximar $T(x,y)$, representar $\kx$ y estimar $\Tmax$ e $\Imax$. Este recorrido deja establecida la ruta que se desarrolla en las secciones siguientes: primero la problemática, luego el problema de investigación, los objetivos, el marco teórico y la metodología de evaluación.
+En conjunto, la investigación busca determinar si un artefacto PINN puede representar la heterogeneidad térmica con suficiente trazabilidad para apoyar la estimación de \(T(x,y)\), \(\Tmax\) e \(\Imax\). La sección siguiente sitúa esta necesidad dentro de las exigencias actuales de las redes eléctricas y del uso de instalaciones subterráneas.
 
 \section{PROBLEMÁTICA}
 
-La problemática aparece cuando el terreno real se aleja del valor homogéneo usado en el cálculo normativo de ampacidad. Ese cálculo se basa en la tradición iniciada por \textcite{neher1957}.
+Las redes eléctricas atraviesan una etapa de mayor exigencia operativa porque la generación, la demanda y la participación renovable siguen aumentando. En América Latina y el Caribe, la generación eléctrica creció 5,5\,\pct{} en 2024 y la renovabilidad regional alcanzó 69\,\pct{}; además, la energía solar llegó a 7\,\pct{} de la matriz \parencite{olade2025generacionALC2024}. En el Perú, la producción eléctrica nacional creció a una tasa media anual de 2,4\,\pct{} entre 2023 y 2025, mientras que la máxima demanda del SEIN aumentó 2,2\,\pct{} anual en el mismo periodo; estas tasas son cálculo propio a partir de las cifras originales de MINEM y COES \parencites{minem2025anuario2024}{minem2025indicadoresDiciembre}{coesMaximaDemanda}.
 
-En una evaluación de suelo nativo, \textcite[1,6--7]{khumalo2025} reportan un aumento de resistividad térmica. El valor pasó de \SI{0.596}{\kelvin\metre\per\watt}, con 14,5\,\pct{} de humedad, a \SI{3.72}{\kelvin\metre\per\watt} en estado seco. Como consecuencia, la ampacidad de los cables estudiados se redujo de \SI{518}{\ampere} a cerca de \SI{224}{\ampere}. Además, al combinar alta resistividad, mayor profundidad y mayor temperatura del suelo, la carga tolerable cayó más de 45\,\pct{}.
+La presión sobre la red no proviene solo del crecimiento total, sino también del cambio en la matriz. En el Perú, la participación conjunta de la producción solar y eólica en la generación nacional pasó de un valor cercano a cero en 2010 a 5,3\,\pct{} en 2023, 8,1\,\pct{} en 2024 y 9,5\,\pct{} en 2025. Estos porcentajes son cálculos propios a partir de la serie anual de producción por origen del MINEM; el valor de 2025 se basa en cifras preliminares \parencites[sec.~10.4]{minem2025anuario2024}[cuadro~4]{minem2025indicadoresDiciembre}. Esta tendencia es consistente con el diagnóstico del COES, que considera proyectos eólicos y solares entre las opciones de nueva generación eficiente para el SEIN \parencite[18--20]{coes2023diagnostico2025_2034}, y con la advertencia de la IEA sobre la necesidad de que la red avance al ritmo de la expansión renovable \parencite{iea2025transmissiongrid}.
 
-Los materiales de relleno también modifican la respuesta térmica, ya que una instalación real puede usar rellenos seleccionados o agregados de concreto premezclados (PAC) con propiedades distintas al suelo nativo. \textcite[1,10,16]{kim2025} reportan un PAC con conductividad de \SI{2.094}{\watt\per\metre\per\kelvin}, mientras que la arena natural tenía \SI{1.365}{\watt\per\metre\per\kelvin}. Por ese cambio, la temperatura máxima bajó de \SI{77.6}{\celsius} a \SI{70.6}{\celsius} bajo condiciones críticas. Además, el mismo estudio muestra que usar condiciones reales mejora la precisión frente a valores promediados.
+La Figura~\ref{fig:participacion-renovable-peru} muestra el aumento de la participación conjunta de esas dos fuentes. El indicador no mide por sí mismo congestión ni sobrecarga de la red; su función es mostrar el cambio de contexto que incrementa la necesidad de planificar conexiones y utilizar con criterio la capacidad de transporte disponible.
 
-La heterogeneidad de materiales no es excepcional en instalaciones eléctricas reales. De hecho, los modelos recientes incluyen capas de suelo, zonas secas y rellenos distintos porque esas configuraciones afectan la difusión de calor \parencite[1--3]{aldulaimi2024}.
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.88\textwidth,
+  height=0.46\textwidth,
+  ylabel={Participación en la generación nacional (\pct{})},
+  xlabel={Año},
+  xmin=2009.5, xmax=2025.5,
+  xtick={2010,2012,2014,2016,2018,2020,2022,2024,2025},
+  xticklabel={\pgfmathprintnumber[fixed,precision=0,1000 sep={}]{\tick}},
+  xticklabel style={rotate=45,anchor=east,font=\footnotesize},
+  ymin=0, ymax=11,
+  ytick={0,2,4,6,8,10},
+  grid=major,
+  grid style={gray!25},
+  axis line style={black!70},
+  tick label style={font=\footnotesize},
+  label style={font=\footnotesize}
+]
+\addplot[color=darkblue,mark=*,mark size=2.2pt,very thick] coordinates {
+  (2010,0.003)
+  (2011,0.003)
+  (2012,0.138)
+  (2013,0.457)
+  (2014,1.003)
+  (2015,1.711)
+  (2016,2.524)
+  (2017,2.582)
+  (2018,4.095)
+  (2019,4.245)
+  (2020,4.915)
+  (2021,4.572)
+  (2022,4.610)
+  (2023,5.336)
+  (2024,8.124)
+  (2025,9.510)
+};
+\end{axis}
+\end{tikzpicture}
+\caption[Participación de la generación solar y eólica en el Perú]{Participación conjunta de la generación solar y eólica en la producción eléctrica nacional del Perú, 2010--2025. Fuente: Elaboración propia con datos del Ministerio de Energía y Minas \parencites[sec.~10.4]{minem2025anuario2024}[cuadro~4]{minem2025indicadoresDiciembre}. Nota: el valor de 2025 corresponde a cifras preliminares.}
+\label{fig:participacion-renovable-peru}
+\end{figure}
 
-La investigación sobre ampacidad en cables enterrados es necesaria porque la capacidad depende de condiciones térmicas difíciles de observar. Además, las fallas en cables subterráneos pueden generar reparaciones lentas e indisponibilidades prolongadas.
+La serie muestra una incorporación gradual hasta 2023 y una aceleración durante 2024--2025. En esos dos últimos años, la participación conjunta aumentó 4,2 puntos porcentuales respecto de 2023 y fue aproximadamente 1,8 veces el valor de ese año. Este crecimiento no demuestra que todos los tramos de la red estén sometidos al mismo nivel de exigencia; sí respalda la necesidad general de acompañar la nueva generación con infraestructura y métodos de evaluación que permitan conocer los márgenes de operación.
 
-En redes subterráneas de distribución, EPRI reporta tasas de 0,43--1,24 fallas por cada 100 km-conductor-año. Sus medianas son 0,81 en cables, 0,25 en empalmes y 0,12 en terminales \parencite{epriUndergroundFailures}.
+En este contexto, los cables subterráneos se vuelven más relevantes en tramos donde las redes enfrentan restricciones de espacio, servidumbre, seguridad, integración urbana, cruces o conexión de instalaciones \parencite{cigre2020tb815}. Sin embargo, su uso eficiente exige estimar con cuidado la ampacidad, porque la capacidad disponible depende del balance térmico con el entorno enterrado y de sus condiciones reales \parencites{fariz2026}{mobius2025}.
 
-En el Perú no se encontraron estadísticas públicas agregadas de fallas de cables enterrados. Sin embargo, el COES reportó daños en un cable subterráneo de \SI{13.8}{\kilo\volt} en la S.E. Paramonga Existente \parencites[10,23--24]{coes2025ev1874}[1--7]{coes2026ev1948}.
+La dificultad técnica surge porque la capacidad de un cable subterráneo no depende solo de su sección o de su aislamiento. También depende de la forma en que el calor generado se disipa hacia el suelo, los rellenos y las capas constructivas que rodean la instalación. Los métodos clásicos y las normas de cálculo son necesarios como base de ingeniería, pero suelen representar el entorno mediante resistencias térmicas equivalentes para hacer tratable el cálculo \parencites[752--760]{neher1957}{iec60287}{iec60853}.
 
-Ese evento interrumpió inicialmente \SI{30.7}{\mega\watt} de carga. Además, el COES reportó una falla asociada a terminales de salida de un cable subterráneo de \SI{10}{\kilo\volt} en la S.E. Huánuco \parencites[10,23--24]{coes2025ev1874}[1--7]{coes2026ev1948}.
+Esa representación puede ser débil cuando el terreno real no se comporta como un medio homogéneo. La humedad, los estratos, el \textit{bedding}, el \textit{backfill}, la profundidad y las zonas secas pueden modificar la conductividad térmica alrededor del cable \parencites[4--6]{enescu2021}[1--3]{aldulaimi2024}. En consecuencia, dos instalaciones con la misma corriente pueden alcanzar temperaturas distintas si el entorno enterrado ofrece caminos térmicos diferentes.
 
-Osinergmin también recoge el caso de la línea subterránea L-614 Santa Rosa Nueva--Tacna. Esta línea tenía un cable tripolar de \SI{60}{\kilo\volt}, presentó una falla y tuvo restricciones prácticas para su reparación \parencite[128--129]{osinergmin2024pi6}.
+La evidencia muestra que el estado del suelo puede modificar de forma sustancial la capacidad de transporte. \textcite[5--6, tabs.~2--3]{khumalo2025} midieron una resistividad térmica de \SI{0.596}{\kelvin\metre\per\watt} con 14,5\,\pct{} de humedad y de \SI{3.72}{\kelvin\metre\per\watt} en estado seco. Para esos extremos, la ampacidad media calculada disminuyó de \SI{518.34}{\ampere} a \SI{224.21}{\ampere}. Además, cuando combinaron suelo seco, una profundidad de \SI{1150}{\milli\metre} y una temperatura del suelo de \SI{28}{\celsius}, obtuvieron una reducción superior a 45\,\pct{} respecto de las condiciones ideales.
 
-Como muestra la Figura~\ref{fig:brecha}, la problemática conecta tres elementos: el entorno real con $\kx$, su representación homogénea y el riesgo de decisión. Por eso, una estimación imprecisa de ampacidad puede afectar tanto la seguridad como el uso de capacidad.
+La Figura~\ref{fig:resistividad-ampacidad-khumalo} representa los cinco pares publicados de resistividad térmica y ampacidad media. La serie permite observar la magnitud y la dirección de la relación sin reducirla a la comparación de sus dos valores extremos.
 
-Si el modelo subestima la temperatura, puede permitir una corriente excesiva. En consecuencia, puede acelerar el envejecimiento del cable o producir fallas prematuras \parencite[1--2,9]{khumalo2025}. En cambio, si el modelo sobreestima la temperatura, puede limitar la capacidad de transporte sin necesidad. Por ello, también puede favorecer decisiones de sobredimensionamiento \parencites[4--6]{enescu2021}[1--2,9]{khumalo2025}.
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.84\textwidth,
+  height=0.48\textwidth,
+  xlabel={Resistividad térmica del suelo (\si{\kelvin\metre\per\watt})},
+  ylabel={Ampacidad media (\si{\ampere})},
+  xmin=0.4, xmax=3.9,
+  ymin=180, ymax=550,
+  xtick={0.596,1.2,1.646,2.341,3.72},
+  xticklabels={{0,596},{1,200},{1,646},{2,341},{3,720}},
+  ytick={200,250,300,350,400,450,500,550},
+  grid=major,
+  grid style={gray!25},
+  axis line style={black!70},
+  tick label style={font=\footnotesize},
+  label style={font=\footnotesize},
+  line width=0.9pt
+]
+\addplot[color=darkblue,mark=*,mark size=2.5pt,very thick] coordinates {
+  (0.596,518.34)
+  (1.2,382.13)
+  (1.646,330.47)
+  (2.341,280.01)
+  (3.72,224.21)
+};
+\end{axis}
+\end{tikzpicture}
+\caption[Relación entre resistividad térmica del suelo y ampacidad]{Relación entre resistividad térmica del suelo y ampacidad media calculada para tres cables. Fuente: Elaboración propia con datos de \textcite[5--6, tabs.~2--3]{khumalo2025}.}
+\label{fig:resistividad-ampacidad-khumalo}
+\end{figure}
 
-Así, el problema técnico no se limita a la falta de otro algoritmo. El problema es la falta de evidencia trazable sobre el error introducido por una representación homogénea del entorno \parencites[4--6]{enescu2021}[14842]{fariz2026}.
+La tendencia descendente de la Figura~\ref{fig:resistividad-ampacidad-khumalo} indica que la ampacidad calculada no permanece constante cuando cambia la condición térmica del suelo. Entre los extremos reportados, la reducción es de aproximadamente 56,7\,\pct{}. Este resultado no se generaliza como una tasa universal, porque corresponde a los cables y supuestos analizados por los autores; sin embargo, evidencia por qué la caracterización espacial del entorno puede ser relevante para una estimación térmica trazable.
+
+Los materiales de relleno también modifican la respuesta térmica de la instalación. \textcite[1,10,16]{kim2025} reportan un agregado de concreto premezclado con conductividad de \SI{2.094}{\watt\per\metre\per\kelvin}, frente a \SI{1.365}{\watt\per\metre\per\kelvin} de la arena natural. Bajo condiciones críticas, ese cambio redujo la temperatura máxima de \SI{77.6}{\celsius} a \SI{70.6}{\celsius}. Por tanto, el relleno no es un detalle constructivo menor, sino una condición que puede cambiar la capacidad térmica disponible.
+
+La dificultad también es operativa porque las propiedades del suelo y de los rellenos no se observan directamente a lo largo de toda una instalación durante el servicio. Por ello, la estimación de capacidad debe combinar supuestos documentados, datos del sitio y modelos térmicos cuya respuesta pueda verificarse. Las revisiones recientes sobre clasificación térmica de cables subterráneos destacan precisamente la dependencia de la ampacidad respecto del entorno, las condiciones de frontera y la calidad del modelo utilizado \parencites{fariz2026}{mobius2025}.
+
+La tensión metodológica aparece al decidir cómo representar ese entorno en el cálculo. Un modelo homogéneo es rápido y útil para diseño preliminar, pero puede ocultar zonas locales de baja disipación térmica. Un modelo FEM puede representar con mayor detalle la geometría y las propiedades espaciales, aunque exige construir, mallar, verificar y repetir escenarios \parencites[3--4,93--99]{cigre2025}[1--3]{aldulaimi2024}. Por ello, la dificultad del proyecto se concentra en cuantificar, con trazabilidad, cómo la heterogeneidad térmica cambia $\Tmax$ e $\Imax$ frente a una representación homogénea equivalente.
+
+La Figura~\ref{fig:brecha} sintetiza la relación entre presión de red, uso de cables subterráneos, entorno térmico heterogéneo, simplificación homogénea y riesgo de decisión. La dificultad central es que una diferencia no cuantificada en $\Tmax$ o $\Imax$ puede afectar tanto la seguridad del suministro como el uso eficiente de la capacidad de red.
+
+Si el modelo subestima la temperatura, puede permitir una corriente excesiva. En consecuencia, puede acelerar el envejecimiento del cable o producir fallas prematuras \parencite[1--2,9]{khumalo2025}. En cambio, si el modelo sobreestima la temperatura, puede limitar capacidad disponible sin necesidad. Por ello, también puede favorecer decisiones de sobredimensionamiento \parencites[4--6]{enescu2021}[1--2,9]{khumalo2025}.
 
 \vspace{0.15cm}
 
@@ -358,27 +447,31 @@ Así, el problema técnico no se limita a la falta de otro algoritmo. El problem
 \begin{tikzpicture}[
   scale=1.,
   transform shape,
-  box/.style={draw,rounded corners=3pt,align=center,text width=3.15cm,minimum height=1.25cm,font=\tiny},
+  box/.style={draw,rounded corners=3pt,align=center,text width=3.25cm,minimum height=1.25cm,font=\tiny},
   arr/.style={-{Stealth[length=3mm]},thick},
   darr/.style={-{Stealth[length=3mm]},thick,dashed}]
-\node[box,fill=lightgray] (real) {Entorno real\\conductividad térmica\\espacialmente variable $\kx$:\\estratos, humedad, secado, \textit{backfill}};
-\node[box,fill=lightblue,right=0.75cm of real] (simpl) {Representación homogénea\\$k=k_{eq}$ y resistencia térmica equivalente};
-\node[box,fill=red!10,right=0.75cm of simpl] (gap) {Diferencia de estimación\\$\Delta \Tmax$ y $\Delta \Imax$ no cuantificados};
-\node[box,fill=yellow!15,below=1.0cm of real] (context) {Requerimiento operativo\\sobrecargas, confiabilidad, reparación lenta};
-\node[box,fill=green!10,below=1.0cm of simpl] (artifact) {Artefacto PINN 2D\\física + conductividad\\espacialmente variable $\kx$\\+ evaluación reproducible};
+\node[box,fill=lightgray] (cables) {Tramos con cables\\subterráneos\\restricciones de espacio,\\servidumbre y seguridad};
+\node[box,fill=lightblue,right=0.75cm of cables] (real) {Entorno térmico\\enterrado\\$\kx$ variable: humedad,\\estratos, secado, \textit{backfill}};
+\node[box,fill=red!10,right=0.75cm of real] (gap) {Diferencia no\\cuantificada\\$\Delta \Tmax$ y $\Delta \Imax$};
+\node[box,fill=yellow!15,below=1.0cm of cables] (context) {Presión de red\\SEIN, demanda, renovables\\continuidad y capacidad};
+\node[box,fill=green!10,below=1.0cm of real] (simpl) {Representación\\homogénea\\$k=k_{eq}$ y resistencias\\térmicas equivalentes};
 \node[box,fill=orange!12,below=1.0cm of gap] (impact) {Riesgo de decisión\\subestimar: envejecimiento\\sobreestimar: capacidad ociosa};
+\draw[arr] (context) -- (cables);
+\draw[arr] (cables) -- (real);
+\draw[arr] (real) -- (gap);
 \draw[arr] (real) -- (simpl);
 \draw[arr] (simpl) -- (gap);
-\draw[darr] (context) -- (artifact);
 \draw[darr] (context.south) -- ($(context.south)+(0,-0.55cm)$)
   -- ($(impact.south)+(0,-0.55cm)$) -- (impact.south);
 \draw[arr] (gap) -- (impact);
-\draw[arr] (artifact.east) -- (impact.west);
+\draw[arr] (simpl) -- (impact);
 \end{tikzpicture}
 }%
-\caption{Contraste entre el entorno real, la simplificación homogénea, los requerimientos operativos y el artefacto propuesto. Fuente: Elaboración propia.}
+\caption{Relación entre presión de red, uso de cables subterráneos, entorno térmico heterogéneo, simplificación homogénea y riesgo de decisión. Fuente: Elaboración propia.}
 \label{fig:brecha}
 \end{figure}
+
+En síntesis, la problemática del proyecto se ubica en redes que requieren mayor capacidad, continuidad y conexión de nueva generación, mientras algunos tramos subterráneos dependen de condiciones térmicas enterradas difíciles de observar. Si esas condiciones se simplifican en exceso, la estimación de temperatura y ampacidad puede orientar decisiones inseguras o conservadoras. Esta situación conduce al planteamiento del problema de investigación.
 
 %\section{IDENTIFICACIÓN Y DESCRIPCIÓN ABSTRACTA DEL PROBLEMA DE ESTUDIO}
 
@@ -1138,6 +1231,9 @@ En síntesis, el marco teórico reduce el problema a una cadena física y metodo
 
 Esta sección precisa los términos que se usarán con sentido técnico u operacional en el estudio. Se incluyen aquellos que intervienen directamente en el problema, objetivos, hipótesis, dimensiones operativas, métricas o alcance del artefacto. Las definiciones tomadas de normas, literatura técnica o metodología DSR se citan; las definiciones operacionales se formulan para esta investigación y se apoyan en las fuentes que sustentan su uso.
 
+\begingroup
+\newcounter{terminodefinicion}
+\renewcommand*\descriptionlabel[1]{\refstepcounter{terminodefinicion}\normalfont\bfseries\thesection.\theterminodefinicion. #1}
 \begin{description}[style=nextline,itemsep=0.65\baselineskip,parsep=0pt,topsep=0.25\baselineskip]
   \item[Ampacidad.] Corriente máxima que puede transportar un cable sin superar el límite térmico adoptado para sus materiales y condiciones de instalación. Se denotará como $\Imax$ y se obtendrá al buscar la corriente que hace que $\Tmax$ alcance $T_{\mathrm{lim}}$ \parencites[752--760]{neher1957}{anders2005}[cláusulas 4--5]{iec60287}[3--6]{enescu2021}.
 
@@ -1213,6 +1309,7 @@ Esta sección precisa los términos que se usarán con sentido técnico u operac
 
   \item[Zona seca.] Región de suelo o relleno con bajo contenido de humedad y mayor resistividad térmica que el material en condición húmeda. Puede aparecer por condiciones ambientales o calentamiento y reducir la disipación de calor del cable \parencites[4--6]{enescu2021}[1,6--9]{khumalo2025}[14851--14852]{fariz2026}.
 \end{description}
+\endgroup
 
 % ===========================================================================
 \begin{singlespace}

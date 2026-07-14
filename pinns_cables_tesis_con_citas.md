@@ -1,4 +1,4 @@
-# Investigación propuesta: PINNs para conducción de calor 2D en cables subterráneos con coeficientes espacialmente variables
+# Diseño y evaluación de un artefacto computacional basado en redes neuronales informadas por física para estimar la temperatura y la ampacidad de cables eléctricos enterrados en entornos térmicamente heterogéneos
 
 > Documento de trabajo (Markdown) para desarrollar en tu entorno.  
 > Enfoque: modelación **estacionaria** y **transitoria** del campo térmico en sección 2D de cables subterráneos (capas concéntricas) + zanja/terreno, usando **Physics-Informed Neural Networks (PINNs)**.

@@ -260,7 +260,7 @@ La redacción discursiva exige seis elementos:
 
 ### Unidad Temática
 
-Cada capítulo, sección y párrafo debe girar alrededor del problema central: estimar temperatura y ampacidad en cables enterrados con heterogeneidad térmica mediante un artefacto PINN verificable.
+Cada capítulo, sección y párrafo debe girar alrededor del problema central: estimar la temperatura y la ampacidad de cables eléctricos enterrados en entornos térmicamente heterogéneos mediante un artefacto PINN verificable.
 
 Las partes del texto deben contribuir al desarrollo de esa idea. Si un párrafo no explica el problema, la evidencia, el método, el artefacto, la evaluación o el alcance, debe revisarse.
 
@@ -777,6 +777,33 @@ La extensión debe definirse por función, no por relleno. En un plan breve pued
 Las referencias pueden citarse en la introducción cuando sostienen definiciones, antecedentes, evidencia de la brecha o decisiones técnicas. Deben colocarse cerca de la afirmación que respaldan. No deben ponerse al final de un párrafo que contiene varias ideas distintas, porque se pierde trazabilidad. La introducción debe citar con selección: suficientes fuentes para sostener el argumento, pero no tantas como para reemplazar al marco teórico.
 
 El cierre de la introducción debe preparar la sección siguiente. Una forma útil es establecer qué queda delimitado y qué se desarrollará después, sin repetir mecánicamente el índice del documento.
+
+## Redacción De La Problemática
+
+La problemática debe describir el conjunto de dificultades, conflictos y desafíos que rodean el asunto estudiado. No debe limitarse a enunciar el problema de investigación. Su función es ubicar el objeto de estudio dentro de un contexto real, mostrar por qué ese contexto genera tensiones técnicas y preparar la formulación del problema.
+
+La estructura recomendada es:
+
+1. presentar el contexto general donde aparece la dificultad del proyecto;
+2. mostrar por qué ese contexto exige atención técnica;
+3. describir las dificultades técnicas, operativas o metodológicas relevantes;
+4. aportar evidencia concreta y citada;
+5. explicar la consecuencia de esas dificultades;
+6. cerrar con la brecha que justifica formular el problema.
+
+En este proyecto, la problemática debe partir de las redes eléctricas, la presión por capacidad, la continuidad del suministro y la incorporación de nueva generación renovable. Luego debe mostrar dónde aparecen los cables subterráneos: tramos con restricciones de espacio, servidumbre, seguridad, integración urbana o conexión de instalaciones. No debe definir formalmente el objeto de estudio, porque esa función corresponde a la sección posterior.
+
+La problemática debe diferenciar contexto, dificultad y problema:
+
+- el contexto corresponde a las redes eléctricas y a sus requerimientos de continuidad, capacidad y seguridad;
+- la dificultad corresponde al uso de cables subterráneos en entornos térmicos enterrados, variables y difíciles de observar;
+- el problema aparece cuando la heterogeneidad térmica del entorno puede cambiar \(T(x,y)\), \(\Tmax\) e \(\Imax\), pero ese efecto no queda suficientemente cuantificado con una representación homogénea.
+
+Cada párrafo debe cumplir una función única: contexto de red, presión por renovables o demanda, uso de cables subterráneos, dificultad térmica, evidencia, consecuencia o cierre. Se deben evitar párrafos que mezclen estadísticas de falla, propiedades térmicas, método propuesto y formulación del problema sin una relación explícita.
+
+Las citas deben aparecer cerca de la afirmación que sostienen. Si un párrafo presenta valores cuantitativos, la fuente debe colocarse en la misma oración o inmediatamente después del dato. Si la afirmación es una síntesis propia, puede no citarse, pero debe derivarse claramente de evidencia presentada antes.
+
+La problemática puede incluir figuras cuando estas ordenen la relación entre contexto, dificultad y consecuencia. Antes de la figura debe anunciarse qué relación muestra. Después de la figura debe interpretarse su función dentro del argumento.
 
 ## Referencias De Estilo
 
