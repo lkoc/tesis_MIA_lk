@@ -271,7 +271,7 @@ Unidad académica & Unidad de Posgrado de la Facultad de Ingeniería Industrial 
 \addlinespace[5pt]
 Área involucrada & Inteligencia artificial científica, modelado computacional y sistemas eléctricos de potencia. \\
 \addlinespace[5pt]
-Lugar de desarrollo & Entorno computacional de la Facultad de Ingeniería Industrial y de Sistemas de la Universidad Nacional de Ingeniería (FIIS-UNI) y casos de referencia documentados de instalaciones de cables eléctricos subterráneos. \\
+Lugar de desarrollo & Entorno computacional de la Facultad de Ingeniería Industrial y de Sistemas de la Universidad Nacional de Ingeniería (FIIS-UNI) y casos de referencia documentados de instalaciones de cables eléctricos enterrados. \\
 \addlinespace[5pt]
 Duración estimada & Doce meses, desde julio de 2026 hasta junio de 2027. \\
 \addlinespace[5pt]
@@ -314,32 +314,84 @@ Este capítulo establece el hilo conductor del plan de tesis. Primero presenta e
 
 \section{INTRODUCCIÓN}
 
-Un cable eléctrico de potencia es un sistema multicapa compuesto por un conductor y por capas funcionales de aislamiento, pantallas y protección. Durante la operación, la corriente que circula por el conductor genera calor, principalmente por pérdidas debidas al efecto Joule, y este calor se transfiere hacia los materiales del entorno \parencites[1--3]{enescu2020}{iec60502_2_2014}. La \emph{ampacidad} \(\Imax\) es la máxima corriente que puede circular de manera continua sin que el conductor supere su temperatura admisible \parencites[752]{neher1957}[1]{enescu2020}.
+En el Perú, entre 2010 y 2025, la máxima demanda del SEIN aumentó de \SI{4579}{\mega\watt} a \SI{7942}{\mega\watt}, un crecimiento acumulado de 73,4\,\pct{}, mientras que, en el mismo período, la participación conjunta de la generación solar y eólica pasó de un valor cercano a cero a 9,5\,\pct{}. Ambos cambios exigen transportar más energía con seguridad y aprovechar mejor la capacidad disponible de la red \parencites{minem2025anuario2024}{minem2025indicadoresDiciembre}{coesMaximaDemanda}{iea2025transmissiongrid}.
 
-En los sistemas eléctricos, los cables subterráneos permiten transportar energía cuando existen restricciones de espacio, seguridad, servidumbre o integración con otras infraestructuras \parencite{cigre2020tb815}. En una instalación enterrada pueden disponerse, por ejemplo, en configuración plana o en trébol, y el entorno que recibe el calor comprende el material de asiento, los rellenos de mejora térmica, la zanja y el suelo nativo \parencites{enescu2021}{ieee442}{kim2025}. Por ello, el objeto físico de esta investigación es el \emph{arreglo de cables--entorno térmico}: el conjunto formado por los cables, su disposición geométrica y los materiales circundantes que intervienen en la generación y evacuación del calor \parencites[1--3]{enescu2020}[41--42]{cigre2025}.
+En este contexto, los cables enterrados se emplean en tramos donde las restricciones de espacio, seguridad, servidumbre o integración con otras infraestructuras dificultan el uso de opciones usualmente más económicas, como las redes aéreas \parencite{cigre2020tb815}.
 
-El entorno se considera \emph{térmicamente heterogéneo} cuando sus propiedades de transferencia de calor varían con la posición debido, entre otros factores, a la humedad, los estratos, los rellenos o las interfaces entre materiales \parencites[3--4]{enescu2021}[1,6--7]{khumalo2025}[1--3]{aldulaimi2024}. Esta variación se representa mediante la conductividad térmica espacial \(\kx\), propiedad que expresa la capacidad local de un material para conducir calor. La respuesta del sistema se describe mediante el campo de temperatura \(T(x,y)\), es decir, la temperatura asignada a cada punto del dominio, del cual se obtiene la temperatura máxima de los conductores \(\Tmax\) \parencites[3--4]{enescu2021}[3]{xing2023}.
+La capacidad de transporte de estos tramos está condicionada por el comportamiento térmico del cable. Un cable eléctrico es un sistema multicapa compuesto por un núcleo de un material conductor, usualmente cobre o aluminio, y por capas alrededor del conductor que cumplen funciones de aislamiento, pantallas que confinan los campos electromagnéticos y protección mecánica del medio exterior \parencite{iec60502_2_2014}.
 
-Estas entidades se relacionan mediante una secuencia física: la corriente genera pérdidas en los cables; el arreglo y la conductividad del entorno determinan la evacuación del calor; y el campo resultante permite comprobar si \(\Tmax\) respeta el límite empleado para calcular \(\Imax\) \parencites[752--753]{neher1957}[1--4]{enescu2021}. Sin embargo, representar el terreno mediante propiedades homogéneas o equivalentes puede ocultar variaciones relevantes, mientras que una descripción numérica detallada exige preparar y recalcular cada configuración \parencites[41--42,93--99]{cigre2025}[1--3,12]{aldulaimi2024}.
+Durante la operación, la corriente eléctrica que conduce el cable genera calor, principalmente por las pérdidas debidas al efecto Joule \parencite[2]{enescu2020}. En una instalación enterrada, este calor se transfiere hacia el material de asiento, los rellenos de mejora térmica, la zanja y el suelo nativo, elevando la temperatura del cable y de su entorno \parencites{enescu2021}{ieee442}{kim2025}.
 
-En el plano práctico, una representación insuficiente de la heterogeneidad puede producir una estimación insegura de la capacidad térmica o, en sentido contrario, excesivamente conservadora. En el plano del conocimiento, todavía se requiere establecer cuándo y en qué magnitud esa heterogeneidad modifica \(T(x,y)\), \(\Tmax\) e \(\Imax\) respecto de una representación homogénea equivalente \parencites[4--6]{enescu2021}[3--4,93--99]{cigre2025}.
+De ese modo, para determinadas condiciones de instalación y operación de un arreglo de cables enterrados, existe una corriente máxima, denominada \emph{ampacidad} \(\Imax\), que puede circular de manera continua sin que el conductor supere su temperatura admisible \parencites[752]{neher1957}[1]{enescu2020}. Dado que la ampacidad depende tanto de los cables como del medio circundante, el objeto de estudio es el \emph{arreglo de cables--entorno térmico}, el cual es un sistema físico constituido por los cables, su disposición geométrica y los materiales circundantes, cuyo comportamiento conjunto determina la generación y evacuación del calor \parencites[1--3]{enescu2020}[41--42]{cigre2025}.
 
-Para abordar este vacío de conocimiento se propone una \emph{red neuronal informada por física} (PINN), entendida como una red neuronal cuyo aprendizaje incorpora en la función de pérdida la ecuación diferencial gobernante y sus condiciones de frontera e interfaz. La PINN actúa como un aproximador continuo de \(T(x,y)\) y penaliza las soluciones que incumplen la física del problema \parencite{raissi2019}. El artefacto computacional integra esta red con la representación de \(\kx\), los datos del arreglo y los procedimientos para estimar \(\Tmax\) e \(\Imax\); su evaluación determinará su pertinencia y sus limitaciones, sin asumir que reemplaza o supera los métodos existentes.
+El medio circundante del arreglo se considera \emph{térmicamente heterogéneo} cuando sus propiedades de transferencia de calor varían espacialmente debido, entre otros factores, a la humedad, los estratos, los rellenos o las interfaces entre materiales \parencites[3--4]{enescu2021}[1,6--7]{khumalo2025}[1--3]{aldulaimi2024}. Esta variación se representa mediante la conductividad térmica espacial \(\kx\), propiedad que expresa la capacidad local para conducir calor. La respuesta del sistema se describe mediante el campo de temperatura \(T(x,y)\), es decir, la temperatura asignada a cada punto del dominio, del cual se obtiene la temperatura máxima de los conductores \(\Tmax\) \parencites[3--4]{enescu2021}[3]{xing2023}.
 
-El estudio se organiza bajo la ciencia del diseño (DSR), paradigma que guía la construcción y evaluación rigurosa de artefactos destinados a resolver problemas identificados \parencites[55--56]{peffers2007}[342--344]{gregor2013}. Sobre esta base, la investigación relaciona la situación práctica y sus consecuencias con el problema subyacente ---el vacío de conocimiento--- y con el problema técnico que orienta el diseño y la evaluación del artefacto.
+En conjunto, los elementos y las variables descritos se relacionan mediante una secuencia física: la corriente eléctrica genera calentamiento en los cables; el arreglo y la conductividad del entorno determinan la evacuación del calor; y el campo de temperatura resultante permite comprobar si \(\Tmax\) respeta el límite empleado para calcular \(\Imax\) \parencites[752--753]{neher1957}[1--4]{enescu2021}.
+
+El problema de cálculo surge porque una representación homogénea equivalente del terreno puede ocultar variaciones relevantes y reducir la exactitud de la estimación de la ampacidad, mientras que una descripción numérica detallada exige construir, mallar, verificar y repetir cada escenario mediante métodos como FEM \parencites[41--42,93--99]{cigre2025}[1--3,12]{aldulaimi2024}. En la práctica, una representación insuficiente de la heterogeneidad puede sobreestimar la capacidad térmica y conducir a una decisión insegura, o subestimarla y ocasionar la subutilización de la capacidad real de la instalación.
+
+En consecuencia, la brecha que aborda el estudio se ubica entre el entorno térmico real, usualmente heterogéneo, y su representación homogénea equivalente en el cálculo de la ampacidad. Cerrar esta brecha requiere una forma verificable de representar \(\kx\), estimar \(T(x,y)\) y observar el efecto de la heterogeneidad sobre \(\Tmax\) e \(\Imax\).
+
+Para estudiar esta brecha se propone una \emph{red neuronal informada por física} (PINN), entendida como una red neuronal cuyo aprendizaje incorpora en la función de pérdida la ecuación diferencial gobernante, en este caso la ecuación general de conducción de calor, y sus condiciones de frontera e interfaz. La PINN actúa como un aproximador continuo de \(T(x,y)\) y penaliza las soluciones que incumplen la física del problema \parencite{raissi2019}. El artefacto computacional integra esta red con la representación de \(\kx\), los datos del arreglo y los procedimientos para estimar \(\Tmax\) e \(\Imax\); su evaluación determinará su pertinencia y sus limitaciones, sin asumir de antemano que reemplaza o supera los métodos existentes.
+
+Como la investigación construye y evalúa un artefacto para estudiar el arreglo de cables y su entorno, el estudio se organiza bajo el paradigma de la ciencia del diseño (DSR), de acuerdo con la secuencia metodológica propuesta por \textcite[55--56]{peffers2007}.
+
+Sobre esta base, la investigación articula tres niveles del problema. La necesidad práctica consiste en estimar con seguridad la ampacidad de cables enterrados en entornos térmicamente heterogéneos para evitar la sobrecarga o la capacidad ociosa. El problema subyacente es determinar cuándo y en qué magnitud la heterogeneidad modifica \(T(x,y)\), \(\Tmax\) e \(\Imax\) frente a una representación homogénea equivalente. El problema técnico consiste en diseñar y evaluar un artefacto PINN que represente \(\kx\) y estime dichas variables.
+
+Finalmente, el presente plan se organiza en cuatro capítulos principales. El primero desarrolla la problemática, formula el problema y establece la justificación y el alcance de la investigación; el segundo presenta los objetivos, las hipótesis y las dimensiones operativas; el tercero describe la metodología DSR, el artefacto PINN y su estrategia de verificación y evaluación; y el cuarto reúne los antecedentes y las bases conceptuales y técnicas. Finalmente, los anexos presentan las matrices de consistencia y operacionalización, el diseño factorial y la estrategia de revisión documental.
 
 \section{PROBLEMÁTICA}
 
-Las redes eléctricas atraviesan una etapa de mayor exigencia operativa porque la generación, la demanda y la participación de la generación renovable, particularmente solar y eólica, siguen aumentando. En América Latina y el Caribe, la generación eléctrica creció 5,5\,\pct{} en 2024 y la renovabilidad regional alcanzó 69\,\pct{}; además, la energía solar llegó a 7\,\pct{} de la matriz \parencite{olade2025generacionALC2024}. En el Perú, la producción eléctrica nacional creció a una tasa media anual de 2,4\,\pct{} entre 2023 y 2025, mientras que la máxima demanda del SEIN aumentó 2,2\,\pct{} anual en el mismo periodo, según las cifras del MINEM y el COES \parencites{minem2025anuario2024}{minem2025indicadoresDiciembre}{coesMaximaDemanda}.
+Las redes eléctricas atraviesan una etapa de mayor exigencia operativa porque la generación y la participación de la fuentes renovables, particularmente solar y eólica, siguen aumentando. En América Latina y el Caribe, la generación eléctrica creció 5,5\,\pct{} en 2024 y las fuentes renovables representaron 69\,\pct{} de la matriz de generación; sin embargo, 45 puntos porcentuales correspondieron a centrales hidroeléctricas convencionales, mientras que la energía eólica y la solar aportaron conjuntamente 19\,\pct{} \parencite{olade2025generacionALC2024}. 
 
-La presión sobre la red también proviene del cambio en la matriz. En el Perú, la participación conjunta de la generación solar y eólica pasó de un valor cercano a cero en 2010 a 5,3\,\pct{} en 2023, 8,1\,\pct{} en 2024 y 9,5\,\pct{} en 2025. Estos porcentajes se calcularon con la serie del MINEM y, para 2025, emplean cifras preliminares \parencites[sec.~10.4]{minem2025anuario2024}[cuadro~4]{minem2025indicadoresDiciembre}. La tendencia coincide con los proyectos de generación eficiente considerados por el COES y con la necesidad de ampliar la red al ritmo de las renovables señalada por la IEA \parencites{coes2023diagnostico2025_2034}{iea2025transmissiongrid}.
+En el Perú, entre 2010 y 2025, la producción eléctrica nacional pasó de \SI{35908}{\giga\watt\hour} a \SI{65109}{\giga\watt\hour}, un aumento de 81\,\pct{} en términos acumulados, equivalente a una tasa media anual de 4\,\pct{}. En el mismo período, la máxima demanda del SEIN subió de \SI{4579}{\mega\watt} a \SI{7942}{\mega\watt}, es decir, 73\,\pct{} acumulado y 3,7\,\pct{} anualizado. En el horizonte reciente 2023--2025, la producción aumentó 4,9\,\pct{} acumulado (2,4\,\pct{} anualizado) y la máxima demanda 4,4\,\pct{} acumulado (2,2\,\pct{} anualizado). Estas tasas son cálculos propios a partir de las series del MINEM y del COES \parencites[sec.~10.4]{minem2025anuario2024}[cuadro~4]{minem2025indicadoresDiciembre}{coesMaximaDemanda}.
 
-La Figura~\ref{fig:participacion-renovable-peru} muestra la evolución de la participación conjunta de ambas fuentes, calculada con datos del MINEM \parencites{minem2025anuario2024}{minem2025indicadoresDiciembre}. Aunque el indicador no mide congestión ni sobrecarga, presenta un contexto que exige planificar las conexiones y aprovechar con criterio la capacidad de transporte \parencites {coes2023diagnostico2025_2034} {iea2025transmissiongrid}. La participación aumentó gradualmente hasta 2023 y se aceleró durante 2024--2025, con un incremento de 4,2 puntos porcentuales respecto de 2023 \parencites{minem2025anuario2024}{minem2025indicadoresDiciembre}. Este crecimiento no implica una exigencia uniforme en toda la red, pero respalda la necesidad de ampliar la infraestructura y evaluar los márgenes de operación \parencites{coes2023diagnostico2025_2034}{iea2025transmissiongrid}.
+La presión sobre la red no solo responde al crecimiento de la demanda, sino también al cambio en la composición y localización de la generación. En 2025, las fuentes renovables aportaron aproximadamente 63\,\pct{} de la producción nacional: 52 puntos porcentuales correspondieron a centrales hidroeléctricas convencionales y 11 a recursos renovables no convencionales (eólica, solar, bagazo y biogás). Dentro de este último grupo, la generación eólica y solar representó conjuntamente 9,5\,\pct{}, frente a un valor cercano a cero en 2010. Esta distinción muestra que, aunque la generación renovable peruana continúa dominada por las centrales hidroeléctricas convencionales, las centrales eólicas y solares han adquirido una participación creciente y requieren infraestructura específica para recolectar su producción y conectarla al SEIN. 
+
+La evolución de las fuentes solar y eólica se presenta en la Figura~\ref{fig:participacion-renovable-peru}, elaborada con datos del MINEM \parencites[sec.~10.4]{minem2025anuario2024}[cuadro~4]{minem2025indicadoresDiciembre}. Esta figura muestra que la participación conjunta eólica y solar alcanzó 5,3\,\pct{} en 2023, 8,1\,\pct{} en 2024 y 9,5\,\pct{} en 2025, con un aumento acumulado de 4,2 puntos porcentuales en los dos últimos años. Las barras de variación interanual permiten distinguir una reducción transitoria de 0,3 puntos en 2021 y, posteriormente, incrementos de 2,8 puntos en 2024 y 1,4 en 2025; se expresan en puntos porcentuales porque una tasa relativa sobre los valores iniciales, cercanos a cero, resultaría poco interpretable. 
+
+Estos datos evidencian una incorporación acelerada de generación geográficamente concentrada que demanda redes colectoras, nuevas conexiones y capacidad de transporte. Por ello, refuerza el contexto de mayor presión para planificar y operar la red, en concordancia con los diagnósticos del COES y con la necesidad de ampliar las redes al ritmo de las renovables señalada por la IEA \parencites{coes2023diagnostico2025_2034}{iea2025transmissiongrid}.
 
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}
 \begin{axis}[
+  name=variacion,
+  width=0.88\textwidth,
+  height=0.55\textwidth,
+  ylabel={Variación interanual (puntos porcentuales)},
+  xmin=2009.5, xmax=2025.5,
+  ymin=-0.5, ymax=3.1,
+  ytick={-0.5,0,0.5,1,1.5,2,2.5,3},
+  axis y line*=right,
+  axis x line=none,
+  xtick=\empty,
+  ybar,
+  bar width=7pt,
+  tick label style={font=\footnotesize},
+  label style={font=\footnotesize}
+]
+\addplot[fill=lightblue,draw=darkblue!60] coordinates {
+  (2011,0.000)
+  (2012,0.135)
+  (2013,0.319)
+  (2014,0.546)
+  (2015,0.708)
+  (2016,0.813)
+  (2017,0.058)
+  (2018,1.513)
+  (2019,0.150)
+  (2020,0.670)
+  (2021,-0.343)
+  (2022,0.038)
+  (2023,0.726)
+  (2024,2.788)
+  (2025,1.386)
+};
+\end{axis}
+\begin{axis}[
+  at={(variacion.south west)},
+  anchor=south west,
   width=0.88\textwidth,
   height=0.55\textwidth,
   ylabel={Participación en la generación nacional (\pct{})},
@@ -350,11 +402,14 @@ La Figura~\ref{fig:participacion-renovable-peru} muestra la evolución de la par
   xticklabel style={rotate=45,anchor=east,font=\footnotesize},
   ymin=0, ymax=11,
   ytick={0,2,4,6,8,10},
+  axis y line*=left,
+  axis x line*=bottom,
   grid=major,
   grid style={gray!25},
   axis line style={black!70},
   tick label style={font=\footnotesize},
-  label style={font=\footnotesize}
+  label style={font=\footnotesize},
+  legend style={font=\footnotesize,at={(0.02,0.98)},anchor=north west,draw=none,fill=white}
 ]
 \addplot[color=darkblue,mark=*,mark size=2.2pt,very thick] coordinates {
   (2010,0.003)
@@ -374,17 +429,22 @@ La Figura~\ref{fig:participacion-renovable-peru} muestra la evolución de la par
   (2024,8.124)
   (2025,9.510)
 };
+\addlegendentry{Participación solar + eólica}
+\addlegendimage{ybar,fill=lightblue,draw=darkblue!60}
+\addlegendentry{Variación interanual}
 \end{axis}
 \end{tikzpicture}
-\caption[Participación de la generación solar y eólica en el Perú]{Participación conjunta de la generación solar y eólica en la producción eléctrica nacional del Perú, 2010--2025. Fuente: Elaboración propia con datos del Ministerio de Energía y Minas \parencites[sec.~10.4]{minem2025anuario2024}[cuadro~4]{minem2025indicadoresDiciembre}. Nota: el valor de 2025 corresponde a cifras preliminares.}
+\caption[Participación de la generación solar y eólica en el Perú]{Participación conjunta de la generación solar y eólica en la producción eléctrica nacional del Perú y variación interanual, 2010--2025. Fuente: Elaboración propia con datos del Ministerio de Energía y Minas \parencites[sec.~10.4]{minem2025anuario2024}[cuadro~4]{minem2025indicadoresDiciembre}. Notas: las barras expresan diferencias en puntos porcentuales, no tasas relativas; el valor de 2025 corresponde a cifras preliminares.}
 \label{fig:participacion-renovable-peru}
 \end{figure}
 
-En este contexto, los cables subterráneos se vuelven más relevantes en las redes colectoras de media tensión de las plantas eólicas y solares, así como en los tramos donde las redes enfrentan restricciones de espacio, servidumbre, seguridad, integración urbana, cruces o conexión de instalaciones \parencite{cigre2020tb815}. Por estas razones, su uso eficiente exige estimar con cuidado la ampacidad, porque la capacidad disponible depende del balance térmico con el entorno enterrado y de sus condiciones reales \parencites{fariz2026}{mobius2025}.
+En este contexto, los cables enterrados se vuelven más relevantes en las redes colectoras de media tensión de las plantas eólicas y solares. La central eólica Punta Lomitas, construida en Ica, constituye un caso peruano directamente observable: su etapa inicial de \SI{260}{\mega\watt} ingresó en operación comercial en junio de 2023 y su expansión completó una potencia aproximada de \SI{296}{\mega\watt} en diciembre del mismo año \parencite{osinergmin2024puntaLomitas}. El estudio de operatividad del COES documenta que los aerogeneradores se conectan mediante circuitos colectores de \SI{33}{\kilo\volt} constituidos por cables unipolares de aluminio con aislamiento XLPE, instalados entre los centros de transformación y la subestación Punta Lomitas \parencite{coes2021puntaLomitasEO}. El caso confirma que la incorporación de generación eólica de gran escala implica construir grandes redes internas de cables eléctricos enterrados, además de la conexión de alta tensión al SEIN.
 
-La dificultad física surge porque la ampacidad no depende solo del área de la sección transversal de cada conductor ni de las características constructivas de los cables. También depende de la forma en que el calor generado se disipa a través del arreglo hacia el suelo circundante, los rellenos y las capas de material que componen su entorno térmico. Por ello, la respuesta corresponde al objeto completo: el arreglo de cables--entorno térmico. Los métodos clásicos y las normas de cálculo son necesarios como base de ingeniería, pero suelen representar el entorno mediante resistencias térmicas equivalentes para simplificar el cálculo \parencites[752--760]{neher1957}{iec60287}{iec60853}.
+Su uso eficiente exige estimar con cuidado la ampacidad, porque la capacidad disponible depende del balance térmico con el entorno enterrado y de sus condiciones reales \parencites{fariz2026}{mobius2025}. La dificultad física surge porque la ampacidad no depende solo del área de la sección transversal de cada conductor ni de las características constructivas de los cables. También depende de la forma en que el calor generado se disipa a través del arreglo hacia el suelo circundante, los rellenos y las capas de material que componen su entorno térmico. Por ello, la respuesta corresponde al objeto completo: el arreglo de cables--entorno térmico. 
 
-Esa representación puede ser débil cuando el terreno real no se comporta como un medio homogéneo. La humedad, los estratos, el material de asiento, el relleno térmico, la profundidad y las zonas secas pueden modificar la conductividad térmica alrededor del cable \parencites[4--6]{enescu2021}[1--3]{aldulaimi2024}. En consecuencia, dos instalaciones con la misma corriente y los mismos cables pueden alcanzar temperaturas distintas si sus entornos enterrados tienen propiedades térmicas diferentes.
+Los métodos clásicos y las normas de cálculo de ampacidad son necesarios como base de ingeniería, pero suelen representar el entorno mediante resistencias térmicas equivalentes para simplificar el cálculo \parencites[752--760]{neher1957}{iec60287}{iec60853}.
+
+Esa representación puede ser inexacta cuando el terreno real no se comporta como un medio homogéneo. La humedad, los estratos, el material de asiento, el relleno térmico, la profundidad y las zonas secas pueden modificar la conductividad térmica alrededor del cable \parencites[4--6]{enescu2021}[1--3]{aldulaimi2024}. En consecuencia, dos instalaciones con la misma corriente y los mismos cables pueden alcanzar temperaturas distintas si sus entornos enterrados tienen propiedades térmicas diferentes.
 
 La evidencia muestra que el estado del suelo puede modificar de forma sustancial la capacidad de transporte. \textcite[5--6, tabs.~2--3]{khumalo2025} midieron una resistividad térmica de \SI{0.596}{\kelvin\metre\per\watt} con 14,5\,\pct{} de humedad y de \SI{3.72}{\kelvin\metre\per\watt} en estado seco. Para esos extremos, la ampacidad media calculada disminuyó de \SI{518.34}{\ampere} a \SI{224.21}{\ampere}. Además, cuando combinaron suelo seco, una profundidad de \SI{1150}{\milli\metre} y una temperatura del suelo de \SI{28}{\celsius}, obtuvieron una reducción superior a 45\,\pct{} respecto de las condiciones ideales.
 
@@ -427,11 +487,11 @@ La tendencia descendente de la Figura~\ref{fig:resistividad-ampacidad-khumalo} i
 
 Los materiales de relleno también modifican la respuesta térmica de la instalación. \textcite[1,10,16]{kim2025} reportan un agregado de concreto premezclado con conductividad de \SI{2.094}{\watt\per\metre\per\kelvin}, frente a \SI{1.365}{\watt\per\metre\per\kelvin} de la arena natural. Bajo condiciones críticas, ese cambio redujo la temperatura máxima de \SI{77.6}{\celsius} a \SI{70.6}{\celsius}. Por tanto, el relleno no es un detalle constructivo menor, sino una condición que puede cambiar la capacidad térmica disponible.
 
-La dificultad también es operativa porque las propiedades del suelo y de los rellenos pueden variar a lo largo de toda la vida útil durante el servicio. Por ello, la estimación de capacidad debe combinar supuestos documentados, datos del sitio y modelos térmicos cuya respuesta pueda verificarse y actualizarse. Las revisiones recientes sobre clasificación térmica de cables subterráneos destacan precisamente la dependencia de la ampacidad respecto del entorno, las condiciones de frontera y la calidad del modelo utilizado \parencites{fariz2026}{mobius2025}.
+La dificultad también es operativa porque las propiedades del suelo y de los rellenos pueden variar a lo largo de toda la vida útil durante el servicio. Por ello, la estimación de capacidad debe combinar supuestos documentados, datos del sitio y modelos térmicos cuya respuesta pueda verificarse y actualizarse. Las revisiones recientes sobre clasificación térmica de cables enterrados destacan precisamente la dependencia de la ampacidad respecto del entorno, las condiciones de frontera y la calidad del modelo utilizado \parencites{fariz2026}{mobius2025}.
 
 La dificultad metodológica aparece al decidir cómo representar el arreglo de cables--entorno térmico en el cálculo. Un modelo homogéneo es rápido y útil para diseño preliminar, pero puede ocultar zonas locales de baja disipación térmica; no obstante, la magnitud de ese efecto depende del contraste, el patrón, la extensión y la proximidad de la heterogeneidad a los cables. Un modelo numérico de elementos finitos (FEM) puede representar con mayor detalle la geometría y las propiedades espaciales, aunque exige construir, mallar, verificar y repetir escenarios \parencites[3--4,93--99]{cigre2025}[1--3]{aldulaimi2024}. Por ello, la dificultad del proyecto se concentra en cuantificar, con trazabilidad, cuándo y en qué medida la representación de la heterogeneidad térmica del objeto modifica $T(x,y)$, $\Tmax$ e $\Imax$ frente a una representación homogénea equivalente.
 
-La Figura~\ref{fig:brecha} muestra la relación entre presión de red, uso de cables subterráneos, entorno térmico heterogéneo, simplificación homogénea y riesgo de decisión. En el plano práctico, la incertidumbre sobre la capacidad térmica real puede conducir a operar con una corriente excesiva o a restringir capacidad disponible. En el plano del conocimiento, el problema subyacente es que no se ha determinado, dentro del dominio delimitado, cuándo ni en qué magnitud la distribución espacial de la conductividad modifica $T(x,y)$, $\Tmax$ e $\Imax$ respecto de una representación homogénea equivalente, ni qué combinaciones de contraste, patrón, extensión y proximidad explican las diferencias relevantes \parencites[4--6]{enescu2021}[3--4,93--99]{cigre2025}.
+La Figura~\ref{fig:brecha} muestra la relación entre presión de red, uso de cables enterrados, entorno térmico heterogéneo, simplificación homogénea y riesgo de decisión. En el plano práctico, la incertidumbre sobre la capacidad térmica real puede conducir a operar con una corriente excesiva o a restringir capacidad disponible. En el plano del conocimiento, el problema subyacente es que no se ha determinado, dentro del dominio delimitado, cuándo ni en qué magnitud la distribución espacial de la conductividad modifica $T(x,y)$, $\Tmax$ e $\Imax$ respecto de una representación homogénea equivalente, ni qué combinaciones de contraste, patrón, extensión y proximidad explican las diferencias relevantes \parencites[4--6]{enescu2021}[3--4,93--99]{cigre2025}.
 
 Si el modelo subestima la temperatura, puede permitir una corriente excesiva. En consecuencia, puede acelerar el envejecimiento del cable o producir fallas prematuras \parencite[1--2,9]{khumalo2025}. En cambio, si el modelo sobreestima la temperatura, puede limitar capacidad disponible sin necesidad. Por ello, también puede favorecer decisiones de sobredimensionamiento \parencites[4--6]{enescu2021}[1--2,9]{khumalo2025}.
 
@@ -446,7 +506,7 @@ Si el modelo subestima la temperatura, puede permitir una corriente excesiva. En
   box/.style={draw,rounded corners=3pt,align=center,text width=3.25cm,minimum height=1.25cm,font=\tiny},
   arr/.style={-{Stealth[length=3mm]},thick},
   darr/.style={-{Stealth[length=3mm]},thick,dashed}]
-\node[box,fill=lightgray] (cables) {Tramos con cables\\subterráneos\\restricciones de espacio,\\servidumbre y seguridad};
+\node[box,fill=lightgray] (cables) {Tramos con cables\\enterrados\\restricciones de espacio,\\servidumbre y seguridad};
 \node[box,fill=lightblue,right=0.75cm of cables] (real) {Entorno térmico\\enterrado\\$\kx$ variable: humedad,\\estratos, secado, \textit{backfill}};
 \node[box,fill=red!10,right=0.75cm of real] (gap) {Efecto no\\cuantificado sobre\\$T(x,y)$, $\Delta \Tmax$ y $\Delta \Imax$};
 \node[box,fill=yellow!15,below=1.0cm of cables] (context) {Presión de red\\SEIN, demanda, renovables\\continuidad y capacidad};
@@ -463,7 +523,7 @@ Si el modelo subestima la temperatura, puede permitir una corriente excesiva. En
 \draw[arr] (simpl) -- (impact);
 \end{tikzpicture}
 }%
-\caption{Relación entre presión de red, uso de cables subterráneos, entorno térmico heterogéneo, simplificación homogénea y riesgo de decisión. Fuente: Elaboración propia.}
+\caption{Relación entre presión de red, uso de cables enterrados, entorno térmico heterogéneo, simplificación homogénea y riesgo de decisión. Fuente: Elaboración propia.}
 \label{fig:brecha}
 \end{figure}
 
@@ -966,7 +1026,7 @@ Las comparaciones serán pareadas y controladas. Por tanto, cuando se evalúe he
 \textbf{Momento DSR} & \textbf{Propósito de la experimentación numérica} & \textbf{Evidencia esperada} \\
 \midrule
 Verificación formativa & Comprobar que las entradas físicas, PDE, contornos, interfaces, pérdidas y cálculo de ampacidad están implementados de forma coherente. & Paquete de pruebas, errores frente a casos analíticos/manufacturados, residuos, balance de energía y correcciones registradas. \\
-Demostración & Mostrar que el artefacto puede transformar escenarios de cable subterráneo con materiales heterogéneos en campos térmicos interpretables. & Mapas del campo de temperatura $T(x,y)$, $\Tmax$, punto caliente, trazabilidad de entrada--salida y comparación con referencias FEM o publicadas. \\
+Demostración & Mostrar que el artefacto puede transformar escenarios de cables enterrados con materiales heterogéneos en campos térmicos interpretables. & Mapas del campo de temperatura $T(x,y)$, $\Tmax$, punto caliente, trazabilidad de entrada--salida y comparación con referencias FEM o publicadas. \\
 Evaluación DSR & Juzgar utilidad, robustez, reproducibilidad y límites frente a escenarios homogéneos equivalentes. & Diferencias de $\Tmax$ y ampacidad, métricas de robustez, criterios de aceptación y principios de diseño derivados. \\
 \bottomrule
 \end{tabularx}
