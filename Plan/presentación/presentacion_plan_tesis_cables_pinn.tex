@@ -883,7 +883,7 @@ COES y ProInversión \parencite{coes2021puntaLomitasEO,coes2022planTransmision20
   arr/.style={-{Stealth[length=2.0mm]},line width=0.7pt,darkblue},
   feedback/.style={-{Stealth[length=1.8mm]},line width=0.65pt,dashed,darkblue}]
 
-\node[font=\fontsize{8.7}{9.8}\selectfont\bfseries,text=darkblue] at (-2.70,2.36)
+\node[font=\fontsize{9.4}{10.5}\selectfont\bfseries,text=darkblue] at (-2.70,2.60)
   {Arquitectura y operación};
 \node[core,fill=lightblue,draw=midblue] (inp) at (-5.55,1.48)
   {\textbf{Entradas físicas}\\$(x,y)$ · geometría · $\kx$\\$Q$ · contornos · interfaces · $I$};
@@ -898,7 +898,7 @@ COES y ProInversión \parencite{coes2021puntaLomitasEO,coes2022planTransmision20
   font=\fontsize{6.45}{7.35}\selectfont] (loss) at (-2.70,0.30)
   {\textbf{Entrenamiento:} diferenciación automática + pérdida $\mathcal L_{\mathrm{PDE}}+\mathcal L_{\mathrm{cont}}+\mathcal L_{\mathrm{int}}+\mathcal L_{\mathrm{ene}}$ $(+\mathcal L_{\mathrm{datos}}$ si existe referencia$)$};
 \draw[arr] (temp.south) to[bend left=12] (loss.north east);
-\draw[feedback] (loss.north west) to[bend left=12] (pinn.south);
+\draw[feedback] (loss.north)--(pinn.south);
 
 \node[font=\fontsize{7.8}{8.8}\selectfont\bfseries,text=darkblue] at (-2.70,-0.42)
   {Modo de operación};
@@ -930,212 +930,425 @@ COES y ProInversión \parencite{coes2021puntaLomitasEO,coes2022planTransmision20
 
 \section{Problemas y objetivos}
 
-% 12 ------------------------------------------------------------------------
-\begin{frame}{Problema técnico de investigación}
-\begin{beamercolorbox}[wd=0.87\textwidth,rounded=true,sep=8pt]{block body}
-\fontsize{18.5}{22}\selectfont
-¿Cómo diseñar y evaluar una formulación computacional \textbf{integrada, reproducible y verificada}, basada en una PINN 2D, que represente explícitamente $\kx$, estime $T(x,y)$, $\Tmax$ e $\Imax$, y documente la exactitud, la consistencia física y la robustez del análisis?
-\end{beamercolorbox}
-\source{Formulación propia sustentada en \textcite{enescu2021}, \textcite{cigre2025} y \textcite{raissi2019}.}
-\note{Tiempo sugerido: 60 s. Subrayar que el problema técnico se limita al artefacto; no promete resolver por sí solo la planificación del SEIN.}
-\end{frame}
-
 % 13 ------------------------------------------------------------------------
-\begin{frame}{Problemas específicos}
+\begin{frame}{Planteamiento del Problema Tecnológico}
+\situaciontecnologica
+\vspace{-0.004\paperheight}
 \centering
 \begin{tikzpicture}[>=Latex,
- p/.style={rounded corners=4pt,draw,text width=3.15cm,minimum height=1.02cm,align=center,font=\fontsize{11.2}{13.2}\selectfont\bfseries,inner sep=4pt},
- a/.style={-{Stealth[length=2.5mm]},very thick,darkblue}]
-\node[p,fill=warmgray] (p1) at (-4.0,1.15) {PE1 · Representación física no formalizada};
-\node[p,fill=lightblue] (p2) at (0,1.15) {PE2 · Referencias no integradas};
-\node[p,fill=softgreen] (p3) at (4.0,1.15) {PE3 · Escenarios no evaluados};
-\node[p,fill=softorange] (p4) at (2.0,-0.65) {PE4 · Discrepancias de $\Imax$ no identificadas};
-\node[p,fill=softred] (p5) at (-2.0,-0.65) {PE5 · Procedimiento no sistematizado};
-\draw[a] (p1)--node[above,font=\fontsize{7}{8}\selectfont]{D1}(p2);
-\draw[a] (p2)--node[above,font=\fontsize{7}{8}\selectfont]{D2}(p3);
-\draw[a] (p3.south) |- node[pos=0.55,right,font=\fontsize{7}{8}\selectfont]{D3} (p4.east);
-\draw[a] (p4)--node[above,font=\fontsize{7}{8}\selectfont]{D4}(p5);
+  pg/.style={rounded corners=5pt,draw,text width=13.35cm,align=left,
+    inner sep=4.2pt,font=\fontsize{7.85}{8.95}\selectfont},
+  a/.style={-{Stealth[length=2.1mm]},line width=0.80pt,darkblue,shorten <=1pt,shorten >=1pt}]
+\node[font=\fontsize{10.3}{11.5}\selectfont\bfseries,text=darkblue] at (0,2.73)
+  {Problema General};
+\node[pg,fill=lightblue,draw=midblue,minimum height=1.20cm] (g1) at (0,1.68)
+  {En el arreglo de cables--entorno térmico, la heterogeneidad espacial del suelo, el asiento y los rellenos puede modificar $T(x,y)$, $\Tmax$ e $\Imax$ respecto de una representación homogénea equivalente. Sin embargo, resulta difícil cuantificar esas diferencias de forma reproducible y establecer cuándo son relevantes para las decisiones de diseño y operación.};
+\node[pg,fill=warmgray,draw=textgray!55,minimum height=1.04cm] (g2) at (0,0.05)
+  {Las representaciones homogéneas equivalentes son rápidas, aunque no describen de forma explícita la conductividad variable $\kx$; los modelos FEM sí pueden representarla, pero exigen construir, mallar y verificar cada escenario.};
+\node[pg,fill=softorange,draw=orange,minimum height=1.02cm] (g3) at (0,-1.43)
+  {En consecuencia, persiste la necesidad de una formulación computacional verificada y trazable que represente $\kx$, estime el campo térmico y documente la exactitud, la consistencia física y la robustez del análisis.};
+\draw[a] (g1)--(g2); \draw[a] (g2)--(g3);
+\node[rounded corners=4pt,draw=unired,fill=softred,text width=13.35cm,
+  minimum height=0.56cm,align=left,inner sep=3.2pt,
+  font=\fontsize{6.9}{7.85}\selectfont] at (0,-2.47)
+  {\textbf{Delimitación tecnológica:} el problema se relaciona exclusivamente con el artefacto computacional que se construirá y evaluará; no plantea resolver directamente la planificación ni la operación del sistema eléctrico.};
 \end{tikzpicture}
-\vspace{0.012\paperheight}
-\begin{tikzpicture}
-\node[rounded corners=4pt,draw=darkblue,fill=lightblue,text width=11.2cm,align=center,inner sep=6pt,font=\fontsize{13}{15.5}\selectfont\bfseries] {Especificar $\rightarrow$ verificar $\rightarrow$ evaluar heterogeneidades $\rightarrow$ comparar ampacidad $\rightarrow$ sistematizar};
-\end{tikzpicture}
-\source{Elaboración propia; secuencia compatible con DSRM de \textcite{peffers2007}.}
-\note{Tiempo sugerido: 65 s. Explicar que no son actividades sueltas: cada problema produce un insumo para el siguiente.}
+\source[\fontsize{6.1}{7.0}\selectfont]{Formulación sustentada en \textcite{enescu2021}, IEC 60287--60853 \parencite{iec60287,iec60853}, \textcite{cigre2025} y \textcite{raissi2019}.}
+\note{Leer el problema como situación declarativa. Distinguir el fenómeno físico, las limitaciones de las representaciones existentes y la necesidad tecnológica centrada en el artefacto.}
 \end{frame}
 
 % 14 ------------------------------------------------------------------------
-\begin{frame}{Objetivo general}
+\begin{frame}{Problemas específicos 1/2}
+\vspace{-0.014\paperheight}
 \centering
 \begin{tikzpicture}[>=Latex,
- b/.style={rounded corners=5pt,draw,align=center,text width=3.25cm,minimum height=1.55cm,font=\fontsize{15}{18}\selectfont\bfseries,inner sep=5pt},
- a/.style={-{Stealth[length=3mm]},very thick,darkblue}]
-\node[b,fill=lightblue] (i) {Insumo inicial\\geometría, materiales, $\kx$, pérdidas y contornos};
-\node[b,fill=softgreen,right=0.55cm of i,text width=4.15cm] (o) {Diseñar y evaluar un artefacto computacional PINN 2D};
-\node[b,fill=softorange,right=0.55cm of o] (r) {Resultados\\$T(x,y)$, $\Tmax$, $\Imax$ y calidad del artefacto};
-\draw[a] (i)--(o); \draw[a] (o)--(r);
+  ins/.style={rounded corners=3pt,draw=textgray!45,fill=white,text width=3.95cm,
+    minimum height=0.64cm,align=center,inner sep=2.5pt,
+    font=\fontsize{6.2}{7.05}\selectfont},
+  pe/.style={rounded corners=5pt,draw,text width=4.02cm,minimum height=2.55cm,
+    align=left,inner sep=4pt,font=\fontsize{7.15}{8.1}\selectfont},
+  a/.style={-{Stealth[length=2.2mm]},line width=0.82pt,darkblue,shorten <=1pt,shorten >=1pt},
+  d/.style={font=\fontsize{6.1}{6.9}\selectfont\bfseries,fill=white,inner sep=1.2pt,text=darkblue,yshift=2pt}]
+\node[ins] (i1) at (-4.78,2.18) {Cable multicapa, interfaces, fuentes, contornos y $\kx$};
+\node[ins] (i2) at (0,2.18) {Soluciones analíticas o manufacturadas, FEM y casos publicados};
+\node[ins] (i3) at (4.78,2.18) {Contraste, patrón, extensión y proximidad};
+\node[pe,fill=warmgray,draw=textgray!60] (pe1) at (-4.78,0.35)
+  {\textbf{PE1.} La representación física requerida por el artefacto no está formalizada en términos de entradas, requisitos funcionales y criterios de calidad que ordenen el cable multicapa, las interfaces, las fuentes, los contornos y $\kx$ en escenarios heterogéneos.};
+\node[pe,fill=lightblue,draw=midblue] (pe2) at (0,0.35)
+  {\textbf{PE2.} No se dispone de un paquete reproducible de soluciones analíticas o manufacturadas, referencias FEM con convergencia y casos publicados que permita construir y verificar el artefacto dentro del dominio delimitado.};
+\node[pe,fill=softgreen,draw=teal] (pe3) at (4.78,0.35)
+  {\textbf{PE3.} No se ha cuantificado de forma trazable cómo el contraste, el patrón, la extensión y la proximidad de las heterogeneidades modifican $\Tmax$, el campo $T(x,y)$ y la localización del punto caliente.};
+\draw[a] (i1)--(pe1); \draw[a] (i2)--(pe2); \draw[a] (i3)--(pe3);
+\draw[a] (pe1)--node[d,above]{D1}(pe2); \draw[a] (pe2)--node[d,above]{D2}(pe3);
+\node[rounded corners=4pt,draw=darkblue,fill=lightblue,text width=13.20cm,
+  minimum height=0.62cm,align=center,inner sep=3pt,
+  font=\fontsize{7.3}{8.25}\selectfont\bfseries] at (0,-1.78)
+  {Especificar la representación $\rightarrow$ integrar referencias de verificación $\rightarrow$ cuantificar escenarios heterogéneos};
 \end{tikzpicture}
-\vspace{0.035\paperheight}
-\begin{tikzpicture}
-\node[rounded corners=4pt,draw=darkblue,fill=lightblue,text width=10.8cm,align=center,inner sep=6pt,font=\fontsize{15}{18}\selectfont] {Cuantificar la heterogeneidad y documentar \textbf{exactitud, consistencia física, robustez y reproducibilidad}.};
-\end{tikzpicture}
-\source{Objetivo general del plan; criterios de verificación en \textcite{cigre2025} y de evaluación DSR en \textcite{gregor2013}.}
-\note{Tiempo sugerido: 45 s. Hacer visible la entrada y la variable dependiente, como solicita la plantilla.}
+\source[\fontsize{6.0}{6.9}\selectfont]{Problemas y articulación sustentados en verificación DSR \parencite{peffers2007,gregor2013} y referencias térmicas \parencite{enescu2021,cigre2025}.}
+\note{Presentar PE1, PE2 y PE3 como situaciones del artefacto. Los insumos superiores y las flechas D1--D2 reproducen la lógica de articulación del plan.}
 \end{frame}
 
 % 15 ------------------------------------------------------------------------
-\begin{frame}{Objetivos específicos}
+\begin{frame}{Problemas específicos 2/2}
+\vspace{-0.014\paperheight}
 \centering
 \begin{tikzpicture}[>=Latex,
- o/.style={rounded corners=4pt,draw,text width=3.15cm,minimum height=1.02cm,align=center,font=\fontsize{11.2}{13.2}\selectfont\bfseries,inner sep=4pt},
- d/.style={font=\fontsize{7}{8}\selectfont\bfseries,text=darkblue},
- a/.style={-{Stealth[length=2.5mm]},very thick,darkblue}]
-\node[o,fill=warmgray] (o1) at (-4.0,1.15) {OE1 · Especificar entradas y requisitos};
-\node[o,fill=lightblue] (o2) at (0,1.15) {OE2 · Construir y verificar};
-\node[o,fill=softgreen] (o3) at (4.0,1.15) {OE3 · Evaluar heterogeneidades};
-\node[o,fill=softorange] (o4) at (2.0,-0.65) {OE4 · Comparar ampacidad};
-\node[o,fill=softred] (o5) at (-2.0,-0.65) {OE5 · Formular principios y procedimiento};
-\draw[a] (o1)--node[d,above]{D1}(o2);
-\draw[a] (o2)--node[d,above]{D2}(o3);
-\draw[a] (o3.south) |- node[d,pos=0.55,right]{D3} (o4.east);
-\draw[a] (o4)--node[d,above]{D4}(o5);
+  ins/.style={rounded corners=3pt,draw=textgray!45,fill=white,text width=6.10cm,
+    minimum height=0.58cm,align=center,inner sep=2.5pt,
+    font=\fontsize{6.3}{7.1}\selectfont},
+  pe/.style={rounded corners=5pt,draw,text width=6.12cm,minimum height=2.10cm,
+    align=left,inner sep=4pt,font=\fontsize{7.45}{8.45}\selectfont},
+  mini/.style={rounded corners=3pt,draw,text width=1.82cm,minimum height=0.72cm,
+    align=center,inner sep=1.6pt,font=\fontsize{5.35}{6.05}\selectfont\bfseries},
+  a/.style={-{Stealth[length=2.1mm]},line width=0.78pt,darkblue,shorten <=1pt,shorten >=1pt},
+  d/.style={font=\fontsize{5.9}{6.6}\selectfont\bfseries,fill=white,inner sep=1.1pt,text=darkblue,yshift=2pt}]
+\node[ins] (i4) at (-3.48,2.52) {Representaciones homogénea equivalente y heterogénea 2D verificada};
+\node[ins] (i5) at (3.48,2.52) {Evidencia y criterios de evaluación producidos por el artefacto};
+\node[pe,fill=softorange,draw=orange] (pe4) at (-3.48,0.95)
+  {\textbf{PE4.} No se han identificado las condiciones que producen la mayor discrepancia de ampacidad entre una representación 2D heterogénea verificada y una representación homogénea equivalente.};
+\node[pe,fill=softred,draw=unired] (pe5) at (3.48,0.95)
+  {\textbf{PE5.} No se ha sistematizado, a partir de la evidencia del artefacto, un procedimiento reproducible ni principios de diseño para problemas térmicos 2D multimateriales de cables enterrados.};
+\draw[a] (i4)--(pe4); \draw[a] (i5)--(pe5);
+\draw[a] (pe4)--node[d,above]{D4}(pe5);
+
+\node[font=\fontsize{7.7}{8.7}\selectfont\bfseries,text=darkblue] at (0,-0.45)
+  {Articulación secuencial del plan};
+\node[mini,fill=warmgray] (m1) at (-5.75,-1.32) {PE1\\Representación};
+\node[mini,fill=lightblue,draw=midblue] (m2) at (-3.45,-1.32) {PE2\\Referencias};
+\node[mini,fill=softgreen,draw=teal] (m3) at (-1.15,-1.32) {PE3\\Escenarios};
+\node[mini,fill=softorange,draw=orange] (m4) at (1.15,-1.32) {PE4\\Ampacidad};
+\node[mini,fill=softred,draw=unired] (m5) at (3.45,-1.32) {PE5\\Procedimiento};
+\node[mini,fill=lightblue,draw=darkblue] (res) at (5.75,-1.32) {Resultado lógico\\objetivos};
+\draw[a] (m1)--node[d,above]{D1}(m2); \draw[a] (m2)--node[d,above]{D2}(m3);
+\draw[a] (m3)--node[d,above]{D3}(m4); \draw[a] (m4)--node[d,above]{D4}(m5);
+\draw[a] (m5)--(res);
+\node[rounded corners=4pt,draw=textgray!55,fill=warmgray,text width=13.20cm,
+  minimum height=0.58cm,align=center,inner sep=3pt,
+  font=\fontsize{6.65}{7.55}\selectfont] at (0,-2.20)
+  {Cada situación recibe evidencia del artefacto y produce una definición o resultado necesario para abordar la siguiente.};
 \end{tikzpicture}
-\vspace{0.012\paperheight}
-\begin{tikzpicture}
-\node[rounded corners=3pt,draw=darkblue,fill=lightblue,text width=5.5cm,align=center,inner sep=5pt,font=\fontsize{13}{15}\selectfont] at (-3.1,0) {\textbf{Entradas:} $k$, contraste, patrón, extensión y proximidad.};
-\node[rounded corners=3pt,draw=teal,fill=softgreen,text width=5.5cm,align=center,inner sep=5pt,font=\fontsize{13}{15}\selectfont] at (3.1,0) {\textbf{Resultados:} errores, balance, $T$, $\Tmax$, $\Imax$ y $\Delta I$.};
+\source[\fontsize{6.0}{6.9}\selectfont]{Articulación DSR del plan \parencite{peffers2007,gregor2013}; comparación térmica y verificación según \textcite{cigre2025}.}
+\note{Cerrar PE4 y PE5 y recorrer la secuencia completa. El plan vigente formula cinco problemas específicos; no inventar un PE6 sin modificar previamente el documento matriz.}
+\end{frame}
+
+% 16 ------------------------------------------------------------------------
+\begin{frame}{Objetivo General}
+\vspace{-0.018\paperheight}
+\centering
+\begin{tikzpicture}[>=Latex,
+ b/.style={rounded corners=5pt,draw,align=center,text width=3.75cm,
+   minimum height=1.50cm,font=\fontsize{7.60}{8.70}\selectfont,inner sep=4pt},
+ a/.style={-{Stealth[length=2.3mm]},line width=0.85pt,darkblue}]
+\node[rounded corners=5pt,draw=teal,fill=softgreen,text width=13.35cm,
+  minimum height=1.30cm,align=left,inner sep=5pt,
+  font=\fontsize{9.2}{10.55}\selectfont] at (0,2.20)
+  {\textbf{Objetivo general:} Diseñar y evaluar un artefacto computacional basado en una red neuronal informada por física (PINN) que represente el arreglo de cables--entorno térmico, estime el campo de temperaturas $T(x,y)$, la temperatura máxima del dominio $\Tmax$ y la ampacidad $\Imax$, cuantificar el efecto de la heterogeneidad térmica espacial y documentar su exactitud, consistencia física, robustez y reproducibilidad.};
+\node[b,fill=lightblue,draw=midblue] (i) at (-4.70,0.15)
+  {\textbf{Insumo inicial}\\Cable, geometría, fuentes $Q$, contornos, interfaces, $\kx$ y casos de referencia};
+\node[b,fill=softgreen,draw=teal,text width=4.10cm] (o) at (0,0.15)
+  {\textbf{Intervención investigada}\\Modelo y prototipo computacional PINN 2D especificado, construido y evaluado};
+\node[b,fill=softorange,draw=orange] (r) at (4.70,0.15)
+  {\textbf{Variables dependientes y medidas}\\$T(x,y)$, $\Tmax$, $\Imax$; error, balance, robustez y reproducibilidad};
+\draw[a] (i)--(o); \draw[a] (o)--(r);
+\node[rounded corners=4pt,draw=unired,fill=softred,text width=13.20cm,
+  minimum height=0.58cm,align=center,inner sep=3pt,
+  font=\fontsize{7.15}{8.15}\selectfont] at (0,-1.25)
+  {El objetivo se relaciona con la construcción y evaluación del artefacto; programar, entrenar o ejecutar casos son actividades, no el objetivo de investigación.};
 \end{tikzpicture}
-\source{Objetivos específicos y productos D1--D4 del plan; secuencia DSR de \textcite{peffers2007}.}
-\note{Tiempo sugerido: 65 s. Presentar cada objetivo como un hito con producto, entrada y resultado, no como una actividad de programación.}
+\source[\fontsize{6.1}{7.0}\selectfont]{Objetivo y productos sustentados en DSR \parencite{peffers2007,gregor2013}; verificación térmica según \textcite{cigre2025} y formulación PINN de \textcite{raissi2019}.}
+\note{Leer literalmente el objetivo general. Luego identificar el insumo inicial, la intervención y las variables dependientes o medidas de desempeño del artefacto.}
+\end{frame}
+
+% 17 ------------------------------------------------------------------------
+\begin{frame}{Objetivos Específicos 1/2}
+\vspace{-0.014\paperheight}
+\centering
+\begin{tikzpicture}[>=Latex,
+  ins/.style={rounded corners=3pt,draw=textgray!45,fill=white,text width=3.95cm,
+    minimum height=0.62cm,align=center,inner sep=2.4pt,
+    font=\fontsize{6.05}{6.85}\selectfont},
+  oe/.style={rounded corners=5pt,draw,text width=4.02cm,minimum height=3.25cm,
+    align=left,inner sep=4pt,font=\fontsize{6.65}{7.55}\selectfont},
+  a/.style={-{Stealth[length=2.2mm]},line width=0.82pt,darkblue,shorten <=1pt,shorten >=1pt},
+  d/.style={font=\fontsize{6.0}{6.8}\selectfont\bfseries,fill=white,inner sep=1.2pt,text=darkblue,yshift=2pt}]
+\node[ins] (i1) at (-4.78,2.48) {Cable, geometría, fuentes, contornos, interfaces y $\kx$};
+\node[ins] (i2) at (0,2.48) {Soluciones analíticas, manufacturadas, FEM y publicadas};
+\node[ins] (i3) at (4.78,2.48) {Contraste, patrón, extensión y proximidad};
+\node[oe,fill=warmgray,draw=textgray!60] (oe1) at (-4.78,0.25)
+  {\textbf{OE1.} Especificar las entradas físicas, requisitos funcionales y criterios de calidad del artefacto para representar el arreglo de cables--entorno térmico, incluyendo dominios multicapa, fuentes térmicas, condiciones de contorno, interfaces y conductividad térmica espacialmente variable $\kx$.\par\vspace{0.8mm}\textbf{Producto:} documento de requisitos, catálogo de materiales y geometrías, ficha de supuestos y matriz requisito--prueba.};
+\node[oe,fill=lightblue,draw=midblue] (oe2) at (0,0.25)
+  {\textbf{OE2.} Construir y verificar el artefacto mediante soluciones analíticas o manufacturadas, benchmarks FEM con convergencia y casos publicados, evaluando su exactitud, consistencia física y robustez entre ejecuciones.\par\vspace{0.8mm}\textbf{Producto:} base de benchmarks, casos manufacturados, referencias FEM convergentes e informe de verificación.};
+\node[oe,fill=softgreen,draw=teal] (oe3) at (4.78,0.25)
+  {\textbf{OE3.} Evaluar escenarios controlados de contraste, patrón, extensión y proximidad de heterogeneidades del suelo y los rellenos para obtener cambios en $\Tmax$, el campo de temperatura $T(x,y)$ y la localización del punto caliente.\par\vspace{0.8mm}\textbf{Producto:} mapas de $\kx$ y $T(x,y)$, resultados de sensibilidad y límites del artefacto.};
+\draw[a] (i1)--(oe1); \draw[a] (i2)--(oe2); \draw[a] (i3)--(oe3);
+\draw[a] (oe1)--node[d,above]{D1}(oe2); \draw[a] (oe2)--node[d,above]{D2}(oe3);
+\end{tikzpicture}
+\source[\fontsize{6.0}{6.9}\selectfont]{Objetivos, entradas y productos articulados mediante DSR \parencite{peffers2007,gregor2013}; referencias de verificación según \textcite{cigre2025}.}
+\note{Cada OE es un hito. Presentar la entrada superior, leer literalmente el objetivo y cerrar con el producto medible que alimenta al objetivo siguiente.}
+\end{frame}
+
+% 18 ------------------------------------------------------------------------
+\begin{frame}{Objetivos Específicos 2/2}
+\vspace{-0.014\paperheight}
+\centering
+\begin{tikzpicture}[>=Latex,
+  ins/.style={rounded corners=3pt,draw=textgray!45,fill=white,text width=6.08cm,
+    minimum height=0.58cm,align=center,inner sep=2.4pt,
+    font=\fontsize{6.2}{7.0}\selectfont},
+  oe/.style={rounded corners=5pt,draw,text width=6.10cm,minimum height=2.55cm,
+    align=left,inner sep=4pt,font=\fontsize{6.85}{7.85}\selectfont},
+  mini/.style={rounded corners=3pt,draw,text width=1.82cm,minimum height=0.72cm,
+    align=center,inner sep=1.6pt,font=\fontsize{5.25}{5.95}\selectfont\bfseries},
+  a/.style={-{Stealth[length=2.1mm]},line width=0.78pt,darkblue,shorten <=1pt,shorten >=1pt},
+  d/.style={font=\fontsize{5.8}{6.5}\selectfont\bfseries,fill=white,inner sep=1.1pt,text=darkblue,yshift=2pt}]
+\node[ins] (i4) at (-3.48,2.75) {Escenarios heterogéneos y homogéneos equivalentes};
+\node[ins] (i5) at (3.48,2.75) {Evidencia, métricas y límites de validez};
+\node[oe,fill=softorange,draw=orange] (oe4) at (-3.48,0.95)
+  {\textbf{OE4.} Comparar la ampacidad obtenida con representación 2D heterogénea frente a escenarios homogéneos equivalentes e identificar las condiciones de entrada que generan mayor discrepancia.\par\vspace{0.8mm}\textbf{Producto:} rutina de búsqueda de $\Imax$, tabla de cambios de ampacidad, escenarios críticos y comparación heterogéneo--homogéneo.};
+\node[oe,fill=softred,draw=unired] (oe5) at (3.48,0.95)
+  {\textbf{OE5.} Formular, a partir de los resultados del artefacto, principios de diseño y un procedimiento reproducible para aplicar y evaluar PINN en problemas térmicos multimateriales de cables enterrados.\par\vspace{0.8mm}\textbf{Producto:} repositorio, bitácora de versiones, guía de reproducción, principios de diseño e informe final DSR.};
+\draw[a] (i4)--(oe4); \draw[a] (i5)--(oe5);
+\draw[a] (oe4)--node[d,above]{D4}(oe5);
+\node[font=\fontsize{7.6}{8.6}\selectfont\bfseries,text=darkblue] at (0,-0.60)
+  {Articulación de objetivos y productos};
+\node[mini,fill=warmgray] (m1) at (-5.75,-1.42) {OE1\\Requisitos};
+\node[mini,fill=lightblue,draw=midblue] (m2) at (-3.45,-1.42) {OE2\\Verificación};
+\node[mini,fill=softgreen,draw=teal] (m3) at (-1.15,-1.42) {OE3\\Escenarios};
+\node[mini,fill=softorange,draw=orange] (m4) at (1.15,-1.42) {OE4\\Ampacidad};
+\node[mini,fill=softred,draw=unired] (m5) at (3.45,-1.42) {OE5\\Procedimiento};
+\node[mini,fill=lightblue,draw=darkblue] (res) at (5.75,-1.42) {Artefacto evaluado\\y reproducible};
+\draw[a] (m1)--node[d,above]{D1}(m2); \draw[a] (m2)--node[d,above]{D2}(m3);
+\draw[a] (m3)--node[d,above]{D3}(m4); \draw[a] (m4)--node[d,above]{D4}(m5);
+\draw[a] (m5)--(res);
+\node[rounded corners=4pt,draw=textgray!55,fill=warmgray,text width=13.20cm,
+  minimum height=0.55cm,align=center,inner sep=2.8pt,
+  font=\fontsize{6.45}{7.35}\selectfont] at (0,-2.23)
+  {Cada OE genera un producto medible que constituye la entrada o evidencia necesaria para el siguiente hito.};
+\end{tikzpicture}
+\source[\fontsize{6.0}{6.9}\selectfont]{Articulación secuencial de objetivos y productos bajo DSR \parencite{peffers2007,gregor2013}; criterios técnicos según \textcite{cigre2025}.}
+\note{Presentar OE4 y OE5 y recorrer la articulación completa. Aclarar que el plan vigente formula cinco objetivos específicos.}
 \end{frame}
 
 \section{Variables y método}
 
-% 16 ------------------------------------------------------------------------
-\begin{frame}{Variable independiente: $\kx$}
-\centering
-\begin{tikzpicture}[
- f/.style={rounded corners=4pt,draw,text width=2.35cm,minimum height=1.85cm,align=center,font=\fontsize{10.5}{12.5}\selectfont\bfseries,inner sep=2pt}]
-\node[f,fill=lightblue] (c) at (-4.35,0) {\textcolor{darkblue}{Contraste $C_k$}\\[1mm]
-\begin{tikzpicture}\fill[midblue!25] (0,0) rectangle (0.78,0.36);\fill[midblue!85] (0.78,0) rectangle (1.56,0.36);\end{tikzpicture}\\bajo · medio · alto};
-\node[f,fill=softgreen] (p) at (-1.45,0) {\textcolor{teal}{Patrón}\\[1mm]
-\begin{tikzpicture}\fill[teal!20] (0,0) rectangle (1.56,0.36);\fill[teal!75] (0.45,0.06) circle (0.22);\fill[teal!75] (1.15,0.06) circle (0.16);\end{tikzpicture}\\estrato · zona · relleno};
-\node[f,fill=softorange] (e) at (1.45,0) {\textcolor{orange}{Extensión}\\[1mm]
-\begin{tikzpicture}\draw[orange,thick] (0,0) rectangle (1.56,0.36);\fill[orange!70] (0.08,0.07) rectangle (0.52,0.29);\fill[orange!35] (0.67,0.04) rectangle (1.48,0.32);\end{tikzpicture}\\pequeña · media · grande};
-\node[f,fill=softred] (d) at (4.35,0) {\textcolor{unired}{Proximidad}\\[1mm]
-\begin{tikzpicture}\fill[darkblue] (0,0.18) circle (0.17);\fill[unired!70] (0.45,0.18) circle (0.13);\draw[<->,unired,thick] (0.19,0.18)--(0.30,0.18);\fill[unired!30] (1.40,0.18) circle (0.13);\draw[<->,unired,thick] (0.19,0.18)--(1.25,0.18);\end{tikzpicture}\\cercana · media · lejana};
-\end{tikzpicture}
-\vspace{0.035\paperheight}
-\begin{beamercolorbox}[wd=0.91\textwidth,rounded=true,sep=7pt,center]{block body}
-\fontsize{16}{19}\selectfont
-La variable principal no es un hiperparámetro de entrenamiento: es la \textbf{representación espacial de la conductividad térmica} del entorno.
-\end{beamercolorbox}
-\source{Definición operacional del plan; variabilidad de suelo y rellenos en \textcite{enescu2021}, \textcite{khumalo2025} y \textcite{kim2025}.}
-\note{Tiempo sugerido: 55 s. Describir los cuatro factores y enfatizar que pertenecen al objeto físico.}
-\end{frame}
-
-% 17 ------------------------------------------------------------------------
-\begin{frame}{Factores, controles y parámetros}
-\centering
-\begin{tikzpicture}[
- card/.style={rounded corners=5pt,draw,text width=3.25cm,minimum height=3.25cm,align=left,inner sep=7pt,font=\fontsize{11.5}{14}\selectfont}]
-\node[card,fill=softgreen,draw=teal] at (-3.90,0) {{\color{teal}\fontsize{14}{16}\selectfont\bfseries Factores\\válidos}\\[2mm]
-\textcolor{teal}{\textbullet}\ $C_k$ y patrón.\\[2mm]
-\textcolor{teal}{\textbullet}\ Extensión y proximidad.\\[2mm]
-\textcolor{teal}{\textbullet}\ Homogéneo/heterogéneo.};
-\node[card,fill=lightblue,draw=darkblue] at (0,0) {{\color{darkblue}\fontsize{14}{16}\selectfont\bfseries Controles\\pareados}\\[2mm]
-\textcolor{unired}{\textbullet}\ Geometría.\\[2mm]
-\textcolor{unired}{\textbullet}\ Pérdidas $I^2R$.\\[2mm]
-\textcolor{unired}{\textbullet}\ Contornos y dominio.};
-\node[card,fill=softred,draw=unired] at (3.90,0) {{\color{unired}\fontsize{14}{16}\selectfont\bfseries No son VI\\físicas}\\[2mm]
-\textcolor{unired}{\textbullet}\ Épocas, lote, capas y neuronas.\\[2mm]
-\textcolor{unired}{\textbullet}\ Optimizador, tasa y hardware.};
-\end{tikzpicture}
-\source{Operacionalización propia; evaluación controlada conforme a los criterios de \textcite{cigre2025} y trazabilidad DSR de \textcite{gregor2013}.}
-\note{Tiempo sugerido: 45 s. Esta lámina responde de forma directa a la distinción de la plantilla entre variables y simples hiperparámetros.}
-\end{frame}
-
-% 18 ------------------------------------------------------------------------
-\begin{frame}{Variables dependientes}
-\centering
-\begin{tikzpicture}[
- card/.style={rounded corners=5pt,draw,text width=3.25cm,minimum height=2.75cm,align=center,inner sep=6pt,font=\fontsize{11.5}{14}\selectfont}]
-\node[card,fill=lightblue,draw=darkblue] at (-3.90,0) {{\color{darkblue}\fontsize{15}{17}\selectfont\bfseries Térmicas}\\[2mm]
-$T(x,y)$\\[1mm]$\Tmax$\\[1mm]punto caliente\\[1mm]$e_{T_{\max}}$};
-\node[card,fill=softgreen,draw=teal] at (0,0) {{\color{teal}\fontsize{15}{17}\selectfont\bfseries Operativas}\\[2mm]
-$\Imax$\\[1mm]$\Delta I$\\[1mm]margen térmico\\[1mm]\textit{derating/uprating}};
-\node[card,fill=softred,draw=unired] at (3.90,0) {{\color{unired}\fontsize{15}{17}\selectfont\bfseries Artefacto}\\[2mm]
-NRMSE\\[1mm]balance de energía\\[1mm]robustez\\[1mm]reproducibilidad};
-\end{tikzpicture}
-\vspace{0.012\paperheight}
-\centering
-\begin{tikzpicture}
-\node[rounded corners=4pt,fill=warmgray,draw=textgray!45,text width=5.5cm,minimum height=1.0cm,align=center,inner sep=4pt,font=\fontsize{12.5}{15}\selectfont] at (-3.05,0) {$e_{T_{\max}}=100\,\dfrac{|T_{\max}^{\mathrm{PINN}}-T_{\max}^{\mathrm{ref}}|}{|T_{\max}^{\mathrm{ref}}|}$};
-\node[rounded corners=4pt,fill=warmgray,draw=textgray!45,text width=5.0cm,minimum height=1.0cm,align=center,inner sep=4pt,font=\fontsize{12.5}{15}\selectfont] at (3.05,0) {$\Delta I=100\,\dfrac{I_{\mathrm{het}}-I_{\mathrm{hom}}}{I_{\mathrm{hom}}}$};
-\end{tikzpicture}
-\source{Métricas del plan; verificación térmica basada en \textcite{cigre2025}; ampacidad según IEC 60287 \parencite{iec60287}.}
-\note{Tiempo sugerido: 55 s. Explicar cómo se calcula la variable dependiente del artefacto y que los umbrales son criterios iniciales, no universales.}
-\end{frame}
-
 % 19 ------------------------------------------------------------------------
-\begin{frame}{Hipótesis verificables}
+\begin{frame}{Variables independientes 1/2}
 \centering
 \begin{tikzpicture}[
- h/.style={rounded corners=4pt,draw,text width=10.6cm,minimum height=0.82cm,align=left,inner sep=4pt,font=\fontsize{11.5}{13.5}\selectfont}]
-\node[h,fill=softorange,draw=orange] at (0,1.70) {\textbf{H1 · Respuesta térmica.} Una zona de baja $k$ próxima al conductor aumentará $\Tmax$; un relleno de alta $k$ la reducirá.};
-\node[h,fill=softred,draw=unired] at (0,0) {\textbf{H2 · Ampacidad.} Si el promedio oculta esa zona, tenderá a sobreestimar $\Imax$; el efecto crecerá con contraste, extensión y proximidad.};
-\node[h,fill=softgreen,draw=teal] at (0,-1.70) {\textbf{H3 · Aceptación.} Reproducir referencias y conservar la física: $e_{T_{\max}}\leq5\pct$, NRMSE $\leq5\pct$ y desequilibrio $\leq2\pct$.};
+ card/.style={rounded corners=4pt,draw,text width=2.55cm,minimum height=1.22cm,align=center,inner sep=3.5pt,font=\fontsize{7.2}{8.6}\selectfont},
+ main/.style={rounded corners=5pt,draw=darkblue,fill=lightblue,text width=12.15cm,minimum height=0.78cm,align=center,inner sep=4pt,font=\fontsize{8.8}{10.3}\selectfont}]
+\node[main] (vi) at (0,2.25) {\textbf{Variable independiente principal: conductividad térmica espacialmente variable $\kx$.}\\
+\textbf{Intervención controlada:} el investigador configura su mapa en el suelo, el asiento o el relleno para construir escenarios comparables.};
+
+\node[card,fill=softgreen,draw=teal] (p) at (-4.42,0.25) {\textcolor{teal}{\fontsize{9.0}{10.3}\selectfont\bfseries Patrón $P$}\\[0.7mm]
+estratificado · inclusión de baja $k$ · relleno de alta $k$ · zona seca};
+\node[card,fill=lightblue,draw=midblue] (c) at (-1.48,0.25) {\textcolor{darkblue}{\fontsize{9.0}{10.3}\selectfont\bfseries Contraste $C_k$}\\[0.7mm]
+bajo · medio · alto\\magnitud fijada en el piloto};
+\node[card,fill=softorange,draw=orange] (e) at (1.48,0.25) {\textcolor{orange}{\fontsize{9.0}{10.3}\selectfont\bfseries Extensión $f_h$}\\[0.7mm]
+pequeña · media · grande\\tamaño normalizado};
+\node[card,fill=softred,draw=unired] (d) at (4.42,0.25) {\textcolor{unired}{\fontsize{9.0}{10.3}\selectfont\bfseries Proximidad $d_h/D$}\\[0.7mm]
+cercana · media · lejana\\respecto del conductor};
+
+\node[rounded corners=4pt,draw=textgray!45,fill=warmgray,text width=12.15cm,minimum height=0.68cm,align=center,inner sep=3.5pt,font=\fontsize{8.0}{9.4}\selectfont] at (0,-1.30)
+{\textbf{Representación de comparación $R$:} heterogénea explícita · homogénea equivalente · homogénea conservadora · homogénea optimista.};
+\node[rounded corners=4pt,draw=teal,fill=softgreen,text width=12.15cm,minimum height=0.68cm,align=center,inner sep=3.5pt,font=\fontsize{7.7}{9.1}\selectfont] at (0,-2.30)
+{Los estados se combinan en un diseño factorial de escenarios numéricos; cada caso heterogéneo se compara con su referencia homogénea manteniendo constantes las demás condiciones.};
 \end{tikzpicture}
-\source{Hipótesis del plan; tendencia física sustentada en \textcite{khumalo2025}, \textcite{ariasVelasquez2023}, \textcite{atoccsa2024} y \textcite{kim2025}.}
-\note{Tiempo sugerido: 55 s. Presentar predicciones falsables, no resultados ya obtenidos.}
+\source[\fontsize{6.4}{7.3}\selectfont]{Operacionalización y diseño factorial del estudio; heterogeneidad térmica documentada por \textcite{enescu2021}, \textcite{khumalo2025} y \textcite{kim2025}.}
+\note{Tiempo sugerido: 60 s. Precisar que la intervención controlada es la configuración espacial de k(x,y), no un hiperparámetro de entrenamiento.}
 \end{frame}
 
 % 20 ------------------------------------------------------------------------
-\begin{frame}{Metodología DSR}
-\noexpone
-\vspace{0.01\paperheight}
+\begin{frame}{Variables independientes 2/2}
 \centering
-\begin{tikzpicture}[>=Latex,node distance=0.18cm,
- s/.style={rounded corners=4pt,draw,text width=1.9cm,minimum height=1.05cm,align=center,font=\fontsize{10.5}{12.5}\selectfont\bfseries,inner sep=3pt},
- a/.style={-{Stealth[length=2.4mm]},thick,darkblue}]
-\node[s,fill=warmgray] (p) {1\\Problema};
-\node[s,fill=lightblue,right=of p] (o) {2\\Objetivos de solución};
-\node[s,fill=softgreen,right=of o] (d) {3\\Diseño y desarrollo};
-\node[s,fill=softorange,right=of d] (m) {4\\Demostración};
-\node[s,fill=softred,right=of m] (e) {5\\Evaluación};
-\node[s,fill=warmgray,right=of e] (c) {6\\Comunicación};
-\draw[a] (p)--(o); \draw[a] (o)--(d); \draw[a] (d)--(m); \draw[a] (m)--(e); \draw[a] (e)--(c);
-\draw[a,dashed] (e.south) to[bend left=24] node[below,font=\fontsize{9}{10}\selectfont]{refinar} (d.south);
+\begin{tikzpicture}[
+ card/.style={rounded corners=5pt,draw,text width=5.35cm,minimum height=1.48cm,align=left,inner sep=5pt,font=\fontsize{8.3}{9.8}\selectfont}]
+\node[card,fill=softgreen,draw=teal] at (-3.15,1.65) {{\color{teal}\fontsize{10.5}{11.8}\selectfont\bfseries VI: factores modificados}\\[0.8mm]
+Mapa $\kx$ y patrón $P$ · contraste $C_k$ · extensión $f_h$ · proximidad $d_h/D$ · representación $R$.\\[0.5mm]
+Se configuran deliberadamente para contrastar su efecto.};
+
+\node[card,fill=lightblue,draw=darkblue] at (3.15,1.65) {{\color{darkblue}\fontsize{10.5}{11.8}\selectfont\bfseries Controles pareados}\\[0.8mm]
+Geometría y disposición · pérdidas $I^2R$ · contornos y dominio · $T_{\mathrm{amb}}$ y carga.\\[0.5mm]
+La configuración numérica se congela después del piloto.};
+
+\node[card,fill=softorange,draw=orange] at (-3.15,-1.05) {{\color{orange}\fontsize{10.5}{11.8}\selectfont\bfseries Metadatos registrados}\\[0.8mm]
+Semilla y convergencia · tolerancia FEM · incertidumbre documental · versión del código · tiempo, memoria y hardware.\\[0.5mm]
+Se registran para interpretar la evidencia; no se les atribuye el efecto físico.};
+
+\node[card,fill=softred,draw=unired] at (3.15,-1.05) {{\color{unired}\fontsize{10.5}{11.8}\selectfont\bfseries No son VI del estudio}\\[0.8mm]
+Épocas, lote, capas, neuronas, optimizador y tasa; tampoco las coordenadas $(x,y)$ ni las entradas mantenidas fijas.\\[0.5mm]
+Son hiperparámetros o características del modelo.};
+
+\node[rounded corners=4pt,draw=unired,fill=softred,text width=12.10cm,minimum height=0.68cm,align=center,inner sep=3.5pt,font=\fontsize{7.9}{9.3}\selectfont] at (0,-2.90)
+{\textbf{Regla de interpretación:} que una magnitud ingrese a la PINN no la convierte en variable independiente; solo lo es si se modifica deliberadamente para contrastar su efecto.};
 \end{tikzpicture}
-\vspace{0.03\paperheight}
-\begin{tikzpicture}
-\node[rounded corners=3pt,draw=darkblue,fill=lightblue,text width=3.55cm,minimum height=0.9cm,align=center,font=\fontsize{12}{14}\selectfont] at (-4.1,0) {\textbf{Verificación}\\analítica, manufacturada, FEM y publicada};
-\node[rounded corners=3pt,draw=teal,fill=softgreen,text width=3.55cm,minimum height=0.9cm,align=center,font=\fontsize{12}{14}\selectfont] at (0,0) {\textbf{Demostración}\\campos térmicos interpretables};
-\node[rounded corners=3pt,draw=unired,fill=softred,text width=3.55cm,minimum height=0.9cm,align=center,font=\fontsize{12}{14}\selectfont] at (4.1,0) {\textbf{Evaluación mediante verificación}\\exactitud, física, utilidad y reproducción};
+\source[\fontsize{6.3}{7.2}\selectfont]{Operacionalización del estudio y comparaciones pareadas; verificación de herramientas de ampacidad según \textcite{cigre2025} y trazabilidad DSR según \textcite{gregor2013}.}
+\note{Tiempo sugerido: 55 s. Distinguir factores, controles, condiciones registradas e hiperparámetros. La arquitectura queda fijada después del piloto.}
+\end{frame}
+
+% 21 ------------------------------------------------------------------------
+\begin{frame}{Variables dependientes 1/2}
+\centering
+\begin{tikzpicture}[
+ head/.style={rounded corners=4pt,draw=darkblue,fill=lightblue,text width=11.25cm,minimum height=0.72cm,align=center,inner sep=4pt,font=\fontsize{9.2}{10.8}\selectfont},
+ tag/.style={rounded corners=4pt,draw,text width=1.02cm,minimum height=1.18cm,align=center,inner sep=3pt,font=\fontsize{10.2}{11.5}\selectfont\bfseries},
+ body/.style={rounded corners=4pt,draw,text width=5.45cm,minimum height=1.18cm,align=left,inner sep=4pt,font=\fontsize{8.2}{9.7}\selectfont},
+ met/.style={rounded corners=4pt,draw,text width=4.38cm,minimum height=1.18cm,align=left,inner sep=4pt,font=\fontsize{8.0}{9.5}\selectfont}]
+\node[head] at (0,2.18) {\textbf{VD del artefacto: calidad técnica} = exactitud + consistencia física + robustez + reproducibilidad. Se observa mediante los resultados de cada objetivo.};
+
+\node[tag,fill=warmgray,draw=textgray!55] at (-5.52,0.83) {OE1};
+\node[body,fill=warmgray,draw=textgray!55] at (-1.82,0.83) {\textbf{Calidad de la especificación.} Cobertura de requisitos y trazabilidad requisito--prueba.};
+\node[met,fill=white,draw=textgray!45] at (3.60,0.83) {$C_R=100\,n_{\mathrm{req\text{-}prueba}}/n_{\mathrm{req}}$\\$C_R\in[0,100]\pct$; meta: requisitos críticos cubiertos.};
+
+\node[tag,fill=lightblue,draw=midblue] at (-5.52,-0.52) {OE2};
+\node[body,fill=lightblue,draw=midblue] at (-1.82,-0.52) {\textbf{Exactitud, física y robustez.} Error de $\Tmax$, NRMSE, residuo, balance energético y variabilidad entre semillas.};
+\node[met,fill=white,draw=midblue] at (3.60,-0.52) {$e_{T_{\max},\mathrm{PINN}}\leq5\pct$; NRMSE $\leq5\pct$; desequilibrio $\leq2\pct$. Umbrales iniciales.};
+
+\node[tag,fill=softgreen,draw=teal] at (-5.52,-1.87) {OE3};
+\node[body,fill=softgreen,draw=teal] at (-1.82,-1.87) {\textbf{Respuesta térmica.} $T(x,y)$, $\Tmax$, $\Delta\Tmax$ y localización del punto caliente $(x_h,y_h)$.};
+\node[met,fill=white,draw=teal] at (3.60,-1.87) {$\Delta\Tmax=T_{\max}^{\mathrm{het}}-T_{\max}^{\mathrm{hom}}\in\mathbb{R}\,{}^\circ$C.\\Operación admisible: $\Tmax\leq T_{\mathrm{lim}}$; $(x_h,y_h)\in\Omega_c$.};
 \end{tikzpicture}
-\source{DSRM adaptada de \textcite{peffers2007}; evaluación del artefacto según \textcite{gregor2013}; verificación numérica según \textcite{cigre2025}.}
-\note{No se expone. La plantilla pide incluir la metodología como respaldo. Aclarar, si preguntan, que la tesis verifica y no valida experimentalmente en campo.}
+\source[\fontsize{6.2}{7.1}\selectfont]{Correspondencia OE--indicadores del plan; criterios de verificación térmica según \textcite{cigre2025} y evaluación DSR según \textcite{gregor2013}.}
+\note{Tiempo sugerido: 65 s. Indicar qué resultado se observa en OE1--OE3, su forma de cálculo y los criterios iniciales de aceptación.}
+\end{frame}
+
+% 22 ------------------------------------------------------------------------
+\begin{frame}{Variables dependientes 2/2}
+\centering
+\begin{tikzpicture}[
+ tag/.style={rounded corners=5pt,draw,text width=1.02cm,minimum height=1.18cm,align=center,inner sep=3pt,font=\fontsize{10.2}{11.5}\selectfont\bfseries},
+ card/.style={rounded corners=5pt,draw,text width=4.03cm,minimum height=2.22cm,align=left,inner sep=6pt,font=\fontsize{8.25}{9.8}\selectfont},
+ formula/.style={rounded corners=4pt,draw=textgray!45,fill=warmgray,text width=5.30cm,minimum height=0.98cm,align=center,inner sep=4pt,font=\fontsize{9.2}{11.0}\selectfont}]
+\node[tag,fill=softorange,draw=orange,text=orange] at (-5.40,1.15) {OE4};
+\node[card,fill=softorange,draw=orange] at (-2.46,1.15) {{\color{orange}\fontsize{10.2}{11.5}\selectfont\bfseries Resultado operativo}\\[1.0mm]
+\textbf{Ampacidad $\Imax$:} corriente máxima compatible con $T_{\mathrm{lim}}$.\\[1mm]
+\textbf{Indicadores:} $\Imax>0$ A; $\Delta I\in\mathbb{R}\pct$; margen térmico $T_{\mathrm{lim}}-\Tmax$ en $^\circ$C.};
+\node[tag,fill=softred,draw=unired,text=unired] at (0.65,1.15) {OE5};
+\node[card,fill=softred,draw=unired] at (3.59,1.15) {{\color{unired}\fontsize{10.2}{11.5}\selectfont\bfseries Reproducibilidad y aporte}\\[1.0mm]
+\textbf{Resultados:} casos aceptados reproducidos, cobertura documental, límites de validez y principios de diseño.\\[1mm]
+\textbf{Indicador:} $C_{\mathrm{rep}}\in[0,100]\pct$; meta: casos aceptados reproducibles.};
+
+\node[formula] at (-3.02,-1.18) {$\displaystyle
+\begin{gathered}
+\Tmax(I)=\max_{(x,y)\in\Omega_c}T(x,y;I),\\[-0.4mm]
+\Imax=\max\!\left\{I:\Tmax(I)\leq T_{\mathrm{lim}}\right\}
+\end{gathered}$};
+\node[formula] at (3.02,-1.18) {$\displaystyle C_{\mathrm{rep}}=100\,\frac{n_{\mathrm{casos\ reproducidos}}}{n_{\mathrm{casos\ aceptados}}}$};
+
+\node[rounded corners=4pt,draw=darkblue,fill=lightblue,text width=11.25cm,minimum height=0.68cm,align=center,inner sep=3.5pt,font=\fontsize{8.3}{9.8}\selectfont] at (0,-2.58)
+{$\displaystyle \Delta I=100\,\frac{I_{\mathrm{het}}-I_{\mathrm{hom}}}{I_{\mathrm{hom}}}$\qquad
+La calidad del artefacto se juzga con el conjunto de resultados, no con una única salida numérica.};
+\end{tikzpicture}
+\source[\fontsize{6.0}{6.9}\selectfont]{Ampacidad según IEC 60287 \parencite{iec60287}; métricas y verificación según \textcite{cigre2025}; reproducibilidad y contribución DSR según \textcite{gregor2013}.}
+\note{Tiempo sugerido: 60 s. Explicar OE4 y OE5, sus rangos y fórmulas; los umbrales son criterios iniciales del proyecto, no valores universales de PINN.}
+\end{frame}
+
+% 23 ------------------------------------------------------------------------
+\begin{frame}{Metodología de la investigación 1/2}
+\centering
+\noexpone
+\vspace{0.008\paperheight}
+\begin{tikzpicture}[>=Latex,
+ chip/.style={rounded corners=4pt,draw,text width=3.48cm,minimum height=0.58cm,align=center,inner sep=3pt,font=\fontsize{8.6}{10.0}\selectfont\bfseries},
+ phase/.style={rounded corners=4pt,draw,text width=1.76cm,minimum height=1.52cm,align=center,inner sep=2.5pt,font=\fontsize{7.0}{8.2}\selectfont},
+ a/.style={-{Stealth[length=2.1mm]},line width=0.76pt,darkblue,shorten <=1pt,shorten >=1pt},
+ fb/.style={-{Stealth[length=1.9mm]},line width=0.68pt,dashed,unired}]
+\node[chip,fill=lightblue,draw=midblue,text=darkblue] at (-4.25,1.94) {Enfoque cuantitativo};
+\node[chip,fill=softgreen,draw=teal,text=teal] at (0,1.94) {Investigación aplicada y tecnológica};
+\node[chip,fill=softorange,draw=orange,text=orange] at (4.25,1.94) {Diseño: ciencia del diseño (DSR)};
+
+\node[phase,fill=warmgray,draw=textgray!55] (a1) at (-5.52,0.40) {\textbf{1. Identificación}\\sistema, brecha y entradas};
+\node[phase,fill=lightblue,draw=midblue] (a2) at (-3.31,0.40) {\textbf{2. Objetivos}\\requisitos y criterios};
+\node[phase,fill=softgreen,draw=teal] (a3) at (-1.10,0.40) {\textbf{3. Diseño y desarrollo}\\modelo y prototipo};
+\node[phase,fill=softorange,draw=orange] (a4) at (1.10,0.40) {\textbf{4. Demostración}\\referencias y escenarios};
+\node[phase,fill=softred,draw=unired] (a5) at (3.31,0.40) {\textbf{5. Evaluación}\\verificar, refinar o aceptar};
+\node[phase,fill=warmgray,draw=textgray!55] (a6) at (5.52,0.40) {\textbf{6. Comunicación}\\evidencia, límites y principios};
+\draw[a] (a1)--(a2); \draw[a] (a2)--(a3); \draw[a] (a3)--(a4);
+\draw[a] (a4)--(a5); \draw[a] (a5)--(a6);
+\draw[fb] (a5.south) to[bend left=23] node[below,font=\fontsize{6.7}{7.6}\selectfont,fill=white,inner sep=1.2pt]{refinamiento formativo} (a3.south);
+
+\node[rounded corners=4pt,draw=darkblue,fill=lightblue,text width=12.25cm,minimum height=0.72cm,align=center,inner sep=4pt,font=\fontsize{8.2}{9.7}\selectfont] at (0,-1.73)
+{\textbf{Hito metodológico:} cada incremento del artefacto debe superar pruebas físicas y numéricas antes de emplearse en la demostración; si no cumple los criterios, retorna al diseño.};
+\end{tikzpicture}
+\source[\fontsize{6.1}{7.0}\selectfont]{Proceso DSRM adaptado de \textcite{peffers2007}; evaluación y conocimiento de diseño según \textcite{gregor2013}; refinamiento formativo según \textcite{delport2024}.}
+\note{Material de respaldo. Exponer brevemente los hitos o fases del método de solución si se solicita, como indica la plantilla.}
+\end{frame}
+
+% 24 ------------------------------------------------------------------------
+\begin{frame}{Metodología de la investigación 2/2}
+\centering
+\vspace{-0.004\paperheight}
+\begin{tikzpicture}[
+ card/.style={rounded corners=5pt,draw,text width=5.25cm,minimum height=1.38cm,align=left,inner sep=4.5pt,font=\fontsize{6.85}{8.15}\selectfont}]
+\node[card,fill=lightblue,draw=midblue] at (-3.12,1.63) {{\color{darkblue}\fontsize{9.2}{10.4}\selectfont\bfseries Unidad de análisis e intervención}\\[0.6mm]
+Sección transversal 2D del arreglo de cables--entorno térmico; no es una población estadística. Cada caso fija geometría, materiales, carga, contornos, referencia y versión. El artefacto PINN es la unidad de intervención.};
+
+\node[card,fill=softgreen,draw=teal] at (3.12,1.63) {{\color{teal}\fontsize{9.2}{10.4}\selectfont\bfseries Casos y comparación controlada}\\[0.6mm]
+Soluciones analíticas o manufacturadas, FEM convergente, configuraciones publicadas y escenarios representativos. Las comparaciones son pareadas: al estudiar heterogeneidad solo cambia la representación térmica $\kx$.};
+
+\node[card,fill=softorange,draw=orange] at (-3.12,-0.75) {{\color{orange}\fontsize{9.2}{10.4}\selectfont\bfseries Evidencia, instrumentos y trazabilidad}\\[0.6mm]
+Matriz bibliográfica, requisitos, catálogo de casos, bitácora DSR, archivos parametrizados, pruebas, matriz de resultados y protocolo de reproducción. Se registran fuente, unidad, supuesto, semilla, versión y convergencia.};
+
+\node[card,fill=softred,draw=unired] at (3.12,-0.75) {{\color{unired}\fontsize{9.2}{10.4}\selectfont\bfseries Evaluación mediante verificación}\\[0.6mm]
+Exactitud, consistencia física, utilidad, robustez y reproducibilidad. Reglas iniciales: $e_{T_{\max}}\leq5\pct$, NRMSE $\leq5\pct$ y desequilibrio energético $\leq2\pct$; el incumplimiento obliga a refinar.};
+
+\node[rounded corners=4pt,draw=unired,fill=softred,text width=12.25cm,minimum height=0.68cm,align=center,inner sep=3.2pt,font=\fontsize{7.2}{8.55}\selectfont] at (0,-2.46)
+{\textbf{Alcance:} evaluación con cálculos y referencias independientes; no se realizarán mediciones directas ni validación experimental de campo, y no se busca inferencia probabilística sobre todas las instalaciones.};
+\end{tikzpicture}
+\source[\fontsize{5.9}{6.8}\selectfont]{Metodología DSR según \textcite{peffers2007} y \textcite{gregor2013}; verificación térmica según \textcite{cigre2025}; línea base normativa IEC 60287 \parencite{iec60287}.}
+\note{Material de respaldo. Explicar unidad de análisis, casos, instrumentos y que la evaluación corresponde exclusivamente a verificación, no a validación de campo.}
 \end{frame}
 
 % 21 ------------------------------------------------------------------------
 \begin{frame}{Matriz de consistencia}
 \centering
-\fontsize{8.8}{10.2}\selectfont
-\renewcommand{\arraystretch}{1.08}
-\setlength{\tabcolsep}{3pt}
-\begin{tabularx}{0.985\textwidth}{C{0.60cm}Y Y Y Y}
-\toprule
-& \textbf{Problema específico} & \textbf{Objetivo / producto} & \textbf{Factor principal} & \textbf{Resultado verificable}\\
-\midrule
-1 & Representación física no formalizada & Especificar requisitos / D1 & Geometría, materiales, $\kx$ & Cobertura requisito--prueba\\
-2 & Referencias no integradas & Construir y verificar / D2 & Tipo de referencia & Error, residuo y balance\\
-3 & Efecto térmico no cuantificado & Evaluar escenarios / D3 & $C_k$, patrón, extensión, proximidad & $T(x,y)$, $\Tmax$, punto caliente\\
-4 & Discrepancia de ampacidad desconocida & Comparar $\Imax$ / D4 & Homogéneo vs. heterogéneo & $\Imax$, $\Delta I$, margen\\
-5 & Procedimiento no sistematizado & Formular principios y protocolo & Evidencia y límites & Casos reproducibles y guía\\
-\bottomrule
-\end{tabularx}
-\source{Síntesis de las matrices de consistencia y operacionalización del plan; lógica DSR de \textcite{peffers2007}.}
-\note{Tiempo sugerido: 70 s. Recorrer una fila completa y luego mostrar que las otras siguen el mismo patrón.}
+\begin{tikzpicture}[>=Latex,
+ pe/.style={rounded corners=3pt,draw=unired,fill=softred,text width=2.42cm,minimum height=0.60cm,align=center,inner sep=2.5pt,font=\fontsize{6.35}{7.3}\selectfont},
+ oe/.style={rounded corners=3pt,draw=midblue,fill=lightblue,text width=2.52cm,minimum height=0.60cm,align=center,inner sep=2.5pt,font=\fontsize{6.35}{7.3}\selectfont},
+ fac/.style={rounded corners=3pt,draw=teal,fill=softgreen,text width=2.42cm,minimum height=0.60cm,align=center,inner sep=2.5pt,font=\fontsize{6.35}{7.3}\selectfont},
+ res/.style={rounded corners=3pt,draw=orange,fill=softorange,text width=3.28cm,minimum height=0.60cm,align=center,inner sep=2.5pt,font=\fontsize{6.35}{7.3}\selectfont},
+ a/.style={-{Stealth[length=1.8mm]},line width=0.68pt,darkblue,shorten <=1pt,shorten >=1pt}]
+\node[rounded corners=4pt,draw=darkblue,fill=lightblue,text width=12.35cm,minimum height=0.68cm,align=center,inner sep=3.5pt,font=\fontsize{7.25}{8.45}\selectfont] at (0,2.42)
+{\textbf{PG:} efecto de $\kx$ no cuantificado de forma reproducible $\longrightarrow$ \textbf{OG:} diseñar y evaluar una PINN 2D $\longrightarrow$ \textbf{Producto general:} protocolo, dominio, criterios y repositorio.};
+
+\node[font=\fontsize{7.4}{8.5}\selectfont\bfseries,text=unired] at (-4.95,1.70) {Problema específico};
+\node[font=\fontsize{7.4}{8.5}\selectfont\bfseries,text=darkblue] at (-1.95,1.70) {Objetivo específico};
+\node[font=\fontsize{7.4}{8.5}\selectfont\bfseries,text=teal] at (1.05,1.70) {Factor o entrada};
+\node[font=\fontsize{7.4}{8.5}\selectfont\bfseries,text=orange] at (4.48,1.70) {Producto / resultado verificable};
+
+\foreach \y in {1.12,0.28,-0.56,-1.40,-2.24}{
+  \draw[a] (-3.54,\y)--(-3.28,\y);
+  \draw[a] (-0.47,\y)--(-0.23,\y);
+  \draw[a] (2.45,\y)--(2.69,\y);
+}
+\node[pe] at (-4.95,1.12) {\textbf{PE1}\\Representación física no formalizada};
+\node[oe] at (-1.95,1.12) {\textbf{OE1}\\Especificar entradas y requisitos};
+\node[fac] at (1.05,1.12) {Geometría · materiales · $\kx$};
+\node[res] at (4.48,1.12) {Requisitos · catálogo · trazabilidad requisito--prueba};
+
+\node[pe] at (-4.95,0.28) {\textbf{PE2}\\Referencias no integradas};
+\node[oe] at (-1.95,0.28) {\textbf{OE2}\\Construir y verificar};
+\node[fac] at (1.05,0.28) {Tipo y calidad de referencia};
+\node[res] at (4.48,0.28) {Benchmarks · errores · residuos · balance};
+
+\node[pe] at (-4.95,-0.56) {\textbf{PE3}\\Efecto térmico no cuantificado};
+\node[oe] at (-1.95,-0.56) {\textbf{OE3}\\Evaluar escenarios};
+\node[fac] at (1.05,-0.56) {$C_k$ · patrón $P$ · $f_h$ · $d_h/D$};
+\node[res] at (4.48,-0.56) {Mapas $\kx$, $T(x,y)$ · $\Delta\Tmax$ · sensibilidad};
+
+\node[pe] at (-4.95,-1.40) {\textbf{PE4}\\Discrepancia de ampacidad desconocida};
+\node[oe] at (-1.95,-1.40) {\textbf{OE4}\\Comparar ampacidad};
+\node[fac] at (1.05,-1.40) {Representación $R$: heterogénea / homogénea};
+\node[res] at (4.48,-1.40) {$\Imax$ · $\Delta I$ · margen · casos críticos};
+
+\node[pe] at (-4.95,-2.24) {\textbf{PE5}\\Procedimiento no sistematizado};
+\node[oe] at (-1.95,-2.24) {\textbf{OE5}\\Formular procedimiento y principios};
+\node[fac] at (1.05,-2.24) {Evidencia · métricas · límites};
+\node[res] at (4.48,-2.24) {Repositorio · guía · principios · reproducibilidad};
+\end{tikzpicture}
+\source[\fontsize{5.9}{6.8}\selectfont]{Síntesis de las matrices de consistencia y operacionalización del plan; articulación y evaluación DSR según \textcite{peffers2007} y \textcite{gregor2013}.}
+\note{Recorrer una fila completa de izquierda a derecha y luego mostrar que las demás conservan la misma correspondencia lógica.}
 \end{frame}
 
 \section{Cierre}
@@ -1143,63 +1356,140 @@ NRMSE\\[1mm]balance de energía\\[1mm]robustez\\[1mm]reproducibilidad};
 % 22 ------------------------------------------------------------------------
 \begin{frame}{Conclusiones del plan}
 \centering
-\begin{tikzpicture}[
- c/.style={rounded corners=5pt,draw,text width=5.15cm,minimum height=1.22cm,align=left,font=\fontsize{11.5}{13.5}\selectfont,inner sep=5pt}]
-\node[c,fill=lightblue,draw=midblue] at (-3.00,1.30) {\textbf{Contexto real.} El SEIN integra más demanda, nueva generación y cables enterrados.};
-\node[c,fill=softorange,draw=orange] at (3.00,1.30) {\textbf{Evidencia.} Cuatro estudios reportan reducciones de $\Imax$ entre 5\pct{} y 57\pct{} dentro de cada caso.};
-\node[c,fill=softred,draw=unired] at (-3.00,-1.15) {\textbf{Brecha.} Determinar cuándo la heterogeneidad vuelve insuficiente el entorno homogéneo.};
-\node[c,fill=softgreen,draw=teal] at (3.00,-1.15) {\textbf{Contribución.} PINN verificada, evidencia térmica y procedimiento reproducible con límites.};
+\begin{tikzpicture}[>=Latex,
+ concept/.style={rounded corners=4pt,draw,text width=2.28cm,minimum height=0.68cm,align=center,inner sep=3pt,font=\fontsize{9.0}{10.4}\selectfont\bfseries},
+ c/.style={rounded corners=5pt,draw,text width=3.78cm,minimum height=2.25cm,align=left,font=\fontsize{7.45}{8.85}\selectfont,inner sep=5pt},
+ a/.style={-{Stealth[length=2.1mm]},line width=0.78pt,darkblue}]
+\node[concept,fill=softgreen,draw=teal] (k) at (-4.72,2.02) {Conductividad $\kx$};
+\node[concept,fill=lightblue,draw=midblue] (t) at (-1.57,2.02) {Campo $T(x,y)$};
+\node[concept,fill=softorange,draw=orange] (tm) at (1.57,2.02) {Temperatura $\Tmax$};
+\node[concept,fill=softred,draw=unired] (im) at (4.72,2.02) {Ampacidad $\Imax$};
+\draw[a] (k)--node[above=1.5pt,font=\fontsize{6.2}{7.0}\selectfont]{condiciona}(t);
+\draw[a] (t)--node[above=1.5pt,font=\fontsize{6.2}{7.0}\selectfont]{determina}(tm);
+\draw[a] (tm)--node[above=1.5pt,font=\fontsize{6.2}{7.0}\selectfont]{limita}(im);
+
+\node[c,fill=softgreen,draw=teal] at (-4.20,-0.35) {\textbf{Relación física.} La ampacidad no es una propiedad aislada del cable: depende de cómo $\kx$ conduce el calor y modifica $T(x,y)$ y $\Tmax$. Por ello, cable y entorno forman el objeto de estudio.};
+\node[c,fill=softorange,draw=orange] at (0,-0.35) {\textbf{Relación de representación.} Un valor homogéneo sustituye la distribución espacial; una zona local de baja $k$ puede quedar oculta. Por ello, el efecto debe estimarse mediante comparaciones heterogéneo--homogéneo con controles fijos.};
+\node[c,fill=lightblue,draw=midblue] at (4.20,-0.35) {\textbf{Relación artefacto--evidencia.} Incorporar PDE, interfaces y $\kx$ permite aproximar el campo, pero no demuestra exactitud. La aceptación requiere referencias independientes, residuos, balance, robustez y trazabilidad dentro de DSR.};
+
+\node[rounded corners=4pt,draw=textgray!45,fill=warmgray,text width=12.25cm,minimum height=0.60cm,align=center,inner sep=3pt,font=\fontsize{7.1}{8.3}\selectfont] at (0,-2.18)
+{Estas conclusiones describen relaciones sustentadas por el plan y la literatura; el desempeño cuantitativo del artefacto se establecerá durante la ejecución de Tesis 2.};
 \end{tikzpicture}
-\source{Conclusiones derivadas de COES y MINEM \parencite{coesEstadisticasAnuales,coesMaximaDemanda,minem2025indicadoresDiciembre}; evidencia térmica \parencite{khumalo2025,ariasVelasquez2023,atoccsa2024,kim2025}; alcance según \textcite{cigre2025}.}
-\note{Tiempo sugerido: 60 s. Cerrar la cadena: contexto, evidencia, brecha y contribución. No presentar expectativas como resultados consumados.}
+\source[\fontsize{5.8}{6.7}\selectfont]{Relación térmica y heterogeneidad \parencite{enescu2021,khumalo2025,cigre2025}; formulación PINN según \textcite{raissi2019}; evaluación y conocimiento de diseño según \textcite{gregor2013}.}
+\note{Presentar las conclusiones como relaciones justificadas, no como resultados ya obtenidos ni como opiniones.}
 \end{frame}
 
 % 23 ------------------------------------------------------------------------
-\begin{frame}{Recomendaciones y límites}
+\begin{frame}{Recomendaciones}
 \centering
-\begin{tikzpicture}[
- card/.style={rounded corners=5pt,draw,text width=5.55cm,minimum height=3.80cm,align=left,inner sep=8pt,font=\fontsize{13}{16}\selectfont}]
-\node[card,fill=softgreen,draw=teal] at (-3.25,0) {{\color{teal}\fontsize{16}{18}\selectfont\bfseries Mantener}\\[3mm]
-\textcolor{teal}{\textbullet}\ Comparaciones pareadas.\\[2mm]
-\textcolor{teal}{\textbullet}\ Criterios fijados antes del resultado final.\\[2mm]
-\textcolor{teal}{\textbullet}\ Referencias y trazabilidad independientes.};
-\node[card,fill=softred,draw=unired] at (3.25,0) {{\color{unired}\fontsize{16}{18}\selectfont\bfseries No prometer}\\[3mm]
-\textcolor{unired}{\textbullet}\ Reemplazar IEC o FEM.\\[2mm]
-\textcolor{unired}{\textbullet}\ Generalizar fuera del dominio 2D.\\[2mm]
-\textcolor{unired}{\textbullet}\ Validación de campo o física acoplada.};
+\begin{tikzpicture}[>=Latex,
+ stage/.style={rounded corners=4pt,draw,text width=2.12cm,minimum height=1.15cm,align=center,inner sep=3pt,font=\fontsize{7.0}{8.15}\selectfont},
+ card/.style={rounded corners=5pt,draw,text width=5.55cm,minimum height=1.65cm,align=left,inner sep=5pt,font=\fontsize{7.45}{8.85}\selectfont},
+ a/.style={-{Stealth[length=2.0mm]},line width=0.74pt,darkblue}]
+\node[stage,fill=warmgray,draw=textgray!55] (s1) at (-5.10,1.78) {\textbf{1. Especificar}\\aprobar alcance, requisitos y referencias};
+\node[stage,fill=lightblue,draw=midblue] (s2) at (-2.55,1.78) {\textbf{2. Implementar}\\PDE, interfaces y caso base};
+\node[stage,fill=softgreen,draw=teal] (s3) at (0,1.78) {\textbf{3. Pilotar}\\ajustar y congelar el protocolo};
+\node[stage,fill=softorange,draw=orange] (s4) at (2.55,1.78) {\textbf{4. Ejecutar}\\escenarios pareados y ampacidad};
+\node[stage,fill=softred,draw=unired] (s5) at (5.10,1.78) {\textbf{5. Sintetizar}\\límites, principios y repositorio};
+\draw[a] (s1)--(s2); \draw[a] (s2)--(s3); \draw[a] (s3)--(s4); \draw[a] (s4)--(s5);
+
+\node[card,fill=softgreen,draw=teal] at (-3.15,-0.38) {{\color{teal}\fontsize{10.0}{11.3}\selectfont\bfseries Controles de ejecución}\\[0.8mm]
+Verificar primero casos simples con referencias independientes; registrar semilla, versión, hardware y convergencia; fijar criterios antes de la campaña final. Si los 108 escenarios exceden los recursos, priorizar patrones críticos y justificar la fracción antes de observar resultados.};
+\node[card,fill=softred,draw=unired] at (3.15,-0.38) {{\color{unired}\fontsize{10.0}{11.3}\selectfont\bfseries Límites que deben preservarse}\\[0.8mm]
+Dominio principalmente 2D estacionario; pérdidas Joule como fuente; sin humedad acoplada ni envejecimiento. La evaluación es verificación, no validación de campo; IEC y FEM permanecen como referencias y no como métodos que la PINN deba reemplazar.};
+
+\node[rounded corners=4pt,draw=darkblue,fill=lightblue,text width=12.25cm,minimum height=0.62cm,align=center,inner sep=3pt,font=\fontsize{7.0}{8.2}\selectfont] at (0,-2.18)
+{\textbf{Puertas de decisión:} alcance aprobado $\rightarrow$ trazabilidad revisada $\rightarrow$ verificación básica $\rightarrow$ protocolo congelado $\rightarrow$ cobertura y calidad $\rightarrow$ aceptación del artefacto.};
 \end{tikzpicture}
-\source{Delimitación y estrategia del plan; refinamiento DSR de \textcite{peffers2007} y criterios de verificación de \textcite{cigre2025}.}
-\note{Tiempo sugerido: 45 s. Mostrar dominio del alcance: una defensa sólida también declara lo que la tesis no hará.}
+\source[\fontsize{5.8}{6.7}\selectfont]{Etapas y puertas del plan; refinamiento DSR según \textcite{peffers2007} y \textcite{delport2024}; verificación de herramientas térmicas según \textcite{cigre2025}.}
+\note{Presentar como ruta de implementación para Tesis 2: cada etapa produce evidencia y solo avanza cuando supera su puerta de decisión.}
 \end{frame}
 
+% Referencias en formato legible, sin iconos y con vínculos directos.
+\newcommand{\refentry}[3]{%
+  \noindent\begin{minipage}{0.965\linewidth}
+  \fontsize{7.8}{9.2}\selectfont
+  \textbf{\citeauthor{#1} (\citeyear{#1}).} \citetitle{#1}.\\[-0.3mm]
+  \href{#2}{\textcolor{midblue}{\nolinkurl{#3}}}
+  \end{minipage}\par\vspace{0.45mm}
+  {\color{midblue!30}\rule{0.965\linewidth}{0.35pt}}\par\vspace{0.45mm}
+}
+
 % 24 ------------------------------------------------------------------------
-\begin{frame}{Referencias científicas}
-\noexpone
-\begingroup
-\renewcommand*{\bibfont}{\fontsize{6.1}{6.8}\selectfont}
-\begin{multicols}{2}
-\printbibliography[heading=none,type=article]
-\end{multicols}
-\endgroup
-\note{No se expone. Contiene solo los artículos citados en la presentación.}
+\begin{frame}{Referencias}
+\textcolor{midblue}{\fontsize{10.0}{11.5}\selectfont\bfseries Cables enterrados y entorno térmico}\hfill\noexpone
+\vspace{1.2mm}
+
+\refentry{ariasVelasquez2023}{https://doi.org/10.1016/j.rineng.2023.101552}{doi.org/10.1016/j.rineng.2023.101552}
+\refentry{atoccsa2024}{https://doi.org/10.3390/en17051023}{doi.org/10.3390/en17051023}
+\refentry{enescu2021}{https://doi.org/10.3390/en14092591}{doi.org/10.3390/en14092591}
+\refentry{khumalo2025}{https://doi.org/10.1155/etep/5946564}{doi.org/10.1155/etep/5946564}
+\refentry{kim2025}{https://doi.org/10.1016/j.geothermics.2024.103151}{doi.org/10.1016/j.geothermics.2024.103151}
+\note{No se expone. Referencias sobre cables enterrados, ampacidad y heterogeneidad del entorno térmico.}
 \end{frame}
 
 % 25 ------------------------------------------------------------------------
-\begin{frame}{Normas, informes y repositorio}
-\noexpone
-\vspace{0.005\paperheight}
-{\fontsize{7.8}{9}\selectfont
-\textbf{Repositorio documental del proyecto:}\\[-1mm]
-\url{https://drive.google.com/drive/folders/1t_vPJ7YbWgOVJ2CKJ4A22lGIAcpq6uH5?usp=drive_link}
-}
-\vspace{0.004\paperheight}
-\begingroup
-\renewcommand*{\bibfont}{\fontsize{5.0}{5.4}\selectfont}
-\begin{multicols}{3}
-\printbibliography[heading=none,nottype=article]
-\end{multicols}
-\endgroup
-\note{No se expone. Contiene las normas, informes, estadísticas y el enlace al repositorio solicitado.}
+\begin{frame}{Referencias}
+\textcolor{midblue}{\fontsize{10.0}{11.5}\selectfont\bfseries PINN y metodología de investigación}\hfill\noexpone
+\vspace{2.0mm}
+
+\refentry{raissi2019}{https://doi.org/10.1016/j.jcp.2018.10.045}{doi.org/10.1016/j.jcp.2018.10.045}
+\refentry{peffers2007}{https://doi.org/10.2753/MIS0742-1222240302}{doi.org/10.2753/MIS0742-1222240302}
+\refentry{gregor2013}{https://doi.org/10.25300/MISQ/2013/37.2.01}{doi.org/10.25300/MISQ/2013/37.2.01}
+\refentry{delport2024}{https://doi.org/10.1016/j.procs.2024.05.096}{doi.org/10.1016/j.procs.2024.05.096}
+\note{No se expone. Referencias de la formulación PINN y del enfoque DSR.}
+\end{frame}
+
+% 26 ------------------------------------------------------------------------
+\begin{frame}{Referencias}
+\textcolor{midblue}{\fontsize{10.0}{11.5}\selectfont\bfseries Normas e informe técnico}\hfill\noexpone
+\vspace{1.2mm}
+
+\refentry{cigre2025}{https://www.e-cigre.org/publications/detail/963-finite-element-analysis-for-cable-rating-calculations.html}{e-cigre.org/publications/detail/963}
+\refentry{iec60287}{https://webstore.iec.ch/en/publication/68118}{webstore.iec.ch/en/publication/68118}
+\refentry{iec60853}{https://webstore.iec.ch/en/publication/3712}{webstore.iec.ch/en/publication/3712}
+\refentry{iec60502_2_2014}{https://webstore.iec.ch/en/publication/2272}{webstore.iec.ch/en/publication/2272}
+\refentry{ieee442}{https://ieeexplore.ieee.org/document/8353815}{ieeexplore.ieee.org/document/8353815}
+\note{No se expone. Normas e informe técnico empleados para definiciones, cálculos y verificación.}
+\end{frame}
+
+% 27 ------------------------------------------------------------------------
+\begin{frame}{Referencias}
+\textcolor{midblue}{\fontsize{10.0}{11.5}\selectfont\bfseries Sistema eléctrico peruano}\hfill\noexpone
+\vspace{1.8mm}
+
+\refentry{coes2021puntaLomitasEO}{https://www.coes.org.pe/portal/browser/download?url=Planificaci\%C3\%B3n\%2FNuevos+Proyectos\%2FResumen+Ejecutivo\%2FEOs\%2F2022\%2F2.+Resumen+Ejecutivo.pdf}{coes.org.pe/portal/planificacion/punta-lomitas}
+\refentry{coes2022planTransmision2023_2032}{https://www.coes.org.pe/portal/browser/download?url=Planificaci\%C3\%B3n\%2FPlan+de+Transmision\%2FActualizaci\%C3\%B3n+Plan+de+Transmisi\%C3\%B3n+2023+-+2032\%2F09.+PT+2023-2032+\%28Definitiva\%29\%2FVolumen+I\%2FInforme+COES-DP+02-2022.pdf}{coes.org.pe/portal/planificacion/plan-2023-2032}
+\refentry{proinversion2026palian}{https://vertix.proinversion.gob.pe/RepositorioAPS0/0/2/jer/IE/3-_VF-CC_-_NSE-P_-_DEP-132__cp_25-05-26_.pdf}{vertix.proinversion.gob.pe/RepositorioAPS0/Palian}
+\refentry{coesEstadisticasAnuales}{https://www.coes.org.pe/Portal/publicaciones/estadisticas/}{coes.org.pe/Portal/publicaciones/estadisticas}
+\note{No se expone. Planificación, proyectos y estadísticas del SEIN.}
+\end{frame}
+
+% 28 ------------------------------------------------------------------------
+\begin{frame}{Referencias}
+\textcolor{midblue}{\fontsize{10.0}{11.5}\selectfont\bfseries Información oficial del Perú}\hfill\noexpone
+\vspace{1.2mm}
+
+\refentry{coesMaximaDemanda}{https://www.coes.org.pe/Portal/medidores/MaximaDemanda/index}{coes.org.pe/Portal/medidores/MaximaDemanda}
+\refentry{minem2025anuario2024}{https://www.gob.pe/institucion/minem/informes-publicaciones/7324144-anuario-estadistico-de-electricidad-2024}{gob.pe/minem/anuario-estadistico-electricidad-2024}
+\refentry{minem2025indicadoresDiciembre}{https://www.gob.pe/institucion/minem/informes-publicaciones/6912321-principales-indicadores-del-subsector-electrico-2025-a-nivel-nacional}{gob.pe/minem/indicadores-subsector-electrico-2025}
+\refentry{minem2024nuevasRER}{https://www.gob.pe/institucion/minem/noticias/927159-minem-4-centrales-electricas-rer-anadiran-507-megavatios-de-potencia-al-sein-este-2024}{gob.pe/minem/centrales-RER-2024}
+\refentry{minem2025nuevasCentrales}{https://www.gob.pe/institucion/minem/noticias/1327736-minem-afianza-el-fortalecimiento-de-la-generacion-electrica-con-nuevas-centrales-por-mas-de-717-mw-durante-2025}{gob.pe/minem/nuevas-centrales-2025}
+\note{No se expone. Estadísticas y notas institucionales empleadas para contextualizar la problemática.}
+\end{frame}
+
+% 29 ------------------------------------------------------------------------
+\begin{frame}{Información complementaria del proyecto}
+\centering
+\vspace{0.55cm}
+\begin{tikzpicture}
+\node[rounded corners=7pt,draw=midblue,line width=0.9pt,fill=lightblue,text width=10.9cm,minimum height=3.15cm,align=center,inner sep=10pt]
+{\fontsize{17}{20}\selectfont\bfseries Repositorio documental\\[3mm]
+\fontsize{10.5}{12.5}\selectfont Plan de tesis, bibliografía, gráficos, resultados y material complementario.\\[5mm]
+\href{https://drive.google.com/drive/folders/1t_vPJ7YbWgOVJ2CKJ4A22lGIAcpq6uH5?usp=drive_link}{\colorbox{midblue}{\parbox{6.5cm}{\centering\color{white}\fontsize{11}{13}\selectfont\bfseries Abrir carpeta en Google Drive}}}\\[4mm]
+\href{https://drive.google.com/drive/folders/1t_vPJ7YbWgOVJ2CKJ4A22lGIAcpq6uH5?usp=drive_link}{\textcolor{midblue}{\fontsize{7.6}{9}\selectfont drive.google.com/drive/folders/1t\_vPJ7YbWgOVJ2CKJ4A22lGIAcpq6uH5}}};
+\end{tikzpicture}
+\note{El enlace conduce a la carpeta de Google Drive indicada en la última página del plan de tesis.}
 \end{frame}
 
 \end{document}
