@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import subprocess
+import os
 from pathlib import Path
 
 
@@ -8,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT_DIR = ROOT / "Entrega_Google_Drive" / "02_ejemplos_datos_objeto_estudio"
 MD_PATH = OUT_DIR / "Informe_datos_casos_estudio_papers.md"
 TEX_PATH = OUT_DIR / "Informe_datos_casos_estudio_papers.tex"
+PANDOC_EXE = os.environ.get("THESIS_PANDOC_EXE", "pandoc")
 
 
 PREAMBLE = r"""% !TeX program = lualatex
@@ -33,6 +35,8 @@ PREAMBLE = r"""% !TeX program = lualatex
 \usepackage{setspace}
 \onehalfspacing
 \usepackage{microtype}
+\usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{booktabs}
 \usepackage{longtable}
 \usepackage{array}
@@ -46,19 +50,20 @@ PREAMBLE = r"""% !TeX program = lualatex
 \usepackage{colortbl}
 \usepackage[hidelinks]{hyperref}
 \usepackage{bookmark}
+\newcounter{none}
 
 \definecolor{unired}{HTML}{8B1A1A}
 \definecolor{darkblue}{HTML}{17365D}
 \definecolor{lightgray}{HTML}{F2F2F2}
 
 \hypersetup{
-  pdftitle={Informe de datos de casos de estudio extraídos de papers},
+  pdftitle={Informe de datos de casos de estudio y referencias de verificación térmica},
   pdfauthor={Luis Enrique Koc Góngora y Herbert Antonio Meléndez García},
-  pdfsubject={Parte 2 - Ejemplos de datos recolectados del objeto de estudio}
+  pdfsubject={Ejemplos de datos recolectados del objeto de estudio}
 }
 
 \newcommand{\tesisbodyfont}{\fontsize{11}{13.6}\selectfont}
-\setlength{\parindent}{1.25cm}
+\setlength{\parindent}{0pt}
 \setlength{\parskip}{12pt}
 \setlength{\emergencystretch}{3em}
 \renewcommand{\arraystretch}{1.18}
@@ -118,8 +123,7 @@ PREAMBLE = r"""% !TeX program = lualatex
 \pagestyle{tesis}
 
 \newcommand{\tituloTesis}{Diseño y evaluación de una red neuronal informada por física para estimar la temperatura y la ampacidad en cables enterrados con heterogeneidad térmica}
-\newcommand{\tituloInforme}{Informe de datos de casos de estudio extraídos de papers}
-\newcommand{\subtituloInforme}{Parte 2 -- Ejemplos de datos recolectados del objeto de estudio}
+\newcommand{\tituloInforme}{Informe de datos de casos de estudio y referencias de verificación térmica}
 
 \begin{document}
 \tesisbodyfont
@@ -129,14 +133,17 @@ PREAMBLE = r"""% !TeX program = lualatex
 {\fontsize{9}{10.8}\selectfont\MakeUppercase{\tituloTesis}\par}
 \vspace{0.35cm}
 {\fontsize{14}{16.8}\selectfont\bfseries\MakeUppercase{\tituloInforme}\par}
-\vspace{0.25cm}
-{\fontsize{11}{13.2}\selectfont\bfseries \subtituloInforme\par}
+\vspace{0.35cm}
+{\fontsize{11}{13.2}\selectfont\bfseries ELABORADO POR:\par}
+\vspace{0.12cm}
+{\fontsize{11}{13.2}\selectfont\bfseries LUIS ENRIQUE KOC GÓNGORA\par}
+{\fontsize{11}{13.2}\selectfont\bfseries HERBERT ANTONIO MELÉNDEZ GARCÍA\par}
 \end{center}
 
 \vspace{0.45cm}
 \noindent\textbf{Documento base:} Plan de tesis sobre el sistema cable--instalación--entorno térmico en cables eléctricos subterráneos.
 
-\noindent\textbf{Propósito del informe:} organizar, en formato narrativo y tabular, los datos de instalación de cables y casos de estudio extraídos de los papers usados en el documento.
+\noindent\textbf{Propósito del informe:} organizar las instancias físicas del objeto de estudio y los casos normativos, numéricos, analíticos y manufacturados que verifican el artefacto PINN.
 """
 
 
@@ -151,10 +158,6 @@ def strip_top_title(markdown: str) -> str:
         lines = lines[1:]
         while lines and not lines[0].strip():
             lines = lines[1:]
-    if lines and lines[0].startswith("**Parte 2"):
-        lines = lines[1:]
-        while lines and not lines[0].strip():
-            lines = lines[1:]
     return "\n".join(lines).strip() + "\n"
 
 
@@ -166,10 +169,10 @@ def widen_summary_table(body: str) -> str:
     if top_rule < 0:
         return body
     custom = r"""\begin{longtable}[]{@{}
-  >{\RaggedRight\arraybackslash}p{0.11\linewidth}
+  >{\RaggedRight\arraybackslash}p{0.13\linewidth}
   >{\RaggedRight\arraybackslash}p{0.14\linewidth}
-  >{\RaggedRight\arraybackslash}p{0.36\linewidth}
-  >{\RaggedRight\arraybackslash}p{0.34\linewidth}@{}}
+  >{\RaggedRight\arraybackslash}p{0.34\linewidth}
+  >{\RaggedRight\arraybackslash}p{0.33\linewidth}@{}}
 """
     return body[:start] + custom + body[top_rule:]
 
@@ -179,7 +182,7 @@ def main() -> None:
     body_markdown = strip_top_title(source)
     proc = subprocess.run(
         [
-            "pandoc",
+            PANDOC_EXE,
             "--from",
             "markdown+pipe_tables",
             "--to",
@@ -201,6 +204,13 @@ def main() -> None:
         "atoccsa2024": r"atoccsa\-2024",
         "oclon2015": r"oclon\-2015",
         "aras2005": r"aras\-2005",
+        r"cigre2022\_case0": r"cigre\-2022\_case0",
+        r"cigre2025\_case1": r"cigre\-2025\_case1",
+        r"iec60853\_annexA": r"iec\-60853\_annexA",
+        r"pan2025\_plate": r"pan\-2025\_plate",
+        r"cigre2025\_annulus": r"cigre\-2025\_annulus",
+        r"hahn2012\_rect": r"hahn\-2012\_rect",
+        r"mms2d\_suite": r"mms\-2d\_suite",
     }.items():
         body = body.replace(key, wrapped)
     TEX_PATH.write_text(PREAMBLE + "\n\n" + body + "\n" + ENDING, encoding="utf-8")
