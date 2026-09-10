@@ -78,10 +78,9 @@ def make_input_channels(
         k_vals = k_fn(xy_flat).reshape(N_g, N_g)
     else:
         k_vals = torch.full((N_g, N_g), float(k_fn), device=device)
-    k_min_v = k_vals.min()
-    k_max_v = k_vals.max()
-    k_range = (k_max_v - k_min_v).clamp(min=1e-6)
-    k_norm = (k_vals - k_min_v) / k_range  # [0, 1]
+    # Fixed reference preserves absolute k across cases. Per-sample min/max
+    # erased all information for homogeneous materials.
+    k_norm = k_vals / 5.0  # reference conductivity [W/(m K)]
 
     # Canal 1: Q_src — gaussiana difusa en cada cable (normalizada)
     Q_map = torch.zeros(N_g, N_g, device=device)
@@ -93,7 +92,8 @@ def make_input_channels(
         dy = Yg - pl.cy
         gauss = Q_lin * torch.exp(-(dx**2 + dy**2) / (2 * sigma**2))
         Q_map = Q_map + gauss
-    Q_norm = Q_map / (Q_map.max().clamp(min=1e-6))
+    # A fixed scale retains current/power information across samples.
+    Q_norm = Q_map / 100.0  # reference linear power [W/m]
 
     # Canal 2: BC_mask — +1 en bordes Dirichlet, 0 en interior
     bc_mask = torch.zeros(N_g, N_g, device=device)

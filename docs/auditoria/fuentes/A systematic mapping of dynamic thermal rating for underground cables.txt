@@ -1,0 +1,1142 @@
+Received 18 October 2025, accepted 15 December 2025, date of publication 1 January 2026, date of current version 29 January 2026.
+Digital Object Identifier 10.1109/ACCESS.2025.3650354
+A Systematic Mapping of Dynamic Thermal
+Rating for Underground Cables
+KHAIRUNNISA NORFAEZA M. K. FARIZ
+1, NIK HAKIMI NIK ALI
+1,2, (Senior Member, IEEE),
+MOHD IQBAL MOHD NOOR3,4, MOHD NOOR AFIQ BIN RAMLEE5,6,
+MOHAMMAD A. HAMDAN
+7, CHIN-LEONG WOOI
+8, (Senior Member, IEEE),
+AND MOHD AZRAEI PANGAH @ PA’AT9
+1Faculty of Electrical Engineering, Universiti Teknologi MARA, Shah Alam, Selangor 40450, Malaysia
+2NANO-Electronic Centre (NET), Faculty of Electrical Engineering, Universiti Teknologi MARA (UiTM), Shah Alam, Selangor 40450, Malaysia
+3Faculty of Business Management, Universiti Teknologi MARA Cawangan Pahang, Kampus Raub, Raub, Pahang 27600, Malaysia
+4Institute for Biodiversity and Sustainable Development, Universiti Teknologi MARA, Shah Alam, Selangor 40450, Malaysia
+5Tamhidi Centre, Universiti Sains Islam Malaysia, Nilai, Negeri Sembilan 71800, Malaysia
+6Faculty of Computing and Multimedia (FCOM), Universiti Poly-Tech Malaysia, Cheras, Kuala Lumpur 56100, Malaysia
+7Electrical Engineering Department, Applied Science Private University, Amman 11937, Jordan
+8HVTrans, Centre of Excellence for Renewable Energy, Faculty of Electrical Engineering Technology, Universiti Malaysia Perlis, Pauh Putra Campus,
+Arau, Perlis 02600, Malaysia
+9High Voltage Cable Diagnostics Laboratory, Asset Performance Unit, TNB Research Sdn. Bhd., Kajang, Selangor 43000, Malaysia
+Corresponding author: Nik Hakimi Nik Ali (hakimiali@uitm.edu.my)
+This work was supported in part by the Ministry of Higher Education (MOHE) through the Fundamental Research Grant Scheme (FRGS)
+under Grant FRGS/1/2023/TK07/UITM/02/22; and in part by the Faculty of Electrical Engineering, Universiti Teknologi MARA,
+Shah Alam, Selangor, Malaysia.
+ABSTRACT
+Dynamic Thermal Rating (DTR) offers a flexible and adaptive solution to overcome the
+limitations of static thermal rating in power transmission. This systematic review aims to map and analyze the
+current state of research on DTR, specifically focusing on underground cable systems. The review contributes
+to a clearer understanding of DTR’s role in improving the efficiency and resilience of underground cable
+networks, while also laying the groundwork for future studies to address current limitations. The novelty
+of this paper lies in its structured synthesis that links modeling techniques, operational improvements, and
+long-term system reliability. Guided by the PRISMA methodology, 12 relevant articles published between
+2005 and 2025 were selected from Scopus and Web of Science databases. These articles were themati-
+cally analyzed across three main categories: Population–Intervention–Outcome, Methods–Objectives, and
+Outcomes–Results. The findings indicate that DTR enhances cable loading capacity, improves temperature
+prediction accuracy, and supports more efficient network planning and investment strategies. Key methods
+included thermal modeling, quasi-dynamic simulations, machine learning, and real-time optimization.
+Several studies reported capacity improvements of up to 22% and cost savings of up to 15%. The review also
+highlights recent innovations, such as the integration of climate projection models, diagnostic frameworks,
+and AI-based forecasting techniques.
+INDEX TERMS Dynamic rating, systematic mapping, systematic review, thematic, thermal rating, under-
+ground cables.
+I. INTRODUCTION
+In the realm of sustainable energy systems, robust power
+cables, whether overhead lines or underground cables, stand
+as critical infrastructure, facilitating dependable and effi-
+cient electricity transmission across diverse landscapes [1].
+The associate editor coordinating the review of this manuscript and
+approving it for publication was Wen-Sheng Zhao
+.
+To optimize the performance of these assets, dynamic cable
+rating (DCR) and dynamic line rating (DLR) have emerged
+as pivotal solutions, addressing the limitations of static line
+rating (SLR) [2] and offering a more flexible and efficient
+approach to managing the capacity of power cables [3].
+While SLR prescribes a constant maximum current capac-
+ity under assumed worst-case scenario conditions, DCR
+and DLR incorporate dynamic changes in environmental
+VOLUME 14, 2026
+ 2026 The Authors. This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 License.
+For more information, see https://creativecommons.org/licenses/by-nc-nd/4.0/
+14841
+\nK. N. M. K. Fariz et al.: Systematic Mapping of Dynamic Thermal Rating for Underground Cables
+FIGURE 1. Conceptual framework for this study showing the
+interconnections between interventions and outcomes derived from the
+analysed articles in dynamic thermal rating studies of underground
+cables.
+conditions and load profiles to better utilize existing cables,
+often exceeding the standard rating. This enables utility com-
+panies to safely enhance power flow in cables under optimal
+conditions, improving grid efficiency and reliability in line
+with Sustainable Development Goals (SDG7’s) objective of
+ensuring universal access to affordable, reliable, sustainable,
+and modern energy [4].
+Despite these advantages, existing thermal models for
+DCR and DLR, which represent cable properties and heat
+transfer, have notable limitations affecting their accuracy and
+reliability. These models are highly sensitive to weather [5]
+and surrounding soil conditions [6]; unaccounted varia-
+tions in these parameters can lead to inaccuracies in pre-
+dicting a cable’s thermal behavior. Furthermore, accurate
+thermal models tend to be sophisticated and computation-
+ally demanding, potentially limiting their practicality for
+real-time applications due to factors such as conductor radial
+temperature [7]. Consequently, while thermal models are
+useful for estimating ampacity (the current-carrying capacity
+within safe temperature limits), their predictive reliability is
+not guaranteed unless they are supported by robust implemen-
+tation strategies and real-time monitoring data [8].
+Given these constraints, how can the research community
+synthesize the diverse findings on DCR and DLR into a
+high-quality evidence base that reduces bias, improves repro-
+ducibility, and identifies the most effective approaches for
+underground cable applications? Although numerous stud-
+ies have explored the benefits and advanced techniques for
+implementing reliable DCR and DLR systems [9], [10], [11],
+existing reviews often lack the rigor of systematic literature
+reviews, which follow structured, transparent methodologies
+to identify, evaluate, and synthesize all relevant research.
+To address this gap, this study conducts a systematic map-
+ping as part of a systematic review on DLR and DCR, which
+hereafter referred to collectively as dynamic thermal rating
+(DTR) [9], [10], due to their shared analytical approaches
+TABLE 1. Keywords for method of search.
+TABLE 2. Inclusion and exclusion criteria.
+and focus on thermal factors influencing current rating. The
+review evaluates these factors using both objective and sub-
+jective methods, providing trustworthy and comprehensive
+insights [12]. The systematic mapping identifies weaknesses
+in the field and guides future research by deriving the-
+matic gaps through synthesis and analysis. This process
+groups data into themes based on the intersections of popula-
+tions, interventions, and outcomes; methods and objectives;
+and outcomes and results. The central research question
+addressed is: How do dynamic thermal rating approaches for
+underground cables intersect with system populations, tech-
+nical interventions, and intended outcomes across existing
+research? As part of this study, Figure 1 illustrates the con-
+ceptual framework representing the interconnections between
+interventions and outcomes derived from the selected articles
+following the overall methodology.
+However, the result from this review is limited on DTR
+for underground cables and may not capture all cable types,
+installation methods, or environmental conditions. Most
+14842
+VOLUME 14, 2026
+\nK. N. M. K. Fariz et al.: Systematic Mapping of Dynamic Thermal Rating for Underground Cables
+FIGURE 2. Search strategy of the systematic review in this study (PRISMA
+2020 flow diagram for new systematic reviews which included searches
+of databases and registers only).
+FIGURE 3. Trends in annual publications on dynamic thermal rating.
+studies relied on modeling assumptions, which may differ
+from real-world behavior. Variations in data quality across
+studies may also affect the results. Despite these limita-
+tions, the findings offer practical insights for implementing
+DTR in underground cable systems and direction for future
+research.
+This paper is organized into several key sections. First,
+Section I sets the stage by introducing the background, moti-
+vation, and goals of the study, emphasizing why DTR is
+important for underground cable systems. Next, Section II
+explains how the relevant articles were selected, outlining
+the search process, screening criteria, and the PRISMA-based
+approach used to ensure a structured and transparent review.
+Section III shares the main results from the thematic analysis,
+organized into three parts, which are the link between popula-
+tion, intervention, and outcome; how different methods align
+with research objectives; and how outcomes relate to actual
+results. Each theme is supported with detailed explanations
+and summary tables. Furthermore, Section IV highlights the
+research gaps that emerged from the review and suggests
+areas for future exploration. Finally, Section V wraps up the
+paper with a summary of key insights, a reflection on the
+study’s contributions, and a reminder of how the review aligns
+with its original objectives.
+II. MATERIALS AND METHODS
+A. METHODOLOGICAL OVERVIEW
+The full systematic review is conducted in accordance
+with the PRISMA (Preferred Reporting Items for System-
+atic Reviews and Meta-Analyses) 2020 guidelines [13].
+PRISMA is a widely recognized standard protocol designed
+to ensure methodological rigor, transparency, and consistency
+throughout the systematic review and meta-analysis process.
+It provides a structured approach that guides researchers
+through each stage of the review, from identification and
+screening to eligibility, inclusion, and synthesis of relevant
+studies [14]. By adhering to the PRISMA framework, this
+review aims to ensure the completeness and quality of the
+reporting, minimize the risk of duplication, and reduce poten-
+tial reporting bias. Ultimately, this approach supports the
+overarching goal of providing a reliable synthesis of the
+existing literature in response to the research question.
+B. LITERATURE DATABASES
+In the preliminary stage, this review seeks to identify pub-
+lished academic articles related to dynamic cable rating
+(DCR) and dynamic line rating (DLR). For the purposes of
+this study, the term dynamic thermal rating (DTR) is used as
+a general descriptor that encompasses both DCR and DLR,
+given their shared methodological approaches and analyti-
+cal characteristics. Moreover, the systematic and methodical
+literature search was conducted using two major electronic
+databases, which are Web of Science (WoS) and Scopus, due
+to their extensive coverage of academic literature and their
+ability to yield highly relevant search results. The search strat-
+egy included the conventional keyword queries. The specific
+keywords used in the search process are presented in Table 1,
+outlining the detailed search methodology. For this review,
+the scope is further narrowed to focus specifically on DTR
+studies related to underground cables to evaluate through
+either objective or subjective analytical methods.
+C. SEARCH TERMS
+In this review, PIO (Population-Intervention-Outcome) is
+used as a basic framework to structure clinical research ques-
+tions and to guide literature searches as shown in Table 1.
+VOLUME 14, 2026
+14843
+\nK. N. M. K. Fariz et al.: Systematic Mapping of Dynamic Thermal Rating for Underground Cables
+TABLE 3. Summary of recently published articles (2025).
+1) SCREENING STRATEGY
+The screening process consists of two main phases: (1)
+title and abstract screening and (2) full-text screening. Both
+phases are conducted independently by two reviewers. In the
+first phase, titles and abstracts are screened for relevance
+based on predefined inclusion and exclusion criteria. Articles
+that meet the criteria are retained for full-text screening.
+A pilot screening is conducted prior to the main screen-
+ing to assess consistency between reviewers. Thirty articles
+are randomly selected and independently screened by two
+reviewers. A consistency check using Cohen’s Kappa statistic
+is performed, with a minimum agreement threshold set at
+75%.
+Following the pilot, the remaining titles and abstracts are
+screened independently and in parallel by the same two
+reviewers. When disagreements occur, articles are marked as
+‘‘Maybe’’ and referred to a third independent reviewer for
+final decision. In the second phase, full texts of all retained
+articles are retrieved and screened to confirm final inclusion.
+Abstracts of the full texts are reviewed collaboratively by all
+reviewers to determine eligibility for data extraction. Any dis-
+crepancies are flagged and resolved through group discussion
+among all six reviewers to reach a consensus.
+Full-text screening and data extraction are conducted using
+a structured Google Form. Articles selected for inclusion
+are distributed among the six reviewers for data extraction.
+Articles excluded at this stage are recorded along with the
+reason for exclusion. All extracted data are cross-checked by
+one author (KNF) to ensure accuracy and coherence.
+2) ELIGIBILITY CRITERIA
+To be included at both title and abstract screening and
+full text screening stages, articles must meet the eligibility
+criteria described below. These criteria are based on the
+14844
+VOLUME 14, 2026
+\nK. N. M. K. Fariz et al.: Systematic Mapping of Dynamic Thermal Rating for Underground Cables
+FIGURE 4. Focus of studies for dynamic thermal rating for underground
+cables articles.
+population, intervention, outcome, and study type elements
+of the systematic map.
+a: RELEVANT POPULATION
+This systematic map includes studies that focus on cables
+used in electrical networks, including underground cables,
+medium voltage (MV) and high voltage (HV) cables, buried
+cables, transmission lines, and other forms of electrical power
+conductors. These cables are critical to both urban and rural
+infrastructure, especially in underground installations where
+heat dissipation is limited, and operational conditions are
+more challenging to manage compared to overhead systems.
+Eligible systems must involve the cable systems. Studies not
+involving the relevant population are not included unless they
+clearly describe a setting that incorporates the population
+elements.
+b: RELEVANT INTERVENTION
+Eligible interventions must encompass methods that enable
+more accurate, real-time determination of a cable’s current-
+carrying capacity or dynamic thermal rating. These include
+dynamic cable rating, real-time thermal rating, temperature-
+dependent rating, and other forms of dynamic thermal
+modeling. These approaches adjust the permissible current
+based on actual environmental and loading conditions, rather
+than fixed assumptions.
+c: RELEVANT COMPARATOR
+This systematic map does not require a formal comparator
+for inclusion. Studies will be considered eligible whether
+they with or without comparison groups. When present,
+comparators may include spatial contrasts (e.g., sites with
+and without interventions), temporal contrasts (e.g., before
+and after implementation), or system comparisons. Compar-
+ative analysis, although not required, will be recorded when
+available.
+FIGURE 5. Overlap of selected articles according to their reported
+outcomes.
+d: RELEVANT OUTCOMES
+Studies must report such interventions include improved
+ampacity, thermal performance, and overall power delivery
+efficiency. By dynamically estimating thermal ratings and
+allowable currents, DCR helps utilities operate closer to the
+true capacity of their assets, enhancing cable loading capacity
+while maintaining safety and performance. Outcomes may
+be reported through quantitative data, observational assess-
+ment, or model-based estimation. Studies focusing solely
+on productivity, economics, or social factors without linking
+to relevant outcome variables will be excluded unless other
+metrics are also reported.
+e: RELEVANT STUDY TYPE
+Empirical studies using observational, experimental, model-
+ing, or quasi experimental approaches will be included. These
+may be:
+• Field studies
+• Laboratory studies
+• Modeling studies calibrated with real world data
+• Case studies with described methodology
+Studies must be based on original data. Theoretical frame-
+works, conceptual discussions, editorials, commentaries, and
+narrative reviews will be excluded. Only peer reviewed jour-
+nal articles published in English will be included to ensure
+reliability and comparability.
+3) STUDY VALIDITY ASSESSMENT
+The objective of this systematic map is to map and analyze
+the current state of research on DTR, specifically focusing
+on underground cable systems, with particular attention to
+the types of interventions, geographic coverage, and outcome
+metrics reported. As such, a formal assessment of study
+validity will not be conducted beyond the eligibility criteria
+described above.
+VOLUME 14, 2026
+14845
+\nK. N. M. K. Fariz et al.: Systematic Mapping of Dynamic Thermal Rating for Underground Cables
+TABLE 4. Final articles retrieved from systematic searching.
+However, to enhance the transparency and interpretability
+of the evidence base, we extract, and code specific attributes
+related to study design and methodological approach. These
+include the type of study (e.g., experimental, observational,
+modeling), the methods used to assess the outcomes, the fre-
+quency or duration of performance monitoring, and whether
+any form of comparator is reported. While not intended as a
+quality rating, these descriptors support users in making pre-
+liminary assessments regarding the strength and applicability
+of the evidence.
+D. SYSTEMATIC SEARCHING STRATEGIES
+To ensure the inclusion of relevant studies in this review,
+a systematic approach was employed, encompassing three
+primary stages, which are identification, screening, and eligi-
+bility assessment. During the identification stage, synonyms,
+related terms, and variations of the primary keywords relevant
+to the study were systematically searched. A tailored keyword
+search string was constructed and applied across selected
+databases to optimize the retrieval of pertinent literature.
+The search process, which was done in April 2025, involved
+combining keywords (Table 1) through phrase searches and
+utilizing Boolean operators ‘‘OR’’ and ‘‘AND’’.
+Search String: ((‘‘power cable∗’’ OR ‘‘underground
+cable∗’’ OR ‘‘medium voltage cable∗’’ OR ‘‘high voltage
+cable∗’’ OR ‘‘MV cable∗’’ OR ‘‘HV cable∗’’ OR ‘‘transmis-
+sion line∗’’ OR ‘‘electrical cable∗’’ OR ‘‘power conductor∗’’
+OR ‘‘power line∗’’ OR ‘‘buried cable∗’’)
+AND (‘‘dynamic thermal rating’’ OR ‘‘dynamic line rat-
+ing’’ OR ‘‘dynamic cable rating’’ OR ‘‘real-time thermal
+rating’’ OR ‘‘temperature-dependent rating’’ OR ‘‘ampacity
+modelling’’ OR ‘‘current rating calculation’’ OR ‘‘dynamic
+current rating’’ OR ‘‘adaptive ampacity’’)
+AND (‘‘ampacity’’ OR ‘‘current-carrying capacity’’ OR
+‘‘thermal performance’’ OR ‘‘power delivery efficiency’’ OR
+‘‘cable electrical capacity’’ OR ‘‘cable loading capacity’’
+OR ‘‘thermal rating’’ OR ‘‘continuous current rating’’ OR
+‘‘permissible current’’ OR ‘‘thermal current limit’’ OR
+‘‘allowable current’’)).
+Figure 2 illustrates the overall process of this study. Start-
+ing from databases, two databases (Scopus and WoS) were
+14846
+VOLUME 14, 2026
+\nK. N. M. K. Fariz et al.: Systematic Mapping of Dynamic Thermal Rating for Underground Cables
+used to retrieve the potentially pertinent articles. Every article
+was checked for duplicates, and those that were found in the
+databases were eliminated. The publications were screened
+for titles and abstracts. Included were articles that were
+deemed pertinent and released within the designated period.
+The remaining articles were then subjected to a full-text
+screening. Lastly, exclusion was applied to articles that did
+not fit the outlined inclusion and exclusion criteria.
+1) IDENTIFICATION STAGE
+In the search process, publication date filter was also applied,
+limiting the search to studies published between 2005 and
+2025. This approach led to the identification of 474 records
+from the databases. Next, a total of 474 records were man-
+ually screened in accordance with the predefined inclusion
+and exclusion criteria as shown in Table 2. While literature
+on DTR in power cables dates back to 1970, this review
+was limited to studies published between 2005 and 2025,
+as outlined in the inclusion parameters. At this stage, a total
+of 213 English-language articles were identified.
+2) SCREENING WITH PREDEFINED CRITERIA
+The screening process included only English-language tech-
+nical journal articles, while all non-English (18 papers)
+and non-technical-article publications (243 papers), such as
+conference proceedings, books, book chapters, and review
+papers, were excluded. After removing irrelevant and dupli-
+cate entries, 146 records remained. To narrow the focus, only
+articles specifically addressing DTR for underground cables
+were considered, resulting in a final selection of 14 relevant
+studies. These studies were then advanced to the next stage,
+the eligibility assessment.
+3) STUDIES INCLUDED IN QUALITATIVE ANALYSIS
+In this stage, particular attention was given to the titles,
+abstracts, and main bodies of the articles to verify their align-
+ment with the predefined inclusion criteria and the overall
+objectives of the review. Subsequently, 12 articles that passed
+this stage underwent further evaluation through qualitative
+analysis.
+E. QUALITY ASSESSMENT
+The selected articles were independently reviewed by two
+subject matter experts using standard quality assessment
+criteria to evaluate methodological validity and the qual-
+ity of results. Only peer-reviewed journal articles published
+between 2012 and 2025 were included, resulting in 12 stud-
+ies for the final review, comprising 8 high-quality and
+4 moderate-quality articles aligns with its original objectives.
+Using predefined and consistently applied criteria address-
+ing the scope of analysis, validation approach, system-level
+relevance, and direct impact on dynamic cable rating out-
+comes, high-quality studies explicitly assessed system-level
+implementations such as network planning, operational
+strategies, and capacity enhancement. In contrast, moderate-
+quality studies, while scientifically sound, were limited to
+component-level modeling or parameter estimation and did
+not directly evaluate network-wide or planning impacts.
+Accordingly, the classification reflects differences in contri-
+bution scope rather than methodological quality.
+III. RESULTS AND DISCUSSIONS
+A. OVERVIEW OF ARTICLE PUBLICATION TRENDS OVER
+THE YEARS
+The Figure 3 shows how interest in dynamic thermal rat-
+ing research has grown steadily from 2008 to 2025. This
+result shows the distribution of articles for DTR for various
+population used as in Table 1. While early years saw only
+a few publications, attention to the topic began to build
+around 2015 with eight articles. Interest peaked in 2019,
+with 28 articles published, which is a noticeable spike that
+likely reflects growing concerns around renewable energy
+integration, power grid efficiency, and adapting to climate
+challenges. Since 2019, publication activity has stayed rela-
+tively stable, with some ups and downs, but overall reflecting
+consistent engagement from researchers. From 2020 to 2025,
+most years saw more than ten studies published, with only
+slight dips in 2021 and 2024.
+Furthermore, the steady flow of work into 2025 highlights
+how DTR remains a relevant and important area of focus as
+the energy sector shifts toward more intelligent and flexible
+infrastructure with eight new studies published. As shown
+in Table 3, the new published articles, which are published
+in 2025, explore a wide range of innovations, including
+improved thermal modeling, real-time rating techniques, and
+the integration of environmental data to better predict cable
+temperatures and optimize system capacity. This reflects the
+growing push toward smarter, more adaptive power systems.
+A brief summary of the themes and findings from these
+articles is outlined in Table 3 below.
+B. ARTICLES OF DYNAMIC RATING IN UNDERGROUND
+CABLE STUDIES
+Following a systematic search and selection process, a total
+of 12 finalized articles as shown in Table 4 were selected
+to be review. The Population was defined to focus only
+on underground power cables, the Intervention focused on
+the application of DTR techniques, and the Outcome tar-
+geted improvements in thermal performance, operational
+efficiency, and network reliability. Figure 4 shows the cat-
+egories of study focuses for the selected articles. Based on
+these criteria, the selected studies cover a broad spectrum of
+dynamic rating applications and thermal modeling in under-
+ground cable systems.
+Articles [15] and [16] by Sergio M.-S. and Andrea M.
+investigate the influence of climate change and long-term
+planning using DLR. Articles [23] and [24] explore network
+planning and cable lifetime estimation under uncertainty.
+Next, studies [25] and [26] present advanced thermal analysis
+under fluctuating load conditions and uncover hidden system
+capacity through thermal mapping.
+VOLUME 14, 2026
+14847
+\nK. N. M. K. Fariz et al.: Systematic Mapping of Dynamic Thermal Rating for Underground Cables
+Article [27] applies risk-based rating to enhance wind
+power integration, while [28] focuses on thermal perfor-
+mance of high-voltage cable insulation. Articles [29] and [30]
+introduce soil-based models for real-time thermal rating,
+addressing adaptive and mutual heating effects. Finally, arti-
+cles [31] and [32] examine the enhancement of distribution
+network capacity and the evaluation of air-gap thermal mod-
+els in unfilled conduit installations. These articles collectively
+support the review’s objective of analyzing the role of DTR
+in improving the thermal management and performance of
+underground cable systems.
+C. TREND OF STUDY FOR DYNAMIC RATING FOR
+UNDERGROUND CABLE
+Furthermore, Table 4 shows the selected 12 articles span a
+publication period from 2012 to 2025 and originate from a
+diverse range of countries, highlighting the global interest
+in the application of DTR for underground power cables.
+The most recent contributions from France in 2025 [15], [16]
+focus on the impact of climate change and long-term thermal
+planning for underground cables. China, in collaboration with
+countries such as the UK, South Korea, and Australia, con-
+tributes significantly with multiple studies between 2015 and
+2024 [23], [25], [27], [28], covering topics from DLR-based
+expansion planning to high-voltage cable insulation analysis.
+A study from Spain [24], in 2021, introduces a diag-
+nostic framework for cable lifetime estimation, while the
+United States provides critical insights through real-time
+thermal rating models and system-wide dynamic rating appli-
+cations [26], [29], [30] in 2015–2021. Finland contributes
+two earlier but foundational studies [31], [32] in 2012 and
+2014 exploring the use of real-time thermal ratings to support
+distributed generation (DG) and air-gap thermal modeling for
+cables in conduits. Moreover, to provide a structured under-
+standing of the analyzed articles, a theoretical framework has
+been developed, as shown in Table 5 below. This framework
+serves as a guiding model that synthesizes key concepts,
+methodology, and findings, thereby facilitating clearer inter-
+pretation and supporting further research.
+D. THEMATIC SYNTHESIS OF POPULATION,
+INTERVENTION, AND OUTCOMES
+The following results sections are based on the thematic
+synthesis and analysis framework developed for the system-
+atic mapping. From the 12 articles included in this study,
+the analysis of dynamic rating in underground cable studies
+reveals a multifaceted approach, addressing various popula-
+tion types, interventions, and outcomes aimed at optimizing
+power systems.
+For Theme 1 of the systematic mapping, the Populations
+examined include the power grid involving underground
+cable systems, underground cables, distribution networks,
+medium-voltage (MV) cables, and high-voltage (HV) cables,
+as shown in Table 6(a). The Interventions considered are
+climate or environmental changes, thermal rating analy-
+sis, dynamic thermal models, network planning or system
+capacity, and diagnostic frameworks. The Outcomes as
+shown in Figure 6(b) identified consist of improved cable
+rating or transmission capacity, accurate thermal tran-
+sient response, enhanced investment or cost efficiency, and
+improved cable lifetime or aging. As shown in Figure 5,
+Venn diagram has been created to illustrate the overlap of
+research outcomes and corresponding articles. Lastly, Table 7
+summarize the intersection among Population, Intervention,
+and Outcome of the articles.
+From Table 6(a), the climate and environmental impacts on
+the power grid were primarily addressed in [15], where Sergio
+and Andrea evaluated how rising temperatures and climate
+variability affect power transmission capacity. Their study
+emphasized the importance of climate-resilient planning
+for grid infrastructure and the integration of climate-driven
+data into network planning strategies. Extending this focus
+to underground systems, [15] and [16] investigated how
+long-term climate evolution influences underground cable
+ratings, highlighting the need to adjust cable design and
+operation in anticipation of future environmental conditions.
+Thermal characteristics of underground cables were thor-
+oughly examined in studies such as [23], [25], [26], [27],
+[29], [30], and [31]. These included thermal rating integration
+into distribution planning [23], time-varying dynamic thermal
+analysis [25], and system-wide thermal mapping [26]. Risk-
+based circuit ratings under operational uncertainty were also
+explored in [27]. Soil behavior modeling and mutual heating
+effects, which enhanced DTR accuracy, were tackled in [29]
+and [30]. Degefa et al. [31] demonstrated real-time rating
+applications for distributed generation integration. DTR mod-
+els for underground cables were further developed in [16],
+[25], [29], and [30], enabling improved adaptability to envi-
+ronmental and load variability. These DTR approaches were
+also used in network planning in [16], [23], [26], and [27],
+contributing to cost-efficient infrastructure utilization. Diag-
+nostic efforts were presented in [24] and [27], focusing on
+cable lifetime estimation and operational risk management.
+At the distribution network level, studies [23], [26], and
+[31] highlighted how thermal awareness and DTR can
+optimize expansion planning and unlock hidden capacity.
+Medium voltage (MV) cable thermal performance was stud-
+ied in [32], where air-gap modeling in conduits revealed
+critical implications for temperature prediction and oper-
+ational safety, along with insights into transient thermal
+behavior. High voltage (HV) cable dynamics were addressed
+in [28], which presented a model capturing insulation
+responses under fluctuating loads to ensure rating accu-
+racy and longevity. Together, these studies emphasize the
+role of thermal modeling and DTR in supporting efficient,
+resilient, and future-ready cable infrastructure across voltage
+levels.
+From the Outcome part in Table 6(b), numerous stud-
+ies demonstrated how advanced thermal modeling and DTR
+techniques improve cable rating accuracy, transient response,
+and grid efficiency. Climate-adapted ratings by Sergio and
+Andrea [15], [16] and risk-based circuit ratings by Liu and
+14848
+VOLUME 14, 2026
+\nK. N. M. K. Fariz et al.: Systematic Mapping of Dynamic Thermal Rating for Underground Cables
+Kopsidas [27] support enhanced transmission capacity and
+integration of renewables. Moreover, adaptive and mutual soil
+thermal modeling [29], [30], dynamic simulations under fluc-
+tuating loads [25], and thermal mapping technologies [26]
+refined transient responses. On the other hand, modeling of
+MV and HV cable insulation behaviors [28], [32] improved
+safety and accuracy.
+DTR approaches also enabled cost-efficient network plan-
+ning by deferring infrastructure upgrades [23], [26], [31], and
+better utilization of existing assets [27]. Additionally, diag-
+nostic frameworks [24] and operational risk assessments [27]
+supported cable lifetime estimation and aging management
+under uncertainty, improving long-term network reliability.
+Meanwhile, Figure 5 highlights several overlaps among out-
+comes, where [32] links cable rating or capacity with thermal
+response, [15] and [16] connect capacity with investment
+efficiency, and [26] bridges response with investment effi-
+ciency. Notably, [27] spans across three outcomes, which are
+capacity, investment efficiency, and cable lifetime or age-
+ing, indicating its broader contribution to multiple research
+dimensions.
+E. METHODS AND OBJECTIVES IN DYNAMIC THERMAL
+RATING FOR UNDERGROUND CABLES
+For the second thematic synthesis, Table 8 summarizes the
+intersection of Modeling Methods with Population, Inter-
+vention, Objectives, and References, while Table 9 presents
+the detailed examination of methodological approaches and
+research objectives across the selected studies. Various
+modeling methods were applied to achieve distinct goals.
+As shown in the Table 9, several studies compared dynamic
+methods with conventional static rating practices. Lumped
+thermal models and thermal-electrical equivalent (TEE) mod-
+els incorporating the van Wormer coefficient were utilized by
+Wang et al. [25] and Wang et al. [28], demonstrating more
+accurate transient and radial temperature behavior compared
+to static assumptions. Similarly, ladder-type equivalent circuit
+models that consider mutual heating and air gaps were devel-
+oped in [30] and [32], offering refined comparisons against
+traditional methods.
+To observe thermal behavior under dynamic and environ-
+mental conditions, lumped thermal models [25], [26], [28],
+and ladder-type equivalent circuits [26], [32] were employed,
+with Borbuev et al. [26] providing a system-wide thermal
+map for distribution networks. Advanced soil models, such
+as ladder-type models combined with Kalman filtering [29],
+helped reduce uncertainties in transient soil temperature
+predictions, further improving thermal analysis accuracy.
+In efforts to improve system and cable lifetime, probabilistic
+approaches such as Monte Carlo-based Bayesian filtering
+combined with TEE and thermal-aging models (based on the
+Arrhenius model) were applied in [24] and [27]. Additionally,
+Liu and Kopsidas [27] utilized machine learning techniques,
+specifically ARMA models, to forecast cable conditions and
+enhance lifetime predictions under operational uncertainty.
+Furthermore, network capacity harvesting and opti-
+mization
+were
+prominent
+objectives
+in
+studies
+using
+quasi-dynamic thermal rating (qDTR) models with climatic
+projections (RCP scenarios) [15], [16]. This also implied
+in studies that applying machine learning for predictive
+capacity management [16], [27], as well as real-time thermal
+rating coupled with optimal power flow (OPF) solutions,
+as developed by Degefa et al. [31] where it demonstrated
+the unlocking of hidden operational capacity in underground
+cables. Lastly, network planning and distributed generation
+expansion were addressed using optimization algorithms,
+including the MBD (Model-Based Decomposition) approach
+to reduce calculation time and cost-based clustering meth-
+ods in [23]. Studies [16], [26], and [31] also incorporated
+dynamic thermal insights into planning strategies, ensuring
+that thermal capacity constraints were effectively integrated
+into distribution network expansion efforts.
+F. EVALUATED OUTCOMES OF DYNAMIC THERMAL
+RATING APPLICATIONS: ENHANCING CAPACITY,
+ACCURACY, AND SYSTEM RELIABILITY
+Lastly, this theme synthesizes how DTR research trans-
+lates into tangible results, particularly in terms of cable
+performance, system efficiency, and grid modernization.
+As elucidated in Table 10, the intricate correlation between
+various results and outcomes reported in the articles is
+illustrated.
+Sergio and Andrea [15], [16] demonstrated that climate-
+aware planning and adaptive DTR implementation signif-
+icantly benefit system economics and capacity planning.
+Specifically, [16] reported a 9.3% improvement in cable cur-
+rent rating under climate-informed DTR compared to static
+ratings, confirming that environmental data integration can
+unlock additional capacity. Similarly, Li et al. [23] integrated
+DTR into distribution network expansion planning (DNEP),
+showing a 14.7% to 15.1% reduction in investment costs,
+attributed to enhanced load accommodation without over-
+dimensioning infrastructure. Articles [26] and [31] deployed
+real-time DTR algorithms, achieving better cable utilization
+and deferring upgrades, which is in [26], this was sup-
+ported by modular DTR schemes for underground cables with
+location-specific inputs, while [31] used a dynamic thermal
+model coupled with OPF, yielding enhanced flexibility and
+efficiency. Additionally, [32] emphasized the critical role of
+conduit modeling, where the presence and configuration of
+air-gaps in conduits directly influenced thermal outcomes,
+highlighting the importance of physical installation modeling
+in DTR frameworks.
+Another critical insight was the accurate prediction of tran-
+sient thermal behavior, as cables rarely operate under constant
+conditions. Articles [25], [26], [28], [30], and [32] addressed
+this with various modeling methods. Wang et al. [25] applied
+lumped thermal modeling with transient analysis to evalu-
+ate insulation aging due to variable loads, while [28] used
+FEM-based time-varying simulations to reflect thermal iner-
+tia and cable-soil heat exchanges. In [30], a hybrid DTR–load
+VOLUME 14, 2026
+14849
+\nK. N. M. K. Fariz et al.: Systematic Mapping of Dynamic Thermal Rating for Underground Cables
+TABLE 5. Theoretical framework of dynamic rating in underground cable studies.
+forecasting model used load history to anticipate thermal
+stress, improving prediction accuracy. Article [32] extended
+this by evaluating air-gap effects within conduits, providing
+design-specific insights for medium-voltage cable systems
+and verifying simulation accuracy through comparison with
+experimental benchmarks. These studies collectively validate
+simulation-based DTR approaches as reliable tools for cap-
+turing the complexity of in-situ cable temperature dynamics.
+Dealing with data uncertainty and reducing conserva-
+tive overestimations was another focus area. Sergio and
+Andrea [15], [16] emphasized how traditional planning
+often leads to capacity underutilization due to overesti-
+mated margins. Liu and Kopsidas [27] addressed this by
+implementing Bayesian filtering to enhance temperature
+estimation accuracy under fluctuating ambient and soil condi-
+tions, which contributed to reduced overestimation error and
+increased planning confidence. Similarly, Diaz-Aguiló and
+de León [29] incorporated Kalman filters into a ladder-type
+model, dynamically adjusting to real-time soil temperature
+data. This resulted in more accurate real-time thermal state
+estimation, crucial for day-ahead operation decisions and
+contingency management. These contributions show how
+14850
+VOLUME 14, 2026
+\nK. N. M. K. Fariz et al.: Systematic Mapping of Dynamic Thermal Rating for Underground Cables
+TABLE 6. (a) Interconnections of population and intervention. (b) Interconnections of outcome from populations and interventions.
+TABLE 7. Summary of the intersection among population, intervention,
+and outcome.
+advanced filtering techniques enhance the robustness and
+dependability of DTR models, even when input data are
+incomplete or uncertain.
+Finally, DTR was shown to play a vital role in smart grid
+integration and the accommodation of distributed generation
+(DG). Liu and Kopsidas [27] and Diaz-Aguiló [29] high-
+lighted how real-time thermal models can support operational
+decisions when integrating renewables and load variability.
+Article [31] aligned DTR with optimal power flow (OPF) to
+enable flexible dispatch and active cable rating management,
+supporting dynamic system reconfiguration. Article [23]
+reported that grid modernization objectives, including DG
+hosting and renewable integration, were supported through
+DTR-enhanced expansion planning. Additionally, [23] noted
+that convergence performance in optimization algorithms
+improved with the integration of DTR, suggesting that not
+only physical system efficiency but also computational plan-
+ning efficiency benefits from DTR adoption.
+Figure 6 below shows the number of articles for respective
+results categories. Based on the figure and thematic synthesis
+from Table 10, the dominant focus of DTR research lies in
+improving transmission capacity and cost efficiency, with
+multiple studies [15], [16], [23], [26], [31] demonstrating how
+DTR contributes to deferred upgrades and optimized invest-
+ment planning. These outcomes are frequently supported by
+performance evaluations through simulation or experimental
+testing [15], [16], [23], [25], [26], [28], [31], [32], as well
+as detailed thermal behaviour modelling using FEM or FEA
+or CFD techniques [25], [26], [28], [30], [32]. Such models
+capture transient thermal responses, enabling more precise
+cable utilization and validating the effectiveness of DTR
+strategies under real operating conditions.
+However, several research gaps emerge. Notably, cable
+lifetime and aging analysis remains underexplored, with
+only limited contributions [24], [27] examining how DTR
+influences insulation degradation over time. Additionally,
+computational improvements, such as enhanced conver-
+gence rates in optimization algorithms, are only briefly
+mentioned [23], suggesting a need for further research
+into algorithmic efficiency. Finally, handling data uncer-
+tainty is another underrepresented area; although studies like
+VOLUME 14, 2026
+14851
+\nK. N. M. K. Fariz et al.: Systematic Mapping of Dynamic Thermal Rating for Underground Cables
+TABLE 8. Summary of modelling methods with population, intervention, objectives, and references.
+TABLE 9. Interconnections of methods and objectives of selected studies.
+[27] and [29] introduced Bayesian and Kalman filtering,
+broader application of uncertainty quantification methods
+could significantly strengthen the reliability of DTR sys-
+tems. Addressing these gaps will be essential for supporting
+14852
+VOLUME 14, 2026
+\nK. N. M. K. Fariz et al.: Systematic Mapping of Dynamic Thermal Rating for Underground Cables
+TABLE 10. Interconnections of outcome and results of selected studies.
+FIGURE 6. Distribution of articles by results category.
+more resilient, data-driven, and long-term implementations
+of DTR in modern power systems. A brief explanation of the
+research gaps and future research directions is discussed in
+the subsection below.
+IV. RESEARCH GAPS AND FUTURE RESEARCH
+DIRECTIONS
+The systematic mapping of the 12 selected articles revealed
+that although dynamic thermal rating (DTR) for underground
+cables has attracted increasing research interest over the past
+decade, several significant gaps remain.
+A. LIMITED INTEGRATION OF REAL-TIME
+ENVIRONMENTAL VARIABILITY IN DTR MODELS
+Firstly, there is limited integration of real-time environmen-
+tal variability. For example, soil moisture, rainfall patterns,
+and temperature gradients into existing DTR models. While
+several studies [16], [25], [29], [30] introduced adaptive
+soil models and mutual heating effects, only a few incorpo-
+rated real-time data streams or probabilistic forecasting using
+machine learning or filtering techniques like Kalman and
+Bayesian methods. This lack of operational realism reduces
+the predictive robustness of DTR systems under dynamic
+environmental conditions. In the context, which aims to
+map DTR methods with respect to environmental respon-
+siveness, system performance, and planning reliability, this
+shortfall highlights the urgent need for more responsive and
+data-driven DTR frameworks in future.
+B. UNDERREPRESENTATION OF MV DISTRIBUTION AND
+TUNNEL ENVIRONMENTS
+Secondly, the review identified an underrepresentation of
+studies focusing on medium-voltage (MV) distribution net-
+works and cable systems installed in urban tunnel environ-
+ments. The majority of the reviewed articles [15], [16], [17],
+[18], [19], [20], [21], [22], [23], [24], [25], [26], [27], [28],
+[29], [30], [31] primarily focus on high-voltage (HV) or
+general underground cable systems, with only one study [32]
+addressing MV cables in conduit installations. Additionally,
+very few works consider the unique thermal challenges posed
+by urban tunnel environments, such as constrained airflow
+and structural heat accumulation. Given the increasing adop-
+tion of tunnel-based cable installations in densely populated
+urban settings, this omission reveals a critical research gap.
+Addressing it would support the development of DTR solu-
+tions better aligned with real-world operating environments
+and infrastructure trends, which aligns with the broader
+objective to promote sustainable and context-sensitive under-
+ground cable rating approaches.
+C. DISCONNECT BETWEEN DTR AND ASSET
+MANAGEMENT OBJECTIVES
+Lastly, the mapping revealed a disconnect between DTR
+methodologies and long-term asset management objectives
+such as insulation aging, degradation modeling, and pre-
+ventive maintenance planning. Only two studies [24], [27]
+linked DTR approaches with cable lifetime estimation under
+operational uncertainty, despite the well-established correla-
+tion between thermal stress and insulation deterioration. This
+VOLUME 14, 2026
+14853
+\nK. N. M. K. Fariz et al.: Systematic Mapping of Dynamic Thermal Rating for Underground Cables
+suggests a fragmented research landscape, where thermal
+modeling and reliability engineering remain largely siloed.
+Bridging this gap is essential for enabling predictive main-
+tenance, improving asset longevity, and optimizing network
+investment. As the role of DTR in supporting resilient and
+future-ready underground cable systems emphasized, the
+need for integrative frameworks that align real-time thermal
+insights with long-term infrastructure management is both
+timely and critical.
+V. CONCLUSION
+In this study, a systematic review was conducted to syn-
+thesize current research on dynamic thermal rating (DTR)
+in underground cable systems, with a focus on its impact
+across modeling approaches, technical interventions, and
+system-level outcomes. Specifically, the review highlights
+three core research themes, which are the interconnection
+of population, intervention, and outcomes; methodologies
+and research objectives; and the outcomes and reported
+results. The 12 selected studies demonstrated that DTR can
+increase underground cable transmission capacity by up to
+22% and reduce system investment or upgrade costs by
+approximately 14.7% to 15.1%. These benefits were achieved
+through a variety of modeling strategies, including lumped
+thermal models, quasi-dynamic thermal rating based on cli-
+mate projections, equivalent circuit methods, and machine
+learning techniques. Several studies also employed real-time
+DTR integrated with optimal power flow (OPF) models to
+unlock hidden network capacity and optimize load distribu-
+tion. Additionally, advanced methodologies such as Kalman
+filtering, Bayesian probability analysis, and ARMA-based
+forecasting contributed to improved lifetime estimation, ther-
+mal accuracy, and system diagnostics.
+Recent innovations highlighted in these studies include
+the use of AI-driven forecasting, climate-aware DTR using
+RCP scenarios, and diagnostic frameworks for predicting
+cable degradation. These advances mark a shift from purely
+thermal modeling toward more intelligent, predictive, and
+environment-responsive systems. However, gaps still exist.
+Real-time environmental data, such as soil moisture and
+rainfall, are rarely integrated, and MV cables and tunnel
+installations remain underexplored. There is also a discon-
+nect between short-term DTR modeling and long-term asset
+management strategies like insulation aging and preventive
+maintenance. Bridging these gaps requires future work that
+integrates environmental sensing, dynamic planning, and
+condition-based diagnostics. Overall, this review successfully
+meets its objective by systematically connecting modeling
+methods, system populations, interventions, and outcomes,
+providing a roadmap for future research and real-world
+deployment of DTR in modern underground cable networks.
+AUTHORS CONTRIBUTION
+Conceptualization: Nik Hakimi Nik Ali and Mohd Iqbal
+Mohd Noor; Literature Searches: Khairunnisa Norfaeza M.
+K. Fariz and Mohd Iqbal Mohd Noor; Data Analysis:
+Khairunnisa Norfaeza M. K. Fariz and Mohd Noor Afiq
+Bin Ramlee; Writing—Original Draft Preparation: Khairun-
+nisa Norfaeza M. K. Fariz; Writing—Review and Editing:
+Mohammad A. Hamdan and Chin-Leong Wooi; Supervision
+and Critically Revised the Work: Nik Hakimi Nik Ali and
+Mohd Azraei Pangah @ Pa’at. All authors read and approved
+the final manuscript.
+DATA AVAILABILITY
+The authors confirm that the data supporting the findings of
+this study are available within the article.
+REFERENCES
+[1] K. N. M. K. Fariz, N. H. N. Ali, D. Johari, M. I. M. Noor,
+A. M. Ariffin, and S. Z. M. Noor, ‘‘The evolution of dynamic line rat-
+ing: Technological advancements and future prospects,’’ in Proc. 14th
+Int. Conf. Syst. Eng. Technol. (ICSET), Oct. 2024, pp. 156–161, doi:
+10.1109/icset63729.2024.10774680.
+[2] S. D. Foss and R. A. Maraio, ‘‘Dynamic line rating in the operating
+environment,’’ IEEE Trans. Power Del., vol. 5, no. 2, pp. 1095–1105,
+Apr. 1990, doi: 10.1109/61.53127.
+[3] M. Nick, O. Alizadeh-Mousavi, R. Cherkaoui, and M. Paolone, ‘‘Secu-
+rity constrained unit commitment with dynamic thermal line rating,’’
+IEEE Trans. Power Syst., vol. 31, no. 3, pp. 2014–2025, May 2016, doi:
+10.1109/TPWRS.2015.2445826.
+[4] J. Yang, X. Bai, D. Strickland, L. Jenkins, and A. M. Cross, ‘‘Dynamic
+network rating for low carbon distribution network operation—A U.K.
+application,’’ IEEE Trans. Smart Grid, vol. 6, no. 2, pp. 988–998,
+Mar. 2015, doi: 10.1109/TSG.2015.2389711.
+[5] D. A. Douglass, I. Grant, J. A. Jardini, R. Kluge, P. Traynor, C. Davis,
+J. Gentle, H.-M. Nguyen, W. Chisholm, C. Xu, T. Goodwin, H. Chen,
+S. Nuthalapati, and N. Hurst, ‘‘A review of dynamic thermal line rat-
+ing methods with forecasting,’’ IEEE Trans. Power Del., vol. 34, no. 6,
+pp. 2100–2109, Dec. 2019, doi: 10.1109/TPWRD.2019.2932054.
+[6] J. Lux, T. Czerniuk, M. Olschewski, and W. Hill, ‘‘Non-concentric
+ladder soil model for dynamic rating of buried power cables,’’ IEEE
+Trans. Power Del., vol. 36, no. 1, pp. 235–243, Feb. 2021, doi:
+10.1109/TPWRD.2020.2977052.
+[7] S. D. Foss, S. H. Lin, and R. Carberry, ‘‘Significance of the conductor
+radial temperature gradient within a dynamic line rating methodology,’’
+IEEE Power Eng. Rev., vols. PER-7, no. 4, p. 60, Apr. 1987, doi:
+10.1109/MPER.1987.5527196.
+[8] S. Negari, K. Raahemifar, and D. Xu, ‘‘Predictive line rating in under-
+ground transmission lines going beyond dynamic line rating,’’ in Proc.
+IEEE Can. Conf. Electr. Comput. Eng. (CCECE), May 2016, pp. 1–6, doi:
+10.1109/CCECE.2016.7726809.
+[9] D. Enescu, P. Colella, A. Russo, R. F. Porumb, and G. C. Seritan,
+‘‘Concepts and methods to assess the dynamic thermal rating of under-
+ground power cables,’’ Energies, vol. 14, no. 9, p. 2591, May 2021, doi:
+10.3390/en14092591.
+[10] S. Karimi, P. Musilek, and A. M. Knight, ‘‘Dynamic thermal rating of
+transmission lines: A review,’’ Renew. Sustain. Energy Rev., vol. 91,
+pp. 600–612, Aug. 2018, doi: 10.1016/j.rser.2018.04.001.
+[11] D. Enescu, A. Russo, R. Porumb, and G. Seritan, ‘‘Dynamic thermal rating
+of electric cables: A conceptual overview,’’ in Proc. 55th Int. Univer-
+sities Power Eng. Conf. (UPEC), Turin, Italy, Sep. 2020, pp. 1–6, doi:
+10.1109/upec49904.2020.9209809.
+[12] C. Barrie, ‘‘Library guides: VU systematic literature reviews: Protocol,’’
+Tech. Rep.
+[13] M. J. Page et al., ‘‘The PRISMA 2020 statement: An updated guideline
+for reporting systematic reviews,’’ BMJ, vol. 372, p. 71, Apr. 2021, doi:
+10.1136/bmj.n71.
+[14] H. A. M. Shaffril, S. F. Samsuddin, and A. A. Samah, ‘‘The ABC of
+systematic literature review: The basic methodological guidance for begin-
+ners,’’ Qual. Quantity, vol. 55, no. 4, pp. 1319–1346, Aug. 2021, doi:
+10.1007/s11135-020-01059-6.
+[15] M.-S. Sergio and M. Andrea, ‘‘Assessment of the influence of
+climate
+change
+on
+power
+grid
+transmission
+capacity,’’
+Sustain.
+Energy,
+Grids
+Netw.,
+vol.
+42,
+Jun.
+2025,
+Art. no. 101695,
+doi:
+10.1016/j.segan.2025.101695.
+14854
+VOLUME 14, 2026
+\nK. N. M. K. Fariz et al.: Systematic Mapping of Dynamic Thermal Rating for Underground Cables
+[16] M.-S. Sergio and M. Andrea, ‘‘Long term climate-driven underground
+cable thermal ratings for network planning,’’ Electr. Power Syst. Res.,
+vol. 241, Apr. 2025, Art. no. 111401, doi: 10.1016/j.epsr.2024.111401.
+[17] W. Poradowski and G. J. Anders, ‘‘Analytical and FEM-based model-
+ing of thermal resistances for power cables with corrugated sheaths,’’
+IEEE Trans. Power Del., vol. 40, no. 1, pp. 398–409, Feb. 2025, doi:
+10.1109/TPWRD.2024.3502238.
+[18] W. Poradowski and G. J. Anders, ‘‘Thermal aspects of submarine cables
+in bend stiffeners,’’ Ocean Eng., vol. 328, Jun. 2025, Art. no. 121027, doi:
+10.1016/j.oceaneng.2025.121027.
+[19] J.-R. Riba and M. Moreno-Eguilaz, ‘‘Analyzing the effect of corona losses
+on dynamic line rating models for overhead transmission lines,’’ Int. J.
+Electr. Power Energy Syst., vol. 166, May 2025, Art. no. 110546, doi:
+10.1016/j.ijepes.2025.110546.
+[20] L. Vejo, P. Castro, M. Manana, A. Laso, R. Lecuna, S. Bustamante,
+and E. Sainz, ‘‘Experimental study of dynamic line rating applied to
+high-temperature low-sag conductors,’’ Energies, vol. 18, no. 4, p. 929,
+Feb. 2025, doi: 10.3390/en18040929.
+[21] J. Li, J. Lin, Y. Han, L. Zhu, D. Chang, and C. Shao, ‘‘Overload risk assess-
+ment of transmission lines considering dynamic line rating,’’ Energies,
+vol. 18, no. 7, p. 1822, Apr. 2025, doi: 10.3390/en18071822.
+[22] W. Yin, K. Zhuang, P. Kong, P. Fan, J. Ye, Y. Wu, and X. Dou, ‘‘Quantifying
+the energy imbalance in hydrogen energy storage-assisted power systems
+under heat waves,’’ Int. J. Electr. Power Energy Syst., vol. 164, Mar. 2025,
+Art. no. 110434, doi: 10.1016/j.ijepes.2024.110434.
+[23] Y. Li, Q. Chen, G. Strbac, K. Hur, and C. Kang, ‘‘Active distribution
+network expansion planning with dynamic thermal rating of underground
+cables and transformers,’’ IEEE Trans. Smart Grid, vol. 15, no. 1,
+pp. 218–232, Jan. 2024, doi: 10.1109/TSG.2023.3266782.
+[24] J. I. Aizpurua, B. G. Stewart, S. D. J. McArthur, N. Jajware, M. Kearns,
+U. Garro, E. Muxika, and M. Mendicute, ‘‘A diagnostics (don’t short)
+framework for underground power cables lifetime estimation under uncer-
+tainty,’’ IEEE Trans. Power Del., vol. 36, no. 4, pp. 2014–2024, Aug. 2021,
+doi: 10.1109/TPWRD.2020.3017951.
+[25] P. Wang, L. Kang, Z. Xu, W. Zhou, S. Bao, Z. Wu, Y. Hao, and G.
+Liu, ‘‘Dynamic thermal analysis for underground cables under continu-
+ously fluctuant load considering time-varying van wormer coefficient,’’
+Electr. Power Syst. Res., vol. 199, Oct. 2021, Art. no. 107395, doi:
+10.1016/j.epsr.2021.107395.
+[26] A. Borbuev, W. Wang, H. Lu, S. Jazebi, and F. de León, ‘‘Investment
+deferral of feeder upgrades revealed by system-wide unbalanced dynamic
+rating: Harvesting the hidden capacity of distribution systems discovered
+by thermal map technology,’’ IEEE Trans. Power Del., vol. 36, no. 3,
+pp. 1594–1602, Jun. 2021, doi: 10.1109/TPWRD.2020.3011618.
+[27] S. Liu and K. Kopsidas, ‘‘Risk-based underground cable circuit ratings for
+flexible wind power integration,’’ IEEE Trans. Power Del., vol. 36, no. 1,
+pp. 145–155, Feb. 2021, doi: 10.1109/TPWRD.2020.2980437.
+[28] P.-Y. Wang, H. Ma, G. Liu, Z.-Z. Han, D.-M. Guo, T. Xu, and
+L.-Y. Kang, ‘‘Dynamic thermal analysis of high-voltage power cable
+insulation for cable dynamic thermal rating,’’ IEEE Access, vol. 7,
+pp. 56095–56106, 2019, doi: 10.1109/ACCESS.2019.2913704.
+[29] M. Diaz-Aguiló and F. de León, ‘‘Adaptive soil model for real-time thermal
+rating of underground power cables,’’ IET Sci., Meas. Technol., vol. 9,
+no. 6, pp. 654–660, Sep. 2015, doi: 10.1049/iet-smt.2014.0269.
+[30] M. Diaz-Aguiló and F. de León, ‘‘Introducing mutual heating effects in
+the ladder-type soil model for the dynamic thermal rating of underground
+cables,’’ IEEE Trans. Power Del., vol. 30, no. 4, pp. 1958–1964, Aug. 2015,
+doi: 10.1109/TPWRD.2015.2390072.
+[31] M. Z. Degefa, M. Humayun, A. Safdarian, M. Koivisto, R. J. Millar, and
+M. Lehtonen, ‘‘Unlocking distribution network capacity through real-time
+thermal rating for high penetration of DGs,’’ Electric Power Syst. Res.,
+vol. 117, pp. 36–46, Dec. 2014, doi: 10.1016/j.epsr.2014.07.032.
+[32] M. Z. Degefa, M. Lehtonen, and R. J. Millar, ‘‘Comparison of air-
+gap thermal models for MV power cables inside unfilled conduit,’’
+IEEE Trans. Power Del., vol. 27, no. 3, pp. 1662–1669, Jul. 2012, doi:
+10.1109/TPWRD.2012.2196293.
+KHAIRUNNISA NORFAEZA M. K. FARIZ was
+born in Malaysia, in 1999. She received the B.Eng.
+degree (Hons.) in electrical engineering from Uni-
+versiti Teknologi MARA (UiTM), Shah Alam,
+Selangor, Malaysia, in 2023, where she is currently
+pursuing the Ph.D. degree in electrical engineer-
+ing with the Faculty of Electrical Engineering.
+Her research interests include power cables, high-
+voltage engineering, renewable energy, and power
+systems. She was certified as a Graduate Member
+of the Board of Engineers Malaysia (BEM), in 2023.
+NIK HAKIMI NIK ALI (Senior Member, IEEE)
+was born in Malaysia, in 1990. He received
+the B.Eng. degree (Hons.) in electrical power
+engineering from Universiti Tenaga Nasional
+(UNITEN), Malaysia, in 2013, and the Ph.D.
+degree in electronics and electrical engineer-
+ing from the University of Southampton, U.K.,
+in 2017. He was a Research Fellow with the School
+of Electronics and Computer Science, University
+of Southampton, from 2018 to 2019. He was a
+Postdoctoral Researcher with the Institute of Power Engineering (IPE),
+UNITEN, from 2019 to 2020. Currently, he is a Senior Lecturer with Univer-
+siti Teknologi MARA (UiTM), Shah Alam, Malaysia. His research interests
+include the condition monitoring of high-voltage cables and transformers,
+partial discharge measurement, HV insulation/dielectric materials, trans-
+former rating analysis, lightning analysis, sustainable energy management,
+electric vehicle supply equipment (EVSE), and any applications related
+to applied signal processing. He is a Graduate Member of the Board of
+Engineers Malaysia (BEM).
+MOHD IQBAL MOHD NOOR received the Ph.D.
+degree in natural resource policy from Universiti
+Putra Malaysia (UPM). He is currently a Distin-
+guished Senior Lecturer with Universiti Teknologi
+MARA (UiTM) and a fellow of the Institute of
+Biodiversity and Sustainable Development. With
+a robust academic background, he has cultivated
+a deep expertise in areas, such as environmen-
+tal governance, health economics, and climate
+change. His scholarly contributions are evident in
+his impressive publication record in esteemed journals and his active engage-
+ment in several high-impact research projects. His dedication to academic
+excellence and community service is further highlighted by his significant
+roles in various scientific and educational community programs.
+VOLUME 14, 2026
+14855
+\nK. N. M. K. Fariz et al.: Systematic Mapping of Dynamic Thermal Rating for Underground Cables
+MOHD NOOR AFIQ BIN RAMLEE received
+the Ph.D. degree in medical science (data science
+and health economic forecasting) from Universiti
+Sains Islam Malaysia (USIM). He is a Senior Lec-
+turer and the Deputy Chairperson of the Centre
+of Excellence (CoE) for AI and Smart Education,
+Universiti Poly-Tech Malaysia (UPTM), Kuala
+Lumpur.He has authored over 20 peer-reviewed
+publications in Scopus- and Web of Science-
+indexed journals, supported by national grants,
+including FRGS and industry collaborations. His research interests include
+artificial intelligence in healthcare, machine learning for resource fore-
+casting, health economics, and sustainable data-driven systems. He is a
+Graduate Technologist (Tc.) Registered with Malaysia Board of Technol-
+ogists (MBOT).
+MOHAMMAD A. HAMDAN received the B.Sc.
+degree in electrical engineering from Jordan Uni-
+versity of Science and Technology, Irbid, Jordan,
+in 2010, the M.Sc. degree in energy, sustainability
+with electric power engineering from the Uni-
+versity of Southampton, U.K., in 2014, and the
+Ph.D. degree in electrical engineering from the
+University of Southampton, Southampton, U.K.,
+in 2019. Currently, he is an Associate Professor
+with Applied Science Private University, Jordan.
+His current research interests include the impact of renewable technologies
+on the distribution grid and numerical simulation (FEA) and theoretical
+analytics (thermal, electrical, and mechanical) of high-voltage ac and dc
+power cables.
+CHIN-LEONG WOOI (Senior Member, IEEE)
+received the B.Sc. degree in electrical and
+electronic engineering from Universiti Malaysia
+Sabah, Malaysia, in 2011, and the M.E. and
+Ph.D. degrees in electrical engineering from Uni-
+versiti Teknologi Malaysia, Johor, Malaysia, in
+2013 and 2017, respectively. He is currently
+a Senior Lecturer with the Faculty of Electri-
+cal Engineering Technology, Universiti Malaysia
+Perlis (UniMAP). His research interests include
+the electromagnetic study of lightning characteristics, lightning detection and
+earthing systems, high-voltage, and power system analysis.
+MOHD AZRAEI PANGAH @ PA’AT received
+the bachelor’s degree in electrical power engineer-
+ing from Universiti Tenaga Nasional (UNITEN),
+Malaysia, in 2012, and the M.Eng. degree in
+electrical engineering from University Tenaga
+Nasional, in 2023. Upon graduation, he was a
+Researcher with the High Voltage Cable Diag-
+nostics Laboratory, TNB Research Sdn Bhd. His
+research interests include cable and its accessories
+diagnostics and testing. He is a member of the
+Board of Engineers Malaysia, Malaysia Board of Technology, and a Certified
+Trainer under HRDCorp.
+14856
+VOLUME 14, 2026

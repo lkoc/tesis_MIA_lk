@@ -182,14 +182,14 @@ def sample_domain_points(
     soil_pts = _take(xy, masks[-1], counts[-1], device)
     interior["soil"] = soil_pts.clone().detach().requires_grad_(True)
 
-    # Interface rings (angular sampling + radial perturbation)
-    eps = 0.002 * r_outer_max
+    # Points on the interface itself; trainers evaluate distinct inner/outer
+    # traces. Random radial jitter could put both traces in the same material.
     angles = 2.0 * math.pi * torch.rand((n_interface, 1), device=device)
 
     interfaces: dict[str, torch.Tensor] = {}
     for layer in layers:
         r = layer.r_outer
-        rr = r + eps * (2.0 * torch.rand((n_interface, 1), device=device) - 1.0)
+        rr = r
         ix = cx + rr * torch.cos(angles)
         iy = cy + rr * torch.sin(angles)
         pts = torch.cat([ix, iy], dim=1)

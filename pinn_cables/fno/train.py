@@ -88,6 +88,12 @@ def train_fno(
         Diccionario con históricos:
         ``{"train_total", "train_data", "train_pde", "val_total"}``.
     """
+    if cfg.w_pde > 0:
+        raise NotImplementedError(
+            "PINO is not implemented: the historical residual callback was not "
+            "connected to the predicted grid. Use w_pde=0 for the supervised FNO "
+            "or Benchmarks for the verified PINN formulation."
+        )
     if cfg.device == "auto":
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     else:

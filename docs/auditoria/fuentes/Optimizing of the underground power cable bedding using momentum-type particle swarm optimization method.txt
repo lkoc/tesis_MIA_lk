@@ -1,0 +1,1509 @@
+Optimizing of the underground power cable bedding
+using momentum-type particle swarm optimization method
+Paweł Ocłon a, *, Piotr Cisek a, Dawid Taler b, Marcin Pilarczyk a, Tomasz Szwarc a
+a Institute of Thermal Power Engineering, Cracow University of Technology, al. Jana Pawła II 37, 31-864 Krakow, Poland
+b Institute of Thermal Engineering and Air Protection, Cracow University of Technology, ul. Warszawska 24, 31-155 Krakow, Poland
+a r t i c l e i n f o
+Article history:
+Received 11 January 2015
+Received in revised form
+30 March 2015
+Accepted 18 April 2015
+Available online xxx
+Keywords:
+Momentum-type particle swarm
+optimization
+Underground power cable system
+Thermal conductivity
+Heat dissipation
+Fluidized thermal backﬁll
+a b s t r a c t
+Thermal performance optimization of underground power cable system is presented in this paper. The
+analyzed system consists of three underground power cables situated in an in-line arrangement. The
+HDPE (High-Density Polyethylene) casing pipes, ﬁlled with SBM (Sand-Bentonite Mixture), covers the
+cables to protect them from heavy mechanical loads (e.g. vibrations). The FTB (Fluidized Thermal Backﬁll)
+layer is applied to prevent the cables from overheating. Due to the substantial costs of FTB backﬁll
+material (in relation to the native soil or dry sand), the cross-sectional area of FTB bedding layer has to be
+minimized. Furthermore, the maximum cable conductor temperature is expected not to exceed the
+optimum operating temperature. Therefore, the optimization procedure i.e. momentum-type PSO (Par-
+ticle Swarm Optimization) is applied. The FEM (Finite Element Method) is used to solve the two-
+dimensional steady-state heat conduction problem. As a result, temperature distribution is deter-
+mined for the native soil, FTB bedding, and cables. The performed computations considered the tem-
+perature dependent current rating and volumetric heat generation rate from cable conductor. The
+applied optimization procedure resulted in determination of the optimum cable spacing and cross-
+sectional area of the rectangular-shaped FTB bedding layer. Moreover, the obtained maximum temper-
+ature for the cable core do not exceed the allowable value.
+© 2015 Elsevier Ltd. All rights reserved.
+1. Introduction
+In recent years, the thermal analysis of underground power
+cable system attracted a broad scientiﬁc attention. In most in-
+stances, the electric energy transmission line operates at the
+maximum possible conductor electric current. According to ﬁrst
+Joule's law, heat generated in power cable core depends on its
+electric resistance and ﬂowing electric current. An accurate analysis
+of heat dissipation process from the underground power cables to
+the surrounding soil plays a crucial role in designing the electricity
+transmission lines in modern power plants [1,2].
+Ampacity is deﬁned as the maximum electrical current that a
+conductor can safely carry without exceeding its insulation tem-
+perature limitations. Power cable ampacity is also described as a
+current carrying capacity. The current carrying capacity mostly
+depends on the temperature of the cable conductor. Excessive
+conductor
+temperature
+leads
+to
+cable
+overheating
+and
+the
+improper operation of the power transmission line. Furthermore,
+the better conditions of heat dissipation process from a cable to
+its surroundings, the lower cable diameter may be used for
+the same electrical load. Therefore, the unit costs associated
+with
+underground
+transmission
+line
+installation
+decreases
+signiﬁcantly.
+The traditional method used in calculations of the thermal
+resistance between the cable system and the external environment
+[3,4] assumes that the soil is a homogeneous material with con-
+stant thermal conductivity. In fact, the heat transfer processes
+associated with heat dissipation from the power cable to the sur-
+rounding soil are more complex. The soil is a multilayered porous
+material and consists of e.g. quartz, organic matter, clay minerals,
+air, water in the liquid and vapor phase, among others. Moreover,
+the heat transfer conditions depend strongly on the thermal con-
+ductivity of each soil layer. Thus, soil thermal conductivity exhibits
+a distinct dependence on porosity, liquid vapor transport, and
+temperature, among others [5]. The thermal conductivity increases
+with soil porosity since the pores are ﬁlled with water and the air
+* Corresponding author. Tel.: þ48 12 628 35 59; fax: þ48 12 628 35 60.
+E-mail address: poclon@mech.pk.edu.pl (P. Ocłon).
+Contents lists available at ScienceDirect
+Energy
+journal homepage: www.elsevier.com/locate/energy
+http://dx.doi.org/10.1016/j.energy.2015.04.100
+0360-5442/© 2015 Elsevier Ltd. All rights reserved.
+Energy xxx (2015) 1e10
+Please cite this article in press as: Ocłon P, et al., Optimizing of the underground power cable bedding using momentum-type particle swarm
+optimization method, Energy (2015), http://dx.doi.org/10.1016/j.energy.2015.04.100
+\n[6,7]. The higher soil water content, the better heat dissipation
+process conditions occur. However, water existing in pores may
+locally evaporate in the immediate vicinity of the cable thus the so-
+called ‘dry zones’ are created. Dry zones are usually formed around
+underground power cables under loading conditions due to the
+moisture migration within the soil [8]. The presence of dry zones
+around the cable results in a signiﬁcant soil thermal conductivity
+drop since the thermal conductivity is over 20 times lower for a
+vapor than for liquid. Therefore, when temperature is rising, and
+dry zones are formed, it leads to a signiﬁcant reduction in soil
+thermal conductivity.
+Geometrical conﬁguration of the cable system (i.e. cable
+spacing, shape of the trench, backﬁll layer cross-sectional area)
+inﬂuences the cable core temperature. In thermal engineering
+practice, it is possible to enhance the heat transfer from the solid
+materials to its surroundings by different methods. In particular
+cases: extended surfaces [9e11], porous structures [12e14] and
+multiphase materials [15,16] are utilized. During the underground
+transmission line placement, the heat dissipation from power ca-
+bles to the surrounding soil shall be enhanced.
+In order to circumvent the power cable overheating problems the
+specially designed bedding material, e.g. FTB (Fluidized Thermal
+Backﬁll), exhibiting higher thermal conductivity than the mother
+ground, is often used. Moreover, the thermal conductivity of the dry
+FTB material is over three times greater than for the dry soil.
+Therefore, underground power cables placement in the FTB bedding
+instead of the mother ground may circumvent the problems asso-
+ciated with a considerable thermal conductivity drop in soil, espe-
+cially in the vicinity of the cable. On the other hand, the material
+costs related to FTB backﬁlling are signiﬁcantly higher, comparing to
+the mother ground. Approximate cost of FTB is about $130 per cubic
+meter [17] and strongly depends on the cable line installation
+location and availability of raw materials, among others. Hence,
+when designing the shape of FTB layer (the optimum cross-sectional
+area of the bedding layer), the optimization work has to be done.
+This paper presents an optimization of the FTB bedding layer
+cross-sectional area for underground power cable system that is
+planned to be installed in one of the Polish power plants. The
+analyzed system consists of three underground power cables sit-
+uated in an in-line arrangement. Minimization of the FTB bedding
+cross-sectional area is performed by employing the momentum-
+type PSO (Particle Swarm Optimization) Method [18]. Moreover,
+the cable conductor temperature cannot exceed the optimum
+operating temperature i.e. 65 C, which is speciﬁed by the cable
+producer. The Finite Element Method [5,19,20,23,24] is applied to
+determine the temperature distribution in underground power
+cable system. The methods for thermal analysis of underground
+power cable systems can be also found in Refs. [21,22].
+Nomenclature
+A
+cross-section area (m2)
+b
+distance between conductor axis and top edge of the
+FTB bedding layer (m)
+d
+diameter (m)
+f
+alternating current (AC) frequency (Hz)
+F(x)
+cost function
+H
+burial depth (m)
+I
+current load (A)
+k
+thermal conductivity (W/(m K))
+l
+distance between conductor axes (m)
+p
+distance between conductor axis and bottom edge of
+the FTB bedding layer (m)
+qv
+heat source per unit volume (W/m3)
+rand()
+random number between 0 and 1 ()
+Re
+electrical resistance (U/km)
+Rth
+thermal resistance ((m K)/W)
+r
+radius (m)
+s
+distance between conductor axis and lateral edge of
+the FTB bedding layer (m)
+T
+temperature (C)
+Tcmax
+maximum central cable core temperature (C)
+Tc,FEM
+cable core temperature determined from FEM model
+(C)
+Tmax,p
+maximum allowable cable core temperature (C)
+vn
+i
+i-th particle velocity in n-th iteration (m/s)
+x
+design variables vector (or particle position vector) (m)
+xn
+i
+i-th particle position in n-th iteration (m)
+ys
+skin effect factor ()
+yp
+proximity effect factor ()
+Greek symbols
+a
+temperature coefﬁcient ()
+DQ
+heat losses from the power cable per unit length (W/
+m)
+Subscripts
+AC
+alternating current
+b
+cable bedding layer
+c
+cable conductor
+DC
+direct current
+g
+at ground level
+ins
+XLPE cable insulation
+ja
+cable jacket
+max
+maximum value (related to the central cable core
+temperature Tcmax or cost function F(x))
+mean
+mean value (related to the central cable core
+temperature Tcmax or cost function F(x))
+min
+minimum value (related to the central cable core
+temperature Tcmax or cost function F(x))
+opt
+optimum cable core temperature
+pf
+constants of dynamic penalty function C(n) and the
+penalty factor H(x)
+PSO
+constants of particle swarm optimization (PSO)
+algorithm
+ref
+reference value
+sh
+cable sheath
+soil
+soil
+Superscripts
+n
+iteration number
+List of shorts
+FTB
+ﬂuidized thermal backﬁll
+FEM
+ﬁnite element method
+PSO
+particle swarm optimization
+HDPE
+high-density polyethylene
+SBM
+sand-bentonite mixture
+PE
+polyethylene
+PVC
+polyvinyl chloride
+SGFC
+sand, gravel, ﬂy ash and cement-mix
+IEC
+international electrotechnical commission
+XLPE
+cross-linked polyethylene
+P. Ocłon et al. / Energy xxx (2015) 1e10
+2
+Please cite this article in press as: Ocłon P, et al., Optimizing of the underground power cable bedding using momentum-type particle swarm
+optimization method, Energy (2015), http://dx.doi.org/10.1016/j.energy.2015.04.100
+\n2. Solutions for installation of underground cable systems
+Direct burial power cable laying technique is widely used in
+most countries due to the low operational costs and immunity to
+adverse weather conditions. Application of light mortar or thermal
+ﬁller instead of ﬁne sand may considerably improve the circuit
+transmission properties. The power cable transmission line may be
+laid in the ground in a different conﬁgurations [25]. Typical for-
+mations include trefoil (triangular) and ﬂat (in-line) arrangement
+(Fig. 1). The appropriate type of cables arrangement depends on
+several factors like screen bonding method, conductor area and
+available space for installation.
+FTB is one of the commonly used and popular backﬁll materials.
+It is the engineered slurry backﬁll mixture which, when solidiﬁed,
+may develop into an efﬁcient heat conducting medium [26].
+The underground power cables are commonly situated in ducts.
+This laying method has a signiﬁcant advantage over the conven-
+tional burial technique. The power cables are usually located in the
+PVC (Polyvinyl Chloride) or PE (Polyethylene) casing pipes. Cable
+placement in ducts is widely applied when the ground is subjected
+to unusually heavy loads (i.e. signiﬁcant vibrations) e.g. under
+crossings level (Fig. 1). Flat formation is applied to particular cases
+i.e. protected cables: 225 and 400 kV auxiliary, under road crossings
+[27]. The PVC or PE casing pipes are ﬁlled with Sand-Bentonite
+Mixture (SBM). SBM improves the heat dissipation from hot cable
+core to the surrounding soil by increasing the thermal conductivity
+in the vicinity of the cable line [28].
+Bentonite, which is commercially available in powder form, is a
+swelling montmorillonite clay which, when mixed with water,
+expands and forms a gel. In gel form, it acts as a lubricant or
+ﬂuidizer for the mixture [29]. Thermal conductivity of SMB mainly
+depends on three parameters i.e. mixture constituents (sand/
+bentonite) proportions, dry density, and water content [30]. An
+increase in the SBM water content and dry density improves
+thermal conductivity of the mixture [31]. Also, the proper propor-
+tion of individual components inﬂuence the SBM thermal proper-
+ties. Due to the swelling of bentonite particles the better contact
+between the grains is achieved.
+This paper presents the thermal analysis of 400 kV high voltage
+underground power cables [32] placed in the ﬂat formation. Table 1
+gives all the power cable relevant parameters. According to the
+producer requirements [33] the maximum allowable cable core
+temperature shall not be exceeded. When the cable core temper-
+ature is greater than 90 C, the XLPE cable insulation melting may
+occur leading directly to the transmission line malfunction. The
+optimum power cable operating temperature is speciﬁed as 65 C.
+Fig. 2 depicts the structure of considered high voltage power
+cable with a conductor diameter of 49.6 mm and cross-sectional
+area of 1600 mm2.
+Table 2 lists the materials, thermal conductivities and thick-
+nesses of the individual cable components.
+3. Optimization of cable bedding layer cross-sectional area
+The transmission line is considered to be installed beneath the
+road crossing. The optimal shape of the cable bedding trench is
+determined under the conditions of minimizing the FTB bedding
+layer cross-sectional area while the cable temperature shall not
+exceed 65 C. The momentum-type Particle Swarm Optimization
+(PSO) method is used for this purpose.
+Fig. 1. Types of buried cables installation in ducts; 1 e warning tape, 2 e warning grid,
+3 e mother ground, 4 e concrete protective slab, 5 e FTB, 6 e SBM, 7 e PVC or PE
+casing pipe.
+Table 1
+400 kV power cable characteristics [33].
+Cross-section area, mm2
+1600
+Conductor diameter dc, mm
+49.6
+Insulation total thickness, mm
+27
+External diameter, mm
+127.9
+DC Resistance at 20 C, U/km
+0.0113
+AC Resistance at 65C/50 Hz, U/km
+0.0157
+Current loading in ground in-line at 65 C, A
+1145
+Fig. 2. 400 kV high-voltage power cable layout [33].
+Table 2
+Thermal properties and thicknesses of 400 kV power cable layout materials
+(referred to Fig. 2).
+Cable constituent
+Material
+Thickness,
+mm
+Thermal conductivity,
+W/(m K)
+Conductor
+copper
+∅49.6
+400.00
+Inner semi-conductive
+layer
+e
+2.0
+0.2875
+Insulation
+XLPE
+27.0
+0.2875
+Outer semi-conductive
+layer
+e
+1.5
+0.2875
+Semi-conductive swelling
+tape as
+longitudinal water
+barrier
+e
+0.7
+0.2875
+Wire screen
+copper
+4.8
+400.00
+Semi-conductive swelling
+tape as
+longitudinal water
+barrier
+e
+0.7
+0.2875
+Aluminum laminated
+sheath
+aluminium
+0.2
+0.2875
+HDPE oversheath
+HDPE
+5.1
+0.2875
+P. Ocłon et al. / Energy xxx (2015) 1e10
+3
+Please cite this article in press as: Ocłon P, et al., Optimizing of the underground power cable bedding using momentum-type particle swarm
+optimization method, Energy (2015), http://dx.doi.org/10.1016/j.energy.2015.04.100
+\n3.1. Momentum type Particle Swarm Optimization (PSO)
+This study employs a momentum-type PSO algorithm [18] and a
+dynamic penalty function with a continues assignment to solve a
+discrete nonlinear constrained global optimization problem. As it
+has been shown in Refs. [18], the momentum-type PSO may achieve
+faster convergence than the traditional PSO algorithm [34e36]. The
+PSO is inspired by the social behavior simulations for groups of
+organism, such as ﬂocks of birds and schools of ﬁsh. The particles
+represent the sets of design variables. The particle swarm with size
+Npar is deﬁned during the initial iteration. The particle velocity
+determines its position in successive iteration. The algorithm ﬁnds
+the global minimum of the cost functionf ðxÞ if the particle position
+is the same for all particles in the swarm, or the other speciﬁed
+convergence criterion is satisﬁed. The momentum type PSO algo-
+rithm uses only two equations, ﬁrst for the velocity of i-th particle
+in n-th iteration vn
+i and the second for the new position of the
+particles xn
+i .
+The general form of the equation for i-th particle velocity vn
+i in
+n-th iteration is given as follows [18]:
+vn
+i ¼ bPSO  Dvn1
+i
+þ c1  randðÞ 
+
+pbesti  xn1
+i
+
+þ c2
+ randðÞ 
+
+gbesti  xn1
+i
+
+:
+(1)
+The particle position xn
+i is updated in the following manner:
+xn
+i ¼ xn1
+i
+þ aPSO  vn
+i i ¼ 1; 2; ::::; Npar:
+(2)
+The momentum type PSO algorithm parameters are given in
+Table 3. The delta momentum term in the applied PSO algorithm
+Dvn1
+i
+¼ vn1
+i
+ vn2
+i
+stabilizes searching, and an appropriate value
+for bPSO improves the convergence and optimal solution [18].
+In a particle velocity formula given by Eq. (1), randðÞ is a random
+number between 0 and 1. In a state of equilibrium, other particles
+are not able to ﬁnd better positions, i.e. xn
+i ¼ pbesti and xn
+i ¼ gbesti
+where pbest denotes the best particle position, and gbest is the
+global best position. The converged algorithm solution ensures that
+the Eq. (1) satisﬁes the zero velocity variationðDvn1
+i
+¼ 0Þ and zero
+velocity ðvn
+i ¼ 0Þ conditions for the considered particle.
+In order to handle the nonlinear constraints the dynamic pen-
+alty function, as suggested in Refs. [18], shall be applied. An active
+function C(n) and a continuous assignment functionHðxÞ are
+multiplied and added to the original cost function f(x):
+FðxÞ ¼ f ðxÞ þ CðnÞHðxÞ;
+(3)
+where CðnÞ denotes a dynamically modiﬁed penalty value depen-
+dent on the iteration number n; HðxÞ is a penalty factor. The terms
+C(n) and HðxÞ for m linear and nonlinear constraint gjðxÞ are given
+as [18]:
+CðnÞ ¼
+
+cpf  n
+apf ;
+(4)
+HðxÞ ¼
+X
+m
+j¼1
+h
+q
+
+qjðxÞ
+
+ qjðxÞgðqjðxÞÞi
+;
+(5)
+q
+
+qjðxÞ
+
+¼ apf 
+
+1 
+1
+eqjðxÞ
+
+þ bpf ;
+(6)
+where qjðxÞ ¼ maxf0; qjðxÞg; j ¼ 1; :::; m: The function qjðxÞ is a
+relative violated function of the constraints, qðqjðxÞÞ denotes a
+continuous assignment function of exponential type, and gðqjðxÞÞ
+deﬁnes the power of the violated function. The constants for
+equation (4)÷(6) are selected as: cpf ¼ 0.5, apf ¼ 2, apf ¼ 150, and
+bpf ¼ 10. If qjðxÞ  1, then the power gðqjðxÞÞ ¼ 1; in the other case
+gðqjðxÞÞ ¼ 2, as given in Ref. [18].
+3.2. Optimization problem formulation
+This study applies the momentum-type PSO for minimizing the
+cross-sectional area Ab of FTB layer. It should be noted that Ab is, in
+fact, only a half of the real FTB cross-sectional area. This assumption
+is valid since the physical geometry of the modeled underground
+power cable system and the expected pattern of the thermal so-
+lution, exhibits mirror symmetry. Fig. 3a shows the design variables
+l, s, p and b, where l is the horizontal distance between the cable
+conductors axes, s is the spacing between the right edge of the FTB
+bedding layer and the side cable axis. The distances between the
+conductors axes and the top and the bottom of FTB layer are
+Table 3
+Momentum-type PSO constants and initial values of variables, based on [18].
+Parameter
+Value
+bPSO
+0.1
+aPSO
+1
+c1
+2
+c2
+2
+Dv0
+i (initial value of delta momentum term)
+0
+Fig. 3. Flat formation arrangement of a) underground power cable system, subjected to the optimization procedure; b) detailed view on cable placement in HDPE casing pipe.
+P. Ocłon et al. / Energy xxx (2015) 1e10
+4
+Please cite this article in press as: Ocłon P, et al., Optimizing of the underground power cable bedding using momentum-type particle swarm
+optimization method, Energy (2015), http://dx.doi.org/10.1016/j.energy.2015.04.100
+\ndenoted as b and p, respectively. In order to avoid the excessive
+mechanical loads, the cables are situated in casing pipes made of
+High-Density Polyethylene (HDPE). The casing pipe (Fig. 3b) is ﬁlled
+with the Sand-Bentonite Mixture (SBM).
+Equations (7) and (8) deﬁne the optimization problem for the
+underground cable system (Fig. 3):
+Minimize
+FðxÞ ¼ AbðxÞ þ CðnÞHðxÞ ;
+x ¼ ½l; s; p; b2RNdim¼4
+(7)
+Subject to
+qjðxÞ  0;
+j ¼ 1
+;
+with qjðxÞ ¼ TcmaxðxÞ  Topt
+;
+(8)
+where Topt is the optimum operation temperature of the cable
+conductor i.e. Topt ¼ 65 BC and TcmaxðxÞ denotes the maximum
+cable conductor temperature, determined for the x vector of design
+variables. It should be noted that the number of function con-
+straints j is equal to 1, since only the constraint is that the TcmaxðxÞ
+temperature shall not exceed the Topt value. In FEM simulations
+(subsection 4.2) the discrete model of underground power cable
+system is created based on the values of design variables
+speciﬁed by a vector x. The TcmaxðxÞ temperature is determined at
+the location of central cable conductor gravity center (Fig. 3), from
+FEM
+simulations.
+The
+constraints
+on
+design
+variables
+are
+assumed as:
+0:3  l  0:6;
+0:2  p; b; s  0:4 :
+(9)
+For the given number of particles in swarm Npar, the TcmaxðxiÞ
+temperatures and the corresponding FTB bedding layer cross-
+sectional areas AbðxiÞ are determined for each particle position xi;
+i ¼ 1,..., Npar. As a result, the objective function FðxiÞ is evaluated for
+all particles. Then the momentum PSO optimization procedure is
+applied to solve the constrained optimization problem given by
+Eqs. (7)e(9). The detailed application of momentum PSO algorithm
+for the analyzed underground power cables system is discussed in
+subsection 5.
+4. Determination of the temperature distribution in
+underground power cable system
+The FEM (Finite Element Method) is used to determine the
+temperature distribution in the thermal system presented in Fig. 3.
+The analyzed power cable system consists of three 400 kV single
+core underground power cables situated in the HDPE casing pipes,
+ﬁlled with SBM. The ﬂat formation is considered. The casing pipes
+are placed in FTB layer with rectangular-shaped cross-section, in
+order to prevent the power cables from overheating. It is assumed
+that the FTB layer is buried in the mother ground with constant
+thermal properties. As above-mentioned, since the geometrical
+symmetry exists thus, only a half of the real thermal system (Fig. 1)
+is considered.
+4.1. Material properties
+The mother ground thermal conductivity ksoil is assumed to be
+constant and equal to 1.00 W/(m K), according to IEC standards [3].
+In this case application of SGFC mixture (Sand, Gravel, Fly ash and
+Cement-mix), is proposed. SGFC is one of the FTB types with a given
+composition: 41% of ﬁne aggregate, 49% of coarse aggregate, 2.5%
+of cement and 7.5% of ﬂy ash (ﬂuidizer). When dry conditions
+occur, SGFC mixture is characterized by dry density of 2187 kg/m3
+and thermal conductivity of 1.54 W/(m K) [29].
+The power cables are situated in HDPE casing pipes ﬁlled
+with sand-bentonite-based buffer material with a dry density of
+1700 kg/m3 and thermal conductivity of 0.95 W/(m K) [37]. The
+external diameter and thickness of HDPE casing pipe are 278 mm
+and 14 mm, respectively. Mixture proposed by Ref. [37] is
+composed of MX-80 (Na-bentonite), sand and water. Sand mass
+fraction and water contents are 37.5% and 8.17%, respectively [37].
+Table 4 shows the thermal conductivity of different materials
+considered in this study.
+The computational study considers the dry conditions of FTB
+and SBM backﬁlls, what ensures the safety margin when the power
+cable core temperature is calculated. In real conditions, the heat
+dissipation process is more efﬁcient, due to the moisture existing in
+the soil and backﬁll pores [38,39].
+4.2. Computational procedure
+The heat transfer problem (Fig. 3) is considered as two-
+dimensional and steady-state. The Finite Element Method code
+developed in MATLAB [41] is used to solve the heat conduction
+equation [6,43e45]:
+v
+vx
+
+k vT
+vx
+
+þ v
+vy
+
+k vT
+vy
+
+¼ qv:
+(10)
+In Equation (10), T denotes the temperature at any point in the
+x-y plane around the underground cable; k represents thermal
+conductivity, and qv is a heat source per cable core unit volume. The
+heat source term qv is evaluated as follows:
+qv ¼ qv
+Tc;FEM
+	;
+for the cable conductor domain
+qv ¼ 0;
+otherwise:
+:
+(11)
+The Tc,FEM denotes an averaged temperature within the ﬁnite
+element that belongs to the cable conductor domain, calculated as
+an arithmetic mean of nodal temperatures. It should be noted, that
+Tc,FEM temperatures are determined for all ﬁnite elements that
+belong to the cable conductor domain of FEM model. In other do-
+mains of the FEM model i.e. cable insulation, cable sheath, cable
+jacket, FTB bedding layer and native soil no heat source exist, i.e.
+qv ¼ 0. In Eq. (11) qv(Tc,FEM) is a temperature dependent volumetric
+heat source per cable core unit volume, deﬁned as:
+qv
+Tc;FEM
+	 ¼ DQ
+Ac
+;
+(12)
+where Ac denotes the cable conductor cross-section area. The value
+of Ac is calculated on the basis of FEM model of cable conductor
+as Ac ¼ 0.25pdc2 while DQ denotes the cable heat losses (also called
+as Joule losses). Since the volumetric heat sources within ﬁnite
+elements, that represents the cable conductor domain i.e. qv(Tc,FEM),
+depend on the corresponding Tc,FEM temperatures, thus Eq. (10) is
+solved iteratively to determine Tc,FEM temperatures. Then for the
+cable conductor domain the values of Tc,FEM from the previous
+iteration are used when determining the values of qv(Tc,FEM) in the
+actual iteration.
+Table 4
+Thermal conductivities of different materials considered in computations.
+Material
+Thermal conductivity, W/(m K)
+Mother ground
+IEC standards [1]: 1.00
+FTB
+dry conditions: 1.54
+SBM
+dry conditions: 0.95
+HDPE casing pipe
+0.48
+P. Ocłon et al. / Energy xxx (2015) 1e10
+5
+Please cite this article in press as: Ocłon P, et al., Optimizing of the underground power cable bedding using momentum-type particle swarm
+optimization method, Energy (2015), http://dx.doi.org/10.1016/j.energy.2015.04.100
+\nThe cables are located at depth H of 2 m below the road crossing
+level. The square domain with height and width of 10 m is used in
+the computations (Fig. 3a). It is assumed that the right, left and
+bottom edges of the boundary region are thermally insulated (i.e.
+no heat ﬂow exists in a direction perpendicular to the domain
+boundary). At the top edge (the ground level), the temperature Tg is
+set to 30 C and is 5 C higher than in Ref. [40] due to the possible
+adverse conditions of heat dissipation. Equation (13) summarizes
+the boundary conditions types applied when solving Eq. (10):
+vT
+vx
+
+
+
+
+x¼10m
+¼ 0;
+for the boundary region right edge;
+vT
+vx
+
+
+
+
+x¼0
+¼ 0;
+for the symmetry plane;
+vT
+vy
+
+
+
+
+y¼10m
+¼ 0;
+for the boundary region botom edge;
+Tðx; y ¼ 0Þ ¼ Tg ¼ 30C;
+for the boundary region top edge:
+(13)
+4.2.1. Determination of power cable heat losses
+The evaluation of the power cable heat losses DQ is necessary to
+determine the volumetric heat source qvðTc;FEMÞ, deﬁned by Eq. (12)
+and used when solving steady-state heat conduction problem,
+given by Eqs. (10) and (13). In the present calculations, the
+simpliﬁed geometrical model of 400 kV underground power cable
+(Fig. 4a) is used.
+The cable is buried at the depth of H ¼ 2 m from the ground
+level (Fig. 4b). Symbols rc, rins, rsh and rj (Table 5) denote the cable
+conductor, insulation, sheath and jacket outer radiuses, respec-
+tively. The cable external diameter is de ¼ dj ¼ 2rj, and the
+conductor diameter is dc ¼ 2rc (Fig. 4a).
+The power cable heat losses are expressed by Joule's law
+introducing alternating current (AC) electric resistance:
+DQ ¼ I2Re;AC:
+(14)
+Cable conductor exhibits a greater resistance to the ﬂow of
+alternating current Re,AC than it does to direct current Re,DC. The
+three major factors for the observed increase are skin and proximity
+effects of closely spaced current carrying conductors, and also in-
+crease in cable conductor temperature [25]. The increase in elec-
+trical resistance is expressed as:
+Re;AC ¼ Re;DC
+
+1 þ ys þ yp
+
+¼ Re;ref
+h
+1 þ aref
+
+Tc;FEM  Tref
+i
+1 þ ys þ yp
+
+;
+(15)
+where Re,ref, in U/km, and ae,ref are the reference cable conductor
+electrical resistance, and the temperature coefﬁcient for the
+conductor material, both given at the reference temperature
+Tref ¼ 20 C (according to the cable producer [33]). The cable
+conductor temperature, determined from Eq. (10) for FEM model, is
+denoted as Tc,FEM and given in C. For the described computational
+cases (braided copper conductor) Re,ref ¼ 0.0113 U/km and
+ae,ref ¼ 0.00393. Skin and proximity effect factors ys and yp [25] are
+calculated, respectively as:
+ys ¼
+x4
+s
+192 þ 0:8x4s
+;
+x2
+s ¼ 8pf
+Re;DC
+107ks;
+(16)
+yp ¼
+x4
+p
+192 þ 0:8x4p
+dc
+l
+2
+2
+66664
+0:312
+dc
+l
+2
+þ
+1:18
+x4
+p
+192þ0:8x4
+p þ 0:27
+3
+77775
+;
+x2
+p ¼ 8pf
+Re;DC
+107kp;
+(17)
+where ks and kp values equals to 0.435 and 0.37 [42]; f is altering
+current frequency equal to 50 Hz.
+Maximum current loading of the analyzed underground power
+cable system is assumed to be equal to 1145 A. The values of qv as a
+function of cable conductor temperature are shown in Fig. 5.
+The computations, presented in this paper, do not include
+directly the dry zones formation effect in a vicinity of cable [8] that
+can cause a rapid increase in cable core temperature. Therefore, for
+a given temperature, the corresponding qv values calculated from
+Eq. (12), are increased by 10% (Fig. 5). Hence, the safety margin is
+provided for a design calculation of the presented power cable
+system. The function qv(Tc,FEM), considered in the present calcula-
+tions, for cable spacing l ¼ 0.4 m, is depicted in Fig. 5 and given by
+the formula:
+qvðTcFEMÞ ¼ 0:03062TcFEM þ 8:7836:
+(18)
+For different values of cable spacing l, varying from 0.3 m to
+0.6 m, the volumetric heat source was calculated by using the same
+procedure.
+Fig. 4. Simpliﬁed model of a) 400 kV underground power cable considered whilst determination of volumetric heat transfer rate qv; b) the geometrical arrangement of
+transmission line.
+Table 5
+Thermal properties and thicknesses of 400 kV power cable layout materials [45].
+Cable
+layout
+Material
+Thickness,
+mm
+Layer radius,
+mm
+Thermal conductivity
+W/(m K)
+Conductor
+copper
+dc ¼ 49.6
+rc ¼ 24.8
+400
+Insulation
+XLPE
+30.5
+rins ¼ 55.3
+0.2875
+Sheath
+copper
+6.4
+rsh ¼ 61.7
+400
+Jacket
+HDPE
+5.1
+rj ¼ 66.8
+0.2875
+P. Ocłon et al. / Energy xxx (2015) 1e10
+6
+Please cite this article in press as: Ocłon P, et al., Optimizing of the underground power cable bedding using momentum-type particle swarm
+optimization method, Energy (2015), http://dx.doi.org/10.1016/j.energy.2015.04.100
+\nThe developed FEM code uses a temperature dependent
+qv(Tc,FEM) tabularized data when solving the Eq. (10). Due to the
+temperature dependent heat generation rate the nonlinear system
+of equations is obtained. The Jacobi Iteration method [45] is applied
+to solve the nonlinear system and determine the nodal tempera-
+tures. The ground level temperature (Tg ¼ 30 C) is assumed as the
+starting values for Jacobi Iteration procedure. The discrete model of
+underground power cable system consists of triangular elements.
+The mesh is reﬁned in the domains of FTB and SBM layer, HDPE
+casing pipes, and the cables, to follow the temperature gradients
+accurately.
+5. Results and discussion
+From the economic reasons, the FTB bedding layer cross-
+sectional area shall be minimized while ensuring the conductor
+temperature close to Topt ¼ 65 C. Therefore, the momentum-type
+PSO algorithm, described in subsection 3.1, is applied to cable
+bedding area optimization problem given by Eqs. (7)e(9).
+Presented
+study
+performs
+the
+momentum-type
+PSO
+for
+Npar ¼ 10 and Npar ¼ 30 number of particles. The design variables
+vector xn
+i ¼ ½pn
+i ; bn
+i ; sn
+i ; ln
+i  deﬁnes the particle position during n-th
+iteration. The presence of side constraints in problem formulation
+allows a natural deﬁnition of scaled variables. The upper and lower
+bounds deﬁned by Eq. (9) are used to scale the design variables
+vector xi between 0 and 1:
+x
+_n
+i ¼
+
+p
+_n
+i ; b
+_n
+i ; s
+_n
+i ; l
+_n
+i
+
+;
+for i ¼ 1; :::; Npar;
+(19)
+where
+p
+_n
+i ¼
+pn
+i  plower
+pupper  plower
+;
+b
+_n
+i ¼
+bn
+i  blower
+bupper  blower
+;
+s
+_n
+i ¼
+sn
+i  slower
+supper  slower
+;
+l
+_n
+i ¼
+ln
+i  llower
+lupper  llower
+:
+(20)
+The rescaling of design variables vector x
+_n
+i to xn
+i ¼ ½pn
+i ; bn
+i ; sn
+i ; ln
+i 
+is performed as given below:
+pn
+i ¼ p
+_n
+i
+
+pupper  plower
+
+þ plower;
+bn
+i ¼ b
+_n
+i
+bupper  blower
+	 þ blower;
+sn
+i ¼ s
+_n
+i
+supper  slower
+	 þ slower;
+ln
+i ¼ l
+_n
+i
+lupper  llower
+	 þ llower:
+(21)
+In the developed computer code, the momentum-type PSO al-
+gorithm is implemented as follows. Firstly, the number of particles
+in a swarm, i.e. Npar, is deﬁned. During the initial iteration (n ¼ 0)
+the momentum-type PSO algorithm is initialized by performing the
+following steps:
+1. Creation of random vectors of scaled design variables x
+_0
+i for all
+particles existing in the swarm, i.e. i ¼ 1,...,Npar.
+2. Setting the delta momentum term as Dv0
+i ¼ 0, for i ¼ 1,...,Npar.
+3. Rescaling of the random design variables vectors x
+_0
+i to x0
+i , for
+i ¼ 1,...,Npar, using Eq. (21).
+4. Creation of the underground power systems FEM models based
+on
+the
+values
+of
+the
+rescaled
+design
+variables
+vectors
+x0
+i ¼ ½p0
+i ; b0
+i ; s0
+i ; l0
+i  for i ¼ 1,...,Npar.
+5. Solving the steady state heat conduction problem, Eq. (10), for
+determining the maximum temperatures of central cable
+conductor Tcmax(x0
+i ), for i ¼ 1,...,Npar.
+6. Evaluation of the cost function F(x0
+i ) for i ¼ 1,...,Npar speciﬁed by
+Eq. (7), with constraints given by Eqs. (8) and (9).
+7. Calculation of the maximum (Tn¼0
+max ), mean (Tn¼0
+mean) and minimum
+(Tn¼0
+min ) values of maximum central cable conductor Tcmax(xn¼0
+i
+)
+temperatures for all particles:
+Fig. 5. Volumetric heat generation rate qv as a function of the cable core temperature
+Tc,FEM calculated for cable spacing l ¼ 0.4 m.
+Tn
+max ¼ max
+h
+Tn
+cmaxðx1Þ; Tn
+cmaxðx2Þ; :::::; Tn
+cmax
+
+xNpar1
+
+; Tn
+cmax
+
+xNpar
+ i
+;
+Tn
+min ¼ min
+h
+Tn
+cmaxðx1Þ; Tn
+cmaxðx2Þ; :::::; Tn
+cmax
+
+xNpar1
+
+; Tn
+cmax
+
+xNpar
+ i
+;
+Tn
+mean ¼
+1
+Npar
+X
+Npar
+i¼1
+Tn
+cmaxðxiÞ:
+(22)
+P. Ocłon et al. / Energy xxx (2015) 1e10
+7
+Please cite this article in press as: Ocłon P, et al., Optimizing of the underground power cable bedding using momentum-type particle swarm
+optimization method, Energy (2015), http://dx.doi.org/10.1016/j.energy.2015.04.100
+\nThe Tcmax(xn
+i ) temperatures are calculated for all particles
+existing in a swarm, i.e. i ¼ 1,...,Npar. The temperature distribu-
+tion in underground power cable systems determined from
+FEM simulations (subsection 4.2) is used for this purpose.
+Then for iteration n ¼ 1 until the algorithm convergence is
+achieved, the following algorithm steps are performed within a
+single iteration:
+1. Determination of the pbest (particle best) and gbest (global best)
+particle positions.
+2. Calculation of the delta momentum term Dvn1
+i
+¼ vn1
+i
+ vn2
+i
+and next the particles velocities vn
+i from Eq. (1) by using the
+scaled design variables vectors x
+_n1
+i
+for i ¼ 1,...,Npar.
+3. Updating a scaled design variables vectors x
+_n1
+i
+to x
+_n
+i for all
+particles in the swarm, i.e. i ¼ 1,...,Npar, using Eq. (2).
+It should be noted that in Eqs. (1)e(2), the design variables
+vectors xn1
+i
+for i ¼ 1,...Npar are replaced with scaled equivalents i.e.
+x
+_n1
+i
+for i ¼ 1,... Npar.
+4. Rescaling of the design variables vectors x
+_n
+i to xn
+i , for i ¼ 1,...,Npar,
+using Eq. (21).
+5. Creation of the underground power systems FEM models based
+on
+the
+values
+of
+the
+rescaled
+design
+variables
+vectors
+xn
+i ¼ ½pn
+i ; bn
+i ; sn
+i ; ln
+i  for i ¼ 1,...,Npar.
+6. Solving the steady state heat conduction problem, Eq. (10), and
+determining theTcmax(xn
+i ) temperatures for i ¼ 1,...,Npar.
+7. Evaluation of the cost function F(xn
+i ), given by Eq. (7) with
+constraints, Eqs. (8)e(9), for all particles existing in the swarm
+i ¼ 1,...,Npar.
+8. Calculation of the Tn
+max, Tn
+mean and Tn
+min temperatures from
+Eq. (22) based on the determined Tcmax(xn
+i ) temperatures.
+9. Checking if the convergence criterion 2< 0.0001 is satisﬁed:
+dn ¼
+h
+dn
+1; dn
+2;::::; dn
+Npar1;dn
+Npar
+i
+¼
+h
+
+vn
+1
+
+
+;
+
+
+vn
+2
+
+
+;::::;
+
+
+
+vn
+Npar1
+
+
+
+;
+
+
+
+vn
+Npar
+
+
+
+i
+;
+2 ¼ maxðdnÞ<0:0001:
+(23)
+In Eq. (23) dn
+i is equal to the magnitude of the vn
+i vector. The
+values of dn
+i are determined for all particles existing in a swarm, i.e.
+i ¼ 1,...,Npar. The maximum value of dn components, i.e. 2, shall not
+exceed 0.0001.
+In
+order to analyze
+the
+momentum-type
+PSO
+algorithm
+behavior, 200 iterations are considered when presenting the
+computational results. This number of momentum-type PSO algo-
+rithm iteration allowed to obtain the convergent solution. The
+swarm sizes are assumed as Npar ¼ 30 and Npar ¼ 10. Hence, the
+inﬂuence of swarm size on both the obtained global minimum of
+F(x) function and the algorithm behavior can be studied.
+The cost function F(x) variations with consecutive iterations are
+shown in Fig. 6a for Npar ¼ 30 and in Fig. 6c for Npar ¼ 10. It can be
+observed that in the ﬁnal iteration the mean value of F(x), i.e.
+F(x)mean is lower for Npar ¼ 10, i.e. F(x)mean ¼ 11.8 than Npar ¼ 30, i.e
+F(x)mean ¼ 42.6. Moreover, the maximum values of F(x), i.e. F(x)max,
+are lower for Npar ¼ 10 than Npar ¼ 30. The resultant global mini-
+mum of F(x), i.e. the optimum Ab, that corresponds to the F(x)min in
+a ﬁnal iteration, is equal to 0.3196 for Npar ¼ 10 and 0.3195 for
+Npar ¼ 30. Therefore, the similar results are obtained for the lower
+number of particles i.e. Npar ¼ 10, than for the larger i.e. Npar ¼ 30
+(Figs. 6a, c, Table 6).
+Fig. 6b and Fig. 6d present variations of Tmax, Tmim and Tmean
+values with the increasing iteration number for Npar ¼ 30 and
+Npar ¼ 10, respectively. The ﬂuctuations in Tmax or Tmin, which may
+be observed in Fig. 6b and Fig. 6d, indicate that the algorithm works
+correctly, avoiding the local minimum of the modiﬁed objective
+function FðxÞ. The dynamic penalty function Fpen ¼ CðnÞHðxÞ (Eq.
+(7)) acts stronger with successive iterations, ensuring that the ob-
+tained conductor temperatures Tcmax approach to the optimum
+Fig. 6. Variation of maximum (max), arithmetic average (mean) and minimum (min) values of F(x) and Tc with consecutive iteration number for Npar ¼ 30 (Figs. 6a, b) and Npar ¼ 10
+(Figs. 6c, d).
+P. Ocłon et al. / Energy xxx (2015) 1e10
+8
+Please cite this article in press as: Ocłon P, et al., Optimizing of the underground power cable bedding using momentum-type particle swarm
+optimization method, Energy (2015), http://dx.doi.org/10.1016/j.energy.2015.04.100
+\nvalue Topt ¼ 65 C for the entire particle swarm. The global best
+values of the design variables, i.e. l, s, b, and p, the corresponding
+area of FTB layer Ab and the obtained maximum conductor tem-
+perature Tcmax are listed in Table 6.
+From Table 6 one can deduce, that the particles number
+Npar ¼ 10 is sufﬁcient to explore the solution domain. The increase
+in a number of particles to Npar ¼ 30 does not allow to obtain
+considerably better solution. It should be noted that the increase in
+swarm size Npar results in a signiﬁcant computational overhead.
+The computational time for Npar ¼ 30 and 200 iterations is over
+three times longer than for Npar ¼ 10.
+Fig. 7 presents the temperature distribution obtained for the
+optimum values of design variables. The maximum temperature
+Tcmax ¼ 65 C occurs in the central cable core (Fig. 7a). Fig. 7b de-
+picts the temperature distribution in the entire underground power
+cable system (Fig. 3). Fig. 7c shows the FEM mesh for FTB layer,
+HDPE casing pipes and power cables used in the computations,
+when optimal shape of FTB bedding layer is achieved. The tem-
+perature distribution obtained for FTB bedding layer, HDPE casing
+pipes, and power cables are depicted in Fig. 7d.
+The heat is generated in the central and side cable conductors.
+Due to the cable temperature ﬁelds interactions and worse heat
+dissipation conditions, the central cable conductor temperature is
+higher than the temperature of side cable conductors.
+6. Summary
+This study presents the application of momentum-type Particle
+Swarm Optimization (PSO) for the thermal performance optimi-
+zation of underground power cable system. An electrical energy
+transmission line that consists of three underground power cables,
+placed in a ﬂat (in-line) arrangement, is considered. To avoid the
+excessive mechanical loads the cables are laid in HDPE casing pipes,
+ﬁlled with SBM. The HDPE casing pipes are buried directly in Flu-
+idized Thermal Backﬁll (FTB) layer to protect the cables from
+overheating. Due to the substantial costs of FTB backﬁll material
+(about $130 per cubic meter), the cross-sectional area of FTB
+bedding layer need to be minimized. The momentum-type Particle
+Swarm Optimization (PSO) algorithm is used for this purpose.
+The geometrical dimensions of FTB bedding layer and the cable
+spacing are used as design variables in the optimization procedure.
+The particle swarms that consists of Npar ¼ 10 and Npar ¼ 30 par-
+ticles, containing the values of design variables, are considered in
+the computations. The behavior of the following design variables is
+studied during the algorithm operation (Fig. 4b):
+ cable spacing l,
+ distance from the cable to the top edge of FTB bedding layer b,
+ distance from the cable to the bottom edge of FTB bedding layer
+p,
+ distance from the cable to the right edge of FTB bedding layer s.
+The results comparison for the different swarm sizes allowed to
+check its inﬂuence on the obtained optimum solution. The iteration
+number considered in the PSO optimization is 200. The tempera-
+ture distribution in the cable system is obtained by means of the
+Finite Element Method under the assumption that resulting tem-
+perature ﬁeld is steady-state and two-dimensional. Determined
+maximum temperature of the cable conductor is compared with
+the optimal temperature for cable operation, given by the cable
+producer, (i.e. 65 C). The computations considered the current
+loading and volumetric heat generation rate from the cable
+conductor
+as
+temperature-dependent.
+The
+cable
+conductor
+maximum temperature determined from FEM model shall not
+exceed the optimum temperature of cable operation. Therefore,
+PSO algorithm employs the dynamic penalty function which
+eliminates the particles at a higher temperature than the optimal
+one from the swarm.
+Although the patterns of design variables variation with
+increasing iteration number are different the obtained ﬁnal design
+variables values are practically the same for Npar ¼ 10 and Npar ¼ 30:
+ cable spacing l equal to 0.600 m;
+ height and width of the FTB bedding cross-section are equal to
+0.5133 m and 1.6 m, respectively;
+ maximum cable core temperature, according to producer
+recommendation, Topt ¼ 65 C.
+The physical geometry of the modeled underground power ca-
+ble system and the expected pattern of the thermal solution reveal
+the mirror symmetry. Therefore, Ab ¼ 0.3195 m2 obtained from the
+optimization is, in fact, only a half of the real FTB cross-sectional
+area, which is equal to 0.6390 m2. It should be noted that the
+exact value of width for FTB bedding layer is two times larger than
+obtained from the optimization since the symmetry boundary
+condition is applied in the FEM model.
+Table 6
+Optimum values of design variables l, s, b, and p (Fig. 3), maximum conductor
+temperature Tcmax ¼ Tn¼200
+mean , and FTB bedding layer cross-sectional area Ab.
+Npar
+l, m
+s, m
+b, m
+p, m
+Tcmax, C
+Ab, m2
+30
+0.6
+0.2
+0.31327
+0.20044
+65
+0.3195
+10
+0.6
+0.2
+0.31366
+0.20000
+65
+0.3196
+Fig. 7. Temperature distribution in: a) vicinity of the central cable, b) analyzed un-
+derground power cable system (cable, bedding, mother ground), (ced) FTB bedding,
+HDPE pipes, SBM mixture and cable.
+P. Ocłon et al. / Energy xxx (2015) 1e10
+9
+Please cite this article in press as: Ocłon P, et al., Optimizing of the underground power cable bedding using momentum-type particle swarm
+optimization method, Energy (2015), http://dx.doi.org/10.1016/j.energy.2015.04.100
+\nIn view of the results obtained in this study, a momentum-type
+Particle Swarm Optimization may be regarded as an efﬁcient tool
+for optimizing the underground power cable systems.
+Acknowledgments
+The authors would like to acknowledge the ENERGOPROJEKT-
+KRAKOW S.A. and TELE-FONIKA Kable S.A. for a creative support
+during the numerical computations of the underground power
+cables system, presented in this study.
+References
+[1] Lob~ao JA, Devezas T, Catal~ao JPS. Inﬂuence of cable losses on the economic
+analysis of efficient and sustainable electrical equipment. Energy 2014;65:
+145e51.
+[2] Jorge RS, Herwich EG. Grid infrastructure for renewable power in Europe: the
+environmental cost. Energy 2014;69:760e8.
+[3] Standard 60287-2-1 IEC. Electric cables e calculation of the current rating e
+Part 2: thermal resistance e section 1: calculation of the thermal resistance.
+1995.
+[4] IEEE Standard 835. Power cable ampacity tables. 1994.
+[5] Kroener E, Vallati A, Bittelli M. Numerical simulation of coupled heat, liquid
+water and water vapor in soils for heat dissipation of underground electrical
+power cables. Appl Therm Eng 2014;70:510e23.
+[6] Peters-Lidard CD, Blackburn E, Liang X, Wood EF. The effect of soil Thermal
+conductivity Parametrization on surface energy ﬂuxes and temperatures.
+J Atmos Sci 1998;55:1209e24.
+[7] Rees SW, Adjali MH, Zhou Z, Davies M, Thomas HR. Ground heat transfer
+effects on the thermal performance of earth-contact structures. Renew Sust
+Energ Rev 2000;4:213e65.
+[8] Gouda OE, El Dein AZ, Amer GM. Effect of the formation of the dry zone
+around underground power cables on their ratings. IEEE T Power Deliv
+2011;26:972e8.
+[9] Taler D, Ocłon P. Thermal contact resistance in plate ﬁn-and-tube heat ex-
+changers, determined by experimental data and CFD simulations. Int J Therm
+Sci 2014;84:309e22.
+[10] Taler D, Ocłon P. Determination of heat transfer formulas for gas ﬂow in ﬁn-
+and-tube heat exchanger with oval tubes using CFD simulations. Chem Eng
+Process 2014;83:1e11.
+[11] Kundu B, Lee KS. Analytical tools for calculating the maximum heat transfer of
+annular stepped ﬁns with internal heat generation and radiation effects. En-
+ergy 2014;76:733e48.
+[12] Bhanja D, Kundu B, Aziz A. Enhancement of heat transfer from a continuously
+moving porous ﬁn exposed in convectiveeradiative environment. Energy
+Convers Manage 2014;88:842e53.
+[13] Abdesslem J, Khalifa S, Abdelaziz N, Abdallah M. Radiative properties effects
+on unsteady natural convection inside a saturated porous medium. Applica-
+tion for porous heat exchangers. Energy 2013;61:224e33.
+[14] Defraeye T, Blocken B, Merome D, Nicolai Carmeliet J. Convective heat and
+mass transfer modelling at aireporous material interfaces: overview of
+existing methods and relevance. Chem Eng Sci 2012;74:49e58.
+[15] Koniorczyk M. Coupled heat and water transport in deformable porous ma-
+terials considering phase change kinetics. Int J Heat Mass Transf 2015;81:
+260e71.
+[16] Aadmi M, Karkri M, Hammouti ME. Heat transfer characteristics of thermal
+energy storage of a composite phase change materials: numerical and
+experimental investigations. Energy 2014;72:381e92.
+[17] Davis M, Maples T, Rosen B. Cost-saving approaches to wind farm design.
+TEChBriefs 2010;4:1e5.
+[18] Liu JL, Lin JH. Evolutionary computation of unconstrained and constrained
+problems using a novel momentum-type particle swarm optimization. Eng
+Optim 2007;39:287e305.
+[19] Hwang CC, Jiang YH. Extensions to the ﬁnite element method for thermal
+analysis of underground cable systems. Electr Pow Syst Res 2003;64:159e64.
+[20] Al-Saud MS, El-Kady MA, Findlay RD. A new approach to underground cable
+performance assessment. Electr Pow Syst Res 2008;78:907e18.
+[21] De Lieto VR, Fontana L, Vallati A. Thermal analysis of underground electrical
+power cables buried in non-homogeneous soils. Appl Therm Eng 2011;31:
+772e8.
+[22] De Lieto VR, Fontana L, Vallati A. Experimental study of thermal ﬁeld deriving
+from an underground electrical power cable buried in non-homogeneous
+soils. Appl Therm Eng 2014;62:390e7.
+[23] Papagiannopoulos I, Chatziathanasiou V, Exizidis L, Andreou GT, De Mey G,
+Wiecek B . Behaviour of the thermal impedance of buried power cables. Int J
+Elec Power 2013;44:383e7.
+[24] Hanuszkiewicz-Drapała M, Składzien J. Operation characteristics of heat pump
+systems with ground heat exchangers. Heat Transf Eng 2012;33:629e41.
+[25] Landinger CC. Shielding of power cables. In: Thune WA, editor. Electrical
+power cable engineering. New York: Marcel Dekker Inc; 2003.
+[26] Electric Co Hawaiian. INC speciﬁcation No CS7001-17 for construction of
+underground facilities. 2006. p. 10.
+[27] Company Nexans. 60-500 kV High voltage underground power cables. XLPE
+Insul Cables 2004;12:31e3.
+[28] Długosz B. Cable casing pipes ﬁlled with a rinse mineral substance. Energetyka
+1989;38:331e4 [in polish].
+[29] Radhakrishna HS. Fluidized cable thermal backﬁll. In: Boggs SA, et al., editors.
+Underground
+cable
+thermal
+backﬁll.
+Toronto:
+Pergamon
+Press;
+1982.
+p. 34e53.
+[30] Tien YM, Chu CA, Wu PL, Chuang WS, Chung YJ. Improved measurement and a
+predictive model for thermal conductivity of sand-bentonite mixtures. J Geo
+Eng 2010;5:51e60.
+[31] Cho WJ, Lee JO, Kang CH. A compilation and evaluation of thermal and me-
+chanical properties of bentonite-based buffer materials for a high-level waste
+repository. J Korean Nucl Soc 2002;34:90e103.
+[32] Humpert C. Long distance transmission systems for the future electricity
+supply - analysis of possibilities and restrictions. Energy 2012;48:278e83.
+[33] Company TELE-FONIKA. Kable wysokich napie˛c. 1st ed. 2012 [Cracow (in
+polish)].
+[34] Kennedy J, Eberhart RC. Particle swarm optimization. In: Proc. Of IEEE inter-
+national conference on neural networks. Australia: Perth; 1995. p. 1942e8. p.
+[35] Kennedy J, Eberhart RC, Shi Y. Swarm intelligence. San Francisco: Morgan
+Kaufmann; 2001.
+[36] Trelea IC. The particle swarm optimization algorithm: convergence analysis
+and parameter selection. Inf Process Lett 2003;85:317e25.
+[37] Tien YM, Chu CA, Wu PL, Chuang WS, Chung YJ. Improved measurement and a
+predictive model for thermal conductivity of sand-bentonite mixtures. J Geo
+Eng 2010;5:51e60.
+[38] Bittelli M, Ventura F, Campbell GS, Snyder RL, Gallegati F, Rossi Pisa P.
+Coupling of heat, water vapor, and liquid water ﬂuxes to compute evaporation
+in bare soils. J Hydrology 2008;362:191e205.
+[39] Brocca L, Hasenauerb S, Lacavac T, Melonea F, Moramarcoa T, Wagnerb W,
+et al. Soil moisture estimation through ASCAT and AMSR-E sensors: an
+intercomparison and validation study across Europe. Remote Sens Environ
+2011;115:3390e408.
+[40] Popiel CO, Wojtkowiak J, Biernacka B. Measurements of temperature distri-
+bution in ground. Exp Therm Fluid Sci 2001;25:301e9.
+[41] MATLAB online documentation, http://www.mathworks.com/.
+[42] Standard 287 IEC. Calculation of the continuous current rating of cables
+(100%) load factor. 1982.
+[43] Cisek P, Ocłon P, Pilarczyk M. Thermal analysis of operating conditions for the
+400 kV underground power cable transmission line as a power plant delivery
+system. Rynek Energii 2014;114:70e7 [in Polish].
+[44] Ocłon P, Taler D, Cisek P, Pilarczyk M. FEM based thermal analysis of under-
+ground power cables situated in backﬁlls made of different materials. Mater
+Res Innov 2015 [in press].
+[45] Ocłon P, Cisek P, Pilarczyk M, Taler D. Numerical simulation of heat dissipation
+processes in underground power cable system situated in thermal backﬁll and
+buried in a multilayered soil. Energy Convers Manag 2015;95:352e70.
+P. Ocłon et al. / Energy xxx (2015) 1e10
+10
+Please cite this article in press as: Ocłon P, et al., Optimizing of the underground power cable bedding using momentum-type particle swarm
+optimization method, Energy (2015), http://dx.doi.org/10.1016/j.energy.2015.04.100

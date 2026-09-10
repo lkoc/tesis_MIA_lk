@@ -172,6 +172,11 @@ def latex_to_text(text: str) -> str:
         r"\_": "_",
         r"\textendash": "-",
         r"\textemdash": "-",
+        r"\{": "[",
+        r"\}": "]",
+        r"\equiv": "≡",
+        r"\rightarrow": "→",
+        r"\Delta": "Δ",
         r"\kx": "k(x,y)",
         r"\Tmax": "Tmax",
         r"\Imax": "Imax",
@@ -512,24 +517,40 @@ def extract_matrix_table(label: str) -> tuple[list[str], list[list[str]]]:
         cells = split_cells(row)
         if len(cells) > 1:
             parsed.append(cells)
-    if label.endswith("-a"):
+    if label == "tab:matriz-consistencia-a":
         headers = [
             "Fase DSR / actividad",
             "Problema",
             "Objetivo",
             "Producto verificable",
         ]
-    else:
+    elif label == "tab:matriz-consistencia-b":
         headers = [
-            "Fase DSR / actividad",
-            "Problema",
-            "Insumo o entrada del problema",
-            "Configuracion del insumo",
-            "Producto o resultado esperado",
-            "Hipotesis",
-            "Evidencia o indicadores de evaluacion",
-            "Condiciones de control",
+            "Fase / objetivo",
+            "VI discreta: composición",
+            "Realizaciones de la VI",
+            "VD discreta: objeto y estados",
+            "Hipótesis",
+            "Indicadores de evaluación",
+            "Parámetros, controles y metadatos",
         ]
+    elif label == "tab:operacionalizacion-variables":
+        headers = [
+            "Elemento metodológico",
+            "Variable o elemento",
+            "Operacionalización en el estudio",
+            "Indicador, instrumento o registro",
+        ]
+    elif label == "tab:diseno-casos":
+        headers = [
+            "Elemento",
+            "Código",
+            "Papel metodológico",
+            "Categorías o niveles iniciales",
+            "Uso en el plan de cobertura",
+        ]
+    else:
+        raise ValueError(f"Tabla no configurada: {label}")
     return headers, parsed
 
 
@@ -561,6 +582,8 @@ def style_sheet(ws, widths: list[int]) -> None:
 def write_matrix_excel(path: Path) -> None:
     headers_a, rows_a = extract_matrix_table("tab:matriz-consistencia-a")
     headers_b, rows_b = extract_matrix_table("tab:matriz-consistencia-b")
+    headers_op, rows_op = extract_matrix_table("tab:operacionalizacion-variables")
+    headers_cases, rows_cases = extract_matrix_table("tab:diseno-casos")
 
     wb = Workbook()
     wb.properties.title = "Matriz de consistencia extraida del documento final"
@@ -577,27 +600,41 @@ def write_matrix_excel(path: Path) -> None:
     ws.append(headers_b)
     for row in rows_b:
         ws.append(row)
-    style_sheet(ws, [28, 36, 28, 36, 34, 48, 38, 38])
+    style_sheet(ws, [28, 42, 42, 46, 52, 38, 44])
 
     ws = wb.create_sheet("Matriz unificada")
-    unified_headers = headers_a + [
-        h
-        for h in headers_b[2:]
-        if h not in {"Fase DSR / actividad", "Problema"}
-    ]
+    unified_headers = headers_a + headers_b[1:]
     ws.append(unified_headers)
-    b_by_phase = {row[0]: row for row in rows_b}
+    def phase_key(value: str) -> str:
+        match = re.search(r"\bF\d+\b", value)
+        return match.group(0) if match else value
+
+    b_by_phase = {phase_key(row[0]): row for row in rows_b}
     for row_a in rows_a:
-        row_b = b_by_phase.get(row_a[0], [])
-        ws.append(row_a + row_b[2:])
-    style_sheet(ws, [28, 44, 38, 34, 24, 32, 30, 42, 34, 34])
+        row_b = b_by_phase.get(phase_key(row_a[0]), [])
+        ws.append(row_a + (row_b[1:] if row_b else [""] * (len(headers_b) - 1)))
+    style_sheet(ws, [28, 48, 44, 40, 42, 40, 46, 52, 38, 44])
+
+    ws = wb.create_sheet("Operacionalización")
+    ws.append(headers_op)
+    for row in rows_op:
+        ws.append(row)
+    style_sheet(ws, [34, 46, 74, 56])
+
+    ws = wb.create_sheet("Diseño de casos")
+    ws.append(headers_cases)
+    for row in rows_cases:
+        ws.append(row)
+    style_sheet(ws, [34, 18, 40, 58, 62])
 
     ws = wb.create_sheet("Nota")
     ws.append(["Campo", "Valor"])
     ws.append(["Fuente", str(PLAN_TEX.relative_to(ROOT))])
-    ws.append(["Criterio", "Contenido extraido de las tablas finales del Anexo 5.1 del documento, sin usar la matriz previa de la carpeta matriz_consistencia."])
+    ws.append(["Criterio", "Contenido extraído de las tablas finales de los anexos 5.1, 5.2 y 5.3 del documento. VI y VD se registran como objetos discretos; VD1--VD3 se heredan en la VI siguiente."])
     ws.append(["Filas parte A", len(rows_a)])
     ws.append(["Filas parte B", len(rows_b)])
+    ws.append(["Filas operacionalización", len(rows_op)])
+    ws.append(["Filas diseño de casos", len(rows_cases)])
     style_sheet(ws, [24, 100])
     wb.save(path)
 

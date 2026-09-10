@@ -1086,22 +1086,16 @@ def validate_workbook(path):
 
 
 def main():
+    # La fuente canónica de la matriz es ahora el anexo del plan de tesis.
+    # Se conserva este punto de entrada por compatibilidad, pero se evita
+    # regenerar la antigua matriz físico-factorial que trataba k(x,y) como VI.
+    try:
+        from preparar_entrega_google_drive import write_matrix_excel
+    except ImportError:
+        from scripts.preparar_entrega_google_drive import write_matrix_excel
+
     MATRIX_DIR.mkdir(parents=True, exist_ok=True)
-    wb = Workbook()
-    wb.properties.title = "Matriz de consistencia - heterogeneidad térmica en cables"
-    wb.properties.subject = TITLE
-    wb.properties.creator = AUTHORS
-    wb.properties.description = (
-        "Matriz elaborada a partir del proyecto, las guías UNI, el ejemplo de Excel "
-        "y la base Zotero vigente."
-    )
-    build_official_matrix(wb)
-    build_activity_matrix(wb)
-    build_operationalization(wb)
-    build_sources(wb)
-    wb.active = 0
-    wb.save(OUTPUT)
-    validate_workbook(OUTPUT)
+    write_matrix_excel(OUTPUT)
     print(OUTPUT)
 
 

@@ -258,7 +258,7 @@ class ResidualPINNModel(nn.Module):
         domain,
         normalize: bool = True,
         Q_d: float = 0.0,
-        enable_grad_Tbg: bool = False,
+        enable_grad_Tbg: bool = True,
     ) -> None:
         super().__init__()
         self.base = base

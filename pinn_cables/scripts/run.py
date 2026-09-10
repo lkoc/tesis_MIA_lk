@@ -92,7 +92,9 @@ def main(argv: list[str] | None = None) -> None:
     model = build_model(solver_cfg.get("model", {}), in_dim=in_dim, device=device)
     logger.info("Model: %s", model.__class__.__name__)
 
-    # Use first placement (multi-cable support could iterate here)
+    if len(problem.placements) != 1:
+        raise ValueError("This trainer supports one cable. Use Benchmarks for multi-cable cases; silently dropping placements is forbidden.")
+    # This entry point is explicitly limited to one cable.
     placement = problem.placements[0]
 
     # --- Train ---

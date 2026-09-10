@@ -275,7 +275,7 @@ class SteadyStatePINNTrainer:
             losses["pde"] = sum(pde_region_losses) / len(pde_region_losses)  # type: ignore[assignment]
 
         # Boundary conditions
-        bc_parts: list[torch.Tensor] = []
+        bc_parts = {name: [] for name in ("dirichlet", "neumann", "robin")}
         for edge, bc in self.bcs.items():
             pts_raw = self.pts_bnd.get(edge)
             if pts_raw is None or pts_raw.shape[0] == 0:
@@ -284,32 +284,26 @@ class SteadyStatePINNTrainer:
             T_b = self.model(self._norm(pts))
             if bc.bc_type == "dirichlet":
                 T_tgt = bc.T_target(pts, self.scenario.T_amb)
-                bc_parts.append(
+                bc_parts[bc.bc_type].append(
                     (T_b - T_tgt).view(-1, 1)
                 )
             elif bc.bc_type == "neumann":
                 normal = _normal_tensor(edge, pts.shape[0], self.device)
-                bc_parts.append(neumann_residual(T_b, pts, normal, bc.value))
+                bc_parts[bc.bc_type].append(neumann_residual(T_b, pts, normal, bc.value,
+                                                get_k(None, pts, self.soil)))
             elif bc.bc_type == "robin":
                 normal = _normal_tensor(edge, pts.shape[0], self.device)
-                bc_parts.append(
-                    robin_residual(T_b, pts, normal, self.soil.k, bc.h, bc.value)
+                bc_parts[bc.bc_type].append(
+                    robin_residual(T_b, pts, normal, get_k(None, pts, self.soil),
+                                   bc.h, bc.T_target(pts, self.scenario.T_amb))
                 )
-        if bc_parts:
-            all_bc = torch.cat(bc_parts, dim=0)
-            losses["bc_dirichlet"] = mse(all_bc)
+        for kind, parts in bc_parts.items():
+            if parts:
+                losses[f"bc_{kind}"] = mse(torch.cat(parts, dim=0))
 
-        # Interface flux-continuity losses.
-        # For each shared interface at r = layers[i].r_outer, enforce
-        #   k_inner * (dT/dr) == k_outer * (dT/dr)
-        # where k_inner is from layer[i] and k_outer is from layer[i+1]
-        # (or soil for the outermost layer).
-        #
-        # NOTE: with a *global* single-network PINN the gradient dT/dr is
-        # continuous, so this loss effectively penalises (k_inner - k_outer)
-        # * dT/dr.  For the residual formulation (T = T_bg + u) this is
-        # typically disabled (w_interface_flux = 0) because T_bg already
-        # captures the inter-layer physics.
+        # Approximate two-sided traces at each material interface. A globally
+        # smooth network still cannot represent an exact derivative jump;
+        # Benchmarks uses separate networks for the discontinuous MMS case.
         ifc_flux_losses: list[torch.Tensor] = []
         for i, layer in enumerate(self.layers):
             key = f"r_{layer.name}"
@@ -317,15 +311,24 @@ class SteadyStatePINNTrainer:
             if pts_raw is None or pts_raw.shape[0] == 0:
                 continue
             pts = self._fresh(pts_raw)
-            T_at_ifc = self.model(self._norm(pts))
 
             # Radial unit normal at this interface
-            gT = gradients(T_at_ifc, pts)
             dx = pts[:, 0:1] - self.placement.cx
             dy = pts[:, 1:2] - self.placement.cy
             r = torch.sqrt(dx * dx + dy * dy).clamp(min=1e-12)
             nr = torch.cat([dx / r, dy / r], dim=1)
-            dTdr = (gT * nr).sum(dim=1, keepdim=True)
+            # Evaluate distinct material traces. A shared gradient would enforce
+            # (k_in-k_out)*dT/dr=0, incorrectly suppressing transmitted heat.
+            thickness = layer.r_outer - layer.r_inner
+            if i + 1 < len(self.layers):
+                thickness = min(thickness, self.layers[i+1].r_outer-self.layers[i+1].r_inner)
+            eps = max(thickness * 1e-3, 1e-7)
+            p_in = self._fresh(pts_raw - eps * nr.detach())
+            p_out = self._fresh(pts_raw + eps * nr.detach())
+            t_in = self.model(self._norm(p_in))
+            t_out = self.model(self._norm(p_out))
+            dTdr_in = (gradients(t_in, p_in) * nr).sum(dim=1, keepdim=True)
+            dTdr_out = (gradients(t_out, p_out) * nr).sum(dim=1, keepdim=True)
 
             # Inner-side conductivity (from layer i)
             k_in = get_k(layer, pts, self.soil)
@@ -340,7 +343,7 @@ class SteadyStatePINNTrainer:
             if not torch.is_tensor(k_out):
                 k_out = torch.tensor(k_out, device=self.device)
 
-            ifc_flux_losses.append(mse(k_in * dTdr - k_out * dTdr))
+            ifc_flux_losses.append(mse(k_in * dTdr_in - k_out * dTdr_out))
 
         if ifc_flux_losses:
             losses["interface_flux"] = sum(ifc_flux_losses) / len(ifc_flux_losses)  # type: ignore[assignment]
@@ -363,7 +366,7 @@ class SteadyStatePINNTrainer:
                 expected = self._expected_flux_at_cable  # negative (< 0)
                 # Normalise by |expected| so the loss is dimensionless (1.0 for trivial, 0 for correct)
                 losses["cable_flux"] = mse(
-                    (self.soil.k * dTdr_c - expected) / abs(expected)
+                    (get_k(None, pts_c, self.soil) * dTdr_c - expected) / abs(expected)
                 )
 
         total = weighted_total_loss(losses, self.weights)
@@ -576,7 +579,7 @@ class TransientPINNTrainer(SteadyStatePINNTrainer):
             losses["pde"] = sum(pde_region_losses) / len(pde_region_losses)  # type: ignore[assignment]
 
         # Boundary conditions (at random times)
-        bc_parts: list[torch.Tensor] = []
+        bc_parts = {name: [] for name in ("dirichlet", "neumann", "robin")}
         for edge, bc in self.bcs.items():
             pts_raw = self.pts_bnd.get(edge)
             if pts_raw is None or pts_raw.shape[0] == 0:
@@ -585,14 +588,22 @@ class TransientPINNTrainer(SteadyStatePINNTrainer):
             T_b = self.model(self._norm(xyt_b))
             if bc.bc_type == "dirichlet":
                 T_tgt = bc.T_target(xyt_b[:, :2], self.scenario.T_amb)
-                bc_parts.append((T_b - T_tgt).view(-1, 1))
+                bc_parts[bc.bc_type].append((T_b - T_tgt).view(-1, 1))
             elif bc.bc_type == "neumann":
                 normal_2d = _normal_tensor(edge, xyt_b.shape[0], self.device)
                 gT = gradients(T_b, xyt_b)
                 dTdn = (gT[:, :2] * normal_2d).sum(dim=1, keepdim=True)
-                bc_parts.append(dTdn - bc.value)
-        if bc_parts:
-            losses["bc_dirichlet"] = mse(torch.cat(bc_parts, dim=0))
+                bc_parts[bc.bc_type].append(-get_k(None, xyt_b[:, :2], self.soil) * dTdn - bc.value)
+            elif bc.bc_type == "robin":
+                normal_2d = _normal_tensor(edge, xyt_b.shape[0], self.device)
+                gT = gradients(T_b, xyt_b)
+                dTdn = (gT[:, :2] * normal_2d).sum(dim=1, keepdim=True)
+                k_b = get_k(None, xyt_b[:, :2], self.soil)
+                bc_parts[bc.bc_type].append(-k_b * dTdn - bc.h *
+                                (T_b-bc.T_target(xyt_b[:, :2], self.scenario.T_amb)))
+        for kind, parts in bc_parts.items():
+            if parts:
+                losses[f"bc_{kind}"] = mse(torch.cat(parts, dim=0))
 
         # Initial condition
         pts_ic = self._fresh(self.pts_ic)

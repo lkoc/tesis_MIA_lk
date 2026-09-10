@@ -36,12 +36,17 @@ def gradients(u: torch.Tensor, x: torch.Tensor) -> torch.Tensor:
     assert x.requires_grad, (
         "Input tensor must have requires_grad=True for autograd differentiation"
     )
-    return torch.autograd.grad(
+    # Autograd represents derivatives of affine fields as graph-free constants.
+    # Keep a zero dependence so a second derivative is defined and equals zero.
+    if not u.requires_grad:
+        return x * 0.0
+    result = torch.autograd.grad(
         u, x,
         grad_outputs=torch.ones_like(u),
         create_graph=True,
         retain_graph=True,
     )[0]
+    return result + x * 0.0
 
 
 # ---------------------------------------------------------------------------
@@ -169,21 +174,23 @@ def neumann_residual(
     inputs: torch.Tensor,
     normal: torch.Tensor,
     target_flux: float = 0.0,
+    k_val: torch.Tensor | float = 1.0,
 ) -> torch.Tensor:
-    """Neumann BC residual: :math:`\\nabla T \\cdot \\mathbf{n} - q_n = 0`.
+    """Neumann heat-flux residual: :math:`-k\\nabla T \\cdot \\mathbf{n} - q_n = 0`.
 
     Args:
         T:           Predicted temperature ``(N, 1)``.
         inputs:      Coordinates ``(N, 2)`` with ``requires_grad=True``.
         normal:      Outward unit normal ``(N, 2)`` or ``(1, 2)``.
-        target_flux: Prescribed normal heat flux (0 for insulated).
+        target_flux: Prescribed outward heat flux [W/m²] (0 for insulated).
+        k_val:       Local thermal conductivity [W/(m K)].
 
     Returns:
         Residual ``(N, 1)``.
     """
     gT = gradients(T, inputs)      # (N, 2)
     dTdn = (gT * normal).sum(dim=1, keepdim=True)  # dot product
-    return dTdn - target_flux
+    return -k_val * dTdn - target_flux
 
 
 def robin_residual(

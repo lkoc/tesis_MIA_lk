@@ -20,7 +20,7 @@ import torch.nn as nn
 
 from pinn_cables.physics.k_field import KFieldModel, PhysicsParams
 from pinn_cables.physics.kennelly import multilayer_T_multi
-from pinn_cables.pinn.pde import pde_residual_steady
+from pinn_cables.pinn.pde import pde_residual_steady, neumann_residual, robin_residual
 
 
 # ---------------------------------------------------------------------------
@@ -218,10 +218,23 @@ def compute_pde_bc_loss(
         bc = bcs.get(edge)
         if bc is None:
             continue
-        T_b = model(norm_fn(pts_b) if normalize else pts_b)
-        if bc.bc_type in ("dirichlet", "robin"):
-            T_tgt = bc.T_target(pts_b, T_amb)
-            loss_bc = loss_bc + torch.mean((T_b - T_tgt) ** 2)
+        points = pts_b.detach().clone().requires_grad_(True)
+        T_b = model(norm_fn(points) if normalize else points)
+        if bc.bc_type == "dirichlet":
+            residual = T_b - bc.T_target(points, T_amb)
+        else:
+            normals = {"top": [0., 1.], "bottom": [0., -1.],
+                       "left": [-1., 0.], "right": [1., 0.]}
+            normal = points.new_tensor(normals[edge]).reshape(1, 2)
+            k_boundary = k_fn(points) if callable(k_fn) else k_fn
+            if bc.bc_type == "robin":
+                residual = robin_residual(T_b, points, normal, k_boundary,
+                                          bc.h, bc.T_target(points, T_amb))
+            elif bc.bc_type == "neumann":
+                residual = neumann_residual(T_b, points, normal, bc.value, k_boundary)
+            else:
+                raise ValueError(f"Unsupported boundary type: {bc.bc_type}")
+        loss_bc = loss_bc + torch.mean(residual ** 2)
 
     total = w_pde * loss_pde + w_bc * loss_bc
     return total, loss_pde.detach(), loss_bc.detach()

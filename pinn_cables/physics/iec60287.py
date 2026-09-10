@@ -1,7 +1,7 @@
 """IEC 60287 heat-loss computation and temperature-dependent resistance.
 
 Provides:
-- :func:`compute_iec60287_Q` — full IEC 60287 heat calculation with skin effect.
+- :func:`compute_iec60287_Q` — simplified conductor and dielectric loss model.
 - :func:`Q_lin_from_I` — linear heat [W/m] from current and R(T).
 """
 
@@ -135,7 +135,11 @@ def iterate_R_T(
     from pinn_cables.physics.kennelly import iec60287_estimate
 
     n_cables = len(placements)
-    T_cond_est = T_amb + 50.0  # estimacion inicial
+    if n_cables == 0 or n_iter < 1 or tol <= 0:
+        raise ValueError('Positive iteration count, tolerance and cable count required')
+    if any(len(v) != n_cables for v in (layers_list,I_per_cable,R_per_cable,alpha_per_cable)):
+        raise ValueError('One electrical and thermal specification per cable required')
+    T_cond_est = [T_amb + 50.0] * n_cables
 
     Q_lins = [Q_lin_from_I(I_per_cable[i], R_per_cable[i],
                            alpha_per_cable[i], T_amb, T_ref_R_K)
@@ -144,16 +148,22 @@ def iterate_R_T(
     iec = None
     for _ in range(n_iter):
         Q_lins = [Q_lin_from_I(I_per_cable[i], R_per_cable[i],
-                               alpha_per_cable[i], T_cond_est, T_ref_R_K)
+                               alpha_per_cable[i], T_cond_est[i], T_ref_R_K) + Q_d
                   for i in range(n_cables)]
         iec = iec60287_estimate(
             layers_list, placements, k_soil, T_amb,
             Q_lins=Q_lins, k_eff_fn=k_eff_fn, Q_d=Q_d,
         )
-        T_new = iec["T_cond_ref"]
-        if abs(T_new - T_cond_est) < tol:
+        T_new = [c['T_cond'] for c in iec['cables']]
+        residual = max(abs(a-b) for a,b in zip(T_new,T_cond_est))
+        if not all(math.isfinite(t) for t in T_new):
+            raise RuntimeError('Nonfinite temperature during R(T) iteration')
+        if residual < tol:
+            iec.update(converged=True,iterations=_+1,temperature_residual_K=residual)
             break
         T_cond_est = T_new
+    else:
+        raise RuntimeError(f'R(T) failed to converge in {n_iter} iterations; residual={residual:.6g} K')
 
     assert iec is not None
     return iec, Q_lins

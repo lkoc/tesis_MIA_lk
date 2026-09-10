@@ -297,11 +297,12 @@ class KFieldModel:
         """
         if not self._has_layers:
             return self._k_soil
-        for band in self._bands:          # sorted shallow → deep
-            if band.y_bottom <= y <= band.y_top:
-                return band.k
-        # Outside all bands: use nearest-band extrapolation or fallback
-        return self._k_soil
+        value = self._bands[0].k
+        for above, below in zip(self._bands[:-1], self._bands[1:]):
+            z = (above.y_bottom-y)/self._layer_tr
+            weight = 1./(1.+math.exp(-z)) if z >= 0 else math.exp(z)/(1.+math.exp(z))
+            value += (below.k-above.k)*weight
+        return value
 
     def _k_layer_tensor(self, xy: torch.Tensor) -> torch.Tensor:
         """Return k of the soil layer per point, as a differentiable tensor (N,1).
@@ -355,7 +356,8 @@ class KFieldModel:
         dx = abs(x - pp.k_cx) - pp.k_width / 2.0
         dy = abs(y - pp.k_cy) - pp.k_height / 2.0
         d = max(dx, dy)
-        return 1.0 / (1.0 + math.exp(d / pp.k_transition))
+        z = -d / pp.k_transition
+        return 1./(1.+math.exp(-z)) if z >= 0 else math.exp(z)/(1.+math.exp(z))
 
     def _pac_sigma_tensor(self, xy: torch.Tensor) -> torch.Tensor:
         """PAC sigmoid weight per point (N,1), differentiable."""
