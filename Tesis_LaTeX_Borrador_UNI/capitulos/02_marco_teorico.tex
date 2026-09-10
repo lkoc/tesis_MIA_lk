@@ -34,7 +34,16 @@ Las estrategias de descomposición de dominio, como las propuestas por \textcite
 
 \textcite[342--350]{gregor2013} distinguen el artefacto situado de contribuciones más abstractas, como los métodos y principios de diseño. Además, relacionan la evaluación con validez, utilidad, calidad y eficacia. \textcite[198--203]{delport2024} complementan esta perspectiva con ciclos de evaluación durante el desarrollo y con criterios de abstracción, originalidad, justificación y beneficio.
 
-\pendiente{Actualizar el cierre del estado del arte hasta la fecha final de entrega, depurar duplicados y verificar en los PDF originales las páginas de toda afirmación específica. Incorporar únicamente fuentes que cambien la brecha, el método o la interpretación.}
+\subsection{SÍNTESIS CRÍTICA Y CRITERIOS DE SELECCIÓN}
+
+La revisión se actualizó para sustentar las decisiones de arquitectura y entrenamiento. Se consultaron fuentes primarias sobre continuidad de flujo, ponderación de pérdidas, muestreo, formulación variacional y variables de primer orden. La revisión es narrativa y dirigida al diseño del artefacto; no se presenta como revisión sistemática ni metaanálisis.
+
+Una red entrenada con pares generados por FEM constituye un sustituto supervisado cuando su pérdida no incorpora la ecuación física. El enfoque FEM--BPNN de \textcite{aldulaimi2024} aporta antecedentes de representación térmica y aproximación, pero no demuestra por sí mismo el funcionamiento de una PINN. La misma distinción se aplica a operadores FNO entrenados solamente con etiquetas.
+
+La literatura ofrece respuestas diferentes a dificultades distintas. La descomposición aborda interfaces; los pesos adaptativos abordan desequilibrios de optimización; y el muestreo adaptativo redistribuye puntos de evaluación del residuo \parencites{jagtap2020cpinn}{wang2020gradients}{wu2022sampling}. Ninguna de estas opciones garantiza superioridad en el arreglo de cables sin una comparación específica.
+
+La brecha que se estudia es la falta de una comparación trazable para las configuraciones y supuestos seleccionados. No se afirma que PINN, heterogeneidad térmica o cálculo de ampacidad carezcan de antecedentes. La contribución consiste en especificar el mismo problema para PINN y FEM y clasificar el dominio de aceptación del artefacto.
+
 
 \section{BASES TEÓRICAS}
 \label{sec:bases-teoricas}
@@ -223,9 +232,9 @@ La Figura~\ref{fig:flujo-pinn} organiza el flujo lógico. Las entradas físicas 
 
 \subsection{CIENCIA DEL DISEÑO Y NATURALEZA DE LA CONTRIBUCIÓN}
 
-DSR produce conocimiento prescriptivo mediante artefactos útiles y evaluados. El artefacto situado es el prototipo PINN aplicado al arreglo de cables--entorno térmico. La contribución abstracta prevista comprende requisitos, arquitectura, protocolo de evaluación, límites y principios de diseño \parencite[343--349]{gregor2013}.
+DSR produce conocimiento prescriptivo mediante artefactos útiles y evaluados. El artefacto situado es el prototipo PINN aplicado al arreglo de cables--entorno térmico. La contribución metodológica comprende requisitos, arquitectura, protocolo de evaluación, límites y principios de diseño \parencite[343--349]{gregor2013}.
 
-Los principios iniciales consisten en conservar la física, representar interfaces sin promedios inadvertidos, separar verificación de validación, mantener la incertidumbre numérica por debajo del efecto analizado y preservar la trazabilidad. Son proposiciones sujetas a evaluación, no conclusiones anticipadas.
+Los principios iniciales consisten en conservar la física, representar interfaces sin promedios inadvertidos, separar verificación de validación, mantener la incertidumbre numérica por debajo del efecto analizado y preservar la trazabilidad. Su evaluación se documenta mediante los casos y las decisiones del Capítulo III.
 
 \section{DEFINICIÓN DE TÉRMINOS}
 \label{sec:definicion-terminos}
@@ -274,5 +283,5 @@ Los principios iniciales consisten en conservar la física, representar interfac
   \item[XLPE.] Polietileno reticulado usado como aislamiento en cables de potencia. Su límite térmico condiciona la corriente admisible \parencite{iec60502_2_2014}.
 \end{description}
 
-En síntesis, la cadena física parte de $\kx$, continúa con el flujo y el campo térmico, y termina en $\Tmax$ e $\Imax$. El Capítulo~\ref{ch:propuesta-desarrollo} transforma esta cadena en la arquitectura del artefacto, su desarrollo y la evidencia que todavía debe producirse.
+La cadena física parte de $\kx$, continúa con el flujo y el campo térmico, y termina en $\Tmax$ e $\Imax$. El Capítulo~\ref{ch:propuesta-desarrollo} transforma esta cadena en la arquitectura del artefacto, su desarrollo y la evidencia obtenida y sus límites.
 

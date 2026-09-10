@@ -11,8 +11,16 @@ import hashlib
 import json
 import math
 import numpy as np
+from Benchmarks.expressions import conductivity, evaluate as evaluate_expression, manufactured_source
 
 ROOT = Path(__file__).resolve().parents[1]
+
+def interfaces(c):
+    spec=c.get('conductivity')
+    if isinstance(spec,dict) and spec.get('type')=='layers' and spec.get('smoothing',0)==0:
+        return [dict(axis=spec['axis'],position=z) for z in spec['interfaces']]
+    if c['kind']=='mms_interface':return [c.get('interface',dict(axis='x',position=.5))]
+    return []
 
 def _historical_case_builder():
     result = {}
@@ -49,8 +57,18 @@ def _historical_case_builder():
 def validate_case(c):
     """Validate the common physical contract before either solver starts."""
     if not isinstance(c.get('id'),str) or not c['id']: raise ValueError('Missing case id')
-    if c['kind'] not in ('cable','annulus','mms_constant','mms_variable','mms_interface','mms_robin'): raise ValueError('Unsupported case kind')
+    if c['kind'] not in ('cable','annulus','mms','mms_constant','mms_variable','mms_smooth_2d','mms_high_contrast','mms_interface','mms_robin'): raise ValueError('Unsupported case kind')
+    if c['kind']=='mms' and not all(k in c for k in ('conductivity','exact_expression','source_expression')):raise ValueError('Generic MMS requires physical expressions')
     if c['scale']<=0 or not np.isfinite(c['scale']): raise ValueError('scale must be positive')
+    if 'conductivity' in c:
+        spec=c['conductivity']
+        if isinstance(spec,dict) and spec.get('type')=='layers':
+            if spec.get('axis') not in ('x','y') or len(spec['values'])!=len(spec['interfaces'])+1 or any(a>=b for a,b in zip(spec['interfaces'],spec['interfaces'][1:])) or min(spec['values'])<=0 or spec.get('smoothing',0)<0:raise ValueError('Invalid layer specification')
+        if c.get('patch') or c.get('bands'):raise ValueError('Use either conductivity or legacy patch/bands, not both')
+        if c['kind'].startswith('mms') and not all(k in c for k in ['exact_expression','source_expression']):raise ValueError('Manufactured data need exact and source expressions')
+        x0,x1,y0,y1=c['bounds'];gx,gy=np.meshgrid(np.linspace(x0,x1,41),np.linspace(y0,y1,41))
+        kval=conductivity(spec,gx,gy,np)
+        if not np.all(np.isfinite(kval)) or np.min(kval)<=0:raise ValueError('Nonpositive/nonfinite conductivity on validation grid')
     if c['kind']=='annulus':
         if not 0<c['ri']<c['ro'] or c['k']<=0: raise ValueError('Invalid annulus')
     else:
@@ -69,6 +87,9 @@ def validate_case(c):
             if not (x0+r<x<x1-r and y0+r<y<y1-r): raise ValueError('Cable outside domain')
             for xx,yy in c['cables'][:i]:
                 if math.hypot(x-xx,y-yy)<=2*r: raise ValueError('Overlapping cables')
+            for info in interfaces(c):
+                coord=x if info['axis']=='x' else y
+                if abs(coord-info['position'])<=r:raise ValueError('A discrete soil interface must not intersect a cable in this geometry version')
         if c.get('patch'):
             _,_,w,h,k,e=c['patch']
             if min(w,h,k,e)<=0: raise ValueError('Invalid thermal patch')
@@ -90,8 +111,11 @@ def fingerprint(case):
 
 def field_k(c,x,y,backend=np):
     """Same expression evaluated by numpy, torch or a UFL adapter."""
+    if 'conductivity' in c:return conductivity(c['conductivity'],x,y,backend)
     kind=c['kind']
     if kind=='mms_variable': return 1+x
+    if kind=='mms_smooth_2d': return 1+.4*backend.sin(2*math.pi*x)*backend.cos(2*math.pi*y)
+    if kind=='mms_high_contrast': return backend.exp(math.log(10)*(x+y)/2)
     if kind=='mms_interface': return backend.where(x<=.5,.5+0*x,2.+0*x)
     k=c.get('k',1.)+0*x
     if c.get('bands'):
@@ -106,6 +130,7 @@ def field_k(c,x,y,backend=np):
     return k
 
 def exact(c,x,y,backend=np):
+    if 'exact_expression' in c:return evaluate_expression(c['exact_expression'],x,y,backend)
     kind=c['kind']
     if kind=='annulus': return c['T0']+c['power']/(2*math.pi*c['k'])*backend.log(c['ro']/backend.sqrt(x*x+y*y))
     if kind=='mms_robin': return 20+30*x*(1-x)*(1+y)
@@ -115,6 +140,8 @@ def exact(c,x,y,backend=np):
     return 20+30*backend.sin(math.pi*x)*backend.sin(math.pi*y)
 
 def source(c,x,y,backend=np):
+    if c.get('source_expression')=='manufactured':return manufactured_source(c['exact_expression'],c['conductivity'],x,y,backend)
+    if 'source_expression' in c:return evaluate_expression(c['source_expression'],x,y,backend)
     kind=c['kind']
     if kind in ('cable','annulus'): return 0*x
     if kind=='mms_robin': return 60*(1+y)+0*x
@@ -122,6 +149,12 @@ def source(c,x,y,backend=np):
     if kind=='mms_interface': return field_k(c,x,y,backend)*math.pi**2*theta
     q=2*math.pi**2*field_k(c,x,y,backend)*theta
     if kind=='mms_variable': q=q-30*math.pi*backend.cos(math.pi*x)*backend.sin(math.pi*y)
+    if kind in ('mms_smooth_2d','mms_high_contrast'):
+        if kind=='mms_smooth_2d':
+            kx=.8*math.pi*backend.cos(2*math.pi*x)*backend.cos(2*math.pi*y)
+            ky=-.8*math.pi*backend.sin(2*math.pi*x)*backend.sin(2*math.pi*y)
+        else:kx=ky=math.log(10)/2*field_k(c,x,y,backend)
+        q=q-30*math.pi*(kx*backend.cos(math.pi*x)*backend.sin(math.pi*y)+ky*backend.sin(math.pi*x)*backend.cos(math.pi*y))
     return q
 
 def radial_resistance(c):

@@ -71,7 +71,7 @@ El alcance metodológico comprende el diseño y evaluación de un artefacto PINN
 
 El estudio no modela de forma acoplada el envejecimiento dieléctrico, la migración de humedad, la convección subterránea ni la interacción electromagnética completa. Las pérdidas eléctricas se representan como fuentes térmicas compatibles con los casos seleccionados. Tampoco se incluye una evaluación de CAPEX, OPEX o retorno de inversión.
 
-Los resultados no podrán generalizarse fuera de las geometrías, materiales, fuentes, contornos y rangos verificados. Cualquier comparación de recursos computacionales deberá informar hardware, tolerancias, semillas e inicializaciones.
+Los resultados no pueden generalizarse fuera de las geometrías, materiales, fuentes, contornos y rangos verificados. Cualquier comparación de recursos computacionales deberá informar hardware, tolerancias, semillas e inicializaciones.
 
 \section{FORMULACIÓN DEL PROBLEMA}
 \label{sec:formulacion-problema}
@@ -105,7 +105,7 @@ Diseñar y evaluar un artefacto computacional basado en una red neuronal informa
   \item Comparar la ampacidad de representaciones heterogéneas 2D y homogéneas pareadas, e identificar las condiciones que generan mayor discrepancia.
 \end{enumerate}
 
-La tesis profesionalizante no plantea una contrastación estadística de hipótesis. Las proposiciones formuladas durante el plan se conservan como criterios previos de calidad, utilidad y efecto físico en la metodología y en el Capítulo~\ref{ch:propuesta-desarrollo}. Esta adaptación evita presentar como demostrado un resultado que todavía debe evaluarse.
+La tesis profesionalizante no plantea una contrastación estadística de hipótesis. Las proposiciones formuladas durante el plan se conservan como criterios previos de calidad, utilidad y efecto físico en la metodología y en el Capítulo~\ref{ch:propuesta-desarrollo}. Esta adaptación vincula las conclusiones con la evidencia computacional y con los límites observados.
 
 \section{METODOLOGÍA}
 \label{sec:metodologia}
@@ -146,14 +146,14 @@ Las dos métricas básicas de reporte se definen en la Fórmula~\ref{for:metrica
 \begin{equation}
 \label{for:metricas}
 \begin{aligned}
-e_{T_{\max}}(\pct)&=100\frac{\left|T_{\max}^{\mathrm{PINN}}-T_{\max}^{\mathrm{ref}}\right|}{\left|T_{\max}^{\mathrm{ref}}\right|},\\
+e_{T_{\max}}(\pct)&=100\frac{\left|T_{\max}^{\mathrm{PINN}}-T_{\max}^{\mathrm{ref}}\right|}{\left|T_{\max}^{\mathrm{ref}}-T_0\right|},\\
 \Delta I(\pct)&=100\frac{I_{\mathrm{het}}-I_{\mathrm{hom}}}{I_{\mathrm{hom}}}.
 \end{aligned}
 \end{equation}
 \caption{Métricas básicas de evaluación térmica y de ampacidad.}
 \end{formula}
 
-La primera expresión mide la diferencia relativa de temperatura máxima frente a una referencia. La segunda mide el cambio de ampacidad entre el escenario heterogéneo y su par homogéneo. No constituyen por sí mismas evidencia de validez; deben interpretarse con residuos, balance, convergencia y límites del caso.
+La primera expresión normaliza el error de temperatura máxima con el incremento respecto al ambiente. Esta elección evita que el resultado dependa del origen de la escala Celsius. La segunda mide el cambio de ampacidad entre el escenario heterogéneo y su par homogéneo. No constituyen por sí mismas evidencia de validez; deben interpretarse con residuos, balance, convergencia y límites del caso.
 
 \begin{table}[htbp]
 \centering
@@ -195,7 +195,12 @@ Los umbrales son reglas iniciales del proyecto y no valores universales para PIN
 \end{tabularx}
 \end{table}
 
-\pendiente{Cerrar la metodología ejecutada después del piloto: especificar casos definitivos, niveles de contraste, extensión y proximidad; arquitectura e hiperparámetros; número de semillas; hardware; versiones de software; referencia FEM; reglas finales de convergencia; y cualquier ajuste previo a los criterios de aceptación.}
+La metodología ejecutada comprende quince casos y tres mallas FEM por caso. Las configuraciones se comparan mediante una campaña exploratoria de ocho candidatos y variantes específicas de interfaz y enriquecimiento geométrico. Las semillas 11, 23 y 37 evalúan sensibilidad; el detalle de selección se presenta en la Sección~\ref{sec:seleccion-pinn}.
 
-En síntesis, el capítulo establece el problema, los objetivos y el protocolo que debe producir evidencia. El marco teórico del Capítulo~\ref{ch:marco-teorico} desarrolla las bases físicas, normativas, numéricas y metodológicas necesarias para interpretar esa evidencia.
+El alcance físico ejecutado resuelve el suelo en dos dimensiones y reconstruye radialmente el interior de los cables. Las pérdidas base se fijan mediante resistencia DC a 20 °C. La comparación de corriente corresponde a un índice condicionado a resistencia común a 90 °C, por lo que el alcance operativo del OE4 es parcial.
+
+Los umbrales de 5\,\pct{} para campo y temperatura y 2\,\pct{} para balance se conservan como reglas del proyecto. Se explicita que los errores relativos usan el incremento térmico respecto al ambiente. Las referencias FEM se someten además a un cambio máximo entre mallas inferior a 0,5\,\pct{} de dicho incremento.
+
+
+El capítulo establece el problema, los objetivos y el protocolo de producción y evaluación de evidencia. El marco teórico del Capítulo~\ref{ch:marco-teorico} desarrolla las bases físicas, normativas, numéricas y metodológicas necesarias para interpretar esa evidencia.
 

@@ -14,14 +14,14 @@ import torch
 from torch import nn
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from pinn_cables.pinn.pde import gradients, laplace_variable_k
-from Benchmarks.cases import cases, field_k, source, exact, evaluation_points, surface_points, radial_resistance, fingerprint, in_domain
+from Benchmarks.cases import cases, field_k, source, exact, evaluation_points, surface_points, radial_resistance, fingerprint, in_domain, interfaces
 SOURCE_ROOT=Path(__file__).resolve().parents[1]
-SOURCE_SNAPSHOT={str(p.relative_to(SOURCE_ROOT)):p.read_bytes() for p in [Path(__file__),Path(__file__).with_name('cases.py'),SOURCE_ROOT/'pinn_cables/pinn/pde.py']}
+SOURCE_SNAPSHOT={str(p.relative_to(SOURCE_ROOT)):p.read_bytes() for p in [Path(__file__),Path(__file__).with_name('cases.py'),Path(__file__).with_name('expressions.py'),SOURCE_ROOT/'pinn_cables/pinn/pde.py']}
 
 class Network(nn.Module):
     def __init__(self,c,width=32,depth=3,variant='enriched'):
         super().__init__();self.c=c;self.width=width;self.depth=depth;self.variant=variant
-        count=2 if c['kind']=='mms_interface' and variant!='global' else 1
+        count=len(interfaces(c))+1 if variant!='global' else 1
         self.nets=nn.ModuleList()
         if variant=='multipole' and c['kind']=='cable':
             self.multipoles=nn.Parameter(torch.zeros(len(c['cables']),3,2))
@@ -32,7 +32,7 @@ class Network(nn.Module):
                 layers.extend([lin,nn.Tanh()]);nin=width
             lin=nn.Linear(width,1);nn.init.zeros_(lin.bias);layers.append(lin)
             self.nets.append(nn.Sequential(*layers))
-    def plain(self,xy):
+    def coordinates(self,xy):
         c=self.c
         if c['kind']=='annulus':
             z=torch.log(torch.linalg.vector_norm(xy,dim=1,keepdim=True)/c['ri'])/math.log(c['ro']/c['ri'])
@@ -40,9 +40,15 @@ class Network(nn.Module):
             # Physical local scale, with tanh resolving the cable vicinity.
             z=torch.cat([xy[:,:1]/2.,(xy[:,1:2]+1.4)/2.],dim=1)
         else: z=2*xy-1
-        if len(self.nets)==2:
-            return torch.where(xy[:,:1]<=.5,self.nets[0](z),self.nets[1](z))
-        return self.nets[0](z)
+        return z
+
+    def plain(self,xy):
+        z=self.coordinates(xy);result=self.nets[0](z)
+        if len(self.nets)>1:
+            for j,info in enumerate(interfaces(self.c)):
+                axis=0 if info['axis']=='x' else 1
+                result=torch.where(xy[:,axis:axis+1]<=info['position'],result,self.nets[j+1](z))
+        return result
 
     def basis(self,xy):
         c=self.c;columns=[]
@@ -127,9 +133,16 @@ def train(c,seed,args,out):
         kz=field_k(c,z[:,:1],z[:,1:2],torch)
         target=exact(c,z[:,:1],z[:,1:2],torch).detach() if c['kind'].startswith('mms') else z[:,:1].detach()*0+c['T0']
         cached.append((z,normal,edge,bgz.detach(),gz,kz.detach(),target,basis_cache(z,kz)))
-    if c['kind']=='mms_interface':
+    interface_cache=[]
+    for info in interfaces(c):
+        iaxis=0 if info['axis']=='x' else 1;pos=info['position'];x0,x1,y0,y1=c['bounds']
         yi=(np.arange(128)+.5)/128
-        inter=tensor(np.c_[np.full(128,.5),yi],True)
+        ip=np.c_[np.full(128,pos),y0+(y1-y0)*yi] if iaxis==0 else np.c_[x0+(x1-x0)*yi,np.full(128,pos)]
+        ip=ip[in_domain(c,ip)];inter=tensor(ip,True)
+        pminus=ip.copy();pplus=ip.copy();pminus[:,iaxis]-=1e-6;pplus[:,iaxis]+=1e-6
+        kminus=tensor(field_k(c,pminus[:,:1],pminus[:,1:2]));kplus=tensor(field_k(c,pplus[:,:1],pplus[:,1:2]))
+        gb=gradients(background(c,inter,args.variant),inter).detach()/scale
+        interface_cache.append((inter,iaxis,kminus,kplus,gb))
     def loss():
         u=model.plain(xy)
         if c['kind']=='annulus':
@@ -165,10 +178,12 @@ def train(c,seed,args,out):
                 lb=lb+torch.mean((r/(10*scale))**2)
             else: lb=lb+torch.mean(((temp-target)/scale)**2)
         li=u.new_zeros(())
-        if c['kind']=='mms_interface':
-            z=2*inter-1;ul=model.nets[0](z);ur=model.nets[-1](z)
-            gl=gradients(ul,inter)[:,:1];gr=gradients(ur,inter)[:,:1]
-            li=torch.mean((ul-ur)**2)+torch.mean((.5*gl-2*gr)**2)
+        for j,(inter,iaxis,kminus,kplus,gb) in enumerate(interface_cache):
+            z=model.coordinates(inter);ul=model.nets[min(j,len(model.nets)-1)](z);ur=model.nets[min(j+1,len(model.nets)-1)](z)
+            gl=gradients(ul,inter)[:,iaxis:iaxis+1];gr=gradients(ur,inter)[:,iaxis:iaxis+1]
+            common=gb[:,iaxis:iaxis+1]
+            if hasattr(model,'multipoles'):common=common+gradients(model.basis(inter)@model.multipoles.reshape(-1,1),inter)[:,iaxis:iaxis+1]
+            li=li+torch.mean((ul-ur)**2)+torch.mean((kminus*(gl+common)-kplus*(gr+common))**2)
         le=(net_flux/(c.get('power',1)*len(c.get('cables',[0]))))**2
         wp=args.pde_weight if args.pde_weight is not None else (25 if args.variant in ('conservative','multipole') else 1)
         return wp*lp+args.bc_weight*lb+args.flux_weight*lf+10*li+args.energy_weight*le,dict(pde=lp,bc=lb,flux=lf,interface=li,energy=le)
@@ -230,18 +245,29 @@ def evaluate_model(model,meta,out):
         # Deterministic tensor-product Gauss quadrature, split at the interface.
         ga,gw=np.polynomial.legendre.leggauss(64);generation=0.
         for left,right in [(0,.5),(.5,1)]:
-            xx,yy=np.meshgrid(left+(ga+1)*(right-left)/2,(ga+1)/2)
-            generation+=float(np.sum(source(c,xx,yy)*np.outer(gw,gw))*(right-left)/4)
+            for bottom,top in [(0,.5),(.5,1)]:
+                xx,yy=np.meshgrid(left+(ga+1)*(right-left)/2,bottom+(ga+1)*(top-bottom)/2)
+                generation+=float(np.sum(source(c,xx,yy)*np.outer(gw,gw))*(right-left)*(top-bottom)/4)
     else: generation=0.
     rpts=tensor(xy,True);temp=predict(model,rpts);k=field_k(c,rpts[:,:1],rpts[:,1:2],torch)
     residual=laplace_variable_k(temp,rpts,k)+source(c,rpts[:,:1],rpts[:,1:2],torch)
     pde_rms=float(torch.sqrt(torch.mean(residual.detach()**2)))
     report=dict(metadata=meta,Tmax_C=tm,conductor_C=tc,net_flux_W_m=flux,source_W_m=generation,throughput_W_m=throughput,balance_pct=abs(flux-generation)/max(abs(generation),throughput/2,1e-12)*100,pde_rmse_W_m3=pde_rms)
-    if c['kind']=='mms_interface':
-        yy=np.linspace(.0001,.9999,512);z=tensor(np.c_[np.full(512,.5),yy],True)
-        l=model.nets[0](2*z-1)*c['scale'];r=model.nets[-1](2*z-1)*c['scale']
-        jump=.5*gradients(l,z)[:,:1]-2*gradients(r,z)[:,:1]
-        report.update(interface_T_max_K=float(torch.max(abs(l-r)).detach()),interface_flux_max_W_m2=float(torch.max(abs(jump)).detach()))
+    interface_results=[]
+    for j,info in enumerate(interfaces(c)):
+        yy=np.linspace(.0001,.9999,512);iaxis=0 if info['axis']=='x' else 1;pos=info['position'];x0,x1,y0,y1=c['bounds']
+        ip=np.c_[np.full(512,pos),y0+(y1-y0)*yy] if iaxis==0 else np.c_[x0+(x1-x0)*yy,np.full(512,pos)]
+        ip=ip[in_domain(c,ip)]
+        z=tensor(ip,True)
+        common=background(c,z,model.variant)
+        if hasattr(model,'multipoles'):common=common+c['scale']*(model.basis(z)@model.multipoles.reshape(-1,1))
+        l=common+model.nets[min(j,len(model.nets)-1)](model.coordinates(z))*c['scale'];r=common+model.nets[min(j+1,len(model.nets)-1)](model.coordinates(z))*c['scale']
+        pm=ip.copy();pp=ip.copy();pm[:,iaxis]-=1e-6;pp[:,iaxis]+=1e-6
+        km=tensor(field_k(c,pm[:,:1],pm[:,1:2]));kp=tensor(field_k(c,pp[:,:1],pp[:,1:2]))
+        jump=km*gradients(l,z)[:,iaxis:iaxis+1]-kp*gradients(r,z)[:,iaxis:iaxis+1]
+        interface_results.append(dict(**info,T_jump_max_K=float(torch.max(abs(l-r)).detach()),flux_jump_max_W_m2=float(torch.max(abs(jump)).detach())))
+    if interface_results:
+        report.update(interfaces=interface_results,interface_T_max_K=max(r['T_jump_max_K'] for r in interface_results),interface_flux_max_W_m2=max(r['flux_jump_max_W_m2'] for r in interface_results))
     if c['kind']!='cable':
         err=vals-exact(c,xy[:,0],xy[:,1]);report.update(rmse_exact_K=float(np.sqrt(np.mean(err**2))),max_error_exact_K=float(np.max(abs(err))))
     f=out/'fem_l2.npz'

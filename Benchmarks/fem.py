@@ -16,11 +16,11 @@ import gmsh
 import ufl
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from Benchmarks.cases import cases, field_k, source, exact, evaluation_points, surface_points, radial_resistance, fingerprint
+from Benchmarks.cases import cases, field_k, source, exact, evaluation_points, surface_points, radial_resistance, fingerprint, interfaces
 
 class UFLBackend:
     sin=staticmethod(ufl.sin); cos=staticmethod(ufl.cos); tanh=staticmethod(ufl.tanh)
-    log=staticmethod(ufl.ln); sqrt=staticmethod(ufl.sqrt)
+    log=staticmethod(ufl.ln); sqrt=staticmethod(ufl.sqrt); exp=staticmethod(ufl.exp)
     @staticmethod
     def where(condition,a,b): return ufl.conditional(condition,a,b)
 
@@ -41,10 +41,19 @@ def create_mesh(c,level):
             x0,x1,y0,y1=c['bounds'];outer=occ.addRectangle(x0,y0,0,x1-x0,y1-y0)
             centers=c['cables'];r=c['radius'];far=.65
             holes=[occ.addDisk(cx,cy,0,r,r) for cx,cy in centers]
-        surf,_=occ.cut([(2,outer)],[(2,t) for t in holes]);occ.synchronize()
+        surf,_=occ.cut([(2,outer)],[(2,t) for t in holes])
+        cuts=[]
+        for info in interfaces(c):
+            pos=info['position']
+            if info['axis']=='y':a=occ.addPoint(x0,pos,0);b=occ.addPoint(x1,pos,0)
+            else:a=occ.addPoint(pos,y0,0);b=occ.addPoint(pos,y1,0)
+            cuts.append((1,occ.addLine(a,b)))
+        if cuts:
+            fragments,_=occ.fragment(surf,cuts);surf=[s for s in fragments if s[0]==2]
+        occ.synchronize()
         gmsh.model.addPhysicalGroup(2,[s[1] for s in surf],1)
         outer_curves=[];inner_curves=[]
-        for dim,t in gmsh.model.getBoundary(surf,oriented=False):
+        for dim,t in gmsh.model.getBoundary(surf,combined=True,oriented=False):
             box=gmsh.model.getBoundingBox(dim,t)
             mid=np.array([(box[0]+box[3])/2,(box[1]+box[4])/2])
             chosen=next((j for j,cc in enumerate(centers) if np.linalg.norm(mid-cc)<r*.1 and box[3]-box[0]<r*2.1),None)

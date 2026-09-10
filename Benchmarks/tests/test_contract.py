@@ -12,7 +12,7 @@ def test_saved_fem_matches_current_specification():
         p=Path('Benchmarks/results')/name/'fem_l2.json'
         if p.exists(): assert json.loads(p.read_text())['case_sha256']==fingerprint(c)
 
-@pytest.mark.parametrize('name',['mms_constant','mms_variable','mms_interface','mms_robin'])
+@pytest.mark.parametrize('name',['mms_constant','mms_variable','mms_interface','mms_robin','mms_smooth_2d','mms_high_contrast','mms_layered_y'])
 def test_manufactured_source_is_independent_identity(name):
     c=cases()[name]
     xy=torch.tensor([[.13,.22],[.41,.77],[.63,.36],[.89,.58]],dtype=torch.float64,requires_grad=True)
