@@ -1,0 +1,510 @@
+{
+  "physics_version": "explicit-heat-2d-v1",
+  "physics_sha256": "34c296194567f58b6489acd2b1d0c3b01b61b0b15d462a6b202871f12d970d07",
+  "specification": {
+    "physics_version": "explicit-heat-2d-v1",
+    "case": {
+      "id": "kim_sand",
+      "kind": "cable",
+      "bounds": [
+        -4.0,
+        4.0,
+        -4.0,
+        0.0
+      ],
+      "T0": 20.0,
+      "scale": 50.0,
+      "cables": [
+        [
+          -0.4,
+          -1.6
+        ],
+        [
+          0.0,
+          -1.6
+        ],
+        [
+          0.4,
+          -1.6
+        ],
+        [
+          -0.4,
+          -1.2
+        ],
+        [
+          0.0,
+          -1.2
+        ],
+        [
+          0.4,
+          -1.2
+        ]
+      ],
+      "radius": 0.11,
+      "layers": [
+        [
+          0,
+          0.0212,
+          400
+        ],
+        [
+          0.0212,
+          0.0232,
+          0.2857
+        ],
+        [
+          0.0232,
+          0.0402,
+          0.2857
+        ],
+        [
+          0.0402,
+          0.0415,
+          0.2857
+        ],
+        [
+          0.0415,
+          0.0425,
+          0.167
+        ],
+        [
+          0.0425,
+          0.045,
+          237
+        ],
+        [
+          0.045,
+          0.05,
+          0.2857
+        ],
+        [
+          0.05,
+          0.1,
+          2.15
+        ],
+        [
+          0.1,
+          0.11,
+          0.2857
+        ]
+      ],
+      "power": 15.895407599999999,
+      "current": 1026.0,
+      "R20": 1.51e-05,
+      "alpha": 0.00393,
+      "k": 1.365,
+      "patch": null,
+      "bands": [],
+      "pair": null,
+      "source": "examples/kim_2024_154kv_bedding/data",
+      "adaptation": "Dominio controlado 8 x 4 m; Dirichlet 20 C; p\u00e9rdidas DC a 20 C; flujo circular uniforme. Kim usa nueve capas de la ficha corregida de 2025."
+    },
+    "source_mode": "fixed",
+    "equation": "rho_cp*dT/dt + div(q) = Q; q = -k*grad(T)",
+    "interface": "continuous T and normal heat flux",
+    "interior": "explicit conductor and every material layer",
+    "electrical": {
+      "resistance_basis": "dc",
+      "resistance_ohm_m": 1.51e-05,
+      "reference_temperature_C": 20.0,
+      "source_temperature_C": 20.0,
+      "frequency_Hz": 0.0,
+      "skin_model": "none",
+      "profile": "uniform",
+      "mu_r": 1.0,
+      "provenance": "Legacy R20 explicitly treated as DC; confirm original datasheet before AC operation"
+    },
+    "electrical_coupling": "prescribed source",
+    "assumptions": [
+      "2D long cable",
+      "isotropic conduction",
+      "perfect thermal contact",
+      "DC or prescribed heat sources"
+    ],
+    "excluded": [
+      "skin effect",
+      "proximity effect",
+      "moisture transport",
+      "3D electromagnetic field"
+    ]
+  },
+  "method": "explicit_multimaterial_FEniCSx",
+  "level": 2,
+  "ndofs": 2802105,
+  "degree": 2,
+  "regions": [
+    {
+      "name": "soil_0",
+      "area_m2": 31.771920373350905,
+      "exact_area_m2": 31.77192037334938,
+      "area_error_pct": 4.796163466380676e-12
+    },
+    {
+      "name": "cable_0_layer_0",
+      "area_m2": 0.001411957402172588,
+      "exact_area_m2": 0.0014119574022293966,
+      "area_error_pct": 4.023403832320582e-09,
+      "Tmax_C": 47.706372046458654,
+      "power_W_m": 15.895407599360283
+    },
+    {
+      "name": "cable_0_layer_1",
+      "area_m2": 0.000278973427648379,
+      "exact_area_m2": 0.0002789734276387734,
+      "area_error_pct": 3.4432012796514755e-09
+    },
+    {
+      "name": "cable_0_layer_2",
+      "area_m2": 0.003386008562083622,
+      "exact_area_m2": 0.003386008562039079,
+      "area_error_pct": 1.315503261878348e-09
+    },
+    {
+      "name": "cable_0_layer_3",
+      "area_m2": 0.00033366855573964556,
+      "exact_area_m2": 0.0003336685557377727,
+      "area_error_pct": 5.612843523294941e-10
+    },
+    {
+      "name": "cable_0_layer_4",
+      "area_m2": 0.0002638937829015775,
+      "exact_area_m2": 0.00026389378290154293,
+      "area_error_pct": 1.3100631690576847e-11
+    },
+    {
+      "name": "cable_0_layer_5",
+      "area_m2": 0.0006872233929429389,
+      "exact_area_m2": 0.0006872233929727658,
+      "area_error_pct": 4.340205972397371e-09
+    },
+    {
+      "name": "cable_0_layer_6",
+      "area_m2": 0.0014922565100875362,
+      "exact_area_m2": 0.0014922565104551536,
+      "area_error_pct": 2.463500514693351e-08
+    },
+    {
+      "name": "cable_0_layer_7",
+      "area_m2": 0.023561944900728854,
+      "exact_area_m2": 0.023561944901923454,
+      "area_error_pct": 5.070044384325456e-09
+    },
+    {
+      "name": "cable_0_layer_8",
+      "area_m2": 0.006597344572812077,
+      "exact_area_m2": 0.006597344572538558,
+      "area_error_pct": 4.145905840857722e-09
+    },
+    {
+      "name": "cable_1_layer_0",
+      "area_m2": 0.0014119574021725831,
+      "exact_area_m2": 0.0014119574022293966,
+      "area_error_pct": 4.02373689922797e-09,
+      "Tmax_C": 49.75706210783806,
+      "power_W_m": 15.895407599360432
+    },
+    {
+      "name": "cable_1_layer_1",
+      "area_m2": 0.00027897342764837544,
+      "exact_area_m2": 0.0002789734276387734,
+      "area_error_pct": 3.4419134209429103e-09
+    },
+    {
+      "name": "cable_1_layer_2",
+      "area_m2": 0.0033860085620833666,
+      "exact_area_m2": 0.003386008562039079,
+      "area_error_pct": 1.307953745310897e-09
+    },
+    {
+      "name": "cable_1_layer_3",
+      "area_m2": 0.00033366855573966204,
+      "exact_area_m2": 0.0003336685557377727,
+      "area_error_pct": 5.662359470193223e-10
+    },
+    {
+      "name": "cable_1_layer_4",
+      "area_m2": 0.0002638937829015773,
+      "exact_area_m2": 0.00026389378290154293,
+      "area_error_pct": 1.3034018309099338e-11
+    },
+    {
+      "name": "cable_1_layer_5",
+      "area_m2": 0.0006872233929428813,
+      "exact_area_m2": 0.0006872233929727658,
+      "area_error_pct": 4.348588156233291e-09
+    },
+    {
+      "name": "cable_1_layer_6",
+      "area_m2": 0.0014922565100876162,
+      "exact_area_m2": 0.0014922565104551536,
+      "area_error_pct": 2.462964276972457e-08
+    },
+    {
+      "name": "cable_1_layer_7",
+      "area_m2": 0.023561944900729166,
+      "exact_area_m2": 0.023561944901923454,
+      "area_error_pct": 5.068712116695906e-09
+    },
+    {
+      "name": "cable_1_layer_8",
+      "area_m2": 0.006597344572812541,
+      "exact_area_m2": 0.006597344572538558,
+      "area_error_pct": 4.152922450373353e-09
+    },
+    {
+      "name": "cable_2_layer_0",
+      "area_m2": 0.0014119574021725391,
+      "exact_area_m2": 0.0014119574022293966,
+      "area_error_pct": 4.0268566259271665e-09,
+      "Tmax_C": 47.70637207438301,
+      "power_W_m": 15.895407599360121
+    },
+    {
+      "name": "cable_2_layer_1",
+      "area_m2": 0.0002789734276483513,
+      "exact_area_m2": 0.0002789734276387734,
+      "area_error_pct": 3.433253681350834e-09
+    },
+    {
+      "name": "cable_2_layer_2",
+      "area_m2": 0.0033860085620834013,
+      "exact_area_m2": 0.003386008562039079,
+      "area_error_pct": 1.308975150493552e-09
+    },
+    {
+      "name": "cable_2_layer_3",
+      "area_m2": 0.00033366855573965164,
+      "exact_area_m2": 0.0003336685557377727,
+      "area_error_pct": 5.631051180898794e-10
+    },
+    {
+      "name": "cable_2_layer_4",
+      "area_m2": 0.00026389378290157844,
+      "exact_area_m2": 0.00026389378290154293,
+      "area_error_pct": 1.3455903058456897e-11
+    },
+    {
+      "name": "cable_2_layer_5",
+      "area_m2": 0.0006872233929429063,
+      "exact_area_m2": 0.0006872233929727658,
+      "area_error_pct": 4.34494662471252e-09
+    },
+    {
+      "name": "cable_2_layer_6",
+      "area_m2": 0.0014922565100875676,
+      "exact_area_m2": 0.0014922565104551536,
+      "area_error_pct": 2.463289572318672e-08
+    },
+    {
+      "name": "cable_2_layer_7",
+      "area_m2": 0.023561944900728736,
+      "exact_area_m2": 0.023561944901923454,
+      "area_error_pct": 5.0705439846865374e-09
+    },
+    {
+      "name": "cable_2_layer_8",
+      "area_m2": 0.006597344572812264,
+      "exact_area_m2": 0.006597344572538558,
+      "area_error_pct": 4.14872580734027e-09
+    },
+    {
+      "name": "cable_3_layer_0",
+      "area_m2": 0.0014119574021725831,
+      "exact_area_m2": 0.0014119574022293966,
+      "area_error_pct": 4.02373689922797e-09,
+      "Tmax_C": 46.85625093628725,
+      "power_W_m": 15.89540759936048
+    },
+    {
+      "name": "cable_3_layer_1",
+      "area_m2": 0.00027897342764838834,
+      "exact_area_m2": 0.0002789734276387734,
+      "area_error_pct": 3.446531948725351e-09
+    },
+    {
+      "name": "cable_3_layer_2",
+      "area_m2": 0.003386008562083208,
+      "exact_area_m2": 0.003386008562039079,
+      "area_error_pct": 1.3032686041469788e-09
+    },
+    {
+      "name": "cable_3_layer_3",
+      "area_m2": 0.0003336685557396433,
+      "exact_area_m2": 0.0003336685557377727,
+      "area_error_pct": 5.60618218514719e-10
+    },
+    {
+      "name": "cable_3_layer_4",
+      "area_m2": 0.00026389378290160315,
+      "exact_area_m2": 0.00026389378290154293,
+      "area_error_pct": 2.282618538629322e-11
+    },
+    {
+      "name": "cable_3_layer_5",
+      "area_m2": 0.0006872233929428878,
+      "exact_area_m2": 0.0006872233929727658,
+      "area_error_pct": 4.347644466662359e-09
+    },
+    {
+      "name": "cable_3_layer_6",
+      "area_m2": 0.0014922565100875338,
+      "exact_area_m2": 0.0014922565104551536,
+      "area_error_pct": 2.4635160578156956e-08
+    },
+    {
+      "name": "cable_3_layer_7",
+      "area_m2": 0.023561944900727685,
+      "exact_area_m2": 0.023561944901923454,
+      "area_error_pct": 5.0750070812455306e-09
+    },
+    {
+      "name": "cable_3_layer_8",
+      "area_m2": 0.006597344572812031,
+      "exact_area_m2": 0.006597344572538558,
+      "area_error_pct": 4.145195298121962e-09
+    },
+    {
+      "name": "cable_4_layer_0",
+      "area_m2": 0.0014119574021726133,
+      "exact_area_m2": 0.0014119574022293966,
+      "area_error_pct": 4.0216052710206895e-09,
+      "Tmax_C": 48.87921284508,
+      "power_W_m": 15.895407599360517
+    },
+    {
+      "name": "cable_4_layer_1",
+      "area_m2": 0.0002789734276483799,
+      "exact_area_m2": 0.0002789734276387734,
+      "area_error_pct": 3.4435121420983705e-09
+    },
+    {
+      "name": "cable_4_layer_2",
+      "area_m2": 0.0033860085620835852,
+      "exact_area_m2": 0.003386008562039079,
+      "area_error_pct": 1.3144152433142153e-09
+    },
+    {
+      "name": "cable_4_layer_3",
+      "area_m2": 0.0003336685557396548,
+      "exact_area_m2": 0.0003336685557377727,
+      "area_error_pct": 5.64059909891057e-10
+    },
+    {
+      "name": "cable_4_layer_4",
+      "area_m2": 0.00026389378290159134,
+      "exact_area_m2": 0.00026389378290154293,
+      "area_error_pct": 1.8340884366807586e-11
+    },
+    {
+      "name": "cable_4_layer_5",
+      "area_m2": 0.0006872233929429073,
+      "exact_area_m2": 0.0006872233929727658,
+      "area_error_pct": 4.344802295719319e-09
+    },
+    {
+      "name": "cable_4_layer_6",
+      "area_m2": 0.001492256510087572,
+      "exact_area_m2": 0.0014922565104551536,
+      "area_error_pct": 2.4632607065200318e-08
+    },
+    {
+      "name": "cable_4_layer_7",
+      "area_m2": 0.023561944900729957,
+      "exact_area_m2": 0.023561944901923454,
+      "area_error_pct": 5.065359243161538e-09
+    },
+    {
+      "name": "cable_4_layer_8",
+      "area_m2": 0.0065973445728123616,
+      "exact_area_m2": 0.006597344572538558,
+      "area_error_pct": 4.150213506193268e-09
+    },
+    {
+      "name": "cable_5_layer_0",
+      "area_m2": 0.0014119574021725938,
+      "exact_area_m2": 0.0014119574022293966,
+      "area_error_pct": 4.022981947571225e-09,
+      "Tmax_C": 46.85625160987433,
+      "power_W_m": 15.895407599360588
+    },
+    {
+      "name": "cable_5_layer_1",
+      "area_m2": 0.0002789734276484003,
+      "exact_area_m2": 0.0002789734276387734,
+      "area_error_pct": 3.4508396140608966e-09
+    },
+    {
+      "name": "cable_5_layer_2",
+      "area_m2": 0.003386008562083444,
+      "exact_area_m2": 0.003386008562039079,
+      "area_error_pct": 1.3102408047416247e-09
+    },
+    {
+      "name": "cable_5_layer_3",
+      "area_m2": 0.00033366855573965435,
+      "exact_area_m2": 0.0003336685557377727,
+      "area_error_pct": 5.63926683128102e-10
+    },
+    {
+      "name": "cable_5_layer_4",
+      "area_m2": 0.00026389378290157567,
+      "exact_area_m2": 0.00026389378290154293,
+      "area_error_pct": 1.241229341530925e-11
+    },
+    {
+      "name": "cable_5_layer_5",
+      "area_m2": 0.0006872233929428527,
+      "exact_area_m2": 0.0006872233929727658,
+      "area_error_pct": 4.352751492575635e-09
+    },
+    {
+      "name": "cable_5_layer_6",
+      "area_m2": 0.0014922565100875303,
+      "exact_area_m2": 0.0014922565104551536,
+      "area_error_pct": 2.4635393724992127e-08
+    },
+    {
+      "name": "cable_5_layer_7",
+      "area_m2": 0.02356194490072916,
+      "exact_area_m2": 0.023561944901923454,
+      "area_error_pct": 5.068745423386645e-09
+    },
+    {
+      "name": "cable_5_layer_8",
+      "area_m2": 0.006597344572812388,
+      "exact_area_m2": 0.006597344572538558,
+      "area_error_pct": 4.150613186482133e-09
+    }
+  ],
+  "Tmax_C": 49.75706210783806,
+  "conductor_max_C": [
+    47.706372046458654,
+    49.75706210783806,
+    47.70637207438301,
+    46.85625093628725,
+    48.87921284508,
+    46.85625160987433
+  ],
+  "source_W_m": 95.37244559616244,
+  "outer_flux_W_m": 95.36476728459058,
+  "balance_pct": 0.008050869959195257,
+  "source_normalization_factors": {},
+  "electrothermal_history": [
+    {
+      "iteration": 0,
+      "temperature_change_K": 29.75705314091291
+    }
+  ],
+  "elapsed_s": 186.74128967700003,
+  "dolfinx": "0.10.0",
+  "gmsh": "4.15.2",
+  "completed_utc": "2026-09-15T06:31:45.681849+00:00",
+  "source_sha256": {
+    "Benchmarks/full_fem.py": "10e1d2cf9c36d639a740d7e6c4005d90d5d3f2ca73da2c529c63b929a79b34a5",
+    "Benchmarks/full_domain.py": "c9596de450ac819a1c1bdeb1238c84899413e203811e07c66e0b4ba75c8abf61",
+    "Benchmarks/skin_effect.py": "bdbf529b5d3b130d98151127b063da0d6eecb56e823233d09d5f06dfb99c3f9e",
+    "Benchmarks/cases.py": "a8e37dc7e3c15dcb1d31ec4664e0caad5f9cb64723dfda0926a01bc4b51971a5",
+    "Benchmarks/expressions.py": "b59d46dfb4094c4e79f491384c7baef6641fb4753cd87fcb8a588f72164596e6",
+    "Benchmarks/fem.py": "98abe1c95ef64d35d58a503835443cc6669a1bb1beef216030d72c75df47bff2"
+  }
+}

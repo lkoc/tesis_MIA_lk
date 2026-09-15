@@ -1,0 +1,212 @@
+{
+  "physics_version": "explicit-heat-2d-v1",
+  "physics_sha256": "f08358db06c69aa298cf057f56b1d1f77375f8b2ecbcca386e3b2b32fc34d514",
+  "specification": {
+    "physics_version": "explicit-heat-2d-v1",
+    "case": {
+      "id": "aras_flat",
+      "kind": "cable",
+      "bounds": [
+        -4.0,
+        4.0,
+        -4.0,
+        0.0
+      ],
+      "T0": 20.0,
+      "scale": 50.0,
+      "cables": [
+        [
+          -0.33,
+          -1.2
+        ],
+        [
+          0.0,
+          -1.2
+        ],
+        [
+          0.33,
+          -1.2
+        ]
+      ],
+      "radius": 0.05335,
+      "layers": [
+        [
+          0,
+          0.01885,
+          400
+        ],
+        [
+          0.01885,
+          0.04085,
+          0.2857
+        ],
+        [
+          0.04085,
+          0.04935,
+          384.6
+        ],
+        [
+          0.04935,
+          0.05335,
+          0.45
+        ]
+      ],
+      "power": 18.60471,
+      "current": 1110.0,
+      "R20": 1.51e-05,
+      "alpha": 0.00393,
+      "k": 1.0,
+      "patch": null,
+      "bands": [],
+      "pair": null,
+      "source": "examples/aras_2005_154kv_flat/data",
+      "adaptation": "Dominio controlado 8 x 4 m; Dirichlet 20 C; p\u00e9rdidas DC a 20 C; flujo circular uniforme. Kim usa nueve capas de la ficha corregida de 2025."
+    },
+    "source_mode": "fixed",
+    "equation": "rho_cp*dT/dt + div(q) = Q; q = -k*grad(T)",
+    "interface": "continuous T and normal heat flux",
+    "interior": "explicit conductor and every material layer",
+    "electrical": {
+      "resistance_basis": "dc",
+      "resistance_ohm_m": 1.51e-05,
+      "reference_temperature_C": 20.0,
+      "source_temperature_C": 20.0,
+      "frequency_Hz": 0.0,
+      "skin_model": "none",
+      "profile": "uniform",
+      "mu_r": 1.0,
+      "provenance": "Legacy R20 explicitly treated as DC; confirm original datasheet before AC operation"
+    },
+    "electrical_coupling": "prescribed source",
+    "assumptions": [
+      "2D long cable",
+      "isotropic conduction",
+      "perfect thermal contact",
+      "DC or prescribed heat sources"
+    ],
+    "excluded": [
+      "skin effect",
+      "proximity effect",
+      "moisture transport",
+      "3D electromagnetic field"
+    ]
+  },
+  "method": "explicit_multimaterial_FEniCSx",
+  "level": 1,
+  "ndofs": 67653,
+  "degree": 2,
+  "regions": [
+    {
+      "name": "soil_0",
+      "area_m2": 31.973174984916934,
+      "exact_area_m2": 31.97317498491055,
+      "area_error_pct": 1.9961809982760315e-11
+    },
+    {
+      "name": "cable_0_layer_0",
+      "area_m2": 0.0011162706378908972,
+      "exact_area_m2": 0.001116278555655159,
+      "area_error_pct": 0.0007093000418012529,
+      "Tmax_C": 48.19891727606429,
+      "power_W_m": 18.604578036784133
+    },
+    {
+      "name": "cable_0_layer_1",
+      "area_m2": 0.004126175629586285,
+      "exact_area_m2": 0.004126167791224834,
+      "area_error_pct": 0.00018996710380303483
+    },
+    {
+      "name": "cable_0_layer_2",
+      "area_m2": 0.0024086591642545653,
+      "exact_area_m2": 0.002408659087507294,
+      "area_error_pct": 3.186306929414684e-06
+    },
+    {
+      "name": "cable_0_layer_3",
+      "area_m2": 0.0012905662624723398,
+      "exact_area_m2": 0.0012905662620946877,
+      "area_error_pct": 2.926250353141313e-08
+    },
+    {
+      "name": "cable_1_layer_0",
+      "area_m2": 0.0011162706378908959,
+      "exact_area_m2": 0.001116278555655159,
+      "area_error_pct": 0.0007093000419233775,
+      "Tmax_C": 50.0540859818962,
+      "power_W_m": 18.604578036784236
+    },
+    {
+      "name": "cable_1_layer_1",
+      "area_m2": 0.004126175629586283,
+      "exact_area_m2": 0.004126167791224834,
+      "area_error_pct": 0.00018996710373642145
+    },
+    {
+      "name": "cable_1_layer_2",
+      "area_m2": 0.0024086591642546043,
+      "exact_area_m2": 0.002408659087507294,
+      "area_error_pct": 3.1863085503403e-06
+    },
+    {
+      "name": "cable_1_layer_3",
+      "area_m2": 0.0012905662624723396,
+      "exact_area_m2": 0.0012905662620946877,
+      "area_error_pct": 2.926250353141313e-08
+    },
+    {
+      "name": "cable_2_layer_0",
+      "area_m2": 0.0011162706378908995,
+      "exact_area_m2": 0.001116278555655159,
+      "area_error_pct": 0.0007093000415903106,
+      "Tmax_C": 48.19778901247922,
+      "power_W_m": 18.604578036784204
+    },
+    {
+      "name": "cable_2_layer_1",
+      "area_m2": 0.00412617562958628,
+      "exact_area_m2": 0.004126167791224834,
+      "area_error_pct": 0.00018996710369201253
+    },
+    {
+      "name": "cable_2_layer_2",
+      "area_m2": 0.002408659164254544,
+      "exact_area_m2": 0.002408659087507294,
+      "area_error_pct": 3.1863060412362643e-06
+    },
+    {
+      "name": "cable_2_layer_3",
+      "area_m2": 0.001290566262472322,
+      "exact_area_m2": 0.0012905662620946877,
+      "area_error_pct": 2.9261126854862596e-08
+    }
+  ],
+  "Tmax_C": 50.0540859818962,
+  "conductor_max_C": [
+    48.19891727606429,
+    50.0540859818962,
+    48.19778901247922
+  ],
+  "source_W_m": 55.81373411035257,
+  "outer_flux_W_m": 55.789289972811254,
+  "balance_pct": 0.04379591856904987,
+  "source_normalization_factors": {},
+  "electrothermal_history": [
+    {
+      "iteration": 0,
+      "temperature_change_K": 30.054051187172597
+    }
+  ],
+  "elapsed_s": 3.7854462459999993,
+  "dolfinx": "0.10.0",
+  "gmsh": "4.15.2",
+  "completed_utc": "2026-09-15T06:26:50.241821+00:00",
+  "source_sha256": {
+    "Benchmarks/full_fem.py": "10e1d2cf9c36d639a740d7e6c4005d90d5d3f2ca73da2c529c63b929a79b34a5",
+    "Benchmarks/full_domain.py": "c9596de450ac819a1c1bdeb1238c84899413e203811e07c66e0b4ba75c8abf61",
+    "Benchmarks/skin_effect.py": "bdbf529b5d3b130d98151127b063da0d6eecb56e823233d09d5f06dfb99c3f9e",
+    "Benchmarks/cases.py": "a8e37dc7e3c15dcb1d31ec4664e0caad5f9cb64723dfda0926a01bc4b51971a5",
+    "Benchmarks/expressions.py": "b59d46dfb4094c4e79f491384c7baef6641fb4753cd87fcb8a588f72164596e6",
+    "Benchmarks/fem.py": "98abe1c95ef64d35d58a503835443cc6669a1bb1beef216030d72c75df47bff2"
+  }
+}

@@ -23,4 +23,16 @@ Fecha de inicio: 10 de septiembre de 2026.
 
 ## Estado
 
-En ejecución: inventario documental, contraste de entregas y auditoría del código.
+| Etapa | Estado y evidencia |
+|---|---|
+| 1–2. Documentos y fuentes | Revisados Plan, entrega Drive, guías UNI y bibliografía; decisiones en `AUDITORIA_TESIS.md`. |
+| 3. Código | Corregidos operador, contornos, interfaces, conductividad y pérdidas; pruebas de física ejecutadas. |
+| 4. Formato y batería | 19 JSON físicos, fórmulas continuas, estratos exactos y entrada común para ambos métodos. |
+| 5. Evaluación | Completadas campañas, estudio de resolución, propagación y auditoría de archivos; fallos conservados. |
+| 6. Integración | Completados metodología, resultados, discusión, conclusiones, resumen y anexos desde evidencia calculada. |
+| 7. Documento final | Cuadernos ejecutados, PDF compilado y revisión de referencias, tablas, figuras y trazabilidad completada. |
+
+La corrección solicitada sobre pérdidas amplía la campaña: la operación usa
+R(Tc) individual y los ensayos a R20 fija quedan identificados como controles.
+El informe interno incluye todos los intentos. La prueba de reinstalación
+Python usa un entorno aislado y conserva su registro de comandos.

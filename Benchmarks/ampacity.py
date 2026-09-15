@@ -9,7 +9,7 @@ import math
 import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from Benchmarks.cases import cases
-from Benchmarks.report import BASE,selected_directory,write_csv,latex_table,ROOT
+from Benchmarks.report import BASE,write_csv,latex_table
 
 def current_limit(c,tmax,limit=90.,tol=.0001):
     rise=tmax-c['T0']
@@ -35,9 +35,10 @@ def main():
         fm=json.loads((BASE/'results'/name/'fem_l2.json').read_text())
         f=current_limit(c,fm['Tmax_C']);pins=[]
         for seed in [11,23,37]:
-            path=selected_directory(name)/f'pinn_seed{seed}.json'
+            path=BASE/'results'/name/f'pinn_seed{seed}.json'
             if path.exists():
                 p=json.loads(path.read_text())
+                if p['metadata'].get('coupled'):raise ValueError('Conditional scaling requires fixed R20 thermal data')
                 if p['thermal_criteria_pass']:pins.append(dict(seed=seed,**current_limit(c,p['Tmax_C'])))
         all_data[name]=dict(case=c,assumption='R fixed at 90 C for all conductors; DC losses only; linear thermal scaling',fem=f,pinn=pins)
         rows.append(dict(case=name,pair=c.get('pair'),fem_A=f['current_A'],pinn_mean_A=sum(p['current_A'] for p in pins)/len(pins) if pins else None,accepted_seeds=len(pins),delta_fem_pct=None))
@@ -47,7 +48,7 @@ def main():
     out=BASE/'summary';out.mkdir(exist_ok=True)
     write_csv(out/'ampacity_conditional.csv',rows)
     (out/'ampacity_history.json').write_text(json.dumps(all_data,ensure_ascii=False,indent=2),encoding='utf-8')
-    latex_table(ROOT/'Tesis_LaTeX_Borrador_UNI/tablas/benchmark_ampacity.tex',['Caso','$I_{90}^{FEM}$ (A)','$I_{90}^{PINN}$ (A)','$\Delta I_{FEM}$ (\%)'],[[r['case'],f"{r['fem_A']:.1f}",f"{r['pinn_mean_A']:.1f}" if r['pinn_mean_A'] is not None else 'Rechazado',f"{r['delta_fem_pct']:.2f}" if r['delta_fem_pct'] is not None else '---'] for r in rows],'Índice de corriente continua condicionado a resistencia uniforme a 90 °C','tab:benchmark-ampacidad')
+    latex_table(out/'ampacity_conditional.tex',['Caso','$I_{90}^{FEM}$ (A)','$I_{90}^{PINN}$ (A)',r'$\Delta I_{FEM}$ (\%)'],[[r['case'],f"{r['fem_A']:.1f}",f"{r['pinn_mean_A']:.1f}" if r['pinn_mean_A'] is not None else 'Rechazado',f"{r['delta_fem_pct']:.2f}" if r['delta_fem_pct'] is not None else '---'] for r in rows],'Índice histórico condicionado a resistencia uniforme a 90 °C; no es la ampacidad acoplada','tab:indice-condicional')
     print('Conditional DC indices:',len(rows))
 
 if __name__=='__main__':main()

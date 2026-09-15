@@ -1,0 +1,189 @@
+{
+  "case": {
+    "id": "xlpe_single",
+    "kind": "cable",
+    "bounds": [
+      -4.0,
+      4.0,
+      -4.0,
+      0.0
+    ],
+    "T0": 20.0,
+    "scale": 50.0,
+    "cables": [
+      [
+        0.0,
+        -0.7
+      ]
+    ],
+    "radius": 0.015,
+    "layers": [
+      [
+        0,
+        0.0055,
+        400
+      ],
+      [
+        0.0055,
+        0.012,
+        0.286
+      ],
+      [
+        0.012,
+        0.013,
+        380
+      ],
+      [
+        0.013,
+        0.015,
+        0.45
+      ]
+    ],
+    "power": 14.069700000000001,
+    "current": 270.0,
+    "R20": 0.000193,
+    "alpha": 0.00393,
+    "k": 1.0,
+    "patch": null,
+    "bands": [],
+    "pair": null,
+    "source": "examples/xlpe_single_cable/data",
+    "adaptation": "Dominio controlado 8 x 4 m; Dirichlet 20 C; p\u00e9rdidas DC a 20 C; flujo circular uniforme. Kim usa nueve capas de la ficha corregida de 2025."
+  },
+  "case_sha256": "7a83b103dfc9aa951dffbc1979bfab71602cba4367b53ef38ff2599262654f5b",
+  "method": "FEniCSx",
+  "coupled": true,
+  "ampacity": false,
+  "loss_model": {
+    "type": "dc_linear_temperature",
+    "reference_temperature_C": 20.0,
+    "temperature_tolerance_K": 1e-05,
+    "temperature_limit_C": 90.0,
+    "max_iterations": 500,
+    "law": "P_j = I_j^2 * R20_j * (1 + alpha_j * (T_conductor_j - 20))",
+    "coupling": "individual conductor temperature; same law in PINN and FEniCSx",
+    "excluded_losses": [
+      "dielectric",
+      "screen",
+      "sheath",
+      "skin_effect",
+      "proximity_effect"
+    ]
+  },
+  "current_A": 270.0,
+  "powers_W_m": [
+    15.06801505314898
+  ],
+  "resistance_ohm_m": [
+    0.00020669430799930013
+  ],
+  "electrical_residual_pct": 1.5325601169595928e-12,
+  "conductor_C": [
+    38.054698149353676
+  ],
+  "Tmax_C": 38.054698149353676,
+  "balance_pct": 0.26661529150987334,
+  "net_flux_W_m": 0.04014264408658395,
+  "source_W_m": 0.0,
+  "throughput_W_m": 30.112784498782123,
+  "level": 2,
+  "degree": 2,
+  "ndofs": 11517,
+  "response_K_m_W": [
+    [
+      1.1982134399033784
+    ]
+  ],
+  "trace": {
+    "spectral_radius": 0.06625391928715567,
+    "iterations": 7,
+    "history": [
+      {
+        "iteration": 0,
+        "conductor_C": [
+          36.85850363540857
+        ],
+        "powers_W_m": [
+          14.069700000000001
+        ],
+        "temperature_change_K": 16.858503635408567
+      },
+      {
+        "iteration": 1,
+        "conductor_C": [
+          37.97544557457114
+        ],
+        "powers_W_m": [
+          15.001872768194495
+        ],
+        "temperature_change_K": 1.1169419391625723
+      },
+      {
+        "iteration": 2,
+        "conductor_C": [
+          38.04944735565686
+        ],
+        "powers_W_m": [
+          15.063632867540138
+        ],
+        "temperature_change_K": 0.07400178108571964
+      },
+      {
+        "iteration": 3,
+        "conductor_C": [
+          38.05435026368802
+        ],
+        "powers_W_m": [
+          15.06772471617735
+        ],
+        "temperature_change_K": 0.004902908031162667
+      },
+      {
+        "iteration": 4,
+        "conductor_C": [
+          38.054675100560985
+        ],
+        "powers_W_m": [
+          15.067995817186697
+        ],
+        "temperature_change_K": 0.0003248368729629192
+      },
+      {
+        "iteration": 5,
+        "conductor_C": [
+          38.05469662227695
+        ],
+        "powers_W_m": [
+          15.068013778691089
+        ],
+        "temperature_change_K": 2.1521715964922805e-05
+      },
+      {
+        "iteration": 6,
+        "conductor_C": [
+          38.054698048174984
+        ],
+        "powers_W_m": [
+          15.068014968711148
+        ],
+        "temperature_change_K": 1.4258980343129224e-06
+      }
+    ],
+    "iteration_closed_form_difference_W_m": 8.443783094946866e-08
+  },
+  "linear_solves_for_both_modes": 3,
+  "elapsed_s": 6.436113886999976,
+  "dolfinx": "0.10.0",
+  "gmsh": "4.15.2",
+  "python": "3.12.13 | packaged by conda-forge | (main, Mar  5 2026, 16:50:00) [GCC 14.3.0]",
+  "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "completed_utc": "2026-09-10T17:09:18.725437+00:00",
+  "source_sha256": {
+    "Benchmarks/fem_coupled.py": "3e03e8e0a3649e97a7853a14abd5df6d72cded3bf6d461877b1f955fa99ef341",
+    "Benchmarks/fem.py": "2bfd69751d4bfb51a37c6a925ebbe85c19a76afd2776617c90d16a7c61034435",
+    "Benchmarks/cases.py": "275f22c1e683fb5308ab5e87bdf0b77ec09499bdacaa8f21110fd26beea488bf",
+    "Benchmarks/expressions.py": "b59d46dfb4094c4e79f491384c7baef6641fb4753cd87fcb8a588f72164596e6",
+    "Benchmarks/electrothermal.py": "4027a8b004e5d202f871281372e09ed92b7cd52245b2ccc2eab66e3f8b30a1f7",
+    "Benchmarks/electrical_model.json": "032fd4d752b1e7b9653edfa3a308b8c5dec75fa36af5ebb19e9ece282d71569b"
+  }
+}

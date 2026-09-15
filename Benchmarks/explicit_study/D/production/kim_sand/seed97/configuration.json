@@ -1,0 +1,145 @@
+{
+  "n": 512,
+  "n_layer": 256,
+  "n_interface": 192,
+  "adam": 1500,
+  "lbfgs": 3000,
+  "lr": 0.0005,
+  "sampling": "mixed",
+  "variant": "subdomain",
+  "width": 32,
+  "depth": 3,
+  "temperature_weight": 1000,
+  "seed": 97,
+  "sampling_seed": 1007,
+  "threads": 1,
+  "reference": "C:\\usr\\ths_mia_fiis\\tesis_MIA_lk\\Benchmarks\\explicit_study\\references\\fixed\\kim_sand\\fem_l2.npz",
+  "physics": {
+    "physics_version": "explicit-heat-2d-v1",
+    "case": {
+      "id": "kim_sand",
+      "kind": "cable",
+      "bounds": [
+        -4.0,
+        4.0,
+        -4.0,
+        0.0
+      ],
+      "T0": 20.0,
+      "scale": 50.0,
+      "cables": [
+        [
+          -0.4,
+          -1.6
+        ],
+        [
+          0.0,
+          -1.6
+        ],
+        [
+          0.4,
+          -1.6
+        ],
+        [
+          -0.4,
+          -1.2
+        ],
+        [
+          0.0,
+          -1.2
+        ],
+        [
+          0.4,
+          -1.2
+        ]
+      ],
+      "radius": 0.11,
+      "layers": [
+        [
+          0,
+          0.0212,
+          400
+        ],
+        [
+          0.0212,
+          0.0232,
+          0.2857
+        ],
+        [
+          0.0232,
+          0.0402,
+          0.2857
+        ],
+        [
+          0.0402,
+          0.0415,
+          0.2857
+        ],
+        [
+          0.0415,
+          0.0425,
+          0.167
+        ],
+        [
+          0.0425,
+          0.045,
+          237
+        ],
+        [
+          0.045,
+          0.05,
+          0.2857
+        ],
+        [
+          0.05,
+          0.1,
+          2.15
+        ],
+        [
+          0.1,
+          0.11,
+          0.2857
+        ]
+      ],
+      "power": 15.895407599999999,
+      "current": 1026.0,
+      "R20": 1.51e-05,
+      "alpha": 0.00393,
+      "k": 1.365,
+      "patch": null,
+      "bands": [],
+      "pair": null,
+      "source": "examples/kim_2024_154kv_bedding/data",
+      "adaptation": "Dominio controlado 8 x 4 m; Dirichlet 20 C; p\u00e9rdidas DC a 20 C; flujo circular uniforme. Kim usa nueve capas de la ficha corregida de 2025."
+    },
+    "source_mode": "fixed",
+    "equation": "rho_cp*dT/dt + div(q) = Q; q = -k*grad(T)",
+    "interface": "continuous T and normal heat flux",
+    "interior": "explicit conductor and every material layer",
+    "electrical": {
+      "resistance_basis": "dc",
+      "resistance_ohm_m": 1.51e-05,
+      "reference_temperature_C": 20.0,
+      "source_temperature_C": 20.0,
+      "frequency_Hz": 0.0,
+      "skin_model": "none",
+      "profile": "uniform",
+      "mu_r": 1.0,
+      "provenance": "Legacy R20 explicitly treated as DC; confirm original datasheet before AC operation"
+    },
+    "electrical_coupling": "prescribed source",
+    "assumptions": [
+      "2D long cable",
+      "isotropic conduction",
+      "perfect thermal contact",
+      "DC or prescribed heat sources"
+    ],
+    "excluded": [
+      "skin effect",
+      "proximity effect",
+      "moisture transport",
+      "3D electromagnetic field"
+    ]
+  },
+  "physics_sha256": "34c296194567f58b6489acd2b1d0c3b01b61b0b15d462a6b202871f12d970d07"
+}

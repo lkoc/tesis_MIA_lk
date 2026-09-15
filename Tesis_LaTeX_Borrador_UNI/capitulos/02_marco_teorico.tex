@@ -1,4 +1,4 @@
-\chapter{MARCO TEÓRICO}
+﻿\chapter{MARCO TEÓRICO}
 \label{ch:marco-teorico}
 
 Este capítulo reúne los antecedentes y las bases necesarias para explicar el problema y evaluar la solución. La revisión conecta los métodos de ampacidad, la heterogeneidad térmica, las redes neuronales informadas por física y la ciencia del diseño. Luego precisa los términos usados en los capítulos siguientes.
@@ -22,11 +22,11 @@ Los estudios de optimización del lecho de asiento y del suelo de relleno muestr
 
 \subsection{REDES NEURONALES INFORMADAS POR FÍSICA}
 
-\textcite[686--690]{raissi2019} consolidaron el enfoque PINN para problemas directos e inversos mediante la combinación de datos y residuos de ecuaciones diferenciales. Las revisiones posteriores identifican ventajas potenciales y dificultades de entrenamiento, entre ellas la competencia entre términos de pérdida, el comportamiento multiescala y la necesidad de ponderación o descomposición adaptativa \parencites[1--2,14--17]{lawal2022}[2--6]{ren2025}.
+\textcite[4--5]{raissi2017} consolidaron el enfoque PINN para problemas directos e inversos mediante la combinación de datos y residuos de ecuaciones diferenciales. Las revisiones posteriores identifican ventajas potenciales y dificultades de entrenamiento, entre ellas la competencia entre términos de pérdida, el comportamiento multiescala y la necesidad de ponderación o descomposición adaptativa \parencites[1--2,14--17]{lawal2022}[2--6]{ren2025}.
 
 En conducción de calor, \textcite[1,3,17]{xing2023} aplicaron una PINN a un problema anisotrópico estacionario 3D. \textcite[1,3,16]{pan2025} reconstruyeron un campo térmico 2D y condiciones de borde con datos limitados. Estos antecedentes muestran viabilidad en dominios controlados, pero no sustituyen la evaluación específica de interfaces, capas y fuentes de un cable enterrado.
 
-Las estrategias de descomposición de dominio, como las propuestas por \textcite[1--2]{shukla2021}, ofrecen una ruta para tratar regiones o interfaces complejas. Su uso debe justificarse mediante evidencia del prototipo básico y no asumirse como requisito desde el inicio.
+Las estrategias de descomposición de dominio, como las propuestas por \textcite[1--2]{shukla2021}, ofrecen una ruta para tratar regiones o interfaces complejas. Para interfaces con flujo no nulo y salto de k, la descomposición permite derivadas normales distintas. Una única red global C1 comparte la derivada a ambos lados y no puede satisfacer exactamente ese salto; se considera un control de limitación arquitectónica, no una candidata admisible por aumentar sus neuronas.
 
 \subsection{CIENCIA DEL DISEÑO}
 
@@ -43,6 +43,32 @@ Una red entrenada con pares generados por FEM constituye un sustituto supervisad
 La literatura ofrece respuestas diferentes a dificultades distintas. La descomposición aborda interfaces; los pesos adaptativos abordan desequilibrios de optimización; y el muestreo adaptativo redistribuye puntos de evaluación del residuo \parencites{jagtap2020cpinn}{wang2020gradients}{wu2022sampling}. Ninguna de estas opciones garantiza superioridad en el arreglo de cables sin una comparación específica.
 
 La brecha que se estudia es la falta de una comparación trazable para las configuraciones y supuestos seleccionados. No se afirma que PINN, heterogeneidad térmica o cálculo de ampacidad carezcan de antecedentes. La contribución consiste en especificar el mismo problema para PINN y FEM y clasificar el dominio de aceptación del artefacto.
+
+El análisis numérico de PINN distingue capacidad de aproximación, generalización del residuo y error de entrenamiento \parencite[24--27]{deryck2024analysis}. Las estimaciones de \textcite[7--8]{mishra2020error} vinculan error de solución, estabilidad y cuadratura bajo hipótesis expresas. Por ello, el refinamiento de una red debe acompañarse de variaciones de muestreo y presupuesto, sin asignar automáticamente el orden de un método FEM a la cantidad de neuronas. La metodología comprueba empíricamente esas dependencias y evalúa por separado el problema no lineal con conductividad eléctrica local.
+
+\subsection{FAMILIAS PINN Y ELECCIÓN CONDICIONAL}
+
+cPINN enfatiza conservación entre subdominios y XPINN amplía la descomposición espacial o espaciotemporal \parencites{jagtap2020cpinn}{jagtap2020xpinn}. La descomposición permite asignar escalas y capacidad distintas, pero añade condiciones de acoplamiento y puede reducir los datos disponibles en cada parte. \textcite{hu2022xpinn} muestran que su ventaja de generalización depende del problema; no basta con dividir el dominio. En esta tesis, las subredes por material imponen la transmisión térmica física. No se exige continuidad del residuo fuerte a través de materiales con fuentes y conductividades diferentes ni se presenta esa implementación como una reproducción literal de XPINN.
+
+\begin{table}[htbp]
+\centering
+\caption{Elección metodológica condicional de familias PINN. Fuente: síntesis crítica de la bibliografía citada y requisitos del problema.}
+\label{tab:familias-pinn}
+\begin{tabularx}{\textwidth}{L{2.6cm}Y Y}
+\toprule
+Familia & Situación que motiva evaluarla & Condición o limitación para esta tesis \\
+\midrule
+Global de temperatura & Campo suave, un material o coeficientes continuos. & Una red global $C^1$ no representa exactamente el salto de derivada con flujo no nulo; no es candidata principal multicapa. \\
+Descomposición por materiales & Interfaces exactas y espesores muy distintos. & Candidata principal; requiere verificar ambas trazas y balances, además de la temperatura. \\
+Mixta o de primer orden & Derivadas de segundo orden costosas y flujo como variable relevante. & Conserva la PDE con variables auxiliares; debe cerrar la ley de Fourier y verificar también $-k\nabla T$. \\
+Fourier y enriquecimientos & Escalas espaciales difíciles o estructuras conocidas de la solución. & La frecuencia o base debe ser adecuada; añadir entradas no garantiza mejor optimización. \\
+VPINN / hp-VPINN & Formulación débil e integración por subdominios. & Alternativa si el residuo fuerte resulta difícil; exige cuadratura suficiente de capas e interfaces. No ejecutada aquí. \\
+FBPINN & Dominios amplios con escalas locales y ventanas solapadas. & La normalización local es pertinente; las ventanas no reemplazan la transmisión material. No ejecutada aquí. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+La formulación mixta se apoya en \textcite{gladstone2022fopinn}; las entradas Fourier, en \textcite{wang2020fourier}; y las alternativas variacional y de base finita, en \textcite{kharazmi2020hpvpinn} y \textcite{moseley2021fbpinn}. El cuadro expresa razones para comparar, no un ranking empírico transferido desde otros problemas. La búsqueda de esta tesis decide entre implementaciones y presupuestos declarados; una familia no ensayada no recibe un resultado ficticio.
 
 
 \section{BASES TEÓRICAS}
@@ -111,7 +137,7 @@ En régimen estacionario se anula la acumulación térmica. La formulación cent
 \caption{Ecuación de conducción de calor 2D estacionaria.}
 \end{formula}
 
-La Fórmula~\ref{for:calor-estacionario} conserva $\kx$ dentro del operador diferencial. Esta forma permite representar discontinuidades entre materiales sin sustituirlas por una propiedad global.
+La Fórmula~\ref{for:calor-estacionario} conserva $\kx$ dentro del operador diferencial. Esta forma se aplica dentro de cada región material; las discontinuidades se completan con condiciones de transmisión, sin sustituirlas por una propiedad global.
 
 Las interfaces deben conservar temperatura y flujo normal, salvo que el caso declare una resistencia de contacto. La Fórmula~\ref{for:interfaces} formaliza ambas condiciones \parencites{carslaw1959conduction,kakac2018heatConduction}{patankar1980numerical}[3]{xing2023}.
 
@@ -128,6 +154,51 @@ T_1=T_2,
 \end{formula}
 
 La Fórmula~\ref{for:interfaces} evita saltos no físicos entre materiales. El borde exterior puede usar temperatura prescrita, flujo o una condición convectiva equivalente, según la referencia elegida.
+
+\subsection{INTERIOR EXPLÍCITO, ESCALAS Y REPRESENTACIÓN}
+
+El dominio se descompone en regiones abiertas $\Omega_i$ de conductor, aislamiento, pantalla, cubierta y suelo. Las propiedades son suaves dentro de cada región; el salto de conductividad se trata mediante trazas laterales y condiciones de transmisión. Diferenciar automáticamente una función indicadora de material no representa la derivada distribucional del salto. La ecuación y las interfaces se imponen por separado.
+
+En un anillo, las coordenadas polares conservan ambas direcciones de difusión:
+\begin{formula}[htbp]
+\begin{equation}
+\rho c_p T_t-\frac{1}{r}\partial_r(rkT_r)-\frac{1}{r^2}\partial_\varphi(kT_\varphi)=Q.
+\label{for:polar-completa}
+\end{equation}
+\caption{Ecuación de calor polar completa en las capas anulares.}
+\end{formula}
+Eliminar el término angular solo es admisible para una prueba axisimétrica. La proximidad de otros cables y las heterogeneidades del suelo rompen generalmente esa simetría. El núcleo que contiene $r=0$ se representa en cartesianas, donde la regularidad es natural. Una solución 2D regular no exige anular toda derivada radial direccional en el centro.
+
+Para $a\le r\le b$ se emplea $\eta=\log(r/a)/\log(b/a)$, junto con $\cos\varphi$ y $\sin\varphi$. La transformación amplía numéricamente una capa milimétrica sin aumentar su espesor físico. La diferenciación respecto a $x,y$ conserva los jacobianos y el operador completo. En suelo se normalizan las coordenadas globales y se añaden distancias logarítmicas a los cables; estas son entradas geométricas, no temperaturas analíticas impuestas. La combinación de normalización local y descomposición tiene antecedentes en \textcite{moseley2021fbpinn}, aunque no se reproduce su método de ventanas solapadas.
+
+Los residuos se adimensionalizan por región: con longitud $\ell_i$, flujo $q_i^*$ y conductividad representativa $k_i^*$ se toman $T_i^*=q_i^*\ell_i/k_i^*$ y $r_i^*=q_i^*/\ell_i$. Así se evita sumar cantidades con unidades distintas o ponderar un aislamiento únicamente por su pequeña área. El número de puntos de cada región se especifica de forma independiente del área del dominio.
+
+\subsection{FUENTE ELÉCTRICA, RESISTENCIA DC Y EFECTO PIEL}
+
+La ley térmica conserva la PDE incluso si la fuente volumétrica es uniforme. Para acoplamiento DC, con conductor largo y potencial axial común en cada sección, se utiliza la conductividad eléctrica local $\sigma(T)$ y la corriente prescrita:
+\begin{formula}[htbp]
+\begin{equation}
+\sigma(T)=\frac{1}{\rho_{e,0}[1+\alpha(T-T_{e,0})]},\qquad
+E_z=\frac{I}{\int_{\Omega_c}\sigma(T)\,dA},\qquad Q=\sigma(T)E_z^2.
+\label{for:fuente-dc-local}
+\end{equation}
+\caption{Fuente Joule DC dependiente de la temperatura local.}
+\end{formula}
+La integral garantiza la corriente impuesta; no sustituye el problema térmico ni reconstruye la temperatura. Se distingue $\rho_e$, resistividad eléctrica, de $\rho c_p$, capacidad térmica volumétrica. La relación entre resistencia por unidad de longitud y resistividad es $\rho_{e,0}=R_{0}A_c$ bajo la hipótesis homogénea declarada.
+
+Un dato DC no es automáticamente una resistencia AC. Para conductor circular macizo homogéneo aislado se puede resolver el campo electromagnético cilíndrico. Con fasores RMS, $\delta=\sqrt{\rho_e/(\pi f\mu)}$, $z=(1-\mathrm i)a/\delta$ y funciones de Bessel $J_0,J_1$:
+\begin{formula}[htbp]
+\begin{equation}
+\frac{R_{\mathrm{AC}}}{R_{\mathrm{DC}}}=\Re\!\left[\frac{zJ_0(z)}{2J_1(z)}\right],\qquad
+J_z(r)=\frac{I\gamma J_0(\gamma r)}{2\pi aJ_1(\gamma a)},\quad
+Q(r)=\rho_e|J_z(r)|^2,\quad\gamma=(1-\mathrm i)/\delta.
+\label{for:piel-volumetrica}
+\end{equation}
+\caption{Estimación cilíndrica del efecto piel y su fuente volumétrica.}
+\end{formula}
+La integral de $Q$ da $I^2R_{\mathrm{AC}}$. Una resistencia ya medida a 60 Hz no se corrige otra vez por piel, y debe identificarse su temperatura. No se infiere automáticamente su dependencia térmica multiplicándola por el factor DC. Una resistencia AC tampoco identifica por sí sola el perfil de corriente. La proximidad, pantallas, armaduras y conductores segmentados exigen información adicional; \textcite{patel2013skin} presentan un tratamiento conjunto de piel y proximidad que no se reemplaza aquí por la estimación aislada.
+
+Se separan dos sensibilidades: cambiar la potencia total DC a AC y redistribuir la misma potencia dentro del conductor. La comparación a igual potencia evita atribuir a la distribución espacial un cambio causado por pérdidas distintas. La pequeña diferencia térmica estacionaria de un perfil no justifica eliminar el interior de la PDE, ni demuestra una equivalencia para transitorios. La estimación eléctrica usa temperatura prescrita; el acoplamiento electromagnético AC con temperatura no uniforme queda fuera de esta implementación.
 
 \subsection{CONDUCTIVIDAD, RESISTIVIDAD Y HETEROGENEIDAD}
 
@@ -165,7 +236,7 @@ La Fórmula~\ref{for:ampacidad} define $\Imax$ como la mayor corriente que manti
 
 Los circuitos térmicos son rápidos e interpretables, pero requieren equivalencias geométricas. FEM, FDM y FVM resuelven la ecuación sobre una discretización y pueden representar materiales y contornos con mayor detalle. Su credibilidad depende de las propiedades, la discretización, la convergencia y la verificación \parencites{patankar1980numerical}[3--4,93--99]{cigre2025}.
 
-Las PINN aproximan la solución con una red neuronal y diferenciación automática. No eliminan la necesidad de especificar la física; trasladan parte de la dificultad al muestreo, la ponderación de pérdidas y la optimización \parencites[686--690]{raissi2019}[1--2,14--17]{lawal2022}. La Tabla~\ref{tab:metodos-termicos} resume el papel previsto de cada enfoque.
+Las PINN aproximan la solución con una red neuronal y diferenciación automática. No eliminan la necesidad de especificar la física; trasladan parte de la dificultad al muestreo, la ponderación de pérdidas y la optimización \parencites[4--5]{raissi2017}[1--2,14--17]{lawal2022}. La Tabla~\ref{tab:metodos-termicos} resume el papel previsto de cada enfoque.
 
 \begin{table}[htbp]
 \centering
@@ -187,7 +258,7 @@ Los métodos se consideran complementarios. Una discrepancia no implica por sí 
 
 \subsection{RED NEURONAL INFORMADA POR FÍSICA}
 
-Una PINN representa la temperatura mediante una red $T_\theta(x,y)$. La diferenciación automática permite evaluar derivadas espaciales y construir residuos de la PDE, los contornos y las interfaces \parencite[686--690]{raissi2019}. La función de pérdida lógica se muestra en la Fórmula~\ref{for:perdida-pinn}.
+Una PINN representa la temperatura mediante una red $T_\theta(x,y)$. La diferenciación automática permite evaluar derivadas espaciales y construir residuos de la PDE, los contornos y las interfaces \parencite[4--5]{raissi2017}. La función de pérdida lógica se muestra en la Fórmula~\ref{for:perdida-pinn}.
 
 \begin{formula}[htbp]
 \centering
@@ -203,9 +274,9 @@ w_e\mathcal{L}_{\mathrm{energía}}.
 \caption{Función de pérdida lógica del artefacto PINN.}
 \end{formula}
 
-La Fórmula~\ref{for:perdida-pinn} reúne restricciones físicas y datos de referencia cuando existen. Los pesos no se consideran universales, porque un balance inadecuado de gradientes puede sesgar el entrenamiento \parencites[16]{pan2025}[1--2,17]{lawal2022}.
+La Fórmula~\ref{for:perdida-pinn} describe una familia general. En la investigación ejecutada se fija $w_d=0$: las temperaturas FEM no son etiquetas de entrenamiento. La variante mixta añade la ley constitutiva del flujo y todas las variantes conservan la PDE interior. Los pesos no se consideran universales, porque un balance inadecuado de gradientes puede sesgar el entrenamiento \parencites[16]{pan2025}[1--2,17]{lawal2022}.
 
-La Figura~\ref{fig:flujo-pinn} organiza el flujo lógico. Las entradas físicas alimentan la red; la diferenciación automática genera residuos; y el optimizador actualiza los parámetros hasta cumplir los criterios definidos.
+La Figura~\ref{fig:flujo-pinn} organiza el flujo lógico. Las entradas físicas alimentan la red; la diferenciación automática genera residuos; y el optimizador actualiza los parámetros hasta el presupuesto o su condición de parada. La aceptación se verifica después y no está garantizada por esa parada.
 
 \begin{figure}[htbp]
 \centering
@@ -284,4 +355,5 @@ Los principios iniciales consisten en conservar la física, representar interfac
 \end{description}
 
 La cadena física parte de $\kx$, continúa con el flujo y el campo térmico, y termina en $\Tmax$ e $\Imax$. El Capítulo~\ref{ch:propuesta-desarrollo} transforma esta cadena en la arquitectura del artefacto, su desarrollo y la evidencia obtenida y sus límites.
+
 

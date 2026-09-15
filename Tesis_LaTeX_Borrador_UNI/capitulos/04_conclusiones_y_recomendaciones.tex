@@ -1,37 +1,25 @@
 \chapter{CONCLUSIONES Y RECOMENDACIONES}
-\label{ch:conclusiones}
 
-Este capítulo debe cerrar la cadena entre problema, objetivos, resultados y contribución. Debido a que el plan no contiene evidencia final de construcción y evaluación, no se formulan conclusiones anticipadas. La estructura queda preparada para incorporar afirmaciones sustentadas después de completar el Capítulo~\ref{ch:propuesta-desarrollo}.
+\label{ch:conclusiones}
 
 \section{CONCLUSIONES}
 
-\pendiente{Redactar las conclusiones con base exclusiva en resultados verificados. Cada conclusión debe responder un objetivo, incluir la evidencia cuantitativa necesaria y declarar el dominio de validez.}
+OE1 se concreta en una especificación común para conductor, capas y suelo, con fuentes volumétricas, interfaces y unidades explícitas. La temperatura interior procede de la PDE. La procedencia de resistencia DC/AC y construcción sigue siendo una condición necesaria para trasladar los controles a cables reales; una etiqueta R20 no certifica por sí sola esa procedencia.
 
-La versión final debe mantener el siguiente orden lógico:
+Las etapas numéricas siguen en ejecución; esta compilación no emite conclusiones de aceptación final.
 
-\begin{enumerate}
-  \item conclusión sobre el problema general y la utilidad demostrada del artefacto;
-  \item conclusión sobre la especificación trazable y los requisitos del OE1;
-  \item conclusión sobre la verificación, exactitud, consistencia física y robustez del OE2;
-  \item conclusión sobre el efecto del contraste, patrón, extensión y proximidad en el OE3;
-  \item conclusión sobre las discrepancias de ampacidad identificadas en el OE4;
-  \item conclusión metodológica sobre los principios de diseño, la reproducibilidad y los límites del artefacto.
-\end{enumerate}
+\input{tablas/explicit_ampacity_conclusion}
 
-Las conclusiones no deben repetir tablas ni presentar información nueva. Tampoco deben convertir una verificación computacional en validación de campo. Cuando un objetivo no se alcance, la conclusión debe explicar el resultado y su efecto sobre el alcance de la tesis.
+La sensibilidad al perfil piel a igual potencia fue de aproximadamente 0,004 K en el ensayo FEM 2D Aras, estable con refinamiento. Ello apoya una influencia pequeña de la redistribución radial en ese régimen estacionario, pero no justifica omitir la corrección de pérdidas DC a AC ni la PDE interior. Las estimaciones para conductor macizo no sustituyen datos de cables segmentados o pérdidas de proximidad.
+
+La contribución DSR consiste en conservar la física, separar desarrollo y confirmación, estudiar tamaño y colocaciones de forma controlada, mantener una referencia FEM común y publicar rechazos. Los resultados no demuestran validación de campo, generalización de pesos, un solucionador transitorio completo ni aceleración frente a FEM.
 
 \section{RECOMENDACIONES}
 
-\pendiente{Formular recomendaciones después de cerrar las conclusiones. Cada recomendación debe derivarse de una limitación, un resultado o una condición observada durante la construcción y evaluación.}
+Utilizar una receta únicamente en casos y tolerancias verificados. Un escenario nuevo requiere datos físicos trazables y convergencia FEM. Si falla la confirmación, abrir una nueva etapa de desarrollo y reservar nuevas semillas; no adaptar retrospectivamente la receta y conservar la etiqueta de prueba independiente.
 
-Las recomendaciones podrán dirigirse a cuatro ámbitos, siempre que exista evidencia:
+Ampliar la búsqueda solo donde el diagnóstico identifique una limitación: aumentar capacidad si la representación es insuficiente, redistribuir colocaciones si faltan regiones difíciles o ampliar optimización si los residuos aún disminuyen. Comparar estas decisiones con igual presupuesto dentro de cada experimento. Los diseños secuenciales no excluyen interacciones entre ellas.
 
-\begin{enumerate}
-  \item uso del artefacto dentro del dominio verificado;
-  \item mejoras de arquitectura, muestreo, pérdidas o tratamiento de interfaces;
-  \item ampliación a régimen transitorio, humedad acoplada o validación experimental;
-  \item prácticas de trazabilidad y verificación para futuros artefactos térmicos.
-\end{enumerate}
+Para la extensión temporal, incorporar capacidades volumétricas documentadas, condiciones iniciales, variación de carga y convergencia temporal. Para aplicación AC, confirmar construcción y resistencias, incorporar proximidad y pérdidas de pantallas cuando correspondan, y verificar el campo electromagnético si se necesita una fuente local acoplada a temperatura.
 
-No deben recomendarse decisiones sobre instalaciones reales, aumentos de capacidad ni sustitución de métodos normativos sin una validación independiente que supere el alcance declarado.
-
+Mantener las entradas físicas separadas de las numéricas, conservar la configuración congelada, las nubes y los campos FEM, y generar las cifras del resumen y las conclusiones desde los mismos resultados. Una comparación de tiempo requiere ejecuciones aisladas y costes completos de entrenamiento y evaluación.

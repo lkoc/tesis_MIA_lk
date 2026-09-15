@@ -1,0 +1,206 @@
+{
+  "physics_version": "explicit-heat-2d-v1",
+  "physics_sha256": "d5275f0074dec62539990dcb145189272f111ce9f6dcd14334f45e91b6c345fb",
+  "specification": {
+    "physics_version": "explicit-heat-2d-v1",
+    "case": {
+      "id": "xlpe_dry_near_hom_arithmetic",
+      "kind": "cable",
+      "bounds": [
+        -4.0,
+        4.0,
+        -4.0,
+        0.0
+      ],
+      "T0": 20.0,
+      "scale": 50.0,
+      "cables": [
+        [
+          0.0,
+          -0.7
+        ]
+      ],
+      "radius": 0.015,
+      "layers": [
+        [
+          0,
+          0.0055,
+          400
+        ],
+        [
+          0.0055,
+          0.012,
+          0.286
+        ],
+        [
+          0.012,
+          0.013,
+          380
+        ],
+        [
+          0.013,
+          0.015,
+          0.45
+        ]
+      ],
+      "power": 46.64252535147835,
+      "current": 491.60056530761705,
+      "R20": 0.000193,
+      "alpha": 0.00393,
+      "k": 0.996104626233355,
+      "patch": null,
+      "bands": [],
+      "pair": "xlpe_dry_near",
+      "source": "examples/xlpe_single_cable/data",
+      "adaptation": "Arithmetic spatial mean over soil only; exact rectangle window integral and Gauss disk exclusion"
+    },
+    "source_mode": "dc_temperature",
+    "equation": "rho_cp*dT/dt + div(q) = Q; q = -k*grad(T)",
+    "interface": "continuous T and normal heat flux",
+    "interior": "explicit conductor and every material layer",
+    "electrical": {
+      "resistance_basis": "dc",
+      "resistance_ohm_m": 0.000193,
+      "reference_temperature_C": 20.0,
+      "source_temperature_C": 20.0,
+      "frequency_Hz": 0.0,
+      "skin_model": "none",
+      "profile": "uniform",
+      "mu_r": 1.0,
+      "provenance": "Legacy R20 explicitly treated as DC; confirm original datasheet before AC operation"
+    },
+    "electrical_coupling": "sigma(T)*Ez^2; Ez=I/integral(sigma dA)",
+    "assumptions": [
+      "2D long cable",
+      "isotropic conduction",
+      "perfect thermal contact",
+      "DC or prescribed heat sources"
+    ],
+    "excluded": [
+      "skin effect",
+      "proximity effect",
+      "moisture transport",
+      "3D electromagnetic field"
+    ]
+  },
+  "method": "explicit_multimaterial_FEniCSx",
+  "level": 0,
+  "ndofs": 6105,
+  "degree": 2,
+  "regions": [
+    {
+      "name": "soil_0",
+      "area_m2": 31.999293141681044,
+      "exact_area_m2": 31.99929314165294,
+      "area_error_pct": 8.781864124784988e-11
+    },
+    {
+      "name": "cable_0_layer_0",
+      "area_m2": 9.502244874040803e-05,
+      "exact_area_m2": 9.503317777109123e-05,
+      "area_error_pct": 0.011289773671507852,
+      "Tmax_C": 89.80225947146462,
+      "power_W_m": 59.443264381387976
+    },
+    {
+      "name": "cable_0_layer_1",
+      "area_m2": 0.0003573668905512498,
+      "exact_area_m2": 0.000357356164345839,
+      "area_error_pct": 0.0030015448118536625
+    },
+    {
+      "name": "cable_0_layer_2",
+      "area_m2": 7.85398167820376e-05,
+      "exact_area_m2": 7.853981633974477e-05,
+      "area_error_pct": 5.631447086429375e-07
+    },
+    {
+      "name": "cable_0_layer_3",
+      "area_m2": 0.0001759291628092846,
+      "exact_area_m2": 0.00017592918860102845,
+      "area_error_pct": 1.4660298297552998e-05
+    }
+  ],
+  "Tmax_C": 89.80225947146462,
+  "conductor_max_C": [
+    89.80225947146462
+  ],
+  "source_W_m": 59.443264381387976,
+  "outer_flux_W_m": 59.872440419846306,
+  "balance_pct": 0.7219927151119031,
+  "source_normalization_factors": {},
+  "electrothermal_history": [
+    {
+      "iteration": 0,
+      "temperature_change_K": 54.77694088465543
+    },
+    {
+      "iteration": 1,
+      "temperature_change_K": 11.79102206260194
+    },
+    {
+      "iteration": 2,
+      "temperature_change_K": 2.538078973609558
+    },
+    {
+      "iteration": 3,
+      "temperature_change_K": 0.5463347317672032
+    },
+    {
+      "iteration": 4,
+      "temperature_change_K": 0.11760139941830516
+    },
+    {
+      "iteration": 5,
+      "temperature_change_K": 0.025314314358979573
+    },
+    {
+      "iteration": 6,
+      "temperature_change_K": 0.005449038146011276
+    },
+    {
+      "iteration": 7,
+      "temperature_change_K": 0.0011729338703503345
+    },
+    {
+      "iteration": 8,
+      "temperature_change_K": 0.0002524801309391478
+    },
+    {
+      "iteration": 9,
+      "temperature_change_K": 5.4347664516285477e-05
+    },
+    {
+      "iteration": 10,
+      "temperature_change_K": 1.1698617996103167e-05
+    },
+    {
+      "iteration": 11,
+      "temperature_change_K": 2.518188750855188e-06
+    },
+    {
+      "iteration": 12,
+      "temperature_change_K": 5.420532005473433e-07
+    },
+    {
+      "iteration": 13,
+      "temperature_change_K": 1.1667981425489415e-07
+    },
+    {
+      "iteration": 14,
+      "temperature_change_K": 2.5115781454587705e-08
+    }
+  ],
+  "elapsed_s": 0.637081926999997,
+  "dolfinx": "0.10.0",
+  "gmsh": "4.15.2",
+  "completed_utc": "2026-09-15T05:54:27.212566+00:00",
+  "source_sha256": {
+    "Benchmarks/full_fem.py": "9683d7b4657fa2ac389322cce14e6190d4ac47c2661a35d132a044f65811406f",
+    "Benchmarks/full_domain.py": "c9596de450ac819a1c1bdeb1238c84899413e203811e07c66e0b4ba75c8abf61",
+    "Benchmarks/skin_effect.py": "bdbf529b5d3b130d98151127b063da0d6eecb56e823233d09d5f06dfb99c3f9e",
+    "Benchmarks/cases.py": "a8e37dc7e3c15dcb1d31ec4664e0caad5f9cb64723dfda0926a01bc4b51971a5",
+    "Benchmarks/expressions.py": "b59d46dfb4094c4e79f491384c7baef6641fb4753cd87fcb8a588f72164596e6",
+    "Benchmarks/fem.py": "98abe1c95ef64d35d58a503835443cc6669a1bb1beef216030d72c75df47bff2"
+  }
+}

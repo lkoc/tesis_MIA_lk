@@ -1,0 +1,95 @@
+{
+  "variant": "subdomain",
+  "n": 256,
+  "n_layer": 128,
+  "n_interface": 96,
+  "adam": 1200,
+  "lbfgs": 2000,
+  "threads": 1,
+  "reference": "C:\\usr\\ths_mia_fiis\\tesis_MIA_lk\\Benchmarks\\explicit_results\\coaxial_full\\dc_temperature\\workflow\\reference\\fem_l2.npz",
+  "seed": 11,
+  "physics": {
+    "physics_version": "explicit-heat-2d-v1",
+    "case": {
+      "id": "coaxial_full",
+      "kind": "cable",
+      "bounds": [
+        -0.15,
+        0.15,
+        -0.15,
+        0.15
+      ],
+      "T0": 20.0,
+      "scale": 30.0,
+      "cables": [
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "radius": 0.015,
+      "layers": [
+        [
+          0.0,
+          0.0055,
+          400.0
+        ],
+        [
+          0.0055,
+          0.012,
+          0.286
+        ],
+        [
+          0.012,
+          0.013,
+          380.0
+        ],
+        [
+          0.013,
+          0.015,
+          0.45
+        ]
+      ],
+      "current": 270.0,
+      "R20": 0.000193,
+      "alpha": 0.00393,
+      "power": 14.069700000000001,
+      "k": 1.0,
+      "patch": null,
+      "bands": [],
+      "pair": null,
+      "source": "Synthetic concentric verification",
+      "outer_radius": 0.15,
+      "physics_version": "explicit-heat-2d-v1"
+    },
+    "source_mode": "dc_temperature",
+    "equation": "rho_cp*dT/dt + div(q) = Q; q = -k*grad(T)",
+    "interface": "continuous T and normal heat flux",
+    "interior": "explicit conductor and every material layer",
+    "electrical": {
+      "resistance_basis": "dc",
+      "resistance_ohm_m": 0.000193,
+      "reference_temperature_C": 20.0,
+      "source_temperature_C": 20.0,
+      "frequency_Hz": 0.0,
+      "skin_model": "none",
+      "profile": "uniform",
+      "mu_r": 1.0,
+      "provenance": "Legacy R20 explicitly treated as DC; confirm original datasheet before AC operation"
+    },
+    "electrical_coupling": "sigma(T)*Ez^2; Ez=I/integral(sigma dA)",
+    "assumptions": [
+      "2D long cable",
+      "isotropic conduction",
+      "perfect thermal contact",
+      "DC or prescribed heat sources"
+    ],
+    "excluded": [
+      "skin effect",
+      "proximity effect",
+      "moisture transport",
+      "3D electromagnetic field"
+    ]
+  },
+  "physics_sha256": "dbdc7ea781e2655b31fa8c9fc0252df4efb7c9eb5a82ca1a73a2d4ea4a4fbced"
+}

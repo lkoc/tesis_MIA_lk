@@ -1,0 +1,286 @@
+{
+  "configuration": {
+    "n": 256,
+    "n_layer": 128,
+    "n_interface": 96,
+    "adam": 1200,
+    "lbfgs": 2000,
+    "lr": 0.001,
+    "sampling": "mixed",
+    "variant": "mixed",
+    "width": 32,
+    "depth": 3,
+    "seed": 11,
+    "sampling_seed": 101,
+    "threads": 1,
+    "reference": "C:\\usr\\ths_mia_fiis\\tesis_MIA_lk\\Benchmarks\\explicit_study\\references\\fixed\\xlpe_single\\fem_l2.npz",
+    "physics": {
+      "physics_version": "explicit-heat-2d-v1",
+      "case": {
+        "id": "xlpe_single",
+        "kind": "cable",
+        "bounds": [
+          -4.0,
+          4.0,
+          -4.0,
+          0.0
+        ],
+        "T0": 20.0,
+        "scale": 50.0,
+        "cables": [
+          [
+            0.0,
+            -0.7
+          ]
+        ],
+        "radius": 0.015,
+        "layers": [
+          [
+            0,
+            0.0055,
+            400
+          ],
+          [
+            0.0055,
+            0.012,
+            0.286
+          ],
+          [
+            0.012,
+            0.013,
+            380
+          ],
+          [
+            0.013,
+            0.015,
+            0.45
+          ]
+        ],
+        "power": 14.069700000000001,
+        "current": 270.0,
+        "R20": 0.000193,
+        "alpha": 0.00393,
+        "k": 1.0,
+        "patch": null,
+        "bands": [],
+        "pair": null,
+        "source": "examples/xlpe_single_cable/data",
+        "adaptation": "Dominio controlado 8 x 4 m; Dirichlet 20 C; p\u00e9rdidas DC a 20 C; flujo circular uniforme. Kim usa nueve capas de la ficha corregida de 2025."
+      },
+      "source_mode": "fixed",
+      "equation": "rho_cp*dT/dt + div(q) = Q; q = -k*grad(T)",
+      "interface": "continuous T and normal heat flux",
+      "interior": "explicit conductor and every material layer",
+      "electrical": {
+        "resistance_basis": "dc",
+        "resistance_ohm_m": 0.000193,
+        "reference_temperature_C": 20.0,
+        "source_temperature_C": 20.0,
+        "frequency_Hz": 0.0,
+        "skin_model": "none",
+        "profile": "uniform",
+        "mu_r": 1.0,
+        "provenance": "Legacy R20 explicitly treated as DC; confirm original datasheet before AC operation"
+      },
+      "electrical_coupling": "prescribed source",
+      "assumptions": [
+        "2D long cable",
+        "isotropic conduction",
+        "perfect thermal contact",
+        "DC or prescribed heat sources"
+      ],
+      "excluded": [
+        "skin effect",
+        "proximity effect",
+        "moisture transport",
+        "3D electromagnetic field"
+      ]
+    },
+    "physics_sha256": "821a618f6110f044c3fefc84e9eaf1e946c2b9c4ed703b85d89803487906d151"
+  },
+  "source_sha256": {
+    "Benchmarks\\full_pinn.py": "95a72910cd041e79998054fc316fa0790a09b3d10e9c4d241323b3a96361fa8f",
+    "Benchmarks\\full_domain.py": "c9596de450ac819a1c1bdeb1238c84899413e203811e07c66e0b4ba75c8abf61",
+    "Benchmarks\\full_physics.py": "232b7e13ddf0d61130254a9eb31c91fbd6459cf3498b30b7637aaecbde7d2077",
+    "Benchmarks\\full_sampling.py": "981aec2e22c4631473da0b490ccbb7f9235d39172d360031d1a14ea62d467886",
+    "Benchmarks\\skin_effect.py": "bdbf529b5d3b130d98151127b063da0d6eecb56e823233d09d5f06dfb99c3f9e",
+    "Benchmarks\\cases.py": "a8e37dc7e3c15dcb1d31ec4664e0caad5f9cb64723dfda0926a01bc4b51971a5",
+    "Benchmarks\\expressions.py": "b59d46dfb4094c4e79f491384c7baef6641fb4753cd87fcb8a588f72164596e6",
+    "pinn_cables\\pinn\\pde.py": "eaf35d49d2c043ea300b6087fc06eb7c5d9563041855b8f3dc24001e05f53a40"
+  },
+  "torch": "2.9.0+xpu",
+  "python": "3.12.9 (tags/v3.12.9:fdb8142, Feb  4 2025, 15:27:58) [MSC v.1942 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26100-SP0",
+  "device": "cpu",
+  "dtype": "float64",
+  "parameters": 11668,
+  "training_seconds": 242.91062390000297,
+  "lbfgs_evaluations": 2368,
+  "history": [
+    {
+      "phase": "Adam",
+      "step": 0,
+      "total": 300.3859182188736,
+      "pde": 8.402528807171977,
+      "constitutive": 6.702631125245399,
+      "interface_temperature": 0.010265747431060153,
+      "interface_flux": 0.3910097920219455,
+      "energy": 28.034408562313075
+    },
+    {
+      "phase": "Adam",
+      "step": 200,
+      "total": 1.5317838045812948,
+      "pde": 0.22006408662275692,
+      "constitutive": 0.1926704986872786,
+      "interface_temperature": 1.5249954532414401e-05,
+      "interface_flux": 0.07309278489633945,
+      "energy": 0.03865963748546232
+    },
+    {
+      "phase": "Adam",
+      "step": 400,
+      "total": 1.3615125323314405,
+      "pde": 0.14032958969144094,
+      "constitutive": 0.10789974420913612,
+      "interface_temperature": 4.9999323238564255e-06,
+      "interface_flux": 0.07196521399824508,
+      "energy": 0.039313106521602706
+    },
+    {
+      "phase": "Adam",
+      "step": 600,
+      "total": 1.2944510413795711,
+      "pde": 0.10369820060416969,
+      "constitutive": 0.07860272387927533,
+      "interface_temperature": 3.0477932758418497e-06,
+      "interface_flux": 0.07164324681707207,
+      "energy": 0.03954128693978212
+    },
+    {
+      "phase": "Adam",
+      "step": 800,
+      "total": 1.2580161559015726,
+      "pde": 0.08530731035643611,
+      "constitutive": 0.06095590777265865,
+      "interface_temperature": 2.165615622063729e-06,
+      "interface_flux": 0.07147958514002364,
+      "energy": 0.0396740524810035
+    },
+    {
+      "phase": "Adam",
+      "step": 1000,
+      "total": 1.2358639276100993,
+      "pde": 0.07565688530838095,
+      "constitutive": 0.04865597542463865,
+      "interface_temperature": 1.6624765271679444e-06,
+      "interface_flux": 0.07136692553918754,
+      "energy": 0.03977155638324876
+    },
+    {
+      "phase": "LBFGS",
+      "step": 250,
+      "total": 1.1862283688804374,
+      "pde": 0.0559279656524989,
+      "constitutive": 0.018656810022323507,
+      "interface_temperature": 1.2574740027182657e-06,
+      "interface_flux": 0.07143650635487571,
+      "energy": 0.039715278225658616
+    },
+    {
+      "phase": "LBFGS",
+      "step": 500,
+      "total": 1.1849322862741063,
+      "pde": 0.05523817581247395,
+      "constitutive": 0.01778179135140202,
+      "interface_temperature": 1.2718274550431928e-06,
+      "interface_flux": 0.07135380488404604,
+      "energy": 0.039824708752426566
+    },
+    {
+      "phase": "LBFGS",
+      "step": 750,
+      "total": 1.1828514667378562,
+      "pde": 0.05485379964261243,
+      "constitutive": 0.01655869453280701,
+      "interface_temperature": 1.4016633953877352e-06,
+      "interface_flux": 0.0711901387621817,
+      "energy": 0.03993974186010808
+    },
+    {
+      "phase": "LBFGS",
+      "step": 1000,
+      "total": 1.1819603694236456,
+      "pde": 0.05460229310089847,
+      "constitutive": 0.0159095240865882,
+      "interface_temperature": 1.4948589127891362e-06,
+      "interface_flux": 0.07111680169325262,
+      "energy": 0.040013104941235375
+    },
+    {
+      "phase": "LBFGS",
+      "step": 1250,
+      "total": 1.1801297169731486,
+      "pde": 0.05424697141214481,
+      "constitutive": 0.015084969529579027,
+      "interface_temperature": 1.168821333924402e-06,
+      "interface_flux": 0.07102236775230175,
+      "energy": 0.04004572163750149
+    },
+    {
+      "phase": "LBFGS",
+      "step": 1500,
+      "total": 1.17892812534535,
+      "pde": 0.05376296819753522,
+      "constitutive": 0.014320232415635957,
+      "interface_temperature": 1.5323055272563394e-06,
+      "interface_flux": 0.07067426457072382,
+      "energy": 0.040394904847221524
+    },
+    {
+      "phase": "LBFGS",
+      "step": 1750,
+      "total": 1.178067473902654,
+      "pde": 0.05329384250053837,
+      "constitutive": 0.013831328934346751,
+      "interface_temperature": 1.2301221130404439e-06,
+      "interface_flux": 0.0711938985035144,
+      "energy": 0.03988803052213207
+    },
+    {
+      "phase": "LBFGS",
+      "step": 2000,
+      "total": 1.1773704170706778,
+      "pde": 0.05305589987657396,
+      "constitutive": 0.013826449280985505,
+      "interface_temperature": 1.554072682873788e-06,
+      "interface_flux": 0.07084304191917287,
+      "energy": 0.04019022414531021
+    },
+    {
+      "phase": "LBFGS",
+      "step": 2250,
+      "total": 1.1765989471556266,
+      "pde": 0.05250251237539446,
+      "constitutive": 0.01377660001042981,
+      "interface_temperature": 1.3085014571606251e-06,
+      "interface_flux": 0.07085029634392269,
+      "energy": 0.040168602118485934
+    }
+  ],
+  "final_parts": {
+    "pde": 0.052491332571435866,
+    "constitutive": 0.013797805375429073,
+    "interface_temperature": 1.2332349824874587e-06,
+    "interface_flux": 0.07063313584606833,
+    "energy": 0.040358094174478665
+  },
+  "final_region_pde": {
+    "soil_0": 9.563582821439422e-05,
+    "cable_0_layer_0": 0.02567763568608765,
+    "cable_0_layer_1": 0.008389180138909939,
+    "cable_0_layer_2": 0.008592324560257412,
+    "cable_0_layer_3": 0.009736556357966476
+  },
+  "fem_labels_used": 0
+}

@@ -1,3 +1,7 @@
+<!-- explicit-heat-2d-v1 -->
+**Contrato vigente:** [FULL_DOMAIN.md](FULL_DOMAIN.md). `explicit_results` usa identidad de física, etiquetas de material y temperatura interior explícita; este contrato histórico no debe aplicarse automáticamente a esos archivos.
+<!-- /explicit-heat-2d-v1 -->
+
 # Especificación común de materiales: valores, estratos y fórmulas
 
 La versión extendida del formato JSON admite `conductivity` como número,
@@ -39,7 +43,7 @@ de suelo en las interfaces. La versión de geometría de cables exige que una
 interfaz no atraviese un cable; lo rechaza explícitamente si ocurre.
 
 Se han incluido pruebas con interfaces verticales, horizontales y con un cable
-situado sobre una interfaz de suelo. La capacidad de expresar más estratos
+situado por encima de una interfaz de suelo. La capacidad de expresar más estratos
 no demuestra automáticamente su exactitud: cada nuevo caso necesita su propia
 convergencia FEM y evaluación PINN.
 
@@ -124,3 +128,44 @@ Los casos revisables son `mms_variable`, `mms_smooth_2d`, `mms_high_contrast`,
 `mms_interface`, `mms_layered_y` y `xlpe_discrete_layers`. Sus cuadernos,
 metadatos y tres mallas FEM permiten comprobar el comportamiento de cada
 representación.
+
+## Pérdidas eléctricas dependientes de la temperatura
+
+`current` (A), `R20` (Ω/m) y `alpha` (K⁻¹) describen el conductor común del
+escenario. `power` es la referencia I²R20, no la potencia final de operación.
+El archivo común `electrical_model.json` declara la ley DC lineal, temperatura
+de referencia, tolerancias y límite térmico. Ambos solucionadores archivan
+ese archivo y su SHA-256 junto con los datos del caso.
+
+En modo acoplado cada conductor tiene su propia temperatura y potencia:
+`P[j] = I**2 * R20 * (1 + alpha * (Tc[j] - 20))`. Los resultados guardan
+`conductor_C`, `powers_W_m`, `resistance_ohm_m`, `current_A` y
+`electrical_residual_pct`. La hipótesis de flujo circular uniforme y la
+reconstrucción radial son comunes a FEM y PINN. Un modelo que resuelva el
+interior conductor debe usar generación volumétrica local J·E en W/m³;
+no puede introducir directamente una potencia lineal W/m en esa ecuación.
+
+La temperatura escalar usada en R(T) es la reconstrucción del centro del
+conductor. Se supone representativa del conductor para la ley eléctrica;
+no se resuelve la distribución local de resistividad dentro de su sección.
+El modelo de cables exige Q=0 en suelo y rechaza fuentes volumétricas
+adicionales. Las fuentes prescritas y manufacturadas pertenecen a los casos
+MMS; no se ignoran silenciosamente en el solucionador acoplado.
+
+La conductividad térmica espacial k(x,y) y la resistencia eléctrica R(Tc)
+son propiedades distintas. La primera admite las fórmulas anteriores; la
+segunda usa la ley explícita común. No se implementa aún k(x,y,T), ni cables
+con diferentes secciones o corrientes dentro de un mismo escenario.
+
+## Configuración numérica del muestreo
+
+La física del caso permanece separada de las decisiones de entrenamiento.
+El JSON de configuración PINN admite `sampling`: `fixed`, `uniform`,
+`residual` o `gradient`; `adapt_steps`: `[400, 800]`;
+`candidate_multiplier`: `4`; y `adaptive_fraction`: `0.5`.
+Los pasos deben quedar dentro de Adam. `uniform` significa renovación
+aleatoria sobre la misma familia geométrica de candidatos, no uniformidad
+espacial del suelo. `n` controla los puntos globales; `n_interior` en los
+metadatos registra el total efectivo con muestras próximas a cables.
+La adaptación conserva ese total. Los resultados incluyen historial,
+probabilidades, nubes y estados intermedios para repetir la selección.

@@ -1,0 +1,111 @@
+{
+  "metadata": {
+    "case": {
+      "id": "mms_layered_y",
+      "kind": "mms_interface",
+      "bounds": [
+        0.0,
+        1.0,
+        0.0,
+        1.0
+      ],
+      "T0": 20.0,
+      "scale": 30.0,
+      "conductivity": {
+        "type": "layers",
+        "axis": "y",
+        "interfaces": [
+          0.5
+        ],
+        "values": [
+          0.5,
+          2.0
+        ],
+        "smoothing": 0.0
+      },
+      "interface": {
+        "axis": "y",
+        "position": 0.5
+      },
+      "exact_expression": "20 + where(y <= 0.5, 20*y, 10*(1+(y-0.5)/2))*sin(pi*x)",
+      "source_expression": "manufactured",
+      "source": "Elaboraci\u00f3n propia: prueba del formato para estratos discontinuos horizontales",
+      "adaptation": "Dos materiales sin suavizado; continuidad exacta de temperatura y flujo; la fuente se deriva por regi\u00f3n"
+    },
+    "case_sha256": "1f3b7fecb6c674da4fe7ea82be2c6b51601f1c31f43d8e0d5ef29ebc194f094c",
+    "seed": 37,
+    "torch": "2.9.0+xpu",
+    "python": "3.12.9 (tags/v3.12.9:fdb8142, Feb  4 2025, 15:27:58) [MSC v.1942 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26100-SP0",
+    "device": "cpu",
+    "dtype": "float64",
+    "threads": 1,
+    "width": 32,
+    "depth": 3,
+    "parameters": 4482,
+    "adam": 1200,
+    "lbfgs_max_iter": 800,
+    "lbfgs_closure_calls": 839,
+    "n_interior": 768,
+    "training_seconds": 169.51470010000048,
+    "final_loss": 7.309119457188226e-06,
+    "training_parts": {
+      "pde": 5.2603391989001635e-06,
+      "bc": 1.1472067105150092e-07,
+      "flux": 0.0,
+      "interface": 9.015735477730527e-08,
+      "energy": 0.0
+    },
+    "fem_labels_used": 0,
+    "variant": "enriched",
+    "configuration": {
+      "cases": [
+        "mms_smooth_2d",
+        "mms_high_contrast",
+        "mms_layered_y"
+      ],
+      "seeds": [
+        11,
+        23,
+        37
+      ],
+      "adam": 1200,
+      "lbfgs": 800,
+      "width": 32,
+      "depth": 3,
+      "n": 768,
+      "threads": 1,
+      "lr": 0.001,
+      "pde_weight": null,
+      "bc_weight": 10.0,
+      "flux_weight": 10.0,
+      "energy_weight": 10.0,
+      "evaluate_only": false,
+      "variant": "enriched"
+    },
+    "source_sha256": {
+      "Benchmarks\\pinn.py": "cb2c0a960ada5d0811908a8901f77c595d2f624030a161edb8465a922479efb8",
+      "Benchmarks\\cases.py": "4a19d4e55a8f3246372fd15d6a1fb26d5553c84cea69130fbe752c2f8c7e931e",
+      "Benchmarks\\expressions.py": "0edbce64bc5d70ab19593f03a2717a0cb68aeacdba62c0f4b8c6654e5316fb55",
+      "pinn_cables\\pinn\\pde.py": "eaf35d49d2c043ea300b6087fc06eb7c5d9563041855b8f3dc24001e05f53a40"
+    }
+  },
+  "Tmax_C": 32.49839681870845,
+  "conductor_C": [],
+  "net_flux_W_m": 78.54018333046639,
+  "source_W_m": 78.53981633974486,
+  "throughput_W_m": 91.34845966661132,
+  "balance_pct": 0.0004672670992043172,
+  "pde_rmse_W_m3": 0.09921854268099807,
+  "interface_T_max_K": 0.02008122917997148,
+  "interface_flux_max_W_m2": 0.02172415408432471,
+  "rmse_exact_K": 0.0023372756196020365,
+  "max_error_exact_K": 0.011353045541543594,
+  "rmse_fem_K": 0.002337311407979336,
+  "nrmse_fem_pct": 0.018698491263834688,
+  "max_error_fem_K": 0.011360387535486183,
+  "Tmax_fem_C": 32.5,
+  "error_Tmax_K": -0.0016031812915500154,
+  "error_Tmax_rise_pct": 0.012825450332400123,
+  "thermal_criteria_pass": true
+}

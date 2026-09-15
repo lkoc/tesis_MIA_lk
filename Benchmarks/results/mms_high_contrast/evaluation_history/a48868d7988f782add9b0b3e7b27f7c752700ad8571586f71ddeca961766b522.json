@@ -1,0 +1,97 @@
+{
+  "metadata": {
+    "case": {
+      "id": "mms_high_contrast",
+      "kind": "mms_high_contrast",
+      "bounds": [
+        0.0,
+        1.0,
+        0.0,
+        1.0
+      ],
+      "T0": 20.0,
+      "scale": 30.0,
+      "conductivity": {
+        "type": "expression",
+        "expression": "exp(log(10)*(x+y)/2)"
+      },
+      "exact_expression": "20 + 30*sin(pi*x)*sin(pi*y)",
+      "source_expression": "manufactured",
+      "source": "Elaboraci\u00f3n propia: extensi\u00f3n de la bater\u00eda manufacturada del Plan",
+      "adaptation": "k=exp(ln(10)*(x+y)/2); rango 1 a 10 W/(m K); T*=20+30 sin(pi x) sin(pi y)"
+    },
+    "case_sha256": "d1eba911335605403641b3079ad18fc9cbfe640c9d29e6c827ead860ffededd4",
+    "seed": 11,
+    "torch": "2.9.0+xpu",
+    "python": "3.12.9 (tags/v3.12.9:fdb8142, Feb  4 2025, 15:27:58) [MSC v.1942 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26100-SP0",
+    "device": "cpu",
+    "dtype": "float64",
+    "threads": 1,
+    "width": 32,
+    "depth": 3,
+    "parameters": 2241,
+    "adam": 1200,
+    "lbfgs_max_iter": 800,
+    "lbfgs_closure_calls": 824,
+    "n_interior": 768,
+    "training_seconds": 39.835107099992456,
+    "final_loss": 1.5775869453587893e-05,
+    "training_parts": {
+      "pde": 1.3343436586918343e-05,
+      "bc": 2.432432866669548e-07,
+      "flux": 0.0,
+      "interface": 0.0,
+      "energy": 0.0
+    },
+    "fem_labels_used": 0,
+    "variant": "enriched",
+    "configuration": {
+      "cases": [
+        "mms_smooth_2d",
+        "mms_high_contrast",
+        "mms_layered_y"
+      ],
+      "seeds": [
+        11,
+        23,
+        37
+      ],
+      "adam": 1200,
+      "lbfgs": 800,
+      "width": 32,
+      "depth": 3,
+      "n": 768,
+      "threads": 1,
+      "lr": 0.001,
+      "pde_weight": null,
+      "bc_weight": 10.0,
+      "flux_weight": 10.0,
+      "energy_weight": 10.0,
+      "evaluate_only": false,
+      "variant": "enriched"
+    },
+    "source_sha256": {
+      "Benchmarks\\pinn.py": "cb2c0a960ada5d0811908a8901f77c595d2f624030a161edb8465a922479efb8",
+      "Benchmarks\\cases.py": "4a19d4e55a8f3246372fd15d6a1fb26d5553c84cea69130fbe752c2f8c7e931e",
+      "Benchmarks\\expressions.py": "0edbce64bc5d70ab19593f03a2717a0cb68aeacdba62c0f4b8c6654e5316fb55",
+      "pinn_cables\\pinn\\pde.py": "eaf35d49d2c043ea300b6087fc06eb7c5d9563041855b8f3dc24001e05f53a40"
+    }
+  },
+  "Tmax_C": 49.99968631280842,
+  "conductor_C": [],
+  "net_flux_W_m": 916.4779030613494,
+  "source_W_m": 916.4017968539528,
+  "throughput_W_m": 916.478112449653,
+  "balance_pct": 0.008304895042532852,
+  "pde_rmse_W_m3": 1.0955096608122774,
+  "rmse_exact_K": 0.002940991173737622,
+  "max_error_exact_K": 0.018754792385895058,
+  "rmse_fem_K": 0.002941445927170537,
+  "nrmse_fem_pct": 0.009804819103202671,
+  "max_error_fem_K": 0.01875154254945599,
+  "Tmax_fem_C": 50.0000020011561,
+  "error_Tmax_K": -0.0003156883476762573,
+  "error_Tmax_rise_pct": 0.0010522944220606777,
+  "thermal_criteria_pass": true
+}

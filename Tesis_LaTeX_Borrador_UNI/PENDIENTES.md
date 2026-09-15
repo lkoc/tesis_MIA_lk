@@ -1,54 +1,35 @@
-# Pendientes para convertir el borrador en tesis final
+# Estado de cierre y pendientes auténticos
 
-Este inventario separa lo que ya puede redactarse con el plan de tesis de lo que requiere evidencia nueva. Las mismas brechas aparecen dentro del PDF mediante la marca roja `PENDIENTE` a 18 pt.
+La auditoría técnica está documentada en [AUDITORIA_TESIS.md](../docs/AUDITORIA_TESIS.md).
+Se completaron el catálogo de 19 casos, las referencias FEniCSx, la ley R(Tc)
+común, la comparación de configuraciones, los estudios de resolución y
+colocación adaptativa, la propagación del error y los 19 cuadernos ejecutados.
+Se conservan 290 entrenamientos y 346 pruebas aprobadas.
+Metodología, resultados, discusión, conclusiones y resúmenes se redactaron
+desde el expediente interno. El PDF revisado contiene 74 páginas.
 
-## Preliminares
+## Datos personales y administrativos
 
-- Redactar la dedicatoria y los agradecimientos.
-- Insertar los documentos administrativos exigidos por la Escuela de Posgrado.
-- Completar el resumen y el abstract con resultados, conclusión e impacto reales.
-- Confirmar el nombre y grado académico del asesor, la mención, el año y el texto final de la portada.
+- Dedicatoria y agradecimientos: requieren el texto de los tesistas.
+- Copias de documentos administrativos: deben incorporarse los documentos auténticos.
+- Antes del depósito, verificar que nombres, grado del asesor, mención y datos
+  de portada coincidan con los registros oficiales de la universidad.
 
-## Capítulo I. Metodología
+Las marcas `PENDIENTE` se conservan únicamente en los espacios personales y
+administrativos. La portada utiliza Poppins Bold distribuida con su licencia,
+y el cuerpo Arial. Las decisiones sobre la estructura profesionalizante de
+cuatro capítulos se fundamentan en las páginas específicas de la guía UNI,
+con sus discrepancias internas identificadas en la auditoría.
 
-- Confirmar con el asesor la adaptación de las hipótesis del plan a criterios de evaluación, en concordancia con la estructura UNI para tesis profesionalizante.
-- Cerrar el catálogo definitivo de casos y los niveles de contraste, patrón, extensión y proximidad.
-- Fijar arquitectura, hiperparámetros, semillas, hardware, versiones y reglas de convergencia.
-- Aprobar o ajustar los umbrales de aceptación antes de la evaluación final.
-- Reescribir la metodología en pasado cuando las actividades ya se hayan ejecutado.
+## Límites de la evidencia
 
-## Capítulo II. Marco teórico
+Los fallos PINN se informan, sin atribuirles resultados aceptados. La batería
+verifica un modelo estacionario DC reducido, con reconstrucción radial del
+conductor. La validación de campo, pérdidas AC completas, humedad y régimen
+transitorio requieren nuevos datos y desarrollos; no se presentan como
+actividades ejecutadas ni como espacios que puedan completarse por redacción.
 
-- Actualizar el estado del arte hasta la fecha de cierre de la tesis.
-- Verificar páginas, figuras y datos directamente en los PDF originales.
-- Incorporar nuevas fuentes solo si modifican la brecha, el método o la discusión.
-
-## Capítulo III. Construcción y evaluación
-
-- Completar y aprobar la matriz requisito--fuente--prueba.
-- Documentar la representación de geometrías, materiales, fuentes, contornos e interfaces.
-- Consolidar la versión final del artefacto PINN y su repositorio versionado.
-- Ejecutar casos analíticos o manufacturados y pruebas de interfaces.
-- Construir y demostrar la convergencia de las referencias FEM.
-- Ejecutar todas las semillas y reportar también fallos o ejecuciones rechazadas.
-- Ejecutar los escenarios heterogéneos y sus pares homogéneos.
-- Cerrar el módulo de cálculo de ampacidad y sus pruebas de convergencia.
-- Generar tablas, figuras, mapas, perfiles, balances y expedientes de resultados.
-- Redactar el análisis, la discusión y la estimación de impacto a partir de evidencia real.
-
-## Capítulo IV y anexos
-
-- Redactar conclusiones alineadas con el objetivo general y cada objetivo específico.
-- Formular recomendaciones derivadas de resultados o limitaciones observadas.
-- Actualizar las matrices con el estado real de productos y objetivos.
-- Preparar y probar el protocolo de reproducción desde un entorno limpio.
-- Depurar el repositorio digital y vincular cada resultado del documento con su evidencia.
-
-## Control formal final
-
-- Revisar la guía UNI vigente y cualquier plantilla específica de la FIIS antes del depósito.
-- Instalar Poppins o confirmar con la Unidad de Posgrado el uso de Arial en la línea institucional de la portada; el entorno actual usa Arial como sustituto.
-- Sustituir o eliminar todas las marcas rojas `PENDIENTE`.
-- Actualizar índices, listas, referencias cruzadas y bibliografía.
-- Revisar redacción en tercera persona, tiempos verbales, longitud de oraciones y trazabilidad de citas.
-- Ejecutar una compilación limpia y revisar visualmente cada página.
+Las referencias y configuraciones seleccionadas constan en los informes
+internos. Los archivos históricos con código original incompleto están
+identificados individualmente. Los resultados principales conservan sus
+fuentes completas y sus huellas para auditoría posterior.

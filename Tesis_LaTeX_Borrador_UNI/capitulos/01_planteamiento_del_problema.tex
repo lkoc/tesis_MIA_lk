@@ -6,9 +6,9 @@ Este capítulo delimita la dificultad práctica que origina el estudio y la conv
 \section{DIAGNÓSTICO}
 \label{sec:diagnostico}
 
-Las redes eléctricas deben atender el crecimiento de la demanda e integrar centrales de generación ubicadas en distintos puntos del sistema. En el Perú, la producción eléctrica aumentó de \SI{35908}{\giga\watt\hour} en 2010 a \SI{65109}{\giga\watt\hour} en 2025. Durante el mismo período, la máxima demanda del SEIN pasó de \SI{4579}{\mega\watt} a \SI{7942}{\mega\watt} \parencites[sec.~10.4]{minem2025anuario2024}[cuadro~4]{minem2025indicadoresDiciembre}{coesMaximaDemanda}.
+Las redes eléctricas deben atender el crecimiento de la demanda e integrar centrales de generación ubicadas en distintos puntos del sistema. En el Perú, la producción eléctrica aumentó de \SI{35908}{\giga\watt\hour} en 2010 a \SI{65109}{\giga\watt\hour} en 2025, según la serie histórica y el cierre preliminar consultados \parencites[sec.~10.4]{minem2025anuario2024}[cuadro~4]{minem2025indicadoresDiciembre}.
 
-La composición de la generación también cambió. La participación conjunta de las fuentes solar y eólica alcanzó 9,5\,\pct{} de la producción nacional en 2025. La expansión de estas fuentes requiere redes colectoras, conexiones y capacidad de transporte entre nuevos puntos del SEIN \parencites{coes2023diagnostico2025_2034}{iea2025transmissiongrid}.
+La composición de la generación también cambió. La participación conjunta de las fuentes solar y eólica alcanzó 9,5\,\pct{} de la producción nacional en 2025 \parencite[cuadro~4]{minem2025indicadoresDiciembre}. La expansión de estas fuentes requiere redes colectoras, conexiones y capacidad de transporte entre nuevos puntos del SEIN \parencites{coes2023diagnostico2025_2034}{iea2025transmissiongrid}.
 
 Los cables enterrados intervienen en redes colectoras y en enlaces donde existen restricciones de espacio, servidumbre, seguridad o integración urbana \parencite{cigre2023overheadLines}. En estas instalaciones, la capacidad no depende solo de la sección del conductor. También depende del camino térmico formado por las capas del cable, el lecho de asiento, el suelo de relleno y el suelo nativo \parencites{enescu2020}{enescu2021}.
 
@@ -26,7 +26,7 @@ La evidencia publicada muestra que las propiedades térmicas del entorno pueden 
 \midrule
 \textcite[5--6]{khumalo2025} & Cable tripolar XLPE de media tensión & Resistividad de \SI{0.6}{\kelvin\metre\per\watt} frente a \SI{3.7}{\kelvin\metre\per\watt} & La ampacidad disminuyó de \SI{518}{\ampere} a \SI{224}{\ampere}. \\
 \textcite[7--8]{ariasVelasquez2023} & Tres cables unipolares XLPE de \SI{33}{\kilo\volt} & Suelo uniforme de \SI{1.5}{\kelvin\metre\per\watt} frente al valor reportado de \SI{4.9}{\kelvin\metre\per\watt} & La ampacidad calculada cambió de \SI{563}{\ampere} a \SI{350}{\ampere}. \\
-\textcite[15--16]{atoccsa2024} & Tres cables XLPE de \SI{220}{\kilo\volt} & Resistividad de \SI{2.5}{\kelvin\metre\per\watt} frente a \SI{3.0}{\kelvin\metre\per\watt} & La ampacidad disminuyó de \SI{1157}{\ampere} a \SI{1064}{\ampere}. \\
+\textcite[15--16]{atoccsa2024} & Tres cables XLPE de \SI{220}{\kilo\volt} & Resistividad de \SI{2.5}{\kelvin\metre\per\watt} frente a \SI{3.0}{\kelvin\metre\per\watt} & El análisis de sensibilidad estimó una reducción de \SI{1157}{\ampere} a \SI{1064}{\ampere}. \\
 \textcite[12--16]{kim2025} & Banco de seis cables XLPE de \SI{154}{\kilo\volt} & PAC de mayor conductividad frente a arena natural & A igual corriente, la temperatura máxima disminuyó aproximadamente de \SI{78}{\celsius} a \SI{71}{\celsius}. \\
 \bottomrule
 \end{tabularx}
@@ -51,13 +51,13 @@ El problema real se manifiesta cuando una estimación que representa de forma in
 
 El problema subyacente es un vacío de conocimiento. No se ha establecido de forma reproducible cómo el contraste, el patrón, la extensión y la proximidad de las heterogeneidades de $\kx$ modifican $T(x,y)$, $\Tmax$ y $\Imax$ frente a una representación homogénea equivalente. Un promedio simple no resuelve esta cuestión porque la geometría y las interfaces alteran el flujo local \parencites[4--6]{enescu2021}[3--4,93--99]{cigre2025}.
 
-El problema técnico consiste en diseñar y evaluar una formulación computacional integrada que represente $\kx$, aproxime $T(x,y)$ y cuantifique su efecto sobre $\Tmax$ e $\Imax$. La solución debe documentar exactitud, consistencia física, robustez y reproducibilidad mediante referencias analíticas, manufacturadas, FEM y publicadas \parencites[3--4,93--99]{cigre2025}[686--690]{raissi2019}.
+El problema técnico consiste en diseñar y evaluar una formulación computacional integrada que represente $\kx$, aproxime $T(x,y)$ y cuantifique su efecto sobre $\Tmax$ e $\Imax$. La solución debe documentar exactitud, consistencia física, robustez y reproducibilidad mediante referencias analíticas, manufacturadas, FEM y publicadas \parencites[3--4,93--99]{cigre2025}[4--5]{raissi2017}.
 
 \subsection{JUSTIFICACIÓN}
 
 La justificación práctica consiste en reducir la incertidumbre asociada con decisiones inseguras o excesivamente conservadoras. El análisis permitirá identificar configuraciones donde una propiedad homogénea puede ocultar una restricción térmica local. Esta posibilidad concuerda con los cambios de capacidad asociados con humedad y resistividad reportados por \textcite[1,6--9]{khumalo2025}.
 
-La justificación tecnológica corresponde a la construcción de un artefacto que combine conocimiento físico y aprendizaje automático. La PINN incorpora la PDE dentro de su función de pérdida y puede aproximar un campo continuo sin depender exclusivamente de pares etiquetados para todos los puntos del dominio \parencites[686--690]{raissi2019}[1--3,12]{aldulaimi2024}.
+La justificación tecnológica corresponde a la construcción de un artefacto que combine conocimiento físico y aprendizaje automático. La PINN incorpora la PDE dentro de su función de pérdida y puede aproximar un campo continuo sin depender exclusivamente de pares etiquetados para todos los puntos del dominio \parencites[4--5]{raissi2017}[1--3,12]{aldulaimi2024}.
 
 La justificación metodológica se apoya en la ciencia del diseño. DSR vincula el problema práctico con la especificación, construcción, demostración y evaluación del artefacto \parencite[55--56]{peffers2007}. La contribución comprende el prototipo situado y los requisitos, procedimientos y principios que puedan transferirse a problemas térmicos 2D multimateriales \parencite[342--350]{gregor2013}.
 
@@ -105,7 +105,18 @@ Diseñar y evaluar un artefacto computacional basado en una red neuronal informa
   \item Comparar la ampacidad de representaciones heterogéneas 2D y homogéneas pareadas, e identificar las condiciones que generan mayor discrepancia.
 \end{enumerate}
 
-La tesis profesionalizante no plantea una contrastación estadística de hipótesis. Las proposiciones formuladas durante el plan se conservan como criterios previos de calidad, utilidad y efecto físico en la metodología y en el Capítulo~\ref{ch:propuesta-desarrollo}. Esta adaptación vincula las conclusiones con la evidencia computacional y con los límites observados.
+\section{HIPÓTESIS Y CRITERIOS DE CONTRASTE}
+
+Se conservan las hipótesis del plan como proposiciones de diseño contrastables mediante evidencia computacional. No se reemplazan por una declaración genérica de éxito ni se realizan inferencias sobre una población de instalaciones a partir de semillas aleatorias. La hipótesis general vincula representación explícita de $k(x,y)$, reproducción de referencias y diferencias térmicas y operativas frente a representaciones homogéneas.
+
+\begin{enumerate}[label=HE\arabic*.]
+\item Un paquete físico completo y documentado permite obtener VD1: especificación trazable aceptada, con requisitos vinculados a pruebas.
+\item La especificación y las referencias válidas permiten obtener VD2: artefacto aceptado en el dominio declarado, con error de temperatura y NRMSE no mayores a 5\,\pct{}, balance no mayor a 2\,\pct{} y variabilidad menor que el efecto relevante.
+\item El artefacto verificado permite obtener VD3: expediente térmico concluyente; una región de baja conductividad cercana aumenta la temperatura y un relleno de mayor conductividad la reduce en los pares controlados.
+\item VD3 y los pares de representación permiten obtener VD4: expediente comparativo de ampacidad; promediar una zona local de baja conductividad puede sobreestimar la corriente admisible.
+\end{enumerate}
+
+Los estados posibles incluyen aceptación restringida, rechazo e inconclusión. Las tendencias de HE3 y HE4 se contrastan en pares definidos, sin convertirlas en leyes universales. La incertidumbre numérica y la variabilidad entre semillas deben ser menores que la diferencia que se interpreta. No se considera cumplido OE4 por mostrar únicamente temperaturas a corriente fija.
 
 \section{METODOLOGÍA}
 \label{sec:metodologia}
@@ -195,12 +206,11 @@ Los umbrales son reglas iniciales del proyecto y no valores universales para PIN
 \end{tabularx}
 \end{table}
 
-La metodología ejecutada comprende quince casos y tres mallas FEM por caso. Las configuraciones se comparan mediante una campaña exploratoria de ocho candidatos y variantes específicas de interfaz y enriquecimiento geométrico. Las semillas 11, 23 y 37 evalúan sensibilidad; el detalle de selección se presenta en la Sección~\ref{sec:seleccion-pinn}.
+La metodología ejecutada se organiza en selección de arquitectura y tamaño, estudio de colocaciones, ajuste de entrenamiento y confirmación con semillas nuevas. Los casos de desarrollo y confirmación, presupuestos, criterios y reglas de selección se fijan antes de observar la campaña correspondiente y se detallan en la Sección~\ref{sec:seleccion-pinn}. Las referencias FEM conservan exactamente geometría, conductividades, fuentes y contornos del problema PINN.
 
-El alcance físico ejecutado resuelve el suelo en dos dimensiones y reconstruye radialmente el interior de los cables. Las pérdidas base se fijan mediante resistencia DC a 20 °C. La comparación de corriente corresponde a un índice condicionado a resistencia común a 90 °C, por lo que el alcance operativo del OE4 es parcial.
+La ecuación de calor se resuelve en el conductor, cada capa y el suelo. No se reconstruye la temperatura interior mediante una resistencia térmica equivalente. La representación distingue la fuente prescrita, el acoplamiento eléctrico DC local y las estimaciones condicionadas de efecto piel. La futura extensión temporal requiere capacidades y condiciones iniciales documentadas; no se presenta como resultado ejecutado.
 
-Los umbrales de 5\,\pct{} para campo y temperatura y 2\,\pct{} para balance se conservan como reglas del proyecto. Se explicita que los errores relativos usan el incremento térmico respecto al ambiente. Las referencias FEM se someten además a un cambio máximo entre mallas inferior a 0,5\,\pct{} de dicho incremento.
-
+Además de los umbrales del plan, la aceptación exige control por material, continuidad térmica y flujo normal en cada interfaz. Las referencias FEM deben cambiar menos de 0,5\,\pct{} de la elevación térmica entre las dos últimas mallas, tanto en Tmax como en RMSE por región; se exige asimismo cambio de Tmax menor a 0,1 K y balance menor a 0,2\,\pct{}. Estas diferencias son indicadores de convergencia observada, no cotas demostradas del error exacto.
 
 El capítulo establece el problema, los objetivos y el protocolo de producción y evaluación de evidencia. El marco teórico del Capítulo~\ref{ch:marco-teorico} desarrolla las bases físicas, normativas, numéricas y metodológicas necesarias para interpretar esa evidencia.
 

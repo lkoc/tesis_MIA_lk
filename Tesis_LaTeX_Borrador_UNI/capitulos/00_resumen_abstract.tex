@@ -1,18 +1,29 @@
-\chapter*{RESUMEN}
+﻿\chapter*{RESUMEN}
 \addcontentsline{toc}{chapter}{RESUMEN}
 
-La ampacidad de un cable eléctrico enterrado depende de las pérdidas internas y de la capacidad del entorno para evacuar calor. La humedad, los estratos, el lecho de asiento y el suelo de relleno producen una conductividad térmica espacialmente variable que puede modificar el campo de temperatura, la temperatura máxima del conductor y la corriente admisible. Esta investigación diseña y evalúa un artefacto computacional bidimensional basado en una red neuronal informada por física. El artefacto incorpora la ecuación estacionaria de conducción, las condiciones de contorno e interfaz y la conductividad espacial dentro del entrenamiento. La ciencia del diseño organiza la especificación, construcción, demostración, evaluación y comunicación del artefacto. La verificación considera soluciones analíticas o manufacturadas, referencias FEM convergentes y casos publicados; además, registra exactitud térmica, consistencia física, robustez y reproducibilidad.
+Esta investigación de ciencia del diseño evalúa PINN para temperatura y corriente admisible de cables enterrados. Resuelve la ecuación de calor estacionaria 2D en conductor, todas las capas y suelo, con continuidad térmica y de flujo, sin reconstrucción resistiva interior. Las coordenadas locales permiten representar espesores milimétricos dentro de dominios métricos.
 
-\pendiente{Completar el resumen con los resultados cuantitativos principales, la conclusión central y el impacto estimado. Ajustar la extensión y las palabras clave después de cerrar el Capítulo III.}
+La metodología separa selección de arquitectura y tamaño, número y distribución de colocaciones, ajuste de entrenamiento y confirmación con semillas independientes. Compara temperatura por material, formulación mixta, entradas locales y Fourier y enriquecimiento multipolar. Cada problema conserva una referencia FEM explícita refinada; sus temperaturas no son etiquetas de entrenamiento.
 
-\noindent\textbf{Palabras clave:} cable subterráneo; ampacidad; heterogeneidad térmica; conductividad del suelo; red neuronal informada por física; ciencia del diseño.
+\input{tablas/explicit_abstract_es}
+
+\input{tablas/explicit_ampacity_abstract_es}
+
+La contribución es un procedimiento trazable que conserva rechazos y delimita aplicabilidad. No demuestra optimalidad global, generalización sin reentrenamiento, validación de campo, ampacidad AC normativa ni evolución temporal verificada.
+
+\noindent\textbf{Palabras clave:} cable enterrado; ecuación de calor; PINN; interfaces; colocaciones; elementos finitos; ampacidad.
 
 \chapter*{ABSTRACT}
 \addcontentsline{toc}{chapter}{ABSTRACT}
 
-The ampacity of an underground power cable depends on internal losses and on the ability of the surrounding environment to dissipate heat. Moisture, soil layers, bedding, and backfill create a spatially varying thermal conductivity that may alter the temperature field, the maximum conductor temperature, and the allowable current. This research designs and evaluates a two-dimensional computational artifact based on a physics-informed neural network. The artifact embeds the steady-state heat equation, boundary and interface conditions, and spatial conductivity into training. Design science organizes the specification, construction, demonstration, evaluation, and communication of the artifact. Verification uses analytical or manufactured solutions, converged FEM references, and published cases, while recording thermal accuracy, physical consistency, robustness, and reproducibility.
+This design science study evaluates PINNs for temperature and allowable current in buried cables. It solves the steady two-dimensional heat equation throughout the conductor, every cable layer and soil, enforcing temperature and heat-flux continuity without internal resistive reconstruction. Local coordinates represent millimetric layers within metric domains.
 
-\pendiente{Traducir la versión final del resumen después de incorporar resultados, conclusión e impacto. Verificar que ambas versiones sean equivalentes.}
+The methodology separates architecture and size selection, collocation count and placement, training adjustment, and confirmation with independent seeds. Material-wise temperature, mixed, local-input, Fourier and multipole variants are compared. Every problem retains a refined explicit FEM reference; its temperatures support evaluation and hyperparameter selection without becoming training labels.
 
-\noindent\textbf{Keywords:} underground cable; ampacity; thermal heterogeneity; soil thermal conductivity; physics-informed neural network; design science research.
+\input{tablas/explicit_abstract_en}
 
+\input{tablas/explicit_ampacity_abstract_en}
+
+The contribution is a traceable procedure that retains failures and delimits applicability. It establishes neither global optimality, generalization without retraining, field validation, standard-compliant AC ampacity nor verified transient evolution.
+
+\noindent\textbf{Keywords:} buried cable; heat equation; PINN; interfaces; collocation; finite elements; ampacity.

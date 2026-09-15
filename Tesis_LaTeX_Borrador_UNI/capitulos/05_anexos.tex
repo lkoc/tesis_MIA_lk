@@ -1,6 +1,8 @@
-\setcounter{section}{0}
+﻿\setcounter{section}{0}
 \renewcommand{\thesection}{\Alph{section}}
 \renewcommand{\theHsection}{anexo.\arabic{section}}
+\counterwithin{table}{section}
+\renewcommand{\theHtable}{anexo.\arabic{section}.\arabic{table}}
 
 \begin{landscape}
 \chapter*{ANEXOS}
@@ -9,7 +11,7 @@
 \section{MATRIZ DE CONSISTENCIA}
 \label{anx:matriz-consistencia}
 
-La matriz conserva la relación entre problemas, objetivos, productos y evidencia. En la tesis profesionalizante, los criterios de aceptación sustituyen la función que el plan atribuía a las hipótesis.
+La matriz conserva la relación entre problemas, objetivos, productos y evidencia. Se conservan HE1--HE4 como proposiciones contrastables del plan; los criterios determinan el estado de sus productos y no sustituyen las hipótesis por una declaración automática de cumplimiento.
 
 \begin{table}[H]
 \centering
@@ -30,12 +32,14 @@ La matriz conserva la relación entre problemas, objetivos, productos y evidenci
 \end{table}
 \end{landscape}
 
-\pendiente{Actualizar la matriz con los productos realmente obtenidos, el estado de cada objetivo y las reglas finales aprobadas antes de la evaluación.}
+Los productos corresponden a la especificación y los expedientes de la formulación explícita. La evidencia anterior de reconstrucción radial se conserva como antecedente. El cumplimiento de OE4 requiere una solución de corriente límite y su comparación FEM.
 
 \section{MATRIZ DE OPERACIONALIZACIÓN}
 \label{anx:operacionalizacion}
 
 La operacionalización sigue una cadena de objetos. El producto de una etapa se convierte en parte de la entrada de la siguiente. Los parámetros físicos describen los casos y no se confunden con variables estadísticas de una población.
+
+Se mantiene la cadena del plan: $\mathrm{VI1}=P_1$, $\mathrm{VI2}=\{\mathrm{VD1},R_2\}$, $\mathrm{VI3}=\{\mathrm{VD2},E_3\}$ y $\mathrm{VI4}=\{\mathrm{VD3},C_4\}$. Los objetos nuevos son el paquete físico $P_1$, las referencias $R_2$, los escenarios térmicos $E_3$ y los pares de representación $C_4$. Los indicadores numéricos están contenidos en los expedientes; no reemplazan esos objetos ni convierten las semillas en una población de instalaciones. Un producto restringido no se hereda como aceptación universal en la etapa siguiente.
 
 \begin{table}[H]
 \centering
@@ -55,23 +59,50 @@ OE4 & Evidencia térmica y catálogo de pares. & Expediente comparativo de ampac
 \end{tabularx}
 \end{table}
 
-\section{CATÁLOGO DE CASOS Y PLAN DE COBERTURA}
+\section{MATRIZ REQUISITO--EVIDENCIA}
+
+\begin{longtable}{L{1cm}L{4.5cm}L{8cm}}
+\caption{Trazabilidad de requisitos críticos de la formulación explícita. Fuente: contrato físico, pruebas y expedientes de ejecución.}\label{tab:explicit-requirements}\\
+\toprule ID & Requisito & Evidencia y límite \\
+\midrule\endfirsthead
+\toprule ID & Requisito & Evidencia y límite \\
+\midrule\endhead
+R1 & PDE en conductor, cada capa y suelo. & Pruebas parametrizadas de residuos y retropropagación de todas las variantes; campos FEM con etiquetas de cada material. La presencia de un residuo no acredita por sí sola aceptación numérica. \\
+R2 & Continuidad de temperatura y flujo. & Pérdidas de transmisión y evaluación independiente de cada interfaz. En la red mixta se comprueban ambos flujos. Los fallos permanecen como rechazos. \\
+R3 & Resolución de escalas milimétricas y métricas. & Coordenadas locales, presupuesto por material y pruebas de cobertura; comparación B a 1x, 2x y 4x con FEM. La admisibilidad se separa de la insensibilidad. \\
+R4 & Fuente eléctrica trazable y no duplicada. & Contrato DC/AC, pruebas de integral de fuente piel y conservación de corriente DC con temperatura local; comparación FEM de perfiles a igual potencia. La procedencia eléctrica real sigue condicionada a fichas auténticas. \\
+R5 & Referencia del mismo problema. & Identidad física, coordenadas comunes, SHA-256 del campo y puertas de refinamiento FEM. Las referencias reducidas no son intercambiables. \\
+R6 & Elección sin seleccionar una semilla favorable. & Manifiestos A--C, configuración congelada y D con semillas 71, 83 y 97. Se publican todos los intentos. \\
+R7 & Corriente límite con PDE interior. & Raíces FEM de tres mallas, corriente positiva aprendida y nueve intentos de confirmación. El error térmico aislado no sustituye las puertas completas. \\
+R8 & Reproducción y documento consistente. & Fuentes y nubes archivadas, repetición A/B del mismo caso y semillas, pruebas automáticas, auditoría de referencias y construcción de tablas y PDF desde los registros. \\
+\bottomrule
+\end{longtable}
+
+Las pruebas de operadores temporales verifican la forma matemática del término de almacenamiento y la exigencia de capacidad documentada. Una simulación transitoria completa no forma parte de la cobertura ejecutada.
+
+\section{CASOS POR ETAPA Y COBERTURA}
 \label{anx:catalogo-casos}
 
-El catálogo debe contener, como mínimo, casos analíticos o manufacturados, una referencia FEM convergente, casos publicados y escenarios heterogéneos controlados. Cada fila debe vincular entradas, fuente, objetivo, ejecución y evidencia.
+Los casos físicos están en \path{Benchmarks/explicit_study/cases/}. A utiliza coaxial angular y XLPE homogéneo. B y C utilizan XLPE homogéneo y estratos con salto exacto. D conserva esos dos casos para confirmación con semillas nuevas y añade relleno mejorado, zona seca cercana, zona seca lejana, Aras plano y Kim arena.
 
-\pendiente{Insertar el catálogo final con identificadores estables, niveles de $C_k$, patrón, $f_h$, $d_h/D$, valores y fuentes de $k$, geometría, corriente, contornos, referencia, semillas, estado y ruta de resultados.}
+Los controles analíticos, manufacturados y de piel tienen otra finalidad y no se suman como réplicas de confirmación. La ampacidad DC añade un par heterogéneo--homogéneo con una regla explícita de promedio del suelo. Las geometrías publicadas se adaptan a contornos y fuentes controladas; sus temperaturas no se atribuyen al artefacto. El catálogo más amplio del plan incluye fuentes de propiedades y extensiones no ejecutadas, como humedad acoplada, k(T), datos estacionales y régimen transitorio. La presencia de un caso en archivos no demuestra cobertura experimental.
 
-\section{PROTOCOLO DE REPRODUCCIÓN}
+\section{REPRODUCCIÓN Y CONTRATO DE ARCHIVOS}
 \label{anx:protocolo-reproduccion}
 
-El protocolo debe permitir reconstruir una selección representativa de casos desde un entorno limpio. Debe indicar dependencias, versiones, estructura de datos, comandos, semillas, recursos esperados y verificación de las salidas.
+Los protocolos registrados son \path{docs/PROTOCOLO_EXPERIMENTAL_EXPLICITO.md} y \path{docs/PROTOCOLO_AMPACIDAD_EXPLICITA.md}, complementados por \path{docs/PROTOCOLO_CALIBRACION_INTERFACES.md}. La enmienda C2 responde a evidencia de B y precede a C y D. La copia congelada de la campaña y los manifiestos por etapa permiten reconstruir su secuencia. Los datos físicos se separan de anchura, profundidad, colocaciones, tasa, presupuesto y semillas. La identidad física incluye PDE, fuentes, interfaces y supuestos eléctricos; un campo reducido no puede sustituir una referencia explícita.
 
-\pendiente{Preparar y probar las instrucciones de instalación y ejecución; fijar la versión del repositorio; incluir archivos de configuración; definir el caso mínimo reproducible; y registrar las huellas de los resultados aceptados.}
+La secuencia comprende: ejecutar pruebas de operadores y muestreo; construir referencias FEM y pasar las puertas de malla; ejecutar A y elegir arquitectura; ejecutar B y analizar colocaciones; ejecutar C y C2 y congelar entrenamiento; ejecutar D con semillas independientes; resolver la extensión de corriente límite; generar tablas y figuras desde los JSON y compilar la tesis. Los comandos principales son \path{Benchmarks/full_study.py}, \path{Benchmarks/full_ampacity_study.py} y \path{Benchmarks/full_study_report.py}. El generador histórico no debe introducir nuevamente cifras reducidas en la tesis activa.
 
-\section{EXPEDIENTE DE EVIDENCIA}
+Los NPZ contienen coordenadas, regiones, pesos y temperaturas. Los expedientes PINN incluyen configuración, nubes iniciales y adaptadas, pesos entrenados, estados de optimización, fuentes e historial. Los estados FEM finales incluyen malla curva, etiquetas y grados de libertad. Los ensayos intermedios de la raíz de corriente conservan valores, balances y criterios; no se cuentan como problemas físicos adicionales.
+
+Las semillas 11 y 23 y sus muestreos 101 y 103 pertenecen al desarrollo. Las semillas 71, 83 y 97 y sus muestreos 1001, 1003 y 1007 pertenecen a confirmación. El orquestador reutiliza solo resultados completos de la misma configuración. No se afirma reanudación exacta a mitad de L-BFGS: una ejecución interrumpida debe repetirse desde su configuración o disponer de un protocolo de restauración específico.
+
+La PINN usa Python y PyTorch en Windows, precisión doble y un hilo por proceso; FEniCSx y Gmsh se ejecutan en Linux. Las versiones utilizadas se registran por corrida. Las reinstalaciones y repeticiones del modelo anterior no prueban una reinstalación limpia de este flujo. Las huellas permiten auditar procedencia sin inventar un commit para cambios de trabajo no confirmados en Git.
+
+\section{EXPEDIENTE COMPLETO DE EJECUCIONES}
 \label{anx:expediente-evidencia}
 
-El expediente debe reunir resultados completos que no convenga insertar en el cuerpo: tablas por semilla, perfiles, mapas de error, estudio de malla, balances, registros de entrenamiento, curvas de convergencia y manifiestos.
+La tabla siguiente conserva las ejecuciones completas de A--D, incluidas las rechazadas. La misma información está en \path{Benchmarks/explicit_study/report/runs.csv}, con resúmenes de selección, convergencia y confirmación. El repositorio conserva el respaldo verificado de la tesis anterior; las tablas activas proceden de la formulación explícita.
 
-\pendiente{Seleccionar la evidencia que irá dentro de la tesis y la que quedará en el repositorio digital. Comprobar que cada figura o tabla del Capítulo III pueda rastrearse hasta un archivo y una configuración.}
+\input{tablas/explicit_all_runs}

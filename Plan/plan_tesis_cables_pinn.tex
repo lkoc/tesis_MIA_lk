@@ -950,6 +950,28 @@ Este capítulo explica cómo se construirá, verificará y evaluará el artefact
 \section{METODOLOGÍA}
 \label{sec:metodologia}
 
+\paragraph{Precisamiento de la formulación térmica y eléctrica.}
+En todas las variantes PINN se resolverá explícitamente la ecuación de calor
+en el conductor, cada capa del cable y el suelo. La pérdida impondrá
+$\nabla\!\cdot\mathbf q=Q$ y $\mathbf q=-k\nabla T$, o su forma equivalente
+de segundo orden, con continuidad de temperatura y flujo normal en cada
+interfaz. No se reconstruirá la temperatura interior mediante resistencias
+térmicas equivalentes. Las coordenadas locales de los anillos conservarán
+la dependencia angular; el centro del conductor tendrá una representación
+regular. El alcance evaluado seguirá siendo estacionario, dejando el término
+$\rho c_p\partial_t T$ y las condiciones iniciales para una extensión posterior
+con propiedades de almacenamiento documentadas.
+
+El contrato del caso identificará si la resistencia eléctrica es DC o AC,
+su frecuencia, temperatura y procedencia. Para operación a 60 Hz con datos
+DC se estimará el efecto piel según la construcción del conductor; un dato
+AC a esa frecuencia no se corregirá dos veces. Se distinguirá el aumento
+de pérdida total de su distribución volumétrica dentro del conductor.
+La hipótesis de fuente uniforme se contrastará con una distribución
+electromagnética manteniendo la misma pérdida total, sin sustituir la
+ecuación térmica. Una aproximación cilíndrica maciza no se atribuirá sin
+verificación a conductores segmentados ni a pérdidas de proximidad.
+
 La investigación tendrá enfoque cuantitativo porque calculará y comparará temperatura, errores, residuos, tiempos y variaciones de ampacidad. Además, esos registros se obtendrán mediante casos analíticos, manufacturados, bibliográficos y computacionales del arreglo de cables--entorno térmico.
 
 Será aplicada y tecnológica porque construirá un artefacto para estudiar un problema de ingeniería. Por tanto, evaluará tanto el efecto de $\kx$ como la utilidad del artefacto.

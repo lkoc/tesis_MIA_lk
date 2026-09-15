@@ -6,9 +6,8 @@
 \usepackage{fontspec}
 \setmainfont{Arial}
 \setsansfont{Arial}
-% La guía muestra Poppins para la línea institucional. En este entorno no está
-% instalada; se usa la alternativa sans serif disponible (Arial).
-\newcommand{\poppins}{\sffamily}
+% Fuente distribuida con licencia OFL para la línea institucional de la guía.
+\newfontfamily\poppins[Path=fonts/,BoldFont=Poppins-Bold.ttf]{Poppins-Bold.ttf}
 \usepackage[spanish,es-nodecimaldot,es-noshorthands]{babel}
 \usepackage{csquotes}
 \usepackage{geometry}
@@ -37,6 +36,9 @@
 \usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,calc}
 \usepackage{newfloat}
 \usepackage{float}
+\makeatletter
+\setlength{\@fptop}{0pt}
+\makeatother
 \DeclareFloatingEnvironment[fileext=loe,listname={Listado de fórmulas},name=Fórmula,placement=htbp]{formula}
 \usepackage{caption}
 \captionsetup{font=small,labelfont=bf,justification=centering}
@@ -52,7 +54,7 @@
 \usepackage[backend=biber,style=apa,sortcites=true,sorting=nyt,maxcitenames=2,maxbibnames=20]{biblatex}
 \DeclareLanguageMapping{spanish}{spanish-apa}
 \DeclareFieldFormat{postnote}{#1}
-\DeclareDelimFormat{postnotedelim}{\addcolon}
+\DeclareDelimFormat{postnotedelim}{\addcolon\space}
 \addbibresource{referencias.bib}
 \addbibresource{../Benchmarks/references_selection.bib}
 

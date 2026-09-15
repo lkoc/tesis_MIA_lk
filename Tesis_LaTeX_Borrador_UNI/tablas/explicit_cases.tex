@@ -1,0 +1,66 @@
+\begingroup\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{longtable}{L{4.2cm}rrrrr}
+\caption{Entradas eléctricas y del suelo base de la campaña a fuente prescrita. Fuente: contratos de caso documentados.}\label{tab:explicit-case-inputs}\\
+\toprule
+Caso & Cables & I, A & $R_{20}$, $\Omega$/km & P por cable, W/m & k base, W/(m K)\\
+\midrule\endfirsthead
+\toprule
+Caso & Cables & I, A & $R_{20}$, $\Omega$/km & P por cable, W/m & k base, W/(m K)\\
+\midrule\endhead
+coaxial\_angular & 1 & 270 & 0.19300 & 14.06970 & 1.000\\
+xlpe\_single & 1 & 270 & 0.19300 & 14.06970 & 1.000\\
+xlpe\_discrete\_layers & 1 & 270 & 0.19300 & 14.06970 & 1.000\\
+xlpe\_backfill & 1 & 270 & 0.19300 & 14.06970 & 1.000\\
+xlpe\_dry\_near & 1 & 270 & 0.19300 & 14.06970 & 1.000\\
+xlpe\_dry\_far & 1 & 270 & 0.19300 & 14.06970 & 1.000\\
+aras\_flat & 3 & 1110 & 0.01510 & 18.60471 & 1.000\\
+kim\_sand & 6 & 1026 & 0.01510 & 15.89541 & 1.365\\
+\bottomrule\end{longtable}\endgroup
+
+\begingroup\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{longtable}{L{4.2cm}rrrrr}
+\caption{Capas explícitas: índice cero conductor, los restantes materiales pasivos. Fuente: fichas de entrada auditadas.}\label{tab:explicit-layers}\\
+\toprule
+Familia & Capa & $r_i$, mm & $r_o$, mm & Espesor, mm & k, W/(m K)\\
+\midrule\endfirsthead
+\toprule
+Familia & Capa & $r_i$, mm & $r_o$, mm & Espesor, mm & k, W/(m K)\\
+\midrule\endhead
+xlpe\_single & 0 & 0.00 & 5.50 & 5.50 & 400\\
+xlpe\_single & 1 & 5.50 & 12.00 & 6.50 & 0.286\\
+xlpe\_single & 2 & 12.00 & 13.00 & 1.00 & 380\\
+xlpe\_single & 3 & 13.00 & 15.00 & 2.00 & 0.45\\
+aras\_flat & 0 & 0.00 & 18.85 & 18.85 & 400\\
+aras\_flat & 1 & 18.85 & 40.85 & 22.00 & 0.2857\\
+aras\_flat & 2 & 40.85 & 49.35 & 8.50 & 384.6\\
+aras\_flat & 3 & 49.35 & 53.35 & 4.00 & 0.45\\
+kim\_sand & 0 & 0.00 & 21.20 & 21.20 & 400\\
+kim\_sand & 1 & 21.20 & 23.20 & 2.00 & 0.2857\\
+kim\_sand & 2 & 23.20 & 40.20 & 17.00 & 0.2857\\
+kim\_sand & 3 & 40.20 & 41.50 & 1.30 & 0.2857\\
+kim\_sand & 4 & 41.50 & 42.50 & 1.00 & 0.167\\
+kim\_sand & 5 & 42.50 & 45.00 & 2.50 & 237\\
+kim\_sand & 6 & 45.00 & 50.00 & 5.00 & 0.2857\\
+kim\_sand & 7 & 50.00 & 100.00 & 50.00 & 2.15\\
+kim\_sand & 8 & 100.00 & 110.00 & 10.00 & 0.2857\\
+\bottomrule\end{longtable}\endgroup
+
+Los casos coaxial y XLPE comparten la secuencia radial de XLPE. El centro coaxial es (0,0); XLPE está en (0,−0,7) m. Aras utiliza centros (−0,33;−1,2), (0;−1,2) y (0,33;−1,2) m. Kim utiliza x=−0,4, 0 y 0,4 m en dos filas y=−1,6 y −1,2 m. Las capas de Kim se conservan individualmente aunque algunas tengan igual conductividad. No se homogeneiza su difusión térmica.
+
+Las zonas suaves emplean $k(x,y)=k_0+(k_p-k_0)S_\varepsilon(x;c_x,w)S_\varepsilon(y;c_y,h)$, donde $S_\varepsilon(s;c,w)=\tfrac12[\tanh((s-c+w/2)/\varepsilon)-\tanh((s-c-w/2)/\varepsilon)]$. El mapa se evalúa únicamente en suelo; las capas conservan su k.
+
+\begingroup\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{longtable}{L{4.2cm}rrrrrr}
+\caption{Definición de heterogeneidades suaves del suelo. Fuente: casos registrados.}\label{tab:explicit-patches}\\
+\toprule
+Caso & $c_x$, m & $c_y$, m & w, m & h, m & $k_p$ & $\varepsilon$, m\\
+\midrule\endfirsthead
+\toprule
+Caso & $c_x$, m & $c_y$, m & w, m & h, m & $k_p$ & $\varepsilon$, m\\
+\midrule\endhead
+xlpe\_backfill & 0 & -0.7 & 0.5 & 0.5 & 2 & 0.08\\
+xlpe\_dry\_near & 0 & -0.7 & 0.5 & 0.5 & 0.5 & 0.08\\
+xlpe\_dry\_far & 1 & -0.7 & 0.5 & 0.5 & 0.5 & 0.08\\
+\bottomrule\end{longtable}\endgroup
+
+Los estratos emplean k=0,5 W/(m K) bajo y=−1 m y k=1 W/(m K) sobre esa interfaz, con salto exacto. Los demás casos de esta tabla no tienen bandas adicionales. Las resistencias de los controles se interpretan como DC a 20 °C; el coeficiente térmico es 0,00393 $\mathrm{K}^{-1}$. La frase histórica «flujo circular uniforme» que subsiste en la procedencia del catálogo describe su uso anterior; el contrato explícito y la pérdida activa utilizan generación volumétrica y transmisión entre materiales.

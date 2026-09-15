@@ -1,0 +1,62 @@
+{
+  "case": {
+    "id": "mms_layered_y",
+    "kind": "mms_interface",
+    "bounds": [
+      0.0,
+      1.0,
+      0.0,
+      1.0
+    ],
+    "T0": 20.0,
+    "scale": 30.0,
+    "conductivity": {
+      "type": "layers",
+      "axis": "y",
+      "interfaces": [
+        0.5
+      ],
+      "values": [
+        0.5,
+        2.0
+      ],
+      "smoothing": 0.0
+    },
+    "interface": {
+      "axis": "y",
+      "position": 0.5
+    },
+    "exact_expression": "20 + where(y <= 0.5, 20*y, 10*(1+(y-0.5)/2))*sin(pi*x)",
+    "source_expression": "manufactured",
+    "source": "Elaboraci\u00f3n propia: prueba del formato para estratos discontinuos horizontales",
+    "adaptation": "Dos materiales sin suavizado; continuidad exacta de temperatura y flujo; la fuente se deriva por regi\u00f3n"
+  },
+  "case_sha256": "1f3b7fecb6c674da4fe7ea82be2c6b51601f1c31f43d8e0d5ef29ebc194f094c",
+  "method": "FEniCSx",
+  "dolfinx": "0.10.0",
+  "gmsh": "4.15.2",
+  "python": "3.12.13 | packaged by conda-forge | (main, Mar  5 2026, 16:50:00) [GCC 14.3.0]",
+  "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "level": 0,
+  "degree": 2,
+  "ndofs": 1089,
+  "Tmax_C": 32.5,
+  "conductor_C": [],
+  "net_flux_W_m": 78.78825727972387,
+  "source_W_m": 78.53981633974496,
+  "throughput_W_m": 91.54444057494737,
+  "balance_pct": 0.3163248293123174,
+  "elapsed_s": 1.099448529,
+  "petsc_reason": 4,
+  "rmse_exact_K": 0.00036694652170996217,
+  "max_error_exact_K": 0.001198118138166393,
+  "source_sha256": {
+    "Benchmarks/fem.py": "2bfd69751d4bfb51a37c6a925ebbe85c19a76afd2776617c90d16a7c61034435",
+    "Benchmarks/cases.py": "3ec4b8f90f9b85d5f6de7f814997c04c78b1e45a208c49c6b15d337d5c0e5639",
+    "Benchmarks/expressions.py": "b59d46dfb4094c4e79f491384c7baef6641fb4753cd87fcb8a588f72164596e6"
+  },
+  "completed_utc": "2026-09-10T16:23:32.583307+00:00",
+  "mpi_processes": 1,
+  "numpy": "2.4.3",
+  "ufl": "2025.2.1"
+}

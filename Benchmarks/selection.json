@@ -1,0 +1,739 @@
+{
+  "criterion": "Primero se maximiza la cantidad de semillas aceptadas, conservando los fallos. En operación nominal, entre candidatos dentro del 5 % del mejor RMSE mediano se elige menor cantidad de parámetros y luego menor dispersión del RMSE. En ampacidad se minimiza el peor error de corriente entre las configuraciones con más semillas aceptadas. Es una selección finita sobre casos conocidos, no una prueba independiente de generalización.",
+  "cases": {
+    "annulus": "verification_final/annulus",
+    "aras_flat": "coupled_final/aras_flat",
+    "aras_single": "coupled_final/aras_single",
+    "kim_layered": "comparisons/adaptive_nominal_uniform/kim_layered",
+    "kim_pac": "coupled_final/kim_pac",
+    "kim_sand": "coupled_final/kim_sand",
+    "mms_constant": "verification_final/mms_constant",
+    "mms_high_contrast": "verification_final/mms_high_contrast",
+    "mms_interface": "verification_final/mms_interface",
+    "mms_layered_y": "verification_final/mms_layered_y",
+    "mms_robin": "verification_final/mms_robin",
+    "mms_smooth_2d": "verification_final/mms_smooth_2d",
+    "mms_variable": "verification_final/mms_variable",
+    "xlpe_backfill": "coupled_final/xlpe_backfill",
+    "xlpe_discrete_layers": "coupled_final/xlpe_discrete_layers",
+    "xlpe_dry_far": "coupled_final/xlpe_dry_far",
+    "xlpe_dry_large": "coupled_final/xlpe_dry_large",
+    "xlpe_dry_near": "coupled_final/xlpe_dry_near",
+    "xlpe_single": "coupled_final/xlpe_single"
+  },
+  "ampacity_cases": {
+    "aras_flat": "ampacity_final/aras_flat",
+    "aras_single": "ampacity_final/aras_single",
+    "kim_layered": "comparisons/ampacity_constraints1000/kim_layered",
+    "kim_pac": "comparisons/ampacity_constraints1000/kim_pac",
+    "kim_sand": "ampacity_final/kim_sand",
+    "xlpe_backfill": "comparisons/adaptive_ampacity_residual/xlpe_backfill",
+    "xlpe_discrete_layers": "ampacity_final/xlpe_discrete_layers",
+    "xlpe_dry_far": "ampacity_final/xlpe_dry_far",
+    "xlpe_dry_large": "comparisons/ampacity_constraints1000/xlpe_dry_large",
+    "xlpe_dry_near": "ampacity_final/xlpe_dry_near",
+    "xlpe_single": "ampacity_final/xlpe_single"
+  },
+  "decisions": {
+    "aras_flat": {
+      "nominal_candidates": [
+        {
+          "directory": "coupled_final/aras_flat",
+          "accepted": 3,
+          "n": 3,
+          "median_rmse_K": 0.012147655649773888,
+          "std_rmse_K": 0.0006322766516725467,
+          "parameters": 2262,
+          "max_current_error_pct": null,
+          "max_temperature_limit_error_K": null,
+          "max_electrical_residual_pct": 0.002678949459357115,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": null
+        }
+      ],
+      "nominal_selected": "coupled_final/aras_flat",
+      "ampacity_candidates": [
+        {
+          "directory": "ampacity_final/aras_flat",
+          "accepted": 3,
+          "n": 3,
+          "median_rmse_K": 0.019304036900222275,
+          "std_rmse_K": 0.003825309386454308,
+          "parameters": 2263,
+          "max_current_error_pct": 0.017037749418225,
+          "max_temperature_limit_error_K": 0.013921114370759824,
+          "max_electrical_residual_pct": 0.004456595483078852,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": 100.0
+        }
+      ],
+      "ampacity_selected": "ampacity_final/aras_flat"
+    },
+    "aras_single": {
+      "nominal_candidates": [
+        {
+          "directory": "coupled_final/aras_single",
+          "accepted": 3,
+          "n": 3,
+          "median_rmse_K": 0.008023683337307292,
+          "std_rmse_K": 0.0010602460928349398,
+          "parameters": 2248,
+          "max_current_error_pct": null,
+          "max_temperature_limit_error_K": null,
+          "max_electrical_residual_pct": 0.005243898410543285,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": null
+        }
+      ],
+      "nominal_selected": "coupled_final/aras_single",
+      "ampacity_candidates": [
+        {
+          "directory": "ampacity_final/aras_single",
+          "accepted": 3,
+          "n": 3,
+          "median_rmse_K": 0.01056007501179522,
+          "std_rmse_K": 0.0015335771560674864,
+          "parameters": 2249,
+          "max_current_error_pct": 0.01517927389035334,
+          "max_temperature_limit_error_K": 0.021465971402264472,
+          "max_electrical_residual_pct": 0.006600387912858155,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": 100.0
+        }
+      ],
+      "ampacity_selected": "ampacity_final/aras_single"
+    },
+    "kim_layered": {
+      "nominal_candidates": [
+        {
+          "directory": "coupled_final/kim_layered",
+          "accepted": 1,
+          "n": 3,
+          "median_rmse_K": 0.5035880274203685,
+          "std_rmse_K": 0.21381774836494863,
+          "parameters": 2283,
+          "max_current_error_pct": null,
+          "max_temperature_limit_error_K": null,
+          "max_electrical_residual_pct": 0.323651913514667,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": null
+        },
+        {
+          "directory": "comparisons/coupled_refined/kim_layered",
+          "accepted": 1,
+          "n": 3,
+          "median_rmse_K": 0.643094070877058,
+          "std_rmse_K": 0.42712233141727424,
+          "parameters": 2283,
+          "max_current_error_pct": null,
+          "max_temperature_limit_error_K": null,
+          "max_electrical_residual_pct": 0.016563105843663686,
+          "adam": 2000,
+          "lbfgs": 3000,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 1000,
+          "limit_weight": null
+        },
+        {
+          "directory": "comparisons/coupled_width64/kim_layered",
+          "accepted": 1,
+          "n": 3,
+          "median_rmse_K": 0.6186563911317552,
+          "std_rmse_K": 0.12453165759223418,
+          "parameters": 8619,
+          "max_current_error_pct": null,
+          "max_temperature_limit_error_K": null,
+          "max_electrical_residual_pct": 0.21335550252605137,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 64,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": null
+        },
+        {
+          "directory": "comparisons/adaptive_nominal_uniform/kim_layered",
+          "accepted": 1,
+          "n": 3,
+          "median_rmse_K": 0.5035573865047706,
+          "std_rmse_K": 0.15805937757940391,
+          "parameters": 2283,
+          "max_current_error_pct": null,
+          "max_temperature_limit_error_K": null,
+          "max_electrical_residual_pct": 0.2025510619610228,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": null
+        },
+        {
+          "directory": "comparisons/adaptive_nominal_residual/kim_layered",
+          "accepted": 1,
+          "n": 3,
+          "median_rmse_K": 0.7053407941924817,
+          "std_rmse_K": 0.3037584422708861,
+          "parameters": 2283,
+          "max_current_error_pct": null,
+          "max_temperature_limit_error_K": null,
+          "max_electrical_residual_pct": 0.16022897417001092,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": null
+        },
+        {
+          "directory": "comparisons/adaptive_nominal_gradient/kim_layered",
+          "accepted": 1,
+          "n": 3,
+          "median_rmse_K": 0.5440250455588903,
+          "std_rmse_K": 0.07367674652499577,
+          "parameters": 2283,
+          "max_current_error_pct": null,
+          "max_temperature_limit_error_K": null,
+          "max_electrical_residual_pct": 0.13478243625613037,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": null
+        }
+      ],
+      "nominal_selected": "comparisons/adaptive_nominal_uniform/kim_layered",
+      "ampacity_candidates": [
+        {
+          "directory": "ampacity_final/kim_layered",
+          "accepted": 0,
+          "n": 3,
+          "median_rmse_K": 2.140292079830026,
+          "std_rmse_K": 0.09154738870017377,
+          "parameters": 2284,
+          "max_current_error_pct": 3.2745214464513284,
+          "max_temperature_limit_error_K": 0.374844185590689,
+          "max_electrical_residual_pct": 0.10917359637446734,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": 100.0
+        },
+        {
+          "directory": "comparisons/ampacity_constraints1000/kim_layered",
+          "accepted": 2,
+          "n": 3,
+          "median_rmse_K": 3.0116836913497256,
+          "std_rmse_K": 0.8113803471203691,
+          "parameters": 2284,
+          "max_current_error_pct": 5.801020490944408,
+          "max_temperature_limit_error_K": 0.057147585795377154,
+          "max_electrical_residual_pct": 0.030950418513067117,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 1000.0,
+          "limit_weight": 1000.0
+        }
+      ],
+      "ampacity_selected": "comparisons/ampacity_constraints1000/kim_layered"
+    },
+    "kim_pac": {
+      "nominal_candidates": [
+        {
+          "directory": "coupled_final/kim_pac",
+          "accepted": 1,
+          "n": 3,
+          "median_rmse_K": 0.6757562738085833,
+          "std_rmse_K": 0.07134438195574823,
+          "parameters": 2283,
+          "max_current_error_pct": null,
+          "max_temperature_limit_error_K": null,
+          "max_electrical_residual_pct": 0.16580031315766122,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": null
+        },
+        {
+          "directory": "comparisons/coupled_refined/kim_pac",
+          "accepted": 1,
+          "n": 3,
+          "median_rmse_K": 0.7044552780368897,
+          "std_rmse_K": 0.25955101706358374,
+          "parameters": 2283,
+          "max_current_error_pct": null,
+          "max_temperature_limit_error_K": null,
+          "max_electrical_residual_pct": 0.021814944515406765,
+          "adam": 2000,
+          "lbfgs": 3000,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 1000,
+          "limit_weight": null
+        },
+        {
+          "directory": "comparisons/coupled_width64/kim_pac",
+          "accepted": 0,
+          "n": 3,
+          "median_rmse_K": 0.6694210650025444,
+          "std_rmse_K": 0.13412574565063373,
+          "parameters": 8619,
+          "max_current_error_pct": null,
+          "max_temperature_limit_error_K": null,
+          "max_electrical_residual_pct": 0.18791439196172002,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 64,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": null
+        }
+      ],
+      "nominal_selected": "coupled_final/kim_pac",
+      "ampacity_candidates": [
+        {
+          "directory": "ampacity_final/kim_pac",
+          "accepted": 1,
+          "n": 3,
+          "median_rmse_K": 2.278466475339138,
+          "std_rmse_K": 0.5603538328783255,
+          "parameters": 2284,
+          "max_current_error_pct": 3.4351884392896714,
+          "max_temperature_limit_error_K": 0.44677949136610096,
+          "max_electrical_residual_pct": 0.14372921379420014,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": 100.0
+        },
+        {
+          "directory": "comparisons/ampacity_constraints1000/kim_pac",
+          "accepted": 2,
+          "n": 3,
+          "median_rmse_K": 3.13424913524835,
+          "std_rmse_K": 0.8634609957435161,
+          "parameters": 2284,
+          "max_current_error_pct": 5.286662566703981,
+          "max_temperature_limit_error_K": 0.06086948771380207,
+          "max_electrical_residual_pct": 0.018240728519286195,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 1000.0,
+          "limit_weight": 1000.0
+        }
+      ],
+      "ampacity_selected": "comparisons/ampacity_constraints1000/kim_pac"
+    },
+    "kim_sand": {
+      "nominal_candidates": [
+        {
+          "directory": "coupled_final/kim_sand",
+          "accepted": 3,
+          "n": 3,
+          "median_rmse_K": 0.05036471376198888,
+          "std_rmse_K": 0.004467339609799547,
+          "parameters": 2283,
+          "max_current_error_pct": null,
+          "max_temperature_limit_error_K": null,
+          "max_electrical_residual_pct": 0.005041144868394811,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": null
+        }
+      ],
+      "nominal_selected": "coupled_final/kim_sand",
+      "ampacity_candidates": [
+        {
+          "directory": "ampacity_final/kim_sand",
+          "accepted": 3,
+          "n": 3,
+          "median_rmse_K": 0.16221711415376153,
+          "std_rmse_K": 0.016791989286138273,
+          "parameters": 2284,
+          "max_current_error_pct": 0.2947626873192388,
+          "max_temperature_limit_error_K": 0.028707043643464658,
+          "max_electrical_residual_pct": 0.006043325455029366,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": 100.0
+        }
+      ],
+      "ampacity_selected": "ampacity_final/kim_sand"
+    },
+    "xlpe_backfill": {
+      "nominal_candidates": [
+        {
+          "directory": "coupled_final/xlpe_backfill",
+          "accepted": 3,
+          "n": 3,
+          "median_rmse_K": 0.26571319399047905,
+          "std_rmse_K": 0.04919318899702005,
+          "parameters": 2248,
+          "max_current_error_pct": null,
+          "max_temperature_limit_error_K": null,
+          "max_electrical_residual_pct": 0.0890183341204814,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": null
+        }
+      ],
+      "nominal_selected": "coupled_final/xlpe_backfill",
+      "ampacity_candidates": [
+        {
+          "directory": "ampacity_final/xlpe_backfill",
+          "accepted": 0,
+          "n": 3,
+          "median_rmse_K": 1.3764545718352466,
+          "std_rmse_K": 0.7710544261421681,
+          "parameters": 2249,
+          "max_current_error_pct": 5.298216474488671,
+          "max_temperature_limit_error_K": 0.3599708648231683,
+          "max_electrical_residual_pct": 0.005474891384204595,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": 100.0
+        },
+        {
+          "directory": "comparisons/ampacity_constraints1000/xlpe_backfill",
+          "accepted": 0,
+          "n": 3,
+          "median_rmse_K": 4.001353796230048,
+          "std_rmse_K": 0.8843117195452409,
+          "parameters": 2249,
+          "max_current_error_pct": 8.544765250845654,
+          "max_temperature_limit_error_K": 0.10372525651357023,
+          "max_electrical_residual_pct": 0.016100464427281514,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 1000.0,
+          "limit_weight": 1000.0
+        },
+        {
+          "directory": "comparisons/adaptive_ampacity_uniform/xlpe_backfill",
+          "accepted": 1,
+          "n": 3,
+          "median_rmse_K": 4.10662781357006,
+          "std_rmse_K": 1.837628715155376,
+          "parameters": 2249,
+          "max_current_error_pct": 9.58191082030958,
+          "max_temperature_limit_error_K": 0.098897163282885,
+          "max_electrical_residual_pct": 0.008344074139048913,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 1000.0,
+          "limit_weight": 1000.0
+        },
+        {
+          "directory": "comparisons/adaptive_ampacity_residual/xlpe_backfill",
+          "accepted": 2,
+          "n": 3,
+          "median_rmse_K": 2.4337031293028875,
+          "std_rmse_K": 2.7120474000010906,
+          "parameters": 2249,
+          "max_current_error_pct": 10.450540693450538,
+          "max_temperature_limit_error_K": 0.11059768540008008,
+          "max_electrical_residual_pct": 0.008610843780756305,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 1000.0,
+          "limit_weight": 1000.0
+        },
+        {
+          "directory": "comparisons/adaptive_ampacity_gradient/xlpe_backfill",
+          "accepted": 1,
+          "n": 3,
+          "median_rmse_K": 2.6694467929472445,
+          "std_rmse_K": 1.8132134917198868,
+          "parameters": 2249,
+          "max_current_error_pct": 7.5066021386144595,
+          "max_temperature_limit_error_K": 0.06992333298055087,
+          "max_electrical_residual_pct": 0.005186702213807985,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 1000.0,
+          "limit_weight": 1000.0
+        }
+      ],
+      "ampacity_selected": "comparisons/adaptive_ampacity_residual/xlpe_backfill"
+    },
+    "xlpe_discrete_layers": {
+      "nominal_candidates": [
+        {
+          "directory": "coupled_final/xlpe_discrete_layers",
+          "accepted": 3,
+          "n": 3,
+          "median_rmse_K": 0.048077380545537576,
+          "std_rmse_K": 0.015488566036938307,
+          "parameters": 4489,
+          "max_current_error_pct": null,
+          "max_temperature_limit_error_K": null,
+          "max_electrical_residual_pct": 0.001682463104955158,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": null
+        }
+      ],
+      "nominal_selected": "coupled_final/xlpe_discrete_layers",
+      "ampacity_candidates": [
+        {
+          "directory": "ampacity_final/xlpe_discrete_layers",
+          "accepted": 3,
+          "n": 3,
+          "median_rmse_K": 0.11309277172351544,
+          "std_rmse_K": 0.015498106568087111,
+          "parameters": 4490,
+          "max_current_error_pct": 0.12865909101944517,
+          "max_temperature_limit_error_K": 0.019959294540456085,
+          "max_electrical_residual_pct": 0.006081578039798658,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": 100.0
+        }
+      ],
+      "ampacity_selected": "ampacity_final/xlpe_discrete_layers"
+    },
+    "xlpe_dry_far": {
+      "nominal_candidates": [
+        {
+          "directory": "coupled_final/xlpe_dry_far",
+          "accepted": 3,
+          "n": 3,
+          "median_rmse_K": 0.15985581526451764,
+          "std_rmse_K": 0.029220599965851836,
+          "parameters": 2248,
+          "max_current_error_pct": null,
+          "max_temperature_limit_error_K": null,
+          "max_electrical_residual_pct": 0.0029646172425359793,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": null
+        }
+      ],
+      "nominal_selected": "coupled_final/xlpe_dry_far",
+      "ampacity_candidates": [
+        {
+          "directory": "ampacity_final/xlpe_dry_far",
+          "accepted": 3,
+          "n": 3,
+          "median_rmse_K": 0.4309851109875546,
+          "std_rmse_K": 0.03322031379786745,
+          "parameters": 2249,
+          "max_current_error_pct": 0.34680680919230156,
+          "max_temperature_limit_error_K": 0.03423075375941664,
+          "max_electrical_residual_pct": 0.007415333665994361,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": 100.0
+        }
+      ],
+      "ampacity_selected": "ampacity_final/xlpe_dry_far"
+    },
+    "xlpe_dry_large": {
+      "nominal_candidates": [
+        {
+          "directory": "coupled_final/xlpe_dry_large",
+          "accepted": 3,
+          "n": 3,
+          "median_rmse_K": 0.4570973773116687,
+          "std_rmse_K": 0.10056966074668133,
+          "parameters": 2248,
+          "max_current_error_pct": null,
+          "max_temperature_limit_error_K": null,
+          "max_electrical_residual_pct": 0.09684199387103828,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": null
+        }
+      ],
+      "nominal_selected": "coupled_final/xlpe_dry_large",
+      "ampacity_candidates": [
+        {
+          "directory": "ampacity_final/xlpe_dry_large",
+          "accepted": 2,
+          "n": 3,
+          "median_rmse_K": 0.3274441640992412,
+          "std_rmse_K": 0.7606145068376422,
+          "parameters": 2249,
+          "max_current_error_pct": 0.22604778118380242,
+          "max_temperature_limit_error_K": 0.11027961297976674,
+          "max_electrical_residual_pct": 0.007116855526345394,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": 100.0
+        },
+        {
+          "directory": "comparisons/ampacity_constraints1000/xlpe_dry_large",
+          "accepted": 3,
+          "n": 3,
+          "median_rmse_K": 0.7927623039624377,
+          "std_rmse_K": 0.8451469005026121,
+          "parameters": 2249,
+          "max_current_error_pct": 0.4131047297975421,
+          "max_temperature_limit_error_K": 0.036621932690536596,
+          "max_electrical_residual_pct": 0.008315727199840016,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 1000.0,
+          "limit_weight": 1000.0
+        }
+      ],
+      "ampacity_selected": "comparisons/ampacity_constraints1000/xlpe_dry_large"
+    },
+    "xlpe_dry_near": {
+      "nominal_candidates": [
+        {
+          "directory": "coupled_final/xlpe_dry_near",
+          "accepted": 3,
+          "n": 3,
+          "median_rmse_K": 0.12258328175693749,
+          "std_rmse_K": 0.017774824189298665,
+          "parameters": 2248,
+          "max_current_error_pct": null,
+          "max_temperature_limit_error_K": null,
+          "max_electrical_residual_pct": 0.03477831566865099,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": null
+        }
+      ],
+      "nominal_selected": "coupled_final/xlpe_dry_near",
+      "ampacity_candidates": [
+        {
+          "directory": "ampacity_final/xlpe_dry_near",
+          "accepted": 3,
+          "n": 3,
+          "median_rmse_K": 0.11089148936627372,
+          "std_rmse_K": 0.17777206709361684,
+          "parameters": 2249,
+          "max_current_error_pct": 0.9196548787511305,
+          "max_temperature_limit_error_K": 0.07959084012611584,
+          "max_electrical_residual_pct": 0.012483771177398085,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": 100.0
+        }
+      ],
+      "ampacity_selected": "ampacity_final/xlpe_dry_near"
+    },
+    "xlpe_single": {
+      "nominal_candidates": [
+        {
+          "directory": "coupled_final/xlpe_single",
+          "accepted": 3,
+          "n": 3,
+          "median_rmse_K": 0.008370126385776768,
+          "std_rmse_K": 0.0018810344857969682,
+          "parameters": 2248,
+          "max_current_error_pct": null,
+          "max_temperature_limit_error_K": null,
+          "max_electrical_residual_pct": 0.001756420365773026,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": null
+        }
+      ],
+      "nominal_selected": "coupled_final/xlpe_single",
+      "ampacity_candidates": [
+        {
+          "directory": "ampacity_final/xlpe_single",
+          "accepted": 3,
+          "n": 3,
+          "median_rmse_K": 0.010598538605762209,
+          "std_rmse_K": 0.0025025489124596884,
+          "parameters": 2249,
+          "max_current_error_pct": 0.021015816143321597,
+          "max_temperature_limit_error_K": 0.018693859243512634,
+          "max_electrical_residual_pct": 0.005768916138535524,
+          "adam": 1200,
+          "lbfgs": 1600,
+          "width": 32,
+          "depth": 3,
+          "electrical_weight": 100.0,
+          "limit_weight": 100.0
+        }
+      ],
+      "ampacity_selected": "ampacity_final/xlpe_single"
+    }
+  }
+}

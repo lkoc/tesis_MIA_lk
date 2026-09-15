@@ -26,6 +26,11 @@ def test_invalid_geometry_and_power_are_rejected():
     c=copy.deepcopy(cases()['xlpe_single']);c['power']*=2
     with pytest.raises(ValueError,match='power'):validate_case(c)
 
+@pytest.mark.parametrize('key,value',[('current',-270.),('alpha',-.00393),('R20',float('nan')),('T0',float('inf'))])
+def test_nonphysical_electrical_data_are_rejected(key,value):
+    c=copy.deepcopy(cases()['xlpe_single']);c[key]=value
+    with pytest.raises(ValueError):validate_case(c)
+
 def test_scalar_tensor_conductivity_agree():
     for c in cases().values():
         xy=np.array([[.1,-.2],[.2,-.8],[-.3,-1.4],[.4,-2.]])
