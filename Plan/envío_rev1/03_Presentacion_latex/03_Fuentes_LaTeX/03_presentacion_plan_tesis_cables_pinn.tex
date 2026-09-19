@@ -928,9 +928,194 @@ COES y ProInversión \parencite{coes2021puntaLomitasEO,coes2022planTransmision20
 \note{Definir el artefacto como software científico y no como hardware. Explicar que la tarea de ML es regresión de un campo continuo y recorrer la arquitectura y el modo de operación hasta obtener y verificar la ampacidad.}
 \end{frame}
 
+
+% 13 — Gráfico TikZ del informe rev1, figura arquitectura-pinn-lawal.
+\begin{frame}{Estrucura de las redes PINN}
+\begingroup
+\definecolor{lightgray}{HTML}{F2F2F2}
+\begin{tikzpicture}[remember picture,overlay]
+  \node[anchor=north west,inner sep=0pt]
+    at ([xshift=0.55cm,yshift=-0.96cm]current page.north west) {%
+    \resizebox{7.8cm}{!}{%
+\begin{tikzpicture}[
+  font=\small,
+  neurona/.style={circle, draw, minimum size=9mm, inner sep=1pt, line width=0.45pt},
+  entrada/.style={neurona, fill=lightblue},
+  oculta/.style={neurona, fill=lightgray},
+  salida/.style={neurona, fill=yellow!55},
+  operador/.style={neurona, fill=red!15, minimum size=10.5mm, inner sep=0.5pt,
+                   font=\footnotesize, align=center},
+  bloque/.style={draw, rounded corners=3pt, align=center, minimum height=10mm,
+                 text width=2.35cm, line width=0.45pt},
+  grupo/.style={draw=gray!75, fill=lightgray!55, dashed, rounded corners=7pt,
+                inner sep=7pt, line width=0.55pt},
+  enlace/.style={-{Stealth[length=1.8mm]}, draw=gray!60, line width=0.32pt},
+  fisica/.style={-{Stealth[length=2mm]}, draw=gray!75, line width=0.48pt},
+  perdida/.style={-{Stealth[length=2.4mm]}, draw=gray!80, dashed, line width=0.9pt}
+]
+  % Entradas
+  \node[entrada] (x) at (0,2.1) {$x$};
+  \node[entrada] (y) at (0,0.7) {$y$};
+  \node[entrada] (t) at (0,-0.7) {$t$};
+
+  % Capas ocultas
+  \node[oculta] (h11) at (2.25,2.55) {$\sigma$};
+  \node[oculta] (h12) at (2.25,1.25) {$\sigma$};
+  \node[oculta] (h13) at (2.25,-0.05) {$\sigma$};
+  \node[oculta] (h14) at (2.25,-1.35) {$\sigma$};
+  \node[oculta] (h21) at (3.75,2.55) {$\sigma$};
+  \node[oculta] (h22) at (3.75,1.25) {$\sigma$};
+  \node[oculta] (h23) at (3.75,-0.05) {$\sigma$};
+  \node[oculta] (h24) at (3.75,-1.35) {$\sigma$};
+
+  % Salidas de la red
+  \node[salida] (u) at (5.55,1.45) {$u$};
+  \node[salida] (v) at (5.55,-0.25) {$v$};
+
+  % Operadores físicos y residuo
+  \node[operador] (id)  at (7.55,2.75) {$I$};
+  \node[operador] (dx)  at (7.55,1.40) {$\partial/\partial x$};
+  \node[operador] (dy)  at (7.55,0.05) {$\partial/\partial y$};
+  \node[operador] (dxx) at (7.55,-1.30) {$\partial^2/\partial x^2$};
+  \node[operador] (dyy) at (7.55,-2.65) {$\partial^2/\partial y^2$};
+  \node[bloque, fill=yellow!20, text width=1.45cm] (f) at (9.85,0.25) {Residuo\\$f$};
+
+  % Pérdidas
+  \node[bloque, fill=yellow!45, text width=3.15cm] (ldata) at (5.30,-3.85)
+    {Pérdida de datos\\[0.15em]$\mathcal{L}_{\mathrm{datos}}$};
+  \node[bloque, fill=yellow!20, text width=3.15cm] (lphysics) at (10.00,-3.85)
+    {Pérdida física\\$\mathcal{L}_{\mathrm{física}}$};
+  \node[bloque, fill=lightblue, text width=3.15cm] (ltotal) at (7.65,-5.15)
+    {Pérdida total\\$\mathcal{L}_{\mathrm{total}}$};
+
+  % Conexiones densas de la red neuronal
+  \foreach \a in {x,y,t}
+    \foreach \b in {h11,h12,h13,h14}
+      \draw[enlace] (\a) -- (\b);
+  \foreach \a in {h11,h12,h13,h14}
+    \foreach \b in {h21,h22,h23,h24}
+      \draw[enlace] (\a) -- (\b);
+  \foreach \a in {h21,h22,h23,h24}
+    \foreach \b in {u,v}
+      \draw[enlace] (\a) -- (\b);
+
+  \foreach \a in {u,v}
+    \foreach \b in {id,dx,dy,dxx,dyy}
+      \draw[fisica] (\a) -- (\b);
+  \foreach \a in {id,dx,dy,dxx,dyy}
+    \draw[fisica] (\a) -- (f);
+
+  \draw[perdida] (v.south) -- ++(0,-0.40cm) -| (ldata.north);
+  \draw[perdida] (f.south) -- (lphysics.north);
+  \draw[fisica, line width=0.8pt] (ldata.south) -- (ltotal.west);
+  \draw[fisica, line width=0.8pt] (lphysics.south) -- (ltotal.east);
+
+  % Agrupaciones conceptuales sobre una capa de fondo
+  \begin{scope}[on background layer]
+    \node[grupo, fit=(x)(y)(t)] (ginput) {};
+    \node[grupo, fit=(h11)(h14)(h21)(h24)] (gred) {};
+    \node[grupo, fit=(u)(v)] (gout) {};
+    \node[grupo, fit=(id)(dyy)(f)] (gphysics) {};
+  \end{scope}
+  \node[font=\bfseries\small, above=1mm of gred.north] {Red neuronal};
+  \node[font=\bfseries\small, above=1mm of gphysics.north] {Informada por física};
+\end{tikzpicture}
+    }};
+  \node[anchor=north west,inner sep=0pt,text width=6.25cm,align=left,
+    font=\fontsize{8.5}{10.2}\selectfont]
+    at ([xshift=8.85cm,yshift=-1.03cm]current page.north west)
+    {\textcolor{darkblue}{\textbf{1. Aproximar la solución}}\\[2pt]
+     La red estima $u,v$ a partir de $(x,y,t)$.};
+  \node[anchor=north west,inner sep=0pt,text width=6.25cm,align=left,
+    font=\fontsize{8.5}{10.2}\selectfont]
+    at ([xshift=8.85cm,yshift=-2.05cm]current page.north west)
+    {\textcolor{darkblue}{\textbf{2. Calcular derivadas}}\\[2pt]
+     Deriva la misma red automáticamente.};
+  \node[anchor=north west,inner sep=0pt,text width=6.25cm,align=left,
+    font=\fontsize{8.5}{10.2}\selectfont]
+    at ([xshift=8.85cm,yshift=-3.07cm]current page.north west)
+    {\textcolor{darkblue}{\textbf{3. Evaluar la física}}\\[2pt]
+     Mide el incumplimiento de la PDE: $f$.};
+  \node[anchor=north west,inner sep=0pt,text width=6.25cm,align=left,
+    font=\fontsize{8.5}{10.2}\selectfont]
+    at ([xshift=8.85cm,yshift=-4.09cm]current page.north west)
+    {\textcolor{darkblue}{\textbf{4. Ajustar los parámetros}}\\[2pt]
+     Minimiza la pérdida total: física y datos.};
+  \node[anchor=north west,rounded corners=4pt,draw=teal,fill=softgreen,
+    inner sep=5pt,text width=5.90cm,align=left,
+    font=\fontsize{8.4}{10.1}\selectfont]
+    at ([xshift=8.85cm,yshift=-5.16cm]current page.north west)
+    {\textcolor{teal}{\textbf{En esta tesis: conducción de calor}}\\[2pt]
+     $(x,y)\longmapsto T(x,y)$; régimen estacionario.\\[2pt]
+     $r_f=\nabla\!\cdot\!\left(k\nabla T\right)+Q$. La pérdida incluye ecuación de calor, contornos e interfaces.};
+  \node[anchor=north west,inner sep=0pt,text width=7.75cm,align=left,
+    font=\fontsize{6.8}{8}\selectfont,text=textgray]
+    at ([xshift=0.65cm,yshift=-6.78cm]current page.north west)
+    {$I$: operador identidad; $t$: tiempo en el esquema general.};
+  \node[anchor=north west,rounded corners=4pt,draw=midblue!50,fill=lightblue!45,
+    inner sep=3pt,text width=14.23cm,align=left,
+    font=\fontsize{7.0}{8.2}\selectfont]
+    at ([xshift=0.65cm,yshift=-7.14cm]current page.north west)
+    {\textbf{Multiescala (borrador):} redes por material y mixtas; representaciones locales, Fourier y multipolares.\\[1pt]
+     \textbf{Colocación:} uniforme, mezcla geométrica, bandas de interfaz y adaptativa por residuo.\\[1pt]
+     \textbf{Desempeño:} escalas, pesos de pérdida, continuidad de $T$/flujo y verificación frente a FEM.};
+\end{tikzpicture}
+\endgroup
+\source[\fontsize{5.8}{6.7}\selectfont]{Informe rev1, fig.~4.4: \textcite[fig.~1]{lawal2022}; \textcite[686--690]{raissi2019}; borrador de tesis, cap.~3.}
+\note{Leer el gráfico de izquierda a derecha. La red aproxima las variables físicas y la diferenciación automática calcula las derivadas de esa misma aproximación; no se entrena una segunda red para derivar. El operador I es la identidad y no la corriente eléctrica. El residuo mide cuánto se incumple la ecuación gobernante. La pérdida de datos compara con referencias disponibles; la pérdida física penaliza la ecuación y condiciones auxiliares. Su combinación ponderada guía el ajuste de pesos y sesgos. El diagrama es general: en la tesis se usan coordenadas espaciales y la salida T(x,y), sin evolución temporal. La ecuación se aplica por material y las interfaces imponen continuidad de temperatura y flujo. La franja inferior sintetiza el capítulo 3 del borrador, secciones de selección de arquitectura, distribución de colocaciones y entrenamiento: el tamaño, las escalas locales, la representación, los pesos y el muestreo interactúan. Más colocaciones o un residuo pequeño no garantizan exactitud. Se requieren evaluación por material, continuidad de temperatura y flujo, balances y comparación independiente con FEM. Las alternativas bibliográficas VPINN y FBPINN no se presentan como resultados ejecutados de esa campaña. Tiempo sugerido: 75 segundos.}
+\end{frame}
+
+
+% 14 — Síntesis del marco térmico del informe rev1.
+\begin{frame}{Ampacidad de cables eléctricos}
+\begin{tikzpicture}[remember picture,overlay]
+  \node[anchor=north west,inner sep=0pt,text width=14.5cm,align=left,
+    font=\fontsize{11}{13}\selectfont,text=darkblue]
+    at ([xshift=0.70cm,yshift=-1.08cm]current page.north west)
+    {\textbf{Modelo 2D estacionario:} el calor generado se disipa por el cable y el suelo.};
+  \node[anchor=north west,draw=midblue,fill=lightblue!45,rounded corners=5pt,
+    inner sep=8pt,text width=6.45cm,minimum height=3.60cm,align=left,
+    font=\fontsize{10}{12}\selectfont]
+    at ([xshift=0.70cm,yshift=-2.00cm]current page.north west)
+    {\textcolor{darkblue}{\textbf{1. Calcular la temperatura}}\\[9pt]
+     $\displaystyle
+      \frac{\partial}{\partial x}\!\left(k\frac{\partial T}{\partial x}\right)
+      +\frac{\partial}{\partial y}\!\left(k\frac{\partial T}{\partial y}\right)+Q=0$
+     \\[10pt]
+     $T(x,y)$: temperatura.\\[2pt]
+     $k(x,y)$: conductividad térmica.\\[2pt]
+     $Q(x,y;I)$: calor por unidad de volumen.};
+  \node[anchor=north west,draw=teal,fill=softgreen,rounded corners=5pt,
+    inner sep=8pt,text width=6.45cm,minimum height=3.60cm,align=left,
+    font=\fontsize{10}{12}\selectfont]
+    at ([xshift=8.12cm,yshift=-2.00cm]current page.north west)
+    {\textcolor{teal}{\textbf{2. Encontrar la ampacidad}}\\[9pt]
+     $\displaystyle\Imax=\max\{I:\Tmax(I)\leq T_{\mathrm{lim}}\}$
+     \\[10pt]
+     $\Tmax$: temperatura máxima del conductor.\\[2pt]
+     $T_{\mathrm{lim}}$: límite térmico del cable.\\[2pt]
+     Ajustar $I$ hasta alcanzar ese límite.};
+  \node[anchor=north west,inner sep=0pt,text width=14.5cm,align=left,
+    font=\fontsize{9}{11}\selectfont]
+    at ([xshift=0.70cm,yshift=-5.96cm]current page.north west)
+    {\textbf{Para resolver:} condiciones de contorno y continuidad de temperatura y flujo en las interfaces.};
+  \node[anchor=north west,fill=darkblue,rounded corners=4pt,
+    inner sep=7pt,text width=14.03cm,align=center,text=white,
+    font=\fontsize{12}{14}\selectfont]
+    at ([xshift=0.70cm,yshift=-6.60cm]current page.north west)
+    {$I\;\longrightarrow\;Q\;\longrightarrow\;T(x,y)\;\longrightarrow\;\Tmax\;\longleftrightarrow\;T_{\mathrm{lim}}$};
+  \node[anchor=north west,inner sep=0pt,text width=14.5cm,align=center,
+    font=\fontsize{7.5}{9}\selectfont,text=textgray]
+    at ([xshift=0.70cm,yshift=-7.63cm]current page.north west)
+    {Para resistencia fija, las pérdidas Joule crecen con $I^2$. El entorno térmico condiciona la corriente admisible.};
+\end{tikzpicture}
+\source[\fontsize{6.0}{7.0}\selectfont]{Informe rev1: ecuación de calor, interfaces y ampacidad; IEC 60287 (2023); Enescu et al. (2021).}
+\note{La diapositiva resume el marco teórico del informe rev1: fórmulas calor-estacionario-marco, interfaz y ampacidad. El régimen es estacionario, por eso no aparece la derivada temporal. La forma divergente conserva k espacialmente variable; se aplica por material y se acopla mediante continuidad de T y flujo normal. Q es una fuente volumétrica, no una potencia total: las pérdidas eléctricas del caso se distribuyen en las regiones donde se generan. Para una corriente dada se resuelve el campo y se busca la máxima temperatura dentro del conductor. Después se ajusta la corriente, por ejemplo mediante bisección, hasta Tmax=Tlim dentro de una tolerancia. La heterogeneidad cambia la disipación, por lo que cambia también la ampacidad. El límite térmico se toma del cable y del caso documentado; no se fija aquí un valor universal. Tiempo sugerido: 35--45 segundos.}
+\end{frame}
+
 \section{Problemas y objetivos}
 
-% 13 ------------------------------------------------------------------------
+% 15 ------------------------------------------------------------------------
 \begin{frame}{Planteamiento del Problema Tecnológico}
 \situaciontecnologica
 \vspace{-0.004\paperheight}
@@ -957,7 +1142,7 @@ COES y ProInversión \parencite{coes2021puntaLomitasEO,coes2022planTransmision20
 \note{Leer el problema como situación declarativa. Distinguir el fenómeno físico, las limitaciones de las representaciones existentes y la necesidad tecnológica centrada en el artefacto.}
 \end{frame}
 
-% 14 ------------------------------------------------------------------------
+% 16 ------------------------------------------------------------------------
 \begin{frame}{Problemas específicos 1/2}
 \vspace{-0.014\paperheight}
 \centering
@@ -989,7 +1174,7 @@ COES y ProInversión \parencite{coes2021puntaLomitasEO,coes2022planTransmision20
 \note{Presentar PE1, PE2 y PE3 como situaciones del artefacto. Los insumos superiores y las flechas D1--D2 reproducen la lógica de articulación del plan.}
 \end{frame}
 
-% 15 ------------------------------------------------------------------------
+% 17 ------------------------------------------------------------------------
 \begin{frame}{Problema específico 4 y articulación}
 \vspace{-0.014\paperheight}
 \centering
@@ -1029,7 +1214,7 @@ COES y ProInversión \parencite{coes2021puntaLomitasEO,coes2022planTransmision20
 \note{Presentar PE4 y recorrer la cadena de cuatro problemas. Distinguir expresamente la formulación del problema de la actividad posterior de síntesis y comunicación DSR.}
 \end{frame}
 
-% 16 ------------------------------------------------------------------------
+% 18 ------------------------------------------------------------------------
 \begin{frame}{Objetivo General}
 \vspace{-0.018\paperheight}
 \centering
@@ -1057,7 +1242,7 @@ COES y ProInversión \parencite{coes2021puntaLomitasEO,coes2022planTransmision20
 \note{Leer literalmente el objetivo general. Explicar que VI y VD son objetos discretos; VD1--VD3 se heredan en la VI siguiente. Aclarar que k(x,y) es un parámetro físico contenido en los casos.}
 \end{frame}
 
-% 17 ------------------------------------------------------------------------
+% 19 ------------------------------------------------------------------------
 \begin{frame}{Objetivos OE1--OE3}
 \vspace{-0.014\paperheight}
 \centering
@@ -1087,7 +1272,7 @@ COES y ProInversión \parencite{coes2021puntaLomitasEO,coes2022planTransmision20
 \note{Cada OE es un hito. La entrada superior es el objeto nuevo; la flecha horizontal es la VD anterior, que se hereda como parte de la VI siguiente.}
 \end{frame}
 
-% 18 ------------------------------------------------------------------------
+% 20 ------------------------------------------------------------------------
 \begin{frame}{Objetivo OE4 y síntesis DSR}
 \vspace{-0.014\paperheight}
 \centering
@@ -1128,7 +1313,7 @@ COES y ProInversión \parencite{coes2021puntaLomitasEO,coes2022planTransmision20
 
 \section{Variables y método}
 
-% 19 ------------------------------------------------------------------------
+% 21 ------------------------------------------------------------------------
 \begin{frame}{Cadena discreta VI--VD y realizaciones}
 \centering
 \begin{tikzpicture}[
@@ -1155,7 +1340,7 @@ VD1--VD3 se conservan como la entrada heredada de la etapa siguiente.};
 \note{Tiempo sugerido: 70 s. Explicar la composición de cada paquete, sus realizaciones y la identidad entre la VD producida y la parte heredada de la VI siguiente.}
 \end{frame}
 
-% 20 ------------------------------------------------------------------------
+% 22 ------------------------------------------------------------------------
 \begin{frame}{Parámetros, controles y metadatos}
 \centering
 \begin{tikzpicture}[
@@ -1183,7 +1368,7 @@ Permiten interpretar robustez y reproducibilidad.};
 \note{Tiempo sugerido: 55 s. Distinguir las cuatro categorías metodológicas y remarcar que k(x,y), Ck, fh y dh/D permanecen como parámetros de los casos.}
 \end{frame}
 
-% 21 ------------------------------------------------------------------------
+% 23 ------------------------------------------------------------------------
 \begin{frame}{Productos discretos y estados: VD1--VD3}
 \centering
 \begin{tikzpicture}[
@@ -1209,7 +1394,7 @@ Permiten interpretar robustez y reproducibilidad.};
 \note{Tiempo sugerido: 70 s. Distinguir para cada VD el objeto, sus estados y sus indicadores. Recalcar que solo los estados habilitados pasan al bloque siguiente.}
 \end{frame}
 
-% 22 ------------------------------------------------------------------------
+% 24 ------------------------------------------------------------------------
 \begin{frame}{Salida VD4 y criterio DSR}
 \centering
 \begin{tikzpicture}[
@@ -1240,7 +1425,7 @@ La calidad del artefacto se juzga con el conjunto de resultados, no con una úni
 \note{Tiempo sugerido: 60 s. Explicar el resultado dependiente de OE4 y distinguirlo de la reproducibilidad, que se conserva como criterio metodológico transversal de DSR.}
 \end{frame}
 
-% 23 ------------------------------------------------------------------------
+% 25 ------------------------------------------------------------------------
 \begin{frame}{Metodología de la investigación 1/2}
 \centering
 \noexpone
@@ -1271,7 +1456,7 @@ La calidad del artefacto se juzga con el conjunto de resultados, no con una úni
 \note{Material de respaldo. Exponer brevemente los hitos o fases del método de solución si se solicita, como indica la plantilla.}
 \end{frame}
 
-% 24 ------------------------------------------------------------------------
+% 26 ------------------------------------------------------------------------
 \begin{frame}{Metodología de la investigación 2/2}
 \centering
 \vspace{-0.004\paperheight}
@@ -1296,7 +1481,7 @@ Exactitud, consistencia física, utilidad, robustez y reproducibilidad. Reglas i
 \note{Material de respaldo. Explicar unidad de análisis, casos, instrumentos y que la evaluación corresponde exclusivamente a verificación, no a validación de campo.}
 \end{frame}
 
-% 21 ------------------------------------------------------------------------
+% 23 ------------------------------------------------------------------------
 \begin{frame}{Matriz de consistencia}
 \centering
 \begin{tikzpicture}[>=Latex,
@@ -1348,7 +1533,7 @@ Exactitud, consistencia física, utilidad, robustez y reproducibilidad. Reglas i
 
 \section{Cierre}
 
-% 22 ------------------------------------------------------------------------
+% 24 ------------------------------------------------------------------------
 \begin{frame}{Conclusiones del plan}
 \centering
 \begin{tikzpicture}[>=Latex,
@@ -1368,13 +1553,13 @@ Exactitud, consistencia física, utilidad, robustez y reproducibilidad. Reglas i
 \node[c,fill=lightblue,draw=midblue] at (4.20,-0.35) {\textbf{Relación artefacto--evidencia.} Incorporar PDE, interfaces y $\kx$ permite aproximar el campo, pero no demuestra exactitud. La aceptación requiere referencias independientes, residuos, balance, robustez y trazabilidad dentro de DSR.};
 
 \node[rounded corners=4pt,draw=textgray!45,fill=warmgray,text width=12.25cm,minimum height=0.60cm,align=center,inner sep=3pt,font=\fontsize{7.1}{8.3}\selectfont] at (0,-2.18)
-{Estas conclusiones describen relaciones sustentadas por el plan y la literatura; el desempeño cuantitativo del artefacto se establecerá durante la ejecución de Tesis 2.};
+{\textbf{Utilidad:} aportar evidencia para decisiones de capacidad de cables eléctricos enterrados con menor incertidumbre. El desempeño cuantitativo se establecerá durante la ejecución de Tesis 2.};
 \end{tikzpicture}
 \source[\fontsize{5.8}{6.7}\selectfont]{Relación térmica y heterogeneidad \parencite{enescu2021,khumalo2025,cigre2025}; formulación PINN según \textcite{raissi2019}; evaluación y conocimiento de diseño según \textcite{gregor2013}.}
 \note{Presentar las conclusiones como relaciones justificadas, no como resultados ya obtenidos ni como opiniones.}
 \end{frame}
 
-% 23 ------------------------------------------------------------------------
+% 25 ------------------------------------------------------------------------
 \begin{frame}{Recomendaciones}
 \centering
 \begin{tikzpicture}[>=Latex,
@@ -1410,7 +1595,7 @@ Dominio principalmente 2D estacionario; pérdidas Joule como fuente; sin humedad
   {\color{midblue!30}\rule{0.965\linewidth}{0.35pt}}\par\vspace{0.45mm}
 }
 
-% 24 ------------------------------------------------------------------------
+% 26 ------------------------------------------------------------------------
 \begin{frame}{Referencias}
 \textcolor{midblue}{\fontsize{10.0}{11.5}\selectfont\bfseries Cables enterrados y entorno térmico}\hfill\noexpone
 \vspace{1.2mm}
@@ -1423,7 +1608,7 @@ Dominio principalmente 2D estacionario; pérdidas Joule como fuente; sin humedad
 \note{No se expone. Referencias sobre cables enterrados, ampacidad y heterogeneidad del entorno térmico.}
 \end{frame}
 
-% 25 ------------------------------------------------------------------------
+% 27 ------------------------------------------------------------------------
 \begin{frame}{Referencias}
 \textcolor{midblue}{\fontsize{10.0}{11.5}\selectfont\bfseries PINN y metodología de investigación}\hfill\noexpone
 \vspace{2.0mm}
@@ -1435,7 +1620,7 @@ Dominio principalmente 2D estacionario; pérdidas Joule como fuente; sin humedad
 \note{No se expone. Referencias de la formulación PINN y del enfoque DSR.}
 \end{frame}
 
-% 26 ------------------------------------------------------------------------
+% 28 ------------------------------------------------------------------------
 \begin{frame}{Referencias}
 \textcolor{midblue}{\fontsize{10.0}{11.5}\selectfont\bfseries Normas e informe técnico}\hfill\noexpone
 \vspace{1.2mm}
@@ -1448,7 +1633,7 @@ Dominio principalmente 2D estacionario; pérdidas Joule como fuente; sin humedad
 \note{No se expone. Normas e informe técnico empleados para definiciones, cálculos y verificación.}
 \end{frame}
 
-% 27 ------------------------------------------------------------------------
+% 29 ------------------------------------------------------------------------
 \begin{frame}{Referencias}
 \textcolor{midblue}{\fontsize{10.0}{11.5}\selectfont\bfseries Sistema eléctrico peruano}\hfill\noexpone
 \vspace{1.8mm}
@@ -1460,7 +1645,7 @@ Dominio principalmente 2D estacionario; pérdidas Joule como fuente; sin humedad
 \note{No se expone. Planificación, proyectos y estadísticas del SEIN.}
 \end{frame}
 
-% 28 ------------------------------------------------------------------------
+% 30 ------------------------------------------------------------------------
 \begin{frame}{Referencias}
 \textcolor{midblue}{\fontsize{10.0}{11.5}\selectfont\bfseries Información oficial del Perú}\hfill\noexpone
 \vspace{1.2mm}
@@ -1473,7 +1658,7 @@ Dominio principalmente 2D estacionario; pérdidas Joule como fuente; sin humedad
 \note{No se expone. Estadísticas y notas institucionales empleadas para contextualizar la problemática.}
 \end{frame}
 
-% 29 ------------------------------------------------------------------------
+% 31 ------------------------------------------------------------------------
 \begin{frame}{Información complementaria del proyecto}
 \centering
 \vspace{0.55cm}
