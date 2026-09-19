@@ -1,0 +1,189 @@
+% !TeX program = lualatex
+% Compilar dos veces con LuaLaTeX. Diagramas vectoriales originales en TikZ.
+% Síntesis del informe y la presentación de Plan/envío_rev1.
+\documentclass[aspectratio=169,12pt]{beamer}
+\usepackage[spanish,es-noshorthands]{babel}
+\usepackage{fontspec}
+\setsansfont{Arial}
+\usefonttheme{professionalfonts}
+\usepackage{lmodern}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,calc}
+
+\definecolor{ink}{HTML}{173247}
+\definecolor{muted}{HTML}{526574}
+\definecolor{teal}{HTML}{007E80}
+\definecolor{red}{HTML}{9E1B32}
+\definecolor{gold}{HTML}{CC7524}
+\definecolor{paper}{HTML}{F5F7F8}
+\definecolor{pale}{HTML}{E5F2F0}
+\definecolor{sand}{HTML}{E9DED0}
+\setbeamercolor{normal text}{fg=ink,bg=paper}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{}
+\setbeamertemplate{headline}{}
+\setbeamersize{text margin left=0pt,text margin right=0pt}
+\setbeameroption{hide notes}
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
+\hypersetup{pdftitle={Plan de tesis: temperatura y ampacidad de cables enterrados},
+  pdfauthor={Luis Enrique Koc Góngora; Herbert Antonio Meléndez García}}
+
+% Lienzo de 16 x 9 cm: posiciones en centímetros desde la esquina inferior izquierda.
+\newenvironment{slidecanvas}{\begin{tikzpicture}[remember picture,overlay,
+  shift={(current page.south west)},x=1cm,y=1cm,
+  every node/.style={inner sep=0pt,outer sep=0pt},
+  arr/.style={-{Stealth[length=2.6mm]},line width=1.2pt,teal}]}{\end{tikzpicture}}
+\newcommand{\txt}[5]{%
+  \pgfmathsetmacro{\textsize}{#4*0.82}%
+  \pgfmathsetmacro{\textleading}{#4*0.984}%
+  \node[anchor=north west,text width=#3cm,align=left,
+  font=\fontsize{\textsize}{\textleading}\selectfont] at (#1,#2) {#5};}
+\newcommand{\heading}[2]{%
+  \fill[red] (0.65,8.15) rectangle (1.1,8.23);
+  \txt{1.3}{8.38}{14}{9}{\color{muted}\MakeUppercase{#1}}
+  \txt{0.65}{7.78}{14.7}{23}{\bfseries #2}}
+\newcommand{\footer}[1]{%
+  \draw[ink!15] (0.65,0.65)--(15.35,0.65);
+  \txt{0.65}{0.46}{13.8}{7}{\color{muted}Plan de tesis · UNI / Maestría en Inteligencia Artificial · #1}
+  \node[anchor=north east,font=\fontsize{8}{10}\selectfont,text=muted] at (15.35,0.46)
+    {\insertframenumber\,/\,\inserttotalframenumber};}
+
+\begin{document}
+
+% 1 — Título oficial completo.
+\begin{frame}[plain]
+\begin{slidecanvas}
+  \fill[ink] (11.55,0) rectangle (16,9);
+  \fill[red] (0.65,8.12) rectangle (1.1,8.2);
+  \txt{1.3}{8.36}{9.7}{9}{\color{muted}UNIVERSIDAD NACIONAL DE INGENIERÍA}
+  \txt{0.65}{7.58}{10.2}{11}{\color{red}\bfseries PLAN DE TESIS · 2026-2}
+  \txt{0.65}{6.92}{10.1}{21}{\bfseries Diseño y evaluación de una red neuronal informada por física para estimar la temperatura y la ampacidad de cables eléctricos enterrados en entornos heterogéneos}
+  \txt{0.65}{2.48}{10.1}{11}{\bfseries Luis Enrique Koc Góngora\\Herbert Antonio Meléndez García}
+  \txt{0.65}{1.4}{10.1}{9}{Maestría en Inteligencia Artificial · FIIS\\Asesor: Samuel Oporto}
+  \txt{0.65}{0.49}{10}{8}{\color{muted}Lima, Perú · Síntesis del plan de investigación}
+  \node[text=white,font=\fontsize{10}{12}\selectfont\bfseries] at (13.75,7.2) {CABLE + SUELO + IA};
+  \fill[white!10!ink] (12.15,3.3) rectangle (15.35,6.3);
+  \fill[teal!65!ink] (12.15,3.3) rectangle (15.35,4.65);
+  \draw[white!35,line width=0.8pt] (12.15,6.3)--(15.35,6.3);
+  \foreach \r in {1.08,0.89,0.7} {\draw[gold!65,line width=0.9pt] (13.75,4.75) circle (\r);}
+  \fill[paper] (13.75,4.75) circle (0.47);
+  \fill[gold] (13.75,4.75) circle (0.24);
+  \draw[-{Stealth},white,line width=1.1pt] (13.75,5.95)--(13.75,6.7);
+  \txt{12.05}{2.66}{3.5}{14}{\color{white}\bfseries ¿Cuánta corriente puede transportar el cable?}
+  \txt{12.05}{1.14}{3.45}{8}{\color{white!75!ink}Sin superar su límite térmico.}
+\end{slidecanvas}
+\note{Presentar el título. La ampacidad es la máxima corriente admisible sin superar el límite térmico del conductor. Tiempo sugerido: 25 segundos.}
+\end{frame}
+
+% 2 — Problema real, mecanismo físico y brecha de investigación.
+\begin{frame}[plain]
+\begin{slidecanvas}
+  \heading{El problema}{El suelo cambia la capacidad del cable}
+  \txt{0.65}{6.75}{6.7}{13}{Un valor promedio del suelo puede ocultar zonas de \textbf{baja disipación de calor}.}
+  \fill[sand] (0.85,2.73) rectangle (7.05,5.6);
+  \fill[teal!15] (2.2,2.73) rectangle (5.9,4.77);
+  \fill[gold!24] (4.42,3.05) rectangle (5.9,4.77);
+  \draw[ink!45] (0.85,5.6)--(7.05,5.6);
+  \txt{1.02}{5.4}{3.9}{9}{Suelo nativo}
+  \txt{2.4}{3.18}{2.2}{9}{Relleno}
+  \fill[ink] (3.65,4.04) circle (0.5);
+  \fill[paper] (3.65,4.04) circle (0.37);
+  \fill[gold] (3.65,4.04) circle (0.21);
+  \draw[arr] (3.65,4.65)--(3.65,5.26);
+  \draw[arr] (3.0,4.04)--(2.38,4.04);
+  \draw[arr,gold] (4.25,4.04)--(4.67,4.04);
+  \txt{4.61}{4.63}{1.15}{8}{Zona de menor disipación}
+  \txt{0.85}{2.47}{6.25}{9}{\color{muted}Esquema conceptual de la sección transversal.}
+  \txt{7.85}{6.75}{7.45}{12}{\color{teal}\bfseries LA CADENA FÍSICA}
+  \txt{7.85}{6.16}{7.4}{16}{Suelo heterogéneo}
+  \draw[arr] (8.05,5.67)--(8.05,5.27);
+  \txt{8.4}{5.5}{6.7}{15}{Cambia la disipación del calor}
+  \draw[arr] (8.05,4.92)--(8.05,4.52);
+  \txt{8.4}{4.75}{6.7}{15}{Cambia la temperatura máxima}
+  \draw[arr] (8.05,4.17)--(8.05,3.77);
+  \txt{8.4}{4.0}{6.7}{15}{Cambia la corriente admisible}
+  \txt{7.85}{3.13}{7.25}{10}{\textbf{Riesgo:} sobrecalentamiento o restricción innecesaria de capacidad.}
+  \fill[pale,rounded corners=5pt] (0.65,0.98) rectangle (15.35,2.0);
+  \txt{0.92}{1.8}{14.1}{13}{\textbf{Brecha:} determinar cuándo y cuánto la heterogeneidad cambia la temperatura y la ampacidad frente a un entorno homogéneo.}
+  \footer{Fuente: informe rev1, planteamiento del problema}
+\end{slidecanvas}
+\note{La corriente genera calor; los materiales del entorno condicionan su evacuación. La investigación separará el efecto físico de la heterogeneidad del error del modelo. El dibujo es conceptual y no representa una simulación. Tiempo sugerido: 55 segundos.}
+\end{frame}
+
+% 3 — Objetivo general, expresado como flujo de entradas, artefacto y salidas.
+\begin{frame}[plain]
+\begin{slidecanvas}
+  \heading{Objetivo general}{Diseñar y evaluar una PINN para el cable}
+  \txt{0.65}{6.73}{14.5}{16}{Representar el cable y su entorno térmico, estimar la temperatura y la ampacidad, y \textbf{cuantificar el efecto de la heterogeneidad}.}
+  \fill[white,rounded corners=5pt] (0.65,2.68) rectangle (4.65,5.33);
+  \fill[ink,rounded corners=5pt] (5.55,2.68) rectangle (10.35,5.33);
+  \fill[white,rounded corners=5pt] (11.25,2.68) rectangle (15.35,5.33);
+  \txt{0.92}{5.05}{3.45}{10}{\color{teal}\bfseries ENTRADAS}
+  \txt{0.92}{4.46}{3.45}{13}{Geometría del cable\\Materiales del suelo\\Corriente y contornos}
+  \txt{5.9}{5.05}{4.1}{10}{\color{white}\bfseries MODELO PINN 2D}
+  \txt{5.9}{4.46}{4.1}{14}{\color{white}Red neuronal +\\ecuación del calor +\\condiciones físicas}
+  \txt{11.53}{5.05}{3.55}{10}{\color{teal}\bfseries SALIDAS}
+  \txt{11.53}{4.46}{3.55}{13}{Campo térmico $T(x,y)$\\Temperatura $T_{\max}$\\Ampacidad $I_{\max}$}
+  \draw[arr] (4.78,4.02)--(5.4,4.02);
+  \draw[arr] (10.48,4.02)--(11.1,4.02);
+  \txt{0.65}{2.32}{14.7}{11}{\textbf{PINN:} red neuronal informada por física; aprende incorporando las leyes del calor.}
+  \fill[pale,rounded corners=5pt] (0.65,0.98) rectangle (15.35,1.75);
+  \txt{0.92}{1.52}{14.1}{12}{\textbf{Evaluar:} exactitud · consistencia física · robustez · reproducibilidad}
+  \footer{Fuente: informe rev1, objetivo general y alcance}
+\end{slidecanvas}
+\note{La PINN incorpora la ecuación de conducción del calor y las condiciones de contorno e interfaz en su entrenamiento. Se evaluará su calidad dentro de un dominio bidimensional estacionario. Tiempo sugerido: 40 segundos.}
+\end{frame}
+
+% 4 — Los cuatro objetivos específicos del plan, resumidos sin agregar objetivos.
+\begin{frame}[plain]
+\begin{slidecanvas}
+  \heading{Objetivos específicos}{Cuatro pasos con productos verificables}
+  \foreach \x/\y in {0.65/4.25,8.2/4.25,0.65/1.42,8.2/1.42}
+    {\fill[white,rounded corners=5pt] (\x,\y) rectangle ++(7.15,2.45);}
+  \txt{0.92}{6.4}{0.95}{21}{\color{teal}\bfseries 01}
+  \txt{2.0}{6.35}{5.5}{16}{\bfseries Especificar}
+  \txt{2.0}{5.76}{5.4}{12}{Definir entradas físicas, requisitos y criterios de calidad.}
+  \txt{2.0}{4.6}{5.4}{9}{\color{teal}Producto: especificación trazable}
+  \txt{8.47}{6.4}{0.95}{21}{\color{teal}\bfseries 02}
+  \txt{9.55}{6.35}{5.5}{16}{\bfseries Construir y verificar}
+  \txt{9.55}{5.76}{5.4}{11}{Implementar y verificar la PINN con referencias analíticas, FEM y casos publicados.}
+  \txt{9.55}{4.6}{5.4}{9}{\color{teal}Producto: artefacto y evaluación de aceptación}
+  \txt{0.92}{3.57}{0.95}{21}{\color{teal}\bfseries 03}
+  \txt{2.0}{3.52}{5.5}{16}{\bfseries Evaluar escenarios}
+  \txt{2.0}{2.93}{5.4}{11}{Variar contraste, patrón, extensión y proximidad; analizar temperatura y punto caliente.}
+  \txt{2.0}{1.77}{5.4}{9}{\color{teal}Producto: expediente de evidencia térmica}
+  \txt{8.47}{3.57}{0.95}{21}{\color{teal}\bfseries 04}
+  \txt{9.55}{3.52}{5.5}{16}{\bfseries Comparar ampacidad}
+  \txt{9.55}{2.93}{5.4}{11}{Comparar entornos heterogéneos y homogéneos; identificar las mayores discrepancias.}
+  \txt{9.55}{1.77}{5.4}{9}{\color{teal}Producto: comparación de ampacidad}
+  \txt{0.65}{1.1}{14}{8}{\color{muted}FEM: método de elementos finitos. Cada producto sustenta el paso siguiente.}
+  \footer{Fuente: informe rev1, objetivos específicos OE1--OE4}
+\end{slidecanvas}
+\note{Recorrer los cuatro objetivos en orden. En la verificación se incluirán soluciones manufacturadas y FEM con convergencia. Los escenarios conservarán las condiciones de comparación. Tiempo sugerido: 60 segundos.}
+\end{frame}
+
+% 5 — Aporte esperado, sin presentar resultados aún no obtenidos.
+\begin{frame}[plain]
+\begin{slidecanvas}
+  \heading{Resultado esperado}{¿Qué se pretende lograr?}
+  \txt{0.65}{6.76}{14.7}{20}{\bfseries Establecer cuándo la heterogeneidad importa y cuánto cambia la corriente admisible.}
+  \foreach \x in {0.65,5.65,10.65}
+    {\fill[white,rounded corners=5pt] (\x,2.64) rectangle ++(4.7,2.65);}
+  \txt{0.95}{5.02}{4.1}{10}{\color{teal}\bfseries UN MODELO}
+  \txt{0.95}{4.42}{4.1}{15}{PINN evaluada}
+  \txt{0.95}{3.78}{4.1}{11}{Estimaciones térmicas con errores y límites documentados.}
+  \txt{5.95}{5.02}{4.1}{10}{\color{teal}\bfseries EVIDENCIA}
+  \txt{5.95}{4.42}{4.1}{15}{Escenarios críticos}
+  \txt{5.95}{3.78}{4.1}{11}{Cambios de temperatura y ampacidad frente al modelo homogéneo.}
+  \txt{10.95}{5.02}{4.1}{10}{\color{teal}\bfseries UN APORTE REUTILIZABLE}
+  \txt{10.95}{4.42}{4.1}{15}{Proceso reproducible}
+  \txt{10.95}{3.78}{4.1}{11}{Código, casos de prueba, guía y principios de diseño.}
+  \fill[ink,rounded corners=5pt] (0.65,1.31) rectangle (15.35,2.27);
+  \txt{0.96}{2.02}{14.05}{14}{\color{white}\textbf{Utilidad:} aportar evidencia para decisiones de capacidad con menor incertidumbre.}
+  \txt{0.65}{1.02}{14.7}{8}{\color{muted}Alcance: simulación 2D estacionaria y verificación numérica; sin validación experimental de campo.}
+  \footer{Fuente: informe rev1, justificación, alcance y síntesis DSR}
+\end{slidecanvas}
+\note{Cerrar con el aporte esperado: un artefacto evaluado y evidencia del efecto de la heterogeneidad. La comparación puede mostrar reducción, aumento o ausencia de una discrepancia relevante; la dirección del cambio se determinará con los resultados. Tiempo sugerido: 40 segundos.}
+\end{frame}
+\end{document}

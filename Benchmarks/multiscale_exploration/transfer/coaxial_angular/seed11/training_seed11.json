@@ -1,0 +1,159 @@
+{
+  "configuration": {
+    "n": 512,
+    "n_layer": 256,
+    "n_interface": 192,
+    "adam": 1500,
+    "lbfgs": 3000,
+    "lr": 0.0005,
+    "sampling": "mixed",
+    "variant": "trace_fixed_features",
+    "width": 32,
+    "depth": 3,
+    "seed": 11,
+    "sampling_seed": 101,
+    "threads": 1,
+    "reference": "C:\\usr\\ths_mia_fiis\\tesis_MIA_lk\\Benchmarks\\explicit_study\\references\\fixed\\coaxial_angular\\fem_l2.npz",
+    "physics": {
+      "physics_version": "explicit-heat-2d-v1",
+      "case": {
+        "id": "coaxial_angular",
+        "kind": "cable",
+        "bounds": [
+          -0.15,
+          0.15,
+          -0.15,
+          0.15
+        ],
+        "T0": 20.0,
+        "scale": 30.0,
+        "cables": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "radius": 0.015,
+        "layers": [
+          [
+            0.0,
+            0.0055,
+            400.0
+          ],
+          [
+            0.0055,
+            0.012,
+            0.286
+          ],
+          [
+            0.012,
+            0.013,
+            380.0
+          ],
+          [
+            0.013,
+            0.015,
+            0.45
+          ]
+        ],
+        "current": 270.0,
+        "R20": 0.000193,
+        "alpha": 0.00393,
+        "power": 14.069700000000001,
+        "k": 1.0,
+        "patch": null,
+        "bands": [],
+        "pair": null,
+        "source": "Synthetic concentric verification",
+        "outer_radius": 0.15,
+        "physics_version": "explicit-heat-2d-v1",
+        "outer_gradient_K_m": 10.0
+      },
+      "source_mode": "fixed",
+      "equation": "rho_cp*dT/dt + div(q) = Q; q = -k*grad(T)",
+      "interface": "continuous T and normal heat flux",
+      "interior": "explicit conductor and every material layer",
+      "electrical": {
+        "resistance_basis": "dc",
+        "resistance_ohm_m": 0.000193,
+        "reference_temperature_C": 20.0,
+        "source_temperature_C": 20.0,
+        "frequency_Hz": 0.0,
+        "skin_model": "none",
+        "profile": "uniform",
+        "mu_r": 1.0,
+        "provenance": "Legacy R20 explicitly treated as DC; confirm original datasheet before AC operation"
+      },
+      "electrical_coupling": "prescribed source",
+      "assumptions": [
+        "2D long cable",
+        "isotropic conduction",
+        "perfect thermal contact",
+        "DC or prescribed heat sources"
+      ],
+      "excluded": [
+        "skin effect",
+        "proximity effect",
+        "moisture transport",
+        "3D electromagnetic field"
+      ]
+    },
+    "physics_sha256": "dd3ba327cb72221cd148ff624d8c7e5392229f2ae66fea80c605232cbdd04336",
+    "case": "coaxial_angular",
+    "solver": "column-scaled SVD",
+    "rcond": 1e-12,
+    "adjusted_coefficients": 269,
+    "hidden_parameters_fixed": true,
+    "baseline_configuration": "C:\\usr\\ths_mia_fiis\\tesis_MIA_lk\\Benchmarks\\explicit_study\\C\\lr_0.0005\\xlpe_single\\seed11\\configuration.json",
+    "experimental": true
+  },
+  "source_sha256": {
+    "Benchmarks\\multiscale_linear.py": "c3065bd83d955a7d2b632a26a0da7d2d9502b0f619b483fef5f7436a02c4ce50",
+    "Benchmarks\\multiscale_trace.py": "b2ee899e34952abdab4580bf143c51e5fa29f72e0efab988aa745a24d4cb7d46",
+    "Benchmarks\\full_pinn.py": "7f83014e06e345fe8445287515665222d5c41206004e9e5074286e1a351d56c4",
+    "Benchmarks\\full_domain.py": "c9596de450ac819a1c1bdeb1238c84899413e203811e07c66e0b4ba75c8abf61",
+    "Benchmarks\\full_physics.py": "232b7e13ddf0d61130254a9eb31c91fbd6459cf3498b30b7637aaecbde7d2077",
+    "Benchmarks\\full_sampling.py": "981aec2e22c4631473da0b490ccbb7f9235d39172d360031d1a14ea62d467886",
+    "Benchmarks\\cases.py": "a8e37dc7e3c15dcb1d31ec4664e0caad5f9cb64723dfda0926a01bc4b51971a5",
+    "Benchmarks\\expressions.py": "b59d46dfb4094c4e79f491384c7baef6641fb4753cd87fcb8a588f72164596e6",
+    "Benchmarks\\skin_effect.py": "bdbf529b5d3b130d98151127b063da0d6eecb56e823233d09d5f06dfb99c3f9e",
+    "pinn_cables\\pinn\\pde.py": "eaf35d49d2c043ea300b6087fc06eb7c5d9563041855b8f3dc24001e05f53a40",
+    "docs\\INVESTIGACION_PINN_MULTIESCALA_2026-09-15.md": "ce68e6b036112ce3f5538507335bcb04a8e58603971337d1aafede7273385126"
+  },
+  "seed": 11,
+  "parameters": 269,
+  "parameters_total": 11472,
+  "training_seconds": 44.95192470001348,
+  "matrix_build_seconds": 44.29071090000798,
+  "solve_seconds": 0.02534219999506604,
+  "matrix_shape": [
+    1541,
+    269
+  ],
+  "numerical_rank": 269,
+  "linearity_relative_error": 4.536800218713778e-14,
+  "physical_loss_equivalence_relative_error": 1.5615949005709936e-16,
+  "final_loss": 9.005797737438646e-05,
+  "final_vector_squared_norm": 9.005797737438643e-05,
+  "final_parts": {
+    "pde": 9.005745277445818e-05,
+    "constitutive": 0.0,
+    "interface_temperature": 6.354712847613706e-33,
+    "interface_flux": 8.551624076089234e-22,
+    "energy": 5.2459992826282444e-11
+  },
+  "final_region_pde": {
+    "soil_0": 8.604092779928988e-05,
+    "cable_0_layer_0": 5.7152627841883355e-15,
+    "cable_0_layer_1": 6.576901132262719e-09,
+    "cable_0_layer_2": 1.856309781562441e-08,
+    "cable_0_layer_3": 3.991384970505145e-06
+  },
+  "fem_labels_used": 0,
+  "torch": "2.9.0+xpu",
+  "numpy": "2.3.4",
+  "python": "3.12.9 (tags/v3.12.9:fdb8142, Feb  4 2025, 15:27:58) [MSC v.1942 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26100-SP0",
+  "device": "cpu",
+  "dtype": "float64"
+}
