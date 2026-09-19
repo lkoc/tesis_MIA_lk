@@ -258,6 +258,8 @@ Los métodos se consideran complementarios. Una discrepancia no implica por sí 
 
 \subsection{RED NEURONAL INFORMADA POR FÍSICA}
 
+Las PINN emplean usualmente redes neuronales de propagación hacia adelante (\textit{feed-forward}) totalmente conectadas, de tipo perceptrón multicapa \parencite[3--4]{xing2023}. En formulaciones con descomposición del dominio, pueden utilizarse varias redes de este tipo, una por subdominio, acopladas mediante condiciones de interfaz \parencite[4--6]{shukla2021}. Por tanto, la conectividad total describe la arquitectura interna de cada red, mientras que el acoplamiento por subdominios describe la organización de las subredes. El carácter informado por física proviene de incorporar las ecuaciones gobernantes y las condiciones auxiliares en el entrenamiento; no implica una arquitectura recurrente.
+
 Una PINN representa la temperatura mediante una red $T_\theta(x,y)$. La diferenciación automática permite evaluar derivadas espaciales y construir residuos de la PDE, los contornos y las interfaces \parencite[4--5]{raissi2017}. La función de pérdida lógica se muestra en la Fórmula~\ref{for:perdida-pinn}.
 
 \begin{formula}[htbp]
