@@ -1,0 +1,82 @@
+\section{DISEÑO DISCRETO DE CASOS Y PLAN DE COBERTURA}
+\label{anx:diseno-casos}
+\thispagestyle{empty}
+
+La Tabla~\ref{tab:diseno-casos} presenta el diseño discreto de casos y los parámetros físicos de cobertura.
+
+Este anexo define cómo se formarán VI3 y VI4 y cómo se cubrirá el espacio físico de los casos. VI3 combina el artefacto verificado VD2 con el catálogo de escenarios $E_3$; VI4 combina el expediente térmico VD3 con el catálogo de representaciones $C_4$. El contraste, la extensión y la proximidad son parámetros que caracterizan un escenario ya seleccionado; por ello, sus niveles forman una malla de sensibilidad física y no un diseño factorial de variables independientes.
+
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.18}
+\begin{longtable}{L{3.10cm}L{1.45cm}L{3.00cm}L{5.15cm}L{5.25cm}}
+\caption{Diseño discreto de casos y parámetros físicos de cobertura. Fuente: Elaboración propia.}
+\label{tab:diseno-casos}\\
+\toprule
+\textbf{Elemento} &
+\textbf{Código} &
+\textbf{Papel metodológico} &
+\textbf{Categorías o niveles iniciales} &
+\textbf{Uso en el plan de cobertura} \\
+\midrule
+\endfirsthead
+
+\toprule
+\textbf{Elemento} &
+\textbf{Código} &
+\textbf{Papel metodológico} &
+\textbf{Categorías o niveles iniciales} &
+\textbf{Uso en el plan de cobertura} \\
+\midrule
+\endhead
+
+\midrule
+\multicolumn{5}{r}{\small Continúa en la siguiente página.}\\
+\midrule
+\endfoot
+
+\bottomrule
+\endlastfoot
+
+Artefacto verificado heredado & VD2 / $\mathrm{VI}_{3,h}$ & Producto de OE2 y componente obligatorio de VI3 & Aceptado en el dominio; aceptado con restricciones compatibles. El estado rechazado no pasa a OE3. & Fija la versión del artefacto y su dominio de validez antes de recorrer escenarios. \\
+
+Catálogo nuevo de escenarios & $E_3$ & Componente nuevo de VI3 & Base homogéneo; estratificado; inclusión localizada; material de mejora; zona seca; combinación multimaterial. & Selecciona el objeto físico-computacional; cada realización contiene mapa $\kx$ y ficha de parámetros. \\
+
+Expediente de evaluación térmica & VI3 & Variable independiente discreta de OE3: $\{\mathrm{VD2},E_3\}$ & Combinaciones válidas de una VD2 aceptada con una realización de $E_3$. & Constituye la entrada completa de OE3 y produce VD3. \\
+
+Expediente térmico heredado & VD3 / $\mathrm{VI}_{4,h}$ & Producto de OE3 y componente obligatorio de VI4 & Sin efecto relevante; efecto relevante no crítico; condición crítica. El estado inconcluso no pasa a OE4. & Conserva mapas, métricas, límites y clasificación del escenario que será comparado. \\
+
+Catálogo nuevo de representaciones & $C_4$ & Componente nuevo de VI4 & Par heterogéneo 2D--homogéneo equivalente; conservador; optimista. & Define la regla de equivalencia y el par que se usará para calcular la discrepancia de ampacidad. \\
+
+Expediente de comparación & VI4 & Variable independiente discreta de OE4: $\{\mathrm{VD3},C_4\}$ & Combinaciones válidas de una VD3 concluyente con una realización de $C_4$. & Constituye la entrada completa de OE4 y produce VD4. \\
+
+Contraste térmico & $C_k$ & Parámetro físico de caso; no VI ni VD & Bajo; medio; alto, con magnitudes fijadas en el piloto para cada realización de $E_3$. & Cubre diferencias de conductividad entre la región heterogénea y el entorno base y permite interpretar los indicadores contenidos en VD3 y VD4. \\
+
+Extensión de la región heterogénea & $f_h$ & Parámetro físico de caso; no VI ni VD & Pequeña; media; grande, expresada como fracción del entorno local o tamaño normalizado. & Cubre el tamaño de la barrera o mejora térmica dentro de cada realización de $E_3$. \\
+
+Proximidad al conductor & $d_h/D$ & Parámetro físico de caso; no VI ni VD & Cercana; media; lejana, normalizada por el diámetro exterior del cable o una distancia característica $D$. & Cubre la ubicación de la región respecto de la zona de mayor flujo térmico. \\
+
+Condiciones pareadas & --- & Controles; no VI & Geometría, pérdidas, contornos, dominio, $T_{\mathrm{amb}}$ y configuración numérica aceptada. & Se mantienen constantes dentro de cada comparación para interpretar el efecto del atributo físico o de la representación. \\
+
+Semilla o repetición numérica & $S$ & Metadato de robustez; no VI & Repeticiones seleccionadas en el piloto y en casos extremos. & Cuantifica variabilidad numérica de las salidas sin convertir el entrenamiento en una variable del estudio. \\
+
+\end{longtable}
+
+\tesisbodyfont
+
+La malla máxima de cobertura combinará tres niveles de $C_k$, $f_h$ y $d_h/D$ dentro de cada una de las cuatro realizaciones heterogéneas simples de $E_3$. Esto produce hasta $3^3=27$ configuraciones paramétricas por realización.
+
+Si se recorren completas esas cuatro realizaciones, el máximo de planificación será de 108 escenarios heterogéneos. Cada VD3 concluyente se combinará con la realización de $C_4$ que corresponda para formar VI4 y construir su comparación homogénea. El número 108 describe cobertura paramétrica potencial; no es el número de estados de VI3 o VI4 ni implica inferencia estadística factorial.
+
+Este número se entiende como marco de planificación. Por tanto, si la carga computacional del piloto supera los recursos disponibles, se conservarán completos los patrones más críticos y se justificará cualquier fracción usada.
+
+La lectura de resultados se hará en tres capas. Primero, se compararán los indicadores contenidos en VD3 y VD4 entre realizaciones discretas de $E_3$ y $C_4$, y se asignará a cada expediente uno de sus estados previstos.
+
+Segundo, se describirá la sensibilidad física dentro de cada realización de $E_3$, especialmente para las combinaciones $C_k\times d_h/D$ y $C_k\times f_h$. Estas expresiones identifican cruces de parámetros del caso, no interacciones entre variables independientes metodológicas.
+
+Tercero, se contrastará cada escenario heterogéneo con su homogéneo equivalente. Así se identificará cuándo la simplificación introduce una diferencia térmica u operativa relevante.
+
+Para mantener consistencia con la matriz de operacionalización, las comparaciones pareadas mantendrán fijos geometría, pérdidas, contornos, dominio y configuración numérica. Por tanto, el efecto observado se atribuirá al atributo físico o al tipo de representación que diferencia el par.
+
+Las condiciones no controladas se registrarán como metadatos. Entre ellas estarán la semilla, la tolerancia FEM publicada y la incertidumbre de las propiedades térmicas.
+

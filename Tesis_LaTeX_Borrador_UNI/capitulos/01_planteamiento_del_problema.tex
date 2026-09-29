@@ -1,5 +1,6 @@
 \chapter{PLANTEAMIENTO DEL PROBLEMA}
 \label{ch:planteamiento}
+\thispagestyle{empty}
 
 Este capítulo delimita la dificultad práctica que origina el estudio y la convierte en un problema abordable mediante una solución tecnológica. Además, establece los objetivos y el diseño metodológico que conectan la heterogeneidad térmica con la construcción y evaluación del artefacto PINN.
 
@@ -8,13 +9,13 @@ Este capítulo delimita la dificultad práctica que origina el estudio y la conv
 
 Las redes eléctricas deben atender el crecimiento de la demanda e integrar centrales de generación ubicadas en distintos puntos del sistema. En el Perú, la producción eléctrica aumentó de \SI{35908}{\giga\watt\hour} en 2010 a \SI{65109}{\giga\watt\hour} en 2025, según la serie histórica y el cierre preliminar consultados \parencites[sec.~10.4]{minem2025anuario2024}[cuadro~4]{minem2025indicadoresDiciembre}.
 
-La composición de la generación también cambió. La participación conjunta de las fuentes solar y eólica alcanzó 9,5\,\pct{} de la producción nacional en 2025 \parencite[cuadro~4]{minem2025indicadoresDiciembre}. La expansión de estas fuentes requiere redes colectoras, conexiones y capacidad de transporte entre nuevos puntos del SEIN \parencites{coes2023diagnostico2025_2034}{iea2025transmissiongrid}.
+La composición de la generación también cambió. La participación conjunta de las fuentes solar y eólica alcanzó 9,5\,\pct{} de la producción nacional en 2025 \parencite[cuadro~4]{minem2025indicadoresDiciembre}. La expansión de estas fuentes requiere redes colectoras, conexiones y capacidad de transporte entre nuevos puntos del Sistema Eléctrico Interconectado Nacional (SEIN) \parencites{coes2023diagnostico2025_2034}{iea2025transmissiongrid}.
 
 Los cables enterrados intervienen en redes colectoras y en enlaces donde existen restricciones de espacio, servidumbre, seguridad o integración urbana \parencite{cigre2023overheadLines}. En estas instalaciones, la capacidad no depende solo de la sección del conductor. También depende del camino térmico formado por las capas del cable, el lecho de asiento, el suelo de relleno y el suelo nativo \parencites{enescu2020}{enescu2021}.
 
 Los métodos normativos relacionan pérdidas, resistencias térmicas y temperatura para calcular la corriente admisible \parencites{neher1957}{iec60287}{iec60853}. Sin embargo, suelen representar el entorno mediante propiedades equivalentes. La humedad, el secado, los estratos y los materiales de relleno pueden generar regiones con distinta conductividad y alterar el camino local del calor \parencites[4--6]{enescu2021}[1--3]{aldulaimi2024}.
 
-La evidencia publicada muestra que las propiedades térmicas del entorno pueden cambiar de forma material la capacidad calculada. La Tabla~\ref{tab:diagnostico-casos} reúne cuatro casos utilizados en el plan para sustentar el diagnóstico. Las configuraciones no son directamente comparables entre sí, pero todas muestran la sensibilidad térmica del cable al terreno o al material de relleno.
+La evidencia publicada muestra que las propiedades térmicas del entorno pueden cambiar de forma material la capacidad calculada. La Tabla~\ref{tab:diagnostico-casos} reúne cuatro casos, todos con cables aislados con polietileno reticulado (XLPE), utilizados en el plan para sustentar el diagnóstico. Las configuraciones no son directamente comparables entre sí, pero todas muestran la sensibilidad térmica del cable al terreno o al material de relleno.
 
 \begin{table}[htbp]
 \centering
@@ -27,7 +28,7 @@ La evidencia publicada muestra que las propiedades térmicas del entorno pueden 
 \textcite[5--6]{khumalo2025} & Cable tripolar XLPE de media tensión & Resistividad de \SI{0.6}{\kelvin\metre\per\watt} frente a \SI{3.7}{\kelvin\metre\per\watt} & La ampacidad disminuyó de \SI{518}{\ampere} a \SI{224}{\ampere}. \\
 \textcite[7--8]{ariasVelasquez2023} & Tres cables unipolares XLPE de \SI{33}{\kilo\volt} & Suelo uniforme de \SI{1.5}{\kelvin\metre\per\watt} frente al valor reportado de \SI{4.9}{\kelvin\metre\per\watt} & La ampacidad calculada cambió de \SI{563}{\ampere} a \SI{350}{\ampere}. \\
 \textcite[15--16]{atoccsa2024} & Tres cables XLPE de \SI{220}{\kilo\volt} & Resistividad de \SI{2.5}{\kelvin\metre\per\watt} frente a \SI{3.0}{\kelvin\metre\per\watt} & El análisis de sensibilidad estimó una reducción de \SI{1157}{\ampere} a \SI{1064}{\ampere}. \\
-\textcite[12--16]{kim2025} & Banco de seis cables XLPE de \SI{154}{\kilo\volt} & PAC de mayor conductividad frente a arena natural & A igual corriente, la temperatura máxima disminuyó aproximadamente de \SI{78}{\celsius} a \SI{71}{\celsius}. \\
+\textcite[12--16]{kim2025} & Banco de seis cables XLPE de \SI{154}{\kilo\volt} & Hormigón de agregado precolocado (PAC) de mayor conductividad frente a arena natural & A igual corriente, la temperatura máxima disminuyó aproximadamente de \SI{78}{\celsius} a \SI{71}{\celsius}. \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -57,9 +58,9 @@ El problema técnico consiste en diseñar y evaluar una formulación computacion
 
 La justificación práctica consiste en reducir la incertidumbre asociada con decisiones inseguras o excesivamente conservadoras. El análisis permitirá identificar configuraciones donde una propiedad homogénea puede ocultar una restricción térmica local. Esta posibilidad concuerda con los cambios de capacidad asociados con humedad y resistividad reportados por \textcite[1,6--9]{khumalo2025}.
 
-La justificación tecnológica corresponde a la construcción de un artefacto que combine conocimiento físico y aprendizaje automático. La PINN incorpora la PDE dentro de su función de pérdida y puede aproximar un campo continuo sin depender exclusivamente de pares etiquetados para todos los puntos del dominio \parencites[4--5]{raissi2017}[1--3,12]{aldulaimi2024}.
+La justificación tecnológica corresponde a la construcción de un artefacto que combine conocimiento físico y aprendizaje automático. La PINN incorpora la ecuación en derivadas parciales (PDE) dentro de su función de pérdida y puede aproximar un campo continuo sin depender exclusivamente de pares etiquetados para todos los puntos del dominio \parencites[4--5]{raissi2017}[1--3,12]{aldulaimi2024}.
 
-La justificación metodológica se apoya en la ciencia del diseño. DSR vincula el problema práctico con la especificación, construcción, demostración y evaluación del artefacto \parencite[55--56]{peffers2007}. La contribución comprende el prototipo situado y los requisitos, procedimientos y principios que puedan transferirse a problemas térmicos 2D multimateriales \parencite[342--350]{gregor2013}.
+La justificación metodológica se apoya en la ciencia del diseño (\textit{design science research}, DSR). DSR vincula el problema práctico con la especificación, construcción, demostración y evaluación del artefacto \parencite[55--56]{peffers2007}. La contribución comprende el prototipo situado y los requisitos, procedimientos y principios que puedan transferirse a problemas térmicos 2D multimateriales \parencite[342--350]{gregor2013}.
 
 La justificación académica reside en conectar el dimensionamiento térmico de cables enterrados con el aprendizaje informado por física. Los resultados de PINN en conducción de calor controlada muestran viabilidad, pero no eliminan la necesidad de evaluar geometrías multicapa, interfaces y pérdidas internas \parencites[1--3,17]{xing2023}[1,3,16]{pan2025}[2--6]{ren2025}.
 
@@ -105,18 +106,18 @@ Diseñar y evaluar un artefacto computacional basado en una red neuronal informa
   \item Comparar la ampacidad de representaciones heterogéneas 2D y homogéneas pareadas, e identificar las condiciones que generan mayor discrepancia.
 \end{enumerate}
 
-\section{HIPÓTESIS Y CRITERIOS DE CONTRASTE}
+\section{CRITERIOS DE ACEPTACIÓN Y PROPOSICIONES DE DISEÑO}
 
-Se conservan las hipótesis del plan como proposiciones de diseño contrastables mediante evidencia computacional. No se reemplazan por una declaración genérica de éxito ni se realizan inferencias sobre una población de instalaciones a partir de semillas aleatorias. La hipótesis general vincula representación explícita de $k(x,y)$, reproducción de referencias y diferencias térmicas y operativas frente a representaciones homogéneas.
+Se conservan las hipótesis del plan (HE1--HE4) como proposiciones de diseño contrastables mediante evidencia computacional; por ello la sección se denomina criterios de aceptación y proposiciones de diseño, y no contrastación estadística de hipótesis. La conservación se justifica porque el plan aprobado las formula y porque su numeración permite seguir cada proposición hasta las conclusiones. No se reemplazan por una declaración genérica de éxito ni se realizan inferencias sobre una población de instalaciones a partir de semillas aleatorias. La hipótesis general vincula representación explícita de $k(x,y)$, reproducción de referencias y diferencias térmicas y operativas frente a representaciones homogéneas.
 
 \begin{enumerate}[label=HE\arabic*.]
 \item Un paquete físico completo y documentado permite obtener VD1: especificación trazable aceptada, con requisitos vinculados a pruebas.
-\item La especificación y las referencias válidas permiten obtener VD2: artefacto aceptado en el dominio declarado, con error de temperatura y NRMSE no mayores a 5\,\pct{}, balance no mayor a 2\,\pct{} y variabilidad menor que el efecto relevante.
+\item La especificación y las referencias válidas permiten obtener VD2: artefacto aceptado en el dominio declarado, con error de temperatura y error cuadrático medio normalizado (NRMSE) no mayores a 5\,\pct{}, balance no mayor a 2\,\pct{} y variabilidad menor que el efecto relevante.
 \item El artefacto verificado permite obtener VD3: expediente térmico concluyente; una región de baja conductividad cercana aumenta la temperatura y un relleno de mayor conductividad la reduce en los pares controlados.
 \item VD3 y los pares de representación permiten obtener VD4: expediente comparativo de ampacidad; promediar una zona local de baja conductividad puede sobreestimar la corriente admisible.
 \end{enumerate}
 
-Los estados posibles incluyen aceptación restringida, rechazo e inconclusión. Las tendencias de HE3 y HE4 se contrastan en pares definidos, sin convertirlas en leyes universales. La incertidumbre numérica y la variabilidad entre semillas deben ser menores que la diferencia que se interpreta. No se considera cumplido OE4 por mostrar únicamente temperaturas a corriente fija.
+Los estados posibles incluyen aceptación restringida, rechazo e inconclusión. Las tendencias de HE3 y HE4 se contrastan en pares definidos, sin convertirlas en leyes universales. La incertidumbre numérica y la variabilidad entre semillas deben ser menores que la diferencia que se interpreta. No se considera cumplido OE4 por mostrar únicamente temperaturas a corriente fija. La matriz de consistencia (Anexo~\ref{anx:matriz-consistencia}, Tabla~\ref{tab:matriz-consistencia}) y la matriz de operacionalización (Anexo~\ref{anx:operacionalizacion}, Tabla~\ref{tab:operacionalizacion}) relacionan cada proposición con su objetivo, su producto y su evidencia.
 
 \section{METODOLOGÍA}
 \label{sec:metodologia}
@@ -148,7 +149,7 @@ Los instrumentos de registro y evaluación son la matriz de extracción bibliogr
 
 \subsection{MÉTRICAS Y CRITERIOS DE EVALUACIÓN}
 
-La evaluación combina exactitud, consistencia física, utilidad y reproducibilidad. Para temperatura se consideran el error de $\Tmax$, MAE o RMSE espacial, error máximo, residuos y balance de energía. Para ampacidad se registran $\Imax$, diferencia porcentual y margen térmico \parencite[93--99]{cigre2025}.
+La evaluación combina exactitud, consistencia física, utilidad y reproducibilidad. Para temperatura se consideran el error de $\Tmax$, el error absoluto medio (MAE) o el error cuadrático medio (RMSE) espacial, error máximo, residuos y balance de energía. Para ampacidad se registran $\Imax$, diferencia porcentual y margen térmico \parencite[93--99]{cigre2025}.
 
 Las dos métricas básicas de reporte se definen en la Fórmula~\ref{for:metricas}. Su función es mantener una comparación común entre referencias y escenarios.
 
@@ -161,10 +162,10 @@ e_{T_{\max}}(\pct)&=100\frac{\left|T_{\max}^{\mathrm{PINN}}-T_{\max}^{\mathrm{re
 \Delta I(\pct)&=100\frac{I_{\mathrm{het}}-I_{\mathrm{hom}}}{I_{\mathrm{hom}}}.
 \end{aligned}
 \end{equation}
-\caption{Métricas básicas de evaluación térmica y de ampacidad.}
+\caption{Métricas básicas de evaluación térmica y de ampacidad. Fuente: Elaboración propia.}
 \end{formula}
 
-La primera expresión normaliza el error de temperatura máxima con el incremento respecto al ambiente. Esta elección evita que el resultado dependa del origen de la escala Celsius. La segunda mide el cambio de ampacidad entre el escenario heterogéneo y su par homogéneo. No constituyen por sí mismas evidencia de validez; deben interpretarse con residuos, balance, convergencia y límites del caso.
+La primera expresión normaliza el error de temperatura máxima con el incremento respecto al ambiente. Esta elección evita que el resultado dependa del origen de la escala Celsius. La segunda mide el cambio de ampacidad entre el escenario heterogéneo y su par homogéneo. No constituyen por sí mismas evidencia de validez; deben interpretarse con residuos, balance, convergencia y límites del caso. La Tabla~\ref{tab:criterios-evaluacion} reúne los criterios iniciales de evaluación del artefacto.
 
 \begin{table}[htbp]
 \centering
@@ -186,6 +187,8 @@ Contribución DSR & Requisitos, arquitectura, límites y principios de diseño. 
 Los umbrales son reglas iniciales del proyecto y no valores universales para PINN. Cualquier ajuste debe justificarse antes de la evaluación final, de modo que los criterios no cambien después de observar resultados favorables.
 
 \subsection{ETAPAS DE INTERVENCIÓN}
+
+La Tabla~\ref{tab:etapas-intervencion} presenta las siete etapas de intervención, con su producto y su puerta de decisión.
 
 \begin{table}[htbp]
 \centering

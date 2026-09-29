@@ -1,5 +1,7 @@
 # Auditoría de tesis, datos y artefacto térmico
 
+> **Documento histórico.** Corresponde a la formulación reducida anterior al 14-sep-2026. Las cifras (290 entrenamientos, 346 pruebas, 74 páginas) ya no aplican; el estado vigente está en [ESTADO.md](../ESTADO.md) y en la [auditoría general del 29-sep-2026](../auditoria%20general/AUDITORIA_GENERAL_2026-09-29.md).
+
 Fecha: 10 de septiembre de 2026. El estado previo se conserva en
 `auditoria/estado_inicial` y en el registro inicial de Git. Los cambios que ya
 existían al comenzar el trabajo se conservaron. Este informe distingue una
@@ -187,7 +189,7 @@ La ley R(T) y α del cobre se contrastan con TB 880, p. 132, del PDF local.
 
 ## Verificación de cifras de contexto
 
-Se contrastó la producción nacional de 65 109 GWh y la participación solar/eólica de 9,5 % con el boletín MINEM de enero de 2026, cuadro 4, guardado en Plan/_fuentes_tmp/minem_2025_dic.pdf. Se retiró del diagnóstico la cifra de máxima demanda 7942 MW: el JSON COES conservado para 2025 contiene un máximo mensual de 7966,448 MW y no se acreditó la equivalencia de criterios entre ambas cifras. Esta discrepancia no afecta los cálculos térmicos.
+Se contrastó la producción nacional de 65 109 GWh y la participación solar/eólica de 9,5 % con el boletín MINEM de enero de 2026, cuadro 4, guardado en Plan/datos_fuente/descargas/minem_2025_dic.pdf. Se retiró del diagnóstico la cifra de máxima demanda 7942 MW: el JSON COES conservado para 2025 contiene un máximo mensual de 7966,448 MW y no se acreditó la equivalencia de criterios entre ambas cifras. Esta discrepancia no afecta los cálculos térmicos.
 
 ## Cierre de ejecución y revisión
 

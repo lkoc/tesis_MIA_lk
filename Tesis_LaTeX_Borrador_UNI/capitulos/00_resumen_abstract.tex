@@ -1,29 +1,25 @@
 ﻿\chapter*{RESUMEN}
 \addcontentsline{toc}{chapter}{RESUMEN}
 
-Esta investigación de ciencia del diseño evalúa PINN para temperatura y corriente admisible de cables enterrados. Resuelve la ecuación de calor estacionaria 2D en conductor, todas las capas y suelo, con continuidad térmica y de flujo, sin reconstrucción resistiva interior. Las coordenadas locales permiten representar espesores milimétricos dentro de dominios métricos.
+Los métodos normativos de ampacidad representan el suelo de un cable enterrado mediante propiedades equivalentes, lo que puede ocultar zonas de baja disipación cuando la conductividad térmica varía en el entorno. Esta investigación tuvo como objetivo diseñar y evaluar un artefacto basado en una red neuronal informada por física (PINN) que resuelve la ecuación de calor estacionaria 2D en el conductor, todas las capas del cable y el suelo, con continuidad de temperatura y de flujo en las interfaces.
 
-La metodología separa selección de arquitectura y tamaño, número y distribución de colocaciones, ajuste de entrenamiento y confirmación con semillas independientes. Compara temperatura por material, formulación mixta, entradas locales y Fourier y enriquecimiento multipolar. Cada problema conserva una referencia FEM explícita refinada; sus temperaturas no son etiquetas de entrenamiento.
+Se aplicó la ciencia del diseño con una referencia de elementos finitos (FEM) refinada en tres mallas para cada caso, umbrales de aceptación fijados antes de la confirmación y una campaña de 101 entrenamientos en cuatro etapas: arquitectura y tamaño, colocaciones, tasa de aprendizaje y peso de continuidad. Luego se congeló la receta y se confirmó con semillas nuevas en siete casos; las temperaturas FEM no se usaron como etiquetas de entrenamiento.
 
-\input{tablas/explicit_abstract_es}
+Ningún candidato de las etapas de desarrollo cumplió los criterios en todos los problemas y semillas. La receta congelada los cumplió en 7 de 21 ejecuciones de confirmación: en las tres semillas para el polietileno reticulado (XLPE) homogéneo y zona seca lejana, y en una de tres para zona seca cercana. No se aceptó en Aras, Kim, relleno ni estratos. La referencia FEM cuantificó el efecto de la heterogeneidad sobre la temperatura máxima entre \SI{-3,3}{\kelvin} (relleno) y \SI{+6,0}{\kelvin} (zona seca cercana), pero la PINN no lo resolvió con la regla preinscrita. La búsqueda de corriente límite con la formulación explícita no se ejecutó.
 
-\input{tablas/explicit_ampacity_abstract_es}
-
-La contribución es un procedimiento trazable que conserva rechazos y delimita aplicabilidad. No demuestra optimalidad global, generalización sin reentrenamiento, validación de campo, ampacidad AC normativa ni evolución temporal verificada.
+Se concluyó que el artefacto es aceptable solo en el dominio ensayado y que el procedimiento trazable, que conserva los rechazos, delimita su aplicabilidad. No se demostró optimalidad global, generalización sin reentrenamiento, validación de campo, ampacidad AC normativa ni evolución temporal verificada.
 
 \noindent\textbf{Palabras clave:} cable enterrado; ecuación de calor; PINN; interfaces; colocaciones; elementos finitos; ampacidad.
 
 \chapter*{ABSTRACT}
 \addcontentsline{toc}{chapter}{ABSTRACT}
 
-This design science study evaluates PINNs for temperature and allowable current in buried cables. It solves the steady two-dimensional heat equation throughout the conductor, every cable layer and soil, enforcing temperature and heat-flux continuity without internal resistive reconstruction. Local coordinates represent millimetric layers within metric domains.
+Normative ampacity methods represent the soil around a buried cable through equivalent properties, which can hide poorly dissipating zones when thermal conductivity varies in the surroundings. This research aimed to design and evaluate an artifact based on a physics-informed neural network (PINN) that solves the steady two-dimensional heat equation in the conductor, all cable layers and the soil, with temperature and heat-flux continuity at interfaces.
 
-The methodology separates architecture and size selection, collocation count and placement, training adjustment, and confirmation with independent seeds. Material-wise temperature, mixed, local-input, Fourier and multipole variants are compared. Every problem retains a refined explicit FEM reference; its temperatures support evaluation and hyperparameter selection without becoming training labels.
+Design science was applied with a finite element (FEM) reference refined on three meshes for each case, acceptance thresholds fixed before confirmation, and a campaign of 101 training runs in four stages: architecture and size, collocation points, learning rate and continuity weight. The recipe was then frozen and confirmed with new seeds on seven cases; FEM temperatures were not used as training labels.
 
-\input{tablas/explicit_abstract_en}
+No development candidate met the criteria in all problems and seeds. The frozen recipe met them in 7 of 21 confirmation runs: in all three seeds for homogeneous cross-linked polyethylene (XLPE) and a distant dry zone, and in one of three for a nearby dry zone. It was not accepted for Aras, Kim, backfill or soil strata. The FEM reference quantified the effect of heterogeneity on maximum temperature between \SI{-3.3}{\kelvin} (backfill) and \SI{+6.0}{\kelvin} (nearby dry zone), but the PINN did not resolve it under the pre-registered rule. The current-limit search with the explicit formulation was not executed.
 
-\input{tablas/explicit_ampacity_abstract_en}
-
-The contribution is a traceable procedure that retains failures and delimits applicability. It establishes neither global optimality, generalization without retraining, field validation, standard-compliant AC ampacity nor verified transient evolution.
+It was concluded that the artifact is acceptable only within the tested domain and that the traceable procedure, which retains rejections, delimits its applicability. Global optimality, generalization without retraining, field validation, standard-compliant AC ampacity and verified transient evolution were not demonstrated.
 
 \noindent\textbf{Keywords:} buried cable; heat equation; PINN; interfaces; collocation; finite elements; ampacity.

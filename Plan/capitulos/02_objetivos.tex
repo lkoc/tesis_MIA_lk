@@ -1,0 +1,193 @@
+\chapter{OBJETIVOS DE LA INVESTIGACIÓN}
+\thispagestyle{empty}
+
+Este capítulo convierte el problema formulado en objetivos, hipótesis y dimensiones operativas. Así define qué se evaluará y mantiene la correspondencia entre la brecha, las entradas discretas de cada etapa, los productos intermedios, sus estados posibles y los parámetros de caso.
+
+\section{OBJETIVO GENERAL}
+
+Diseñar y evaluar un artefacto computacional basado en una red neuronal informada por física (PINN) que represente el arreglo de cables--entorno térmico, estime $T(x,y)$, $\Tmax$ e $\Imax$, cuantifique el efecto de la heterogeneidad térmica espacial y documente su exactitud, consistencia física, robustez y reproducibilidad.
+
+\section{OBJETIVOS ESPECÍFICOS}
+
+Los objetivos específicos siguen una secuencia de construcción y evaluación: la especificación del objeto y del artefacto sustenta su construcción y verificación; el artefacto verificado permite evaluar los escenarios térmicos; y el expediente de evidencia térmica permite comparar la ampacidad. La Figura~\ref{fig:articulacion-objetivos-especificos} representa esta relación. Cada producto intermedio tiene doble papel: es la VD del bloque que lo genera y la entrada heredada de la VI del bloque siguiente. El procedimiento reproducible y los principios de diseño se obtendrán posteriormente mediante la síntesis DSR de la evidencia generada por estos objetivos; por ello, se tratan como productos metodológicos y no como un objetivo específico adicional.
+
+\begin{enumerate}[label=OE\arabic*.]
+  \item Elaborar una especificación trazable de las entradas físicas, los requisitos funcionales y los criterios de calidad del artefacto para representar el arreglo de cables--entorno térmico, incluyendo dominios multicapa, fuentes térmicas, condiciones de contorno, interfaces y conductividad térmica espacialmente variable $\kx$.
+  \item Construir y verificar el artefacto a partir de la especificación trazable y de un conjunto de soluciones analíticas o manufacturadas, benchmarks FEM con convergencia y casos publicados, clasificando su estado de aceptación según la exactitud, la consistencia física y la robustez entre ejecuciones.
+  \item Aplicar el artefacto verificado a un catálogo de escenarios controlados de contraste, patrón, extensión y proximidad de heterogeneidades del suelo nativo y de los suelos de relleno, y consolidar un expediente de evidencia con los cambios en $\Tmax$, el campo de temperatura $T(x,y)$ y la localización del punto caliente.
+  \item Usar el expediente de evidencia térmica y un catálogo de representaciones pareadas para elaborar un expediente comparativo de ampacidad entre la representación 2D heterogénea y las representaciones homogéneas, e identificar las condiciones que generan mayor discrepancia.
+\end{enumerate}
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  >=Latex,
+  objetivo/.style={draw, rounded corners=3pt, minimum height=2.35cm, text width=4.15cm, align=center, font=\small, text=black, inner sep=6pt},
+  insumo/.style={align=center, font=\small, text width=4.15cm},
+  flujo/.style={-{Stealth[length=3mm]}, line width=1.1pt},
+  dato/.style={font=\small\bfseries, fill=white, inner sep=1.5pt}
+]
+  \node[objetivo, fill=lightgray] (oe1) {\textbf{OE1}\\Especificar entradas, requisitos y criterios};
+  \node[objetivo, fill=lightblue, right=1.25cm of oe1] (oe2) {\textbf{OE2}\\Construir y verificar el artefacto};
+  \node[objetivo, fill=green!10, right=1.25cm of oe2] (oe3) {\textbf{OE3}\\Evaluar escenarios heterogéneos};
+  \node[objetivo, fill=yellow!15, below=2.25cm of oe2] (oe4) {\textbf{OE4}\\Comparar la ampacidad};
+
+  \node[insumo, above=0.55cm of oe1] (i1) {\textbf{VI1: entrada inicial}\\paquete básico, completo o trazable};
+  \node[insumo, above=0.55cm of oe2] (i2) {\textbf{Entrada nueva de VI2}\\referencia analítica/manufacturada, FEM, publicada o mixta};
+  \node[insumo, above=0.55cm of oe3] (i3) {\textbf{Entrada nueva de VI3}\\catálogo base, estratificado, localizado, mejorado, seco o multimaterial};
+  \node[insumo, below=0.55cm of oe4] (i4) {\textbf{Entrada nueva de VI4}\\par homogéneo equivalente, conservador u optimista};
+
+  \draw[-{Stealth[length=3mm]}, line width=1.1pt] (i1) -- (oe1);
+  \draw[-{Stealth[length=3mm]}, line width=1.1pt] (i2) -- (oe2);
+  \draw[-{Stealth[length=3mm]}, line width=1.1pt] (i3) -- (oe3);
+  \draw[-{Stealth[length=3mm]}, line width=1.1pt] (i4) -- (oe4);
+  \draw[flujo] (oe1) -- node[dato] {VD1 $\equiv\mathrm{VI}_{2,h}$} (oe2);
+  \draw[flujo] (oe2) -- node[dato] {VD2 $\equiv\mathrm{VI}_{3,h}$} (oe3);
+  \draw[flujo] (oe3.south) -- node[dato] {VD3 $\equiv\mathrm{VI}_{4,h}$} (oe4.north);
+
+  \node[objetivo, fill=red!10, right=1.25cm of oe4] (salida) {\textbf{Resultado}\\Expediente comparativo y evidencia para la síntesis DSR};
+  \draw[flujo] (oe4) -- node[dato] {VD4} (salida);
+\end{tikzpicture}%
+}
+\caption[Articulación de los objetivos específicos]{Articulación secuencial de los cuatro objetivos específicos. VI1 es la entrada inicial. En las etapas siguientes, cada VI es un paquete compuesto por la VD anterior ---entrada heredada--- y el objeto nuevo mostrado verticalmente: $\mathrm{VI2}=\{\mathrm{VD1},R_2\}$, $\mathrm{VI3}=\{\mathrm{VD2},E_3\}$ y $\mathrm{VI4}=\{\mathrm{VD3},C_4\}$. VD4 completa la evidencia que después se sintetiza dentro de DSR. Fuente: Elaboración propia.}
+\label{fig:articulacion-objetivos-especificos}
+\end{figure}
+
+\section{HIPÓTESIS}
+
+\subsection{HIPÓTESIS GENERAL}
+
+La incorporación explícita de la conductividad térmica espacialmente variable $\kx$ en un artefacto PINN 2D permitirá reproducir referencias verificadas con exactitud, consistencia física y estabilidad entre ejecuciones. Además, mostrará diferencias de temperatura máxima y ampacidad frente a un entorno homogéneo equivalente cuando existan regiones de baja o alta conductividad próximas al cable. Por tanto, el proceso deberá reportar trazabilidad y reproducibilidad.
+
+\subsection{HIPÓTESIS ESPECÍFICAS}
+
+Las hipótesis específicas anticipan el estado esperado de los objetos producidos por cada objetivo: especificación trazable aceptada, artefacto verificado dentro del dominio, expediente térmico concluyente y expediente comparativo de ampacidad clasificado. La Figura~\ref{fig:articulacion-hipotesis-especificas} resume su encadenamiento con los principales indicadores de contraste. La reproducibilidad y la derivación de principios de diseño se evaluarán como criterios y productos del proceso DSR, no como una hipótesis específica adicional.
+
+\begin{enumerate}[label=HE\arabic*.]
+  \item Un paquete inicial completo y documentado permitirá producir una especificación trazable aceptada que separe PDE, contornos, interfaces, fuentes y propiedades térmicas, cubra los requisitos críticos y vincule cada requisito con al menos una prueba de consistencia física o funcional.
+  \item La especificación trazable, combinada con referencias válidas analíticas, manufacturadas, FEM convergentes o publicadas, permitirá producir un artefacto aceptado dentro del dominio de verificación, con error relativo de $\Tmax$ no mayor a 5\,\pct{}, error cuadrático medio normalizado (NRMSE) no mayor a 5\,\pct{}, desequilibrio energético no mayor a 2\,\pct{} y variabilidad entre semillas menor que el efecto térmico mínimo establecido como relevante en el piloto.
+  \item El artefacto verificado, aplicado a los distintos tipos de escenario térmico y a igualdad de geometría, pérdidas y contornos, producirá un expediente térmico concluyente: una región de baja $k$ cercana al conductor se clasificará por el aumento de $\Tmax$, mientras una región de alta $k$ usada como suelo de relleno se clasificará por su reducción de $\Tmax$.
+  \item El expediente térmico, combinado con representaciones homogéneas pareadas, producirá un expediente comparativo en el que la aproximación homogénea tenderá a sobreestimar $\Imax$ cuando promedie una zona local de baja $k$; la discrepancia crecerá con el contraste, la extensión y la proximidad de esa zona al conductor.
+\end{enumerate}
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  >=Latex,
+  hipotesis/.style={draw, rounded corners=3pt, minimum height=2.35cm, text width=4.15cm, align=center, font=\small, text=black, inner sep=6pt},
+  indicador/.style={align=center, font=\small, text width=4.15cm},
+  flujo/.style={-{Stealth[length=3mm]}, line width=1.1pt}
+]
+  \node[hipotesis, fill=lightgray] (he1) {\textbf{HE1}\\VD1: especificación trazable aceptada};
+  \node[hipotesis, fill=lightblue, right=1.25cm of he1] (he2) {\textbf{HE2}\\VD2: artefacto aceptado en su dominio};
+  \node[hipotesis, fill=green!10, right=1.25cm of he2] (he3) {\textbf{HE3}\\VD3: expediente térmico concluyente};
+  \node[hipotesis, fill=yellow!15, below=2.25cm of he2] (he4) {\textbf{HE4}\\VD4: expediente comparativo clasificado};
+
+  \node[indicador, above=0.55cm of he1] (m1) {Cobertura de requisitos y trazabilidad requisito--prueba};
+  \node[indicador, above=0.55cm of he2] (m2) {$e_{\Tmax}$, NRMSE, desequilibrio energético y robustez entre semillas};
+  \node[indicador, above=0.55cm of he3] (m3) {$\Delta\Tmax$, punto caliente y campo $T(x,y)$};
+  \node[indicador, below=0.55cm of he4] (m4) {$\Imax$, $\Delta I\pct$ y margen térmico};
+  \draw[-{Stealth[length=3mm]}, line width=1.1pt] (m1) -- (he1);
+  \draw[-{Stealth[length=3mm]}, line width=1.1pt] (m2) -- (he2);
+  \draw[-{Stealth[length=3mm]}, line width=1.1pt] (m3) -- (he3);
+  \draw[-{Stealth[length=3mm]}, line width=1.1pt] (m4) -- (he4);
+  \draw[flujo] (he1) -- (he2);
+  \draw[flujo] (he2) -- (he3);
+  \draw[flujo] (he3.south) -- (he4.north);
+  \node[hipotesis, fill=red!10, right=1.25cm of he4] (salida) {\textbf{Contraste global}\\Exactitud, efecto térmico y ampacidad};
+  \draw[flujo] (he4) -- (salida);
+\end{tikzpicture}%
+}
+\caption[Articulación de las hipótesis específicas]{Articulación de las cuatro hipótesis específicas y sus principales indicadores de contraste. La secuencia vincula la calidad del artefacto con la evidencia térmica y operativa; la reproducibilidad y la síntesis de principios se evalúan como parte del ciclo DSR. Fuente: Elaboración propia.}
+\label{fig:articulacion-hipotesis-especificas}
+\end{figure}
+
+Los umbrales de HE2 son criterios de aceptación del proyecto, no valores universales de PINN. Se revisarán en la fase piloto para que la incertidumbre numérica sea menor que el efecto térmico analizado, según la verificación de herramientas de ampacidad señalada por \textcite[93--99]{cigre2025}. Además, cualquier ajuste deberá reportar límites de validez con evidencia suficiente, como recomiendan \textcite[350--351]{gregor2013} para contribuciones DSR.
+
+\section{DIMENSIONES OPERATIVAS DEL ESTUDIO}
+\label{sec:dimensiones-operativas}
+
+En coherencia con DSR, la operacionalización se organiza como una secuencia de construcción del artefacto. En cada etapa se distingue: a) un paquete de entrada constituido por objetos discretos; b) la actividad expresada por un objetivo específico; y c) un producto verificable, también discreto. Este producto constituye la variable dependiente de la etapa y, salvo VD4, se convierte explícitamente en la entrada heredada de la variable independiente de la etapa siguiente. Por tanto, VI y VD tienen la misma naturaleza metodológica: son paquetes documentales, artefactos versionados o expedientes de evidencia, no magnitudes físicas continuas.
+
+La cadena se define como $\mathrm{VI1}=P_1$, $\mathrm{VI2}=\{\mathrm{VD1},R_2\}$, $\mathrm{VI3}=\{\mathrm{VD2},E_3\}$ y $\mathrm{VI4}=\{\mathrm{VD3},C_4\}$. Aquí, $P_1$ es el paquete inicial de requisitos y datos; $R_2$, el conjunto nuevo de referencias de verificación; $E_3$, el catálogo nuevo de escenarios térmicos; y $C_4$, el catálogo nuevo de representaciones pareadas. En consecuencia, $\mathrm{VD1}\equiv\mathrm{VI}_{2,h}$, $\mathrm{VD2}\equiv\mathrm{VI}_{3,h}$ y $\mathrm{VD3}\equiv\mathrm{VI}_{4,h}$, donde el subíndice $h$ indica la parte heredada de la entrada.
+
+Esta definición evita mezclar niveles metodológicos. La conductividad $\kx$, el contraste $C_k$, la extensión $f_h$, la proximidad $d_h/D$, la geometría, las pérdidas y los contornos describen la física de un caso; no son variables independientes de la construcción del artefacto. Del mismo modo, las capas, neuronas, épocas, semillas y pesos de pérdida son decisiones o metadatos del procedimiento numérico. Ambos grupos se fijan, documentan o recorren dentro de casos de cobertura, pero se mantienen separados de las variables del estudio.
+
+\subsection{VARIABLES INDEPENDIENTES DISCRETAS (ENTRADAS)}
+
+Se definen cuatro VI categóricas y discretas, una por etapa. \textbf{VI1}, paquete inicial de requisitos y datos, puede realizarse como paquete básico, completo o completo documentado. \textbf{VI2}, expediente de construcción y verificación, hereda VD1 y agrega un conjunto de referencias que puede ser analítico/manufacturado, FEM convergente, publicado o mixto. \textbf{VI3}, expediente de evaluación térmica, hereda VD2 aceptada y agrega un catálogo de escenarios que puede ser base homogéneo, estratificado, con inclusión localizada, con material de mejora, con zona seca o multimaterial. \textbf{VI4}, expediente de comparación de ampacidad, hereda VD3 concluyente y agrega pares de representación heterogénea 2D frente a homogénea equivalente, conservadora u optimista.
+
+Las realizaciones representan objetos de entrada completos. Por ejemplo, una realización de VI3 contiene una versión aceptada del artefacto, el escenario, su mapa $\kx$, materiales, contraste, extensión y ubicación. Los últimos elementos son atributos físicos controlados del objeto, no variables independientes adicionales. Esta regla mantiene cuatro VI lógicas, hace explícita la herencia entre etapas y evita multiplicar artificialmente las variables.
+
+\subsection{VARIABLES DEPENDIENTES (SALIDAS)}
+
+Las variables dependientes son objetos discretos producidos por cada objetivo. \textbf{VD1} es la especificación trazable del artefacto, con estados incompleta, completa pendiente de trazabilidad o trazable aceptada. \textbf{VD2} es el artefacto verificado y su expediente de aceptación, con estados rechazado, aceptado con restricciones o aceptado dentro del dominio. \textbf{VD3} es el expediente de evidencia térmica, con estados inconcluso, sin efecto relevante, con efecto relevante no crítico o con condición crítica. \textbf{VD4} es el expediente comparativo de ampacidad, clasificado como sin discrepancia relevante, con reducción de ampacidad, con aumento de ampacidad o inconcluso/fuera del dominio.
+
+Los errores, residuos, $T(x,y)$, $\Tmax$, $\Delta\Tmax$, $\Imax$, $\Delta I\pct$ y el margen térmico son indicadores contenidos en esos objetos; no son las VD por sí mismos. Esta separación permite que VD1, VD2 y VD3 conserven su integridad al convertirse en entradas de la etapa siguiente.
+
+La exactitud, la consistencia física, la robustez, la trazabilidad y la reproducibilidad son criterios de evaluación DSR aplicados transversalmente a esas salidas. No forman una quinta variable dependiente ni una quinta correspondencia problema--objetivo.
+
+\subsection{DISEÑO DISCRETO DE CASOS Y PARÁMETROS CONTROLADOS}
+
+La Figura~\ref{fig:modelo-conceptual} muestra el modelo entrada--proceso--salida de las dimensiones operativas y la Tabla~\ref{tab:dimensiones-operativas} registra las variables discretas y sus estados por etapa.
+
+El estudio no adopta un diseño factorial de variables independientes. En su lugar, aplica un diseño discreto de objetos y casos: se seleccionan realizaciones de los componentes nuevos $E_3$ y $C_4$ de VI3 y VI4, siempre acompañadas por la VD heredada que corresponda. Dentro de cada caso se asignan niveles documentados a los parámetros físicos $C_k$, $f_h$ y $d_h/D$. La posible combinación de esos niveles es una malla de cobertura y sensibilidad física, no una redefinición de los parámetros como variables independientes ni un análisis factorial estadístico. El plan completo se presenta en el \ref{anx:diseno-casos}.
+
+Las comparaciones térmicas y operativas serán pareadas. En cada par se conservarán la geometría, las pérdidas, los contornos, el dominio y la configuración numérica aceptada; solo cambiará el atributo físico o la representación que define el contraste del caso. Así se podrá interpretar la diferencia observada sin confundir el insumo de construcción del artefacto con la física subyacente.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.9\textwidth}{!}{%
+\begin{tikzpicture}[
+  etapa/.style={draw,rounded corners=3pt,align=center,text width=3.15cm,minimum height=1.05cm,font=\small},
+  io/.style={draw,rounded corners=3pt,align=center,text width=3.15cm,minimum height=0.95cm,font=\small},
+  arr/.style={-{Stealth[length=3mm]},thick}]
+\node[io,fill=lightgray] (vi1) {\textbf{VI1}\\Paquete inicial $P_1$};
+\node[io,fill=lightblue,right=0.65cm of vi1] (vi2) {\textbf{VI2}\\$\{\mathrm{VD1},R_2\}$};
+\node[io,fill=green!10,right=0.65cm of vi2] (vi3) {\textbf{VI3}\\$\{\mathrm{VD2},E_3\}$};
+\node[io,fill=yellow!15,right=0.65cm of vi3] (vi4) {\textbf{VI4}\\$\{\mathrm{VD3},C_4\}$};
+\node[etapa,below=0.55cm of vi1] (oe1) {\textbf{OE1}\\Especificar};
+\node[etapa,below=0.55cm of vi2] (oe2) {\textbf{OE2}\\Construir y verificar};
+\node[etapa,below=0.55cm of vi3] (oe3) {\textbf{OE3}\\Evaluar escenarios};
+\node[etapa,below=0.55cm of vi4] (oe4) {\textbf{OE4}\\Comparar ampacidad};
+\node[io,fill=lightgray,below=0.55cm of oe1] (vd1) {\textbf{VD1}\\Especificación trazable};
+\node[io,fill=lightblue,below=0.55cm of oe2] (vd2) {\textbf{VD2}\\Artefacto verificado};
+\node[io,fill=green!10,below=0.55cm of oe3] (vd3) {\textbf{VD3}\\Expediente térmico};
+\node[io,fill=yellow!15,below=0.55cm of oe4] (vd4) {\textbf{VD4}\\Expediente de ampacidad};
+\node[io,fill=red!8,text width=14.5cm,below=1.05cm of vd2,xshift=1.9cm] (p) {\textbf{Parámetros de caso y controles (no son VI):} $\kx$, $C_k$, $f_h$, $d_h/D$, geometría, pérdidas, contornos, dominio y configuración numérica aceptada.};
+\foreach \n in {1,2,3,4}{\draw[arr] (vi\n) -- (oe\n); \draw[arr] (oe\n) -- (vd\n);}
+\draw[arr] (vd1.east) to[bend left=22] node[font=\scriptsize,fill=white] {hereda} (vi2.south west);
+\draw[arr] (vd2.east) to[bend left=22] node[font=\scriptsize,fill=white] {hereda} (vi3.south west);
+\draw[arr] (vd3.east) to[bend left=22] node[font=\scriptsize,fill=white] {hereda} (vi4.south west);
+\end{tikzpicture}
+}%
+\caption{Modelo entrada--proceso--salida de las dimensiones operativas. Las VI y las VD son objetos discretos; VD1--VD3 se heredan como componentes obligatorios de VI2--VI4. Los parámetros físicos y numéricos se documentan por caso, pero no se clasifican como VI ni VD. Fuente: Elaboración propia.}
+\label{fig:modelo-conceptual}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Variables discretas de entrada y salida, composición y estados por etapa de construcción del artefacto. Fuente: Elaboración propia.}
+\label{tab:dimensiones-operativas}
+\begingroup
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.42}
+\begin{tabularx}{\textwidth}{L{1.10cm}L{4.25cm}L{2.15cm}L{4.25cm}Y}
+\toprule
+\textbf{Etapa} & \textbf{VI discreta: composición y realizaciones} & \textbf{Actividad} & \textbf{VD discreta: objeto y estados} & \textbf{Indicadores del objeto} \\
+\midrule
+OE1 & \textbf{VI1=$P_1$. Paquete inicial de requisitos y datos.} Realizaciones: básico; completo; completo documentado. & Elaborar la especificación. & \textbf{VD1. Especificación trazable.} Estados: incompleta; completa pendiente de trazabilidad; trazable aceptada. & Cobertura de requisitos; trazabilidad requisito--prueba; consistencia de unidades y supuestos. \\
+OE2 & \textbf{VI2=$\{\mathrm{VD1},R_2\}$. Expediente de construcción y verificación.} $R_2$: analítico/manufacturado; FEM convergente; publicado; mixto. & Construir y verificar. & \textbf{VD2. Artefacto verificado y expediente de aceptación.} Estados: rechazado; aceptado con restricciones; aceptado en el dominio. & Error de $\Tmax$; NRMSE; residuos; balance energético; robustez; dominio aceptado. \\
+OE3 & \textbf{VI3=$\{\mathrm{VD2},E_3\}$. Expediente de evaluación térmica.} $E_3$: base; estratificado; localizado; mejorado; seco; multimaterial. & Evaluar escenarios. & \textbf{VD3. Expediente de evidencia térmica.} Estados: inconcluso; sin efecto relevante; efecto relevante no crítico; condición crítica. & $T(x,y)$; $\Tmax$; $\Delta\Tmax$; gradiente; punto caliente; cobertura de escenarios. \\
+OE4 & \textbf{VI4=$\{\mathrm{VD3},C_4\}$. Expediente de comparación.} $C_4$: par con homogénea equivalente; conservadora; optimista. & Comparar ampacidad. & \textbf{VD4. Expediente comparativo de ampacidad.} Estados: sin discrepancia relevante; reducción; aumento; inconcluso/fuera del dominio. & $\Imax$; $\Delta I\pct$; margen térmico; casos críticos; cobertura de pares. \\
+\bottomrule
+\end{tabularx}
+\endgroup
+\end{table}
+
+El objeto de estudio sigue siendo el arreglo de cables--entorno térmico y la unidad de análisis es su sección transversal 2D parametrizada. Los estados de las VD se asignarán con reglas fijadas antes de la evaluación final; los umbrales cuantitativos son indicadores para clasificar el objeto, no estados continuos de la variable. La calidad DSR se evalúa sobre VD1--VD4 mediante exactitud, consistencia física, robustez, trazabilidad y reproducibilidad. La matriz del \ref{anx:operacionalizacion-variables} desarrolla estas definiciones y registra aparte los parámetros físicos, controles y metadatos.
+
+

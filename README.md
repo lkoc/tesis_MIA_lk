@@ -4,24 +4,29 @@ La formulación activa resuelve la ecuación de calor en conductor, todas las ca
 
 ## Documentos y evidencia activa
 
+Las cifras vigentes (páginas, entrenamientos, aceptación y pruebas) están en [ESTADO.md](ESTADO.md); los pendientes y las decisiones, en [PENDIENTES.md](Tesis_LaTeX_Borrador_UNI/PENDIENTES.md). La auditoría general del 29-sep-2026 está en [AUDITORIA_GENERAL_2026-09-29.md](auditoria%20general/AUDITORIA_GENERAL_2026-09-29.md).
+
 - [Tesis PDF](Tesis_LaTeX_Borrador_UNI/tesis.pdf) y [fuente LaTeX](Tesis_LaTeX_Borrador_UNI/tesis.tex).
-- [Informe interno de todos los casos](Benchmarks/INFORME_INTERNO.md): datos, resultados, ventajas, limitaciones y gráficos.
-- [Análisis numérico](Benchmarks/ANALISIS_NUMERICO.md): sensibilidad al tamaño de red, colocaciones, presupuesto, orden observado y propagación del error.
-- [Muestreo adaptativo](Benchmarks/MUESTREO_ADAPTATIVO.md): comparación de puntos fijos, renovación aleatoria, residuo y gradiente térmico, con gráficos y selección auditable.
-- [Auditoría de tesis y código](docs/AUDITORIA_TESIS.md) y [plan de trabajo](docs/PLAN_AUDITORIA_TESIS.md).
+- [Campaña explícita A–D](Benchmarks/explicit_study/report/): 101 entrenamientos y confirmación con semillas nuevas; sus protocolos están en [docs/](docs/) (`PROTOCOLO_EXPERIMENTAL_EXPLICITO.md`, `PROTOCOLO_CALIBRACION_INTERFACES.md`, `PROTOCOLO_AMPACIDAD_EXPLICITA.md` y el borrador [`PROTOCOLO_RONDA_E.md`](docs/PROTOCOLO_RONDA_E.md)).
 - [Formato común](Benchmarks/FORMAT.md), [catálogo JSON](Benchmarks/cases/) y [configuraciones](Benchmarks/configurations/).
-- [Cuadernos Jupyter](Benchmarks/notebooks/), con citas y referencias; [instrucciones de ejecución](Benchmarks/README.md).
 - [Entornos y reproducción](Benchmarks/environment/README.md) y [tablas completas](Benchmarks/summary/).
-- [Fundamento de las variantes implementadas](docs/teoria_mejoras_pinn.md).
+
+### Documentos históricos (formulación reducida anterior al 14-sep-2026)
+
+No sustituyen los resultados de la campaña explícita:
+
+- [Informe interno de todos los casos](Benchmarks/INFORME_INTERNO.md), [análisis numérico](Benchmarks/ANALISIS_NUMERICO.md) y [muestreo adaptativo](Benchmarks/MUESTREO_ADAPTATIVO.md).
+- [Auditoría de tesis y código](docs/AUDITORIA_TESIS.md) y [plan de trabajo](docs/PLAN_AUDITORIA_TESIS.md).
+- [Cuadernos Jupyter](Benchmarks/notebooks/) y [fundamento de las variantes implementadas](docs/teoria_mejoras_pinn.md).
 
 ## Organización
 
 | Carpeta | Función |
 |---|---|
-| `Benchmarks` | Batería común y evidencia numérica actual: 19 casos, ambos métodos y comparación de configuraciones. |
+| `Benchmarks` | Campaña explícita vigente (`explicit_study`, etapas A–D) y, como historia, la batería común de 19 casos de la formulación reducida. |
 | `Tesis_LaTeX_Borrador_UNI` | Documento académico, referencias y figuras derivadas de la evidencia. |
 | `pinn_cables` | Biblioteca original revisada; pruebas de física y utilidades. La tesis usa la ruta auditada de `Benchmarks`. |
-| `Plan` | Plan, guías y entregas históricas; se conserva su identidad documental. |
+| `Plan` | Plan de tesis en LaTeX (`plan_tesis_cables_pinn.tex` y `capitulos/`), guías, literatura, datos de fuentes y `old/`; las entregas `envío_*` son históricas y no se modifican. |
 | `examples` | Ejemplos previos y salidas históricas; sus comparaciones no sustituyen la batería común. |
 | `docs` | Auditoría, criterios, registro de cambios y antecedentes. |
 | `benchmark_papers`, `zotero_offline` | Fuentes bibliográficas y adjuntos; las erratas de metadatos están documentadas. |
@@ -46,7 +51,7 @@ Para recalcular FEM, PINN o toda la campaña, seguir las instrucciones de
 Benchmarks. La ejecución guardada de los cuadernos carga artefactos producidos
 por los scripts; sus celdas opcionales permiten volver a calcularlos.
 
-La evidencia corresponde a un modelo DC reducido. No demuestra validación
-de campo, generalización a cualquier geometría, pérdidas AC completas ni
-una ventaja de tiempo frente a FEM. Dedicatoria, agradecimientos y constancias
-académicas requieren los datos auténticos de los tesistas.
+La evidencia vigente corresponde a la formulación explícita 2D estacionaria con fuentes prescritas por cable. No demuestra validación
+de campo, generalización a cualquier geometría, pérdidas AC completas, ampacidad explícita ni
+una ventaja de tiempo frente a FEM. La confirmación con semillas nuevas aceptó 7 de 21 ejecuciones. Dedicatoria, agradecimientos y constancias
+académicas requieren los datos auténticos de los tesistas. La licencia está en [LICENSE.md](LICENSE.md).

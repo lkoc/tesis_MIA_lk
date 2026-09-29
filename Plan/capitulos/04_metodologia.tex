@@ -1,0 +1,325 @@
+\chapter{METODOLOGÍA DE LA INVESTIGACIÓN}
+\label{ch:metodologia}
+\thispagestyle{empty}
+
+Este capítulo explica cómo se construirá, verificará y evaluará el artefacto PINN. La ciencia del diseño organiza el proceso y mantiene la relación entre $\kx$, $T(x,y)$, $\Tmax$, $\Imax$ y la evidencia producida en cada fase.
+
+\section{TIPO DE INVESTIGACIÓN}
+\label{sec:metodologia}
+
+La investigación tendrá enfoque cuantitativo porque calculará y comparará temperatura, errores, residuos, tiempos y variaciones de ampacidad. Además, esos registros se obtendrán mediante casos analíticos, manufacturados, bibliográficos y computacionales del arreglo de cables--entorno térmico.
+
+Será aplicada y tecnológica porque construirá un artefacto para estudiar un problema de ingeniería. Por tanto, evaluará tanto el efecto de $\kx$ como la utilidad del artefacto.
+
+\section{NIVEL DE INVESTIGACIÓN}
+
+El nivel de la investigación será explicativo y comparativo, con orientación tecnológica. Es explicativo porque busca establecer cómo el contraste, el patrón, la extensión y la proximidad de las heterogeneidades de $\kx$ modifican $T(x,y)$, $\Tmax$ e $\Imax$; es comparativo porque contrasta pares controlados de representación heterogénea y homogénea equivalente; y tiene orientación tecnológica porque incluye la construcción y la verificación del artefacto PINN.
+
+\section{MÉTODOS DE TRABAJO}
+
+Como maestría de especialización, el diseño metodológico se organizará como ciencia del diseño. Primero se especificará el problema; luego se construirá el artefacto; finalmente se demostrará, evaluará y comunicará.
+
+La metodología seguirá el paradigma DSR porque el estudio debe demostrar que el artefacto funciona y que su diseño produce conocimiento transferible. La estructura de identificación, diseño, demostración, verificación y comunicación se toma de \textcite[55--56]{peffers2007}; dentro de esa secuencia se contrastarán proposiciones sobre $\kx$, $\Tmax$ e $\Imax$. Las métricas cuantitativas serán evidencia del ciclo DSR, de acuerdo con el énfasis de \textcite[349--351]{gregor2013} en utilidad, calidad, eficacia y comunicación de la contribución. 
+
+Por esta razón, la metodología distingue objeto físico, entradas, configuración, producto, evidencia y controles, en lugar de tratar las dimensiones operativas como pares estadísticos aislados \parencites[55--56]{peffers2007}[342--344]{gregor2013}.
+
+\paragraph{Precisamiento de la formulación térmica y eléctrica.}
+En todas las variantes PINN se resolverá explícitamente la ecuación de calor
+en el conductor, cada capa del cable y el suelo. La pérdida impondrá
+$\nabla\!\cdot\mathbf q=Q$ y $\mathbf q=-k\nabla T$, o su forma equivalente
+de segundo orden, con continuidad de temperatura y flujo normal en cada
+interfaz. No se reconstruirá la temperatura interior mediante resistencias
+térmicas equivalentes. Las coordenadas locales de los anillos conservarán
+la dependencia angular; el centro del conductor tendrá una representación
+regular. El alcance evaluado seguirá siendo estacionario, dejando el término
+$\rho c_p\partial_t T$ y las condiciones iniciales para una extensión posterior
+con propiedades de almacenamiento documentadas.
+
+El contrato del caso identificará si la resistencia eléctrica es DC o AC,
+su frecuencia, temperatura y procedencia. Para operación a 60 Hz con datos
+DC se estimará el efecto piel según la construcción del conductor; un dato
+AC a esa frecuencia no se corregirá dos veces. Se distinguirá el aumento
+de pérdida total de su distribución volumétrica dentro del conductor.
+La hipótesis de fuente uniforme se contrastará con una distribución
+electromagnética manteniendo la misma pérdida total, sin sustituir la
+ecuación térmica. Una aproximación cilíndrica maciza no se atribuirá sin
+verificación a conductores segmentados ni a pérdidas de proximidad.
+
+\subsection{ADAPTACIÓN DE LA CIENCIA DEL DISEÑO}
+
+El Procedimiento~\ref{proc:dsr} resume cómo se adaptan las actividades DSR al estudio y muestra la función de cada una dentro del ciclo de construcción, demostración, evaluación y comunicación del artefacto.
+
+\begin{procedure}[htbp]
+\caption{Proceso DSR adaptado al estudio. Fuente: Elaboración propia.}
+\label{proc:dsr}
+\begin{enumerate}[label=\textbf{A\arabic*.}]
+  \item \textbf{Identificación y motivación:} delimitar el arreglo de cables--entorno térmico, la clase de problema, las entradas físicas relevantes y la diferencia operativa entre $k_{eq}$ y la conductividad térmica espacialmente variable $\kx$.
+  \item \textbf{Objetivos de solución:} convertir problemas y requisitos físicos en productos verificables, criterios cuantificables de exactitud, robustez, utilidad y reproducibilidad.
+  \item \textbf{Diseño y desarrollo:} definir la arquitectura lógica del artefacto, la representación computacional del sistema físico, sus entradas y salidas esperadas, implementar incrementos y registrar decisiones y versiones.
+  \item \textbf{Demostración:} ejecutar referencias, benchmarks y escenarios de heterogeneidad representativos para mostrar los resultados que produce el artefacto.
+  \item \textbf{Evaluación:} comparar productos y resultados con los criterios de aceptación, analizar errores y decidir refinamiento o aceptación.
+  \item \textbf{Comunicación:} sistematizar y documentar el artefacto, los insumos, los resultados, la evidencia, los límites, el procedimiento reproducible, los principios de diseño derivados y los productos académicos.
+\end{enumerate}
+\end{procedure}
+
+La secuencia seguirá a \textcite[55--56]{peffers2007}; sin embargo, la evaluación también será formativa. Por tanto, cada incremento deberá superar pruebas físicas y numéricas antes de usarse en la demostración. Esta decisión adopta el refinamiento continuo recomendado por \textcite[198--203]{delport2024}.
+
+\subsection{SÍNTESIS Y COMUNICACIÓN DE LA EVIDENCIA DSR}
+\label{subsec:sintesis-dsr}
+
+La Figura~\ref{fig:sintesis-metodologica-dsr} ubica la sistematización y los principios de diseño dentro de la metodología DSR.
+
+La sistematización de un procedimiento reproducible y la formulación de principios de diseño se realizarán después de construir, demostrar y evaluar el artefacto. En consecuencia, no se formulan como problema, objetivo o hipótesis específicos adicionales. Constituyen una actividad metodológica de cierre de DSR que transforma la evidencia generada por PE1--PE4, OE1--OE4 y HE1--HE4 en conocimiento documentado y comunicable \parencites[55--56]{peffers2007}[342--350]{gregor2013}.
+
+La síntesis usará VD1, la especificación trazable; VD2, el artefacto verificado y su expediente de aceptación; VD3, el expediente de evidencia térmica; VD4, el expediente comparativo de ampacidad; además de los registros de ejecución y los límites de validez. A partir de esos insumos se elaborarán la guía de reproducción, el protocolo consolidado de aplicación y evaluación, el repositorio depurado y los principios de diseño respaldados por evidencia. Los principios iniciales podrán confirmarse, modificarse o descartarse; no se considerarán resultados demostrados antes de completar la evaluación.
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.96\textwidth}{!}{%
+\begin{tikzpicture}[
+  evidencia/.style={draw,rounded corners=3pt,align=center,text width=3.35cm,minimum height=1.25cm,font=\small,inner sep=5pt},
+  sintesis/.style={draw,rounded corners=3pt,align=center,text width=4.1cm,minimum height=1.55cm,font=\small,inner sep=6pt},
+  salida/.style={draw,rounded corners=3pt,align=center,text width=3.7cm,minimum height=1.25cm,font=\small,inner sep=5pt},
+  arr/.style={-{Stealth[length=2.8mm]},line width=1pt}
+]
+\node[evidencia,fill=lightgray] (e1) {VD1\\Especificación trazable};
+\node[evidencia,fill=lightblue,below=0.45cm of e1] (e2) {VD2\\Artefacto verificado};
+\node[evidencia,fill=green!10,below=0.45cm of e2] (e3) {VD3\\Expediente térmico};
+\node[evidencia,fill=yellow!15,below=0.45cm of e3] (e4) {VD4\\Expediente de ampacidad};
+
+\node[sintesis,fill=orange!12,right=1.5cm of e2,yshift=-0.85cm] (s) {\textbf{Actividad metodológica DSR}\\Evaluar, integrar, abstraer y comunicar la evidencia\\[1mm]\textit{No agrega problema, objetivo ni hipótesis}};
+
+\node[salida,fill=red!8,right=1.5cm of s,yshift=1.05cm] (p1) {Procedimiento y guía de reproducción};
+\node[salida,fill=red!8,right=1.5cm of s,yshift=-1.05cm] (p2) {Principios de diseño, límites y repositorio depurado};
+
+\draw[arr] (e1.east) -- (s.west);
+\draw[arr] (e2.east) -- (s.west);
+\draw[arr] (e3.east) -- (s.west);
+\draw[arr] (e4.east) -- (s.west);
+\draw[arr] (s.east) -- (p1.west);
+\draw[arr] (s.east) -- (p2.west);
+\end{tikzpicture}%
+}
+\caption[Síntesis metodológica de la evidencia DSR]{Ubicación de la sistematización y de los principios de diseño dentro de la metodología DSR. La actividad ocurre después de obtener la evidencia de los cuatro objetivos específicos y no constituye un quinto problema, objetivo o hipótesis. Fuente: Elaboración propia.}
+\label{fig:sintesis-metodologica-dsr}
+\end{figure}
+
+\subsection{ARTEFACTO PROPUESTO}
+
+El artefacto será un modelo y prototipo computacional, por lo que no se reducirá a una red entrenada. A nivel lógico tendrá seis componentes, mostrados en la Figura~\ref{fig:arquitectura}. La especificación evitará decisiones prematuras sobre bibliotecas, hardware o clases de software, ya que esas decisiones se tomarán después de confirmar requisitos. Además, se registrarán como parte de la búsqueda de diseño.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  comp/.style={draw,rounded corners=3pt,align=center,text width=3.6cm,minimum height=1.25cm,font=\small},
+  arr/.style={-{Stealth[length=2.8mm]},thick}]
+\node[comp,fill=lightblue] (spec) {1. Especificación del caso\\geometría, materiales, carga y contornos};
+\node[comp,fill=lightblue,right=1.0cm of spec] (phys) {2. Representación física\\PDE, fuentes, interfaces\\y conductividad variable $\kx$};
+\node[comp,fill=green!12,right=1.0cm of phys] (solver) {3. Solucionador PINN\\aproximación y entrenamiento};
+\node[comp,fill=orange!12,below=1.15cm of solver] (eval) {4. Verificación\\evaluación técnica con referencias, residuos, balance y robustez};
+\node[comp,fill=orange!12,left=1.0cm of eval] (exp) {5. Experimentación numérica\\casos, sensibilidad y ampacidad};
+\node[comp,fill=lightgray,left=1.0cm of exp] (report) {6. Trazabilidad\\datos, metadatos, resultados e informes};
+\draw[arr] (spec) -- (phys);
+\draw[arr] (phys) -- (solver);
+\draw[arr] (solver) -- (eval);
+\draw[arr] (eval) -- (exp);
+\draw[arr] (exp) -- (report);
+\draw[arr,dashed] (eval.north) to[bend left=25] (phys.south);
+\draw[arr,dashed] (report.north) to[bend left=25] (spec.south);
+\end{tikzpicture}
+\caption{Arquitectura lógica del artefacto DSR propuesto. Fuente: Elaboración propia.}
+\label{fig:arquitectura}
+\end{figure}
+
+Los componentes expresan el artefacto a un nivel lógico, de modo que separan los principios de diseño de una implementación particular. Esta separación favorece la reutilización y responde a la recomendación de \textcite[342--350]{gregor2013} sobre describir artefacto, requisitos y búsqueda de diseño. El mismo esquema recoge la evaluación continua recomendada por \textcite[198--203]{delport2024}.
+
+\subsection{MODELO FÍSICO}
+\label{subsec:modelo-fisico}
+
+Para régimen estacionario, la temperatura se gobernará por la conservación de energía en un medio de conductividad espacialmente variable. Esta forma se toma de la ecuación clásica de conducción de calor para medios heterogéneos y se adapta al dominio 2D del estudio \parencites{carslaw1959conduction,kakac2018heatConduction,hahn2012heatConduction}[3]{xing2023}:
+
+\begin{formula}
+\centering
+\begin{equation}
+\label{for:calor}
+\nabla\!\cdot\!\left(\kx\nabla T(x,y)\right)+Q(x,y)=0,
+\qquad (x,y)\in\Omega .
+\end{equation}
+\caption{Ecuación de conducción de calor 2D estacionaria. Fuente: Elaboración propia.}
+\end{formula}
+
+La Fórmula~\ref{for:calor} expresa el balance estacionario usado como núcleo físico del artefacto. En ella, $Q$ representa las pérdidas volumétricas o una distribución equivalente de fuentes, mientras que $\kx$ mantiene la variación de material dentro del operador térmico. Por ello, la formulación evita tratar las discontinuidades como cambios externos al operador y es coherente con PINN que incluyen propiedades espaciales \parencite[3]{xing2023}.
+
+En las interfaces se impondrá continuidad de temperatura y de flujo normal. En el contorno se usarán condiciones de temperatura, flujo o convección, según el caso de referencia \parencite[3--5]{enescu2020}.
+
+\begin{formula}
+\centering
+\begin{equation}
+\label{for:interfaz}
+T_1=T_2,
+\qquad
+\mathbf{n}\cdot k_1\nabla T_1=\mathbf{n}\cdot k_2\nabla T_2
+\quad \text{en }\Gamma_{12}.
+\end{equation}
+\caption{Condiciones de interfaz entre dos materiales. Fuente: Elaboración propia.}
+\end{formula}
+
+La Fórmula~\ref{for:interfaz} hace explícita esa restricción: la temperatura debe ser continua y el flujo normal debe conservarse entre materiales. Esta condición proviene del balance térmico en interfaces y es relevante porque el dominio incluye cable, suelo de relleno y suelo nativo, de modo que las interfaces no pueden introducir saltos térmicos sin justificación física \parencites{carslaw1959conduction,kakac2018heatConduction}{patankar1980numerical}[3]{xing2023}.
+
+La PINN aproximará el campo $T(x,y)$ y minimizará una pérdida compuesta, la cual incluirá residuos de ecuación, contornos, interfaces y datos de referencia cuando existan \parencite[686--690]{raissi2019}. Este esquema sigue la penalización física propuesta por \textcite[686--690]{raissi2019}; sin embargo, los pesos no se fijarán de antemano. Los pesos serán parte de la búsqueda de diseño, debido a que gradientes desbalanceados pueden sesgar la convergencia en redes PINN \parencites[16]{pan2025}[1--2,17]{lawal2022}.
+
+\begin{formula}
+\centering
+\begin{equation}
+\label{for:loss}
+\mathcal{L}(\theta)=
+w_f\mathcal{L}_{\mathrm{PDE}}+
+w_b\mathcal{L}_{\mathrm{cont}}+
+w_i\mathcal{L}_{\mathrm{int}}+
+w_d\mathcal{L}_{\mathrm{datos}}+
+w_e\mathcal{L}_{\mathrm{energía}}.
+\end{equation}
+\caption{Función de pérdida lógica del artefacto PINN. Fuente: Elaboración propia.}
+\end{formula}
+
+La Fórmula~\ref{for:loss} organiza el entrenamiento como una suma ponderada de restricciones. Es una formulación operacional del estudio basada en la pérdida PINN de \textcite[686--690]{raissi2019} y en los problemas de ponderación reportados por \textcite[1--2,17]{lawal2022} y \textcite[16]{pan2025}. El término $\mathcal{L}_{\mathrm{PDE}}$ penaliza el incumplimiento de la ecuación de calor; los términos de contorno e interfaz controlan condiciones físicas auxiliares; los datos y la energía agregan trazabilidad cuando exista una referencia.
+
+La ampacidad se obtendrá buscando la corriente que hace coincidir $\Tmax$ con el límite térmico adoptado. Este criterio se basa en la definición clásica de corriente admisible y en el tratamiento normativo de régimen permanente para cables \parencites[752--760]{neher1957}[cláusulas 4--5]{iec60287}[3--6]{enescu2021}. En cada iteración se actualizarán las pérdidas dependientes de corriente y luego se resolverá el campo térmico hasta cumplir tolerancias de temperatura y energía.
+
+\begin{formula}
+\centering
+\begin{equation}
+\label{for:ampacidad}
+\Imax=\max\left\{I:\max_{(x,y)\in\Omega_c}T(x,y;I)\leq T_{\mathrm{lim}}\right\}.
+\end{equation}
+\caption{Condición para calcular la ampacidad. Fuente: Elaboración propia.}
+\end{formula}
+
+La Fórmula~\ref{for:ampacidad} convierte ese criterio en una condición operacional para el artefacto. La corriente admisible es el mayor valor de $I$ que mantiene la temperatura máxima del conductor, evaluada en $\Omega_c$, por debajo del límite térmico $T_{\mathrm{lim}}$. Por tanto, el cálculo de ampacidad depende directamente de la calidad del campo $T(x,y;I)$.
+
+\section{POBLACIÓN Y MUESTRA}
+
+La población de referencia es el conjunto de configuraciones de cables enterrados en entornos térmicamente heterogéneos dentro del dominio 2D estacionario delimitado. Por tratarse de una maestría de especialización, no se extraerá una muestra probabilística: se seleccionará de forma intencional un conjunto de casos, realizaciones de $R_2$, $E_3$ y $C_4$, descrito en el \ref{anx:diseno-casos}.
+
+\subsection{CONTEXTO DE APLICACIÓN Y UNIDAD DE ANÁLISIS}
+\label{subsec:unidad-analisis}
+
+Por tratarse de una maestría de especialización, la unidad de análisis no será una población estadística, sino una sección transversal 2D del arreglo de cables--entorno térmico. Cada caso se definirá por atributos físicos y computacionales, entre ellos geometría, disposición, propiedades térmicas, carga, contornos, referencia de comparación y versión del artefacto. Estos atributos se alojan en $P_1$, $R_2$, $E_3$ o $C_4$ según la etapa y no constituyen por separado las VI metodológicas. Los valores de cables, materiales y entorno térmico se tomarán de fuentes bibliográficas, normas, casos publicados, soluciones analíticas o supuestos declarados. El artefacto PINN será la unidad de intervención. Por tanto, su evaluación seguirá la lógica DSR.
+
+Los casos se seleccionarán por pertinencia técnica y capacidad de evaluación. Se usarán soluciones analíticas, soluciones manufacturadas, benchmarks FEM, configuraciones publicadas y escenarios representativos. Así, los casos mostrarán alcance, límites y utilidad del artefacto. Sin embargo, no se levantarán mediciones directas de campo ni se buscará inferencia probabilística sobre todas las instalaciones posibles.
+
+\section{TIPO DE DISEÑO}
+
+El diseño es de ciencia del diseño (DSR), con ciclos formativos de evaluación y comparaciones pareadas entre representaciones heterogéneas y homogéneas equivalentes sobre casos discretos. No es un diseño experimental de campo ni un diseño factorial estadístico.
+
+\subsection{EXPERIMENTACIÓN NUMÉRICA DEL ARTEFACTO DENTRO DE DSR}
+
+La experimentación numérica permitirá observar el comportamiento térmico del sistema y servirá para demostrar y evaluar el artefacto dentro de la metodología DSR. No se planteará como un diseño experimental autónomo orientado a inferencia estadística, sino como una secuencia de casos controlados. Primero, la secuencia verificará el prototipo con casos simples y trazables; luego, demostrará su uso en configuraciones con $\kx$. Finalmente, evaluará la diferencia entre representaciones heterogéneas y homogéneas equivalentes para estimar el efecto sobre $\Tmax$ e $\Imax$.
+
+Las comparaciones serán pareadas y controladas. Por tanto, cuando se evalúe heterogeneidad, solo cambiará la representación térmica del entorno. Además, los barridos de contraste, extensión y proximidad mostrarán sensibilidad física y límites del artefacto. La Tabla~\ref{tab:experimentacion-dsr} ordena esa secuencia dentro del ciclo DSR.
+
+\begin{table}[htbp]
+\centering
+\caption{Uso de la experimentación numérica dentro del ciclo DSR. Fuente: Elaboración propia.}
+\label{tab:experimentacion-dsr}
+\begin{tabularx}{\textwidth}{L{3.2cm}Y Y}
+\toprule
+\textbf{Momento DSR} & \textbf{Propósito de la experimentación numérica} & \textbf{Evidencia esperada} \\
+\midrule
+Verificación formativa & Comprobar que las entradas físicas, PDE, contornos, interfaces, pérdidas y cálculo de ampacidad están implementados de forma coherente. & \textbf{VD2:} artefacto verificado, paquete de pruebas, errores frente a referencias, residuos, balance, dominio y estado de aceptación. \\
+Demostración & Mostrar que el artefacto puede transformar escenarios de cables enterrados con materiales heterogéneos en campos térmicos interpretables. & \textbf{VD3:} expediente térmico con mapas $T(x,y)$, $\Tmax$, punto caliente, diferencias, límites y estado del efecto. \\
+Evaluación mediante verificación & Juzgar utilidad, robustez, reproducibilidad y límites mediante cálculos y referencias, sin validación experimental de campo. & \textbf{VD4:} expediente comparativo con ampacidad, discrepancia, margen, clasificación de casos y estado final. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{TÉCNICAS E INSTRUMENTOS DE RECOLECCIÓN DE DATOS}
+
+Los datos se recolectarán mediante revisión documental y registro de ejecuciones computacionales. Los instrumentos y la trazabilidad se describen a continuación.
+
+\subsection{EVIDENCIA, INSTRUMENTOS Y TRAZABILIDAD}
+
+La evidencia provendrá de revisión documental, casos analíticos o manufacturados, referencias FEM, configuraciones publicadas y ejecuciones computacionales registradas. Por tanto, cada fuente deberá quedar asociada a un uso dentro del estudio. Los instrumentos serán la matriz de extracción bibliográfica, la especificación de requisitos y el catálogo de casos. Además, se usarán la bitácora DSR, archivos parametrizados, pruebas, matriz de resultados y protocolo de reproducción.
+
+Cada resultado conservará fuente, unidad, supuesto, semilla, versión del código, configuración de entrenamiento, criterio de convergencia y huella de salida. Esta trazabilidad permitirá reconstruir por qué se aceptó, refinó o descartó un incremento del artefacto.
+
+\section{TÉCNICAS E INSTRUMENTOS DE ANÁLISIS Y PROCESAMIENTO DE DATOS}
+
+El análisis comparará los resultados del artefacto con referencias independientes mediante las métricas y los criterios que siguen.
+
+\subsection{MÉTRICAS DE EVALUACIÓN}
+
+La evaluación combinará exactitud, consistencia física, utilidad y reproducibilidad. Para temperatura se usarán error de $\Tmax$, el error absoluto medio (MAE) o el error cuadrático medio (RMSE) espacial, error máximo, residuos y balance energético.
+
+Estas métricas son coherentes con la verificación de herramientas de ampacidad recomendada por \textcite[93--99]{cigre2025}. Además, para ampacidad se reportará $\Imax$, diferencia porcentual y margen térmico.
+
+Para la calidad del artefacto se registrarán robustez entre semillas, cobertura de requisitos y facilidad de reproducción. El tiempo, la memoria y el hardware se conservarán como metadatos secundarios para interpretar la ejecución, no como medidas económicas ni como criterio central de aceptación. Por tanto, se seguirán los criterios DSR de utilidad, calidad y eficacia de \textcite[350--351]{gregor2013}.
+
+Las métricas mínimas de reporte se definen operacionalmente en la Fórmula~\ref{for:metricas-evaluacion}, porque el artefacto debe evaluarse tanto por temperatura como por efecto operativo sobre ampacidad. La forma porcentual se adopta para facilitar la comparación entre referencias, como recomiendan los criterios de verificación de herramientas de \textit{rating} \parencite[93--99]{cigre2025}.
+
+\begin{formula}
+\centering
+\begin{equation}
+\label{for:metricas-evaluacion}
+\begin{aligned}
+e_{T_{\max}}(\pct)&=
+100\frac{|T_{\max}^{\mathrm{PINN}}-T_{\max}^{\mathrm{ref}}|}
+{|T_{\max}^{\mathrm{ref}}|},\\
+\Delta I(\pct)&=100\frac{I_{\mathrm{het}}-I_{\mathrm{hom}}}{I_{\mathrm{hom}}}.
+\end{aligned}
+\end{equation}
+\caption{Métricas básicas de evaluación térmica y de ampacidad. Fuente: Elaboración propia.}
+\end{formula}
+
+En la Fórmula~\ref{for:metricas-evaluacion}, $e_{T_{\max}}$ mide el error relativo de la temperatura máxima calculada por la PINN frente a una referencia, mientras que $\Delta I$ mide el cambio porcentual entre el escenario heterogéneo y el homogéneo. Estas expresiones no proceden de una norma como umbrales universales, sino que organizan el reporte cuantitativo del estudio dentro de la lógica DSR de utilidad, calidad y eficacia \parencite[350--351]{gregor2013}. La interpretación no dependerá de pruebas estadísticas como criterio central.
+
+\subsection{VERIFICACIÓN Y CRITERIOS DSR}
+\label{subsec:verificacion-dsr}
+
+La evaluación técnica se planteará como verificación, no como validación experimental de campo. Por tanto, responderá si el artefacto implementa bien la formulación térmica. La verificación usará referencias independientes, entre ellas casos analíticos, soluciones manufacturadas, FEM convergentes y casos publicados con datos suficientes \parencite[3--4,93--99]{cigre2025}.
+
+La IEC 60287 se usará como línea base normativa, aunque la referencia principal para juzgar el campo térmico será analítica, manufacturada o FEM convergente \parencite[3--4,93--99]{cigre2025}. Cuando el caso sea comparable, también se emplearán resultados publicados sobre suelo nativo y suelo de relleno. Por ejemplo, se usarán los trabajos de \textcite[1,6--7]{khumalo2025} y \textcite[9--10,16]{kim2025}.
+
+No se levantarán mediciones directas de campo; por ello, la validación experimental queda fuera del alcance, debido a que requeriría una campaña específica de instrumentación y seguimiento. La Tabla~\ref{tab:criterios} convierte esa lógica en reglas iniciales de aceptación y distingue verificación numérica, consistencia física, utilidad, reproducibilidad y contribución DSR.
+
+\begin{table}[htbp]
+\centering
+\caption{Criterios DSR de aceptación del artefacto. Fuente: Elaboración propia.}
+\label{tab:criterios}
+\begin{tabularx}{\textwidth}{L{3.1cm}Y L{3.0cm}}
+\toprule
+\textbf{Criterio} & \textbf{Evidencia esperada} & \textbf{Regla inicial} \\
+\midrule
+Verificación numérica & Concordancia de $\Tmax$ y campo térmico con referencia convergente. & $e_{T_{\max}}\leq5\,\pct$ y NRMSE $\leq5\,\pct$. \\
+Consistencia física & Residuos, contornos, interfaces y balance global de energía. & Desequilibrio $\leq2\,\pct$. \\
+Utilidad & Representa la conductividad térmica espacialmente variable $\kx$, estima $\Tmax$ e $\Imax$ y compara escenarios homogéneos/heterogéneos. & Requisitos críticos cubiertos. \\
+Reproducibilidad & Resultado reconstruible desde datos, versión, configuración y semilla. & Casos aceptados reproducibles. \\
+Contribución DSR & Requisitos, arquitectura, límites y principios de diseño explicitados. & Síntesis transferible a problemas 2D multimateriales. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Si un incremento no satisface criterios críticos, se volverá al diseño, como permite la secuencia DSRM de \textcite[56]{peffers2007}. Por tanto, la evaluación también servirá para decidir refinamientos. Si el piloto exige ajustar una regla, el cambio se justificará antes de la evaluación final, para evitar que los criterios cambien después de observar resultados favorables. Con ello se conserva la trazabilidad necesaria para comunicar evidencia y límites de validez \parencite[350--351]{gregor2013}.
+
+\section{ETAPAS DE INTERVENCIÓN DEL ESTUDIO}
+
+El Procedimiento~\ref{proc:etapas} organiza el trabajo en fases operativas y asocia cada una con un producto y una puerta de decisión. Esta estructura evita que la implementación avance sin requisitos, verificación básica o protocolo de evaluación suficientemente definidos.
+
+\begin{procedure}[htbp]
+\caption{Etapas, productos y puertas de decisión. Fuente: Elaboración propia.}
+\label{proc:etapas}
+\begin{tabularx}{\textwidth}{C{1.0cm}L{3.4cm}Y L{3.2cm}}
+\toprule
+\textbf{Fase} & \textbf{Actividad} & \textbf{Producto} & \textbf{Puerta} \\
+\midrule
+  1 & Revisión y especificación & VD1: especificación trazable y matriz requisito--prueba. & Aprobación de alcance y trazabilidad. \\
+  2 & Diseño lógico y prototipo & Arquitectura, modelo físico, código versionado y pruebas unitarias/físicas. & Verificación básica. \\
+  3 & Construcción, verificación y piloto & VD2: artefacto verificado y expediente de aceptación. & Aceptación, restricción o rechazo del artefacto. \\
+  4 & Demostración y evaluación térmica & VD3: expediente térmico por escenarios y clasificación de efectos. & Cobertura y calidad de la evidencia. \\
+  5 & Comparación de ampacidad & VD4: expediente comparativo y clasificación de casos críticos. & Cobertura de pares y validez operativa. \\
+6 & Síntesis DSR (actividad metodológica) & Procedimiento reproducible, principios de diseño, límites y evaluación final. & Aceptación del artefacto. \\
+7 & Comunicación & Tesis, repositorio y manuscrito. & Revisión académica. \\
+\bottomrule
+\end{tabularx}
+\end{procedure}
+

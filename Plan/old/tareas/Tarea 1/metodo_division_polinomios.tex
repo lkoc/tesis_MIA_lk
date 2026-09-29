@@ -1,0 +1,53 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=2.2cm]{geometry}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{fontspec}
+\usepackage{microtype}
+\usepackage[spanish,es-nodecimaldot]{babel}
+
+\setmainfont{Latin Modern Roman}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.45em}
+\setlist[itemize]{leftmargin=1.2em,itemsep=0.15em,topsep=0.2em}
+
+\begin{document}
+
+\begin{center}
+{\Large \textbf{Método de división de polinomios}}
+\end{center}
+
+\textbf{Destinatario.} Este documento está dirigido a estudiantes que ya operan con expresiones algebraicas y necesitan dividir polinomios sin memorizar pasos sueltos.
+
+\textbf{Idea central.} La división de polinomios permite escribir un polinomio como el producto de un divisor por un cociente, más un residuo:
+\[
+f(x)=d(x)q(x)+r(x), \qquad \deg r(x)<\deg d(x).
+\]
+La idea que se desea transmitir es simple: dividir polinomios no es adivinar; es ordenar, comparar términos principales y repetir una resta controlada.
+
+\textbf{Conocimientos previos.} El lector debe reconocer grados, coeficientes, términos semejantes, suma, resta y multiplicación de polinomios.
+
+\textbf{Inicio.} Antes de dividir, se ordenan el dividendo y el divisor de mayor a menor grado. Si falta una potencia, se deja el espacio o se escribe coeficiente cero. Esto evita errores, porque cada resta debe hacerse con términos semejantes.
+
+\textbf{Desarrollo.} El método largo es un procedimiento de comparación y resta. Primero se mira el término de mayor grado del dividendo parcial y se pregunta qué debe multiplicar al primer término del divisor para obtenerlo. Esa respuesta forma el siguiente término del cociente. Luego se multiplica todo el divisor por ese término, se coloca el producto debajo de los términos semejantes y se resta. Después se baja el siguiente término del dividendo y se repite el ciclo.
+
+El procedimiento puede resumirse así:
+\begin{itemize}
+  \item Ordenar y completar los polinomios, por ejemplo con \(0x\) si falta un término.
+  \item Dividir los términos principales: ese resultado entra al cociente.
+  \item Multiplicar todo el divisor por el nuevo término del cociente.
+  \item Restar el producto, cuidando los signos y la alineación por grados.
+  \item Bajar el siguiente término y repetir hasta que ya no se pueda continuar.
+\end{itemize}
+El proceso termina cuando el residuo tiene menor grado que el divisor. Por ejemplo, al dividir \(2x^3-3x^2+4x+5\) entre \(x+2\), se obtiene
+\[
+2x^3-3x^2+4x+5=(x+2)(2x^2-7x+18)-31.
+\]
+Por tanto, el cociente es \(2x^2-7x+18\) y el residuo es \(-31\).
+
+\textbf{Excepciones y cuidados.} No se puede dividir entre el polinomio cero. Si el divisor tiene mayor grado que el dividendo, el cociente es \(0\) y el residuo es el dividendo. La división sintética solo aplica directamente cuando el divisor tiene la forma \(x-c\); si no, se usa división larga o se adapta el divisor con cuidado.
+
+\textbf{Cierre.} La división de polinomios es una forma ordenada de descomponer una expresión. Su valor no está solo en hallar un cociente, sino en verificar una igualdad. Si al multiplicar divisor por cociente y sumar el residuo se recupera el dividendo, el trabajo está bien construido.
+
+\end{document}

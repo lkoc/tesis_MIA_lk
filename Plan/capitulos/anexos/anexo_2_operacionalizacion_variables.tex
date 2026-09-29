@@ -1,0 +1,73 @@
+\section{MATRIZ DE OPERACIONALIZACIÓN DE VARIABLES}
+\label{anx:operacionalizacion-variables}
+\thispagestyle{empty}
+
+La Tabla~\ref{tab:operacionalizacion-variables} presenta la matriz de operacionalización por etapa.
+
+Este anexo operacionaliza la secuencia entrada--proceso--salida definida en la Sección~\ref{sec:dimensiones-operativas}. Las cuatro variables independientes son paquetes discretos de objetos que ingresan a OE1--OE4; las variables dependientes son los productos discretos de esas etapas. VD1, VD2 y VD3 se conservan como componentes heredados de VI2, VI3 y VI4, respectivamente. Los parámetros físicos, los controles numéricos, los indicadores y los metadatos se registran por separado para impedir que se confundan con las variables de construcción del artefacto.
+
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.18}
+\begin{longtable}{L{4.00cm}L{4.20cm}L{8.20cm}L{6.30cm}}
+\caption{Matriz de operacionalización de variables. Fuente: Elaboración propia.}
+\label{tab:operacionalizacion-variables}\\
+\toprule
+\textbf{Elemento metodológico} &
+\textbf{Variable o elemento} &
+\textbf{Operacionalización en el estudio} &
+\textbf{Indicador, instrumento o registro} \\
+\midrule
+\endfirsthead
+
+\toprule
+\textbf{Elemento metodológico} &
+\textbf{Variable o elemento} &
+\textbf{Operacionalización en el estudio} &
+\textbf{Indicador, instrumento o registro} \\
+\midrule
+\endhead
+
+\midrule
+\multicolumn{4}{r}{\small Continúa en la siguiente página.}\\
+\midrule
+\endfoot
+
+\bottomrule
+\endlastfoot
+
+Objeto de estudio & Arreglo de cables--entorno térmico & Conjunto físico tangible formado por los cables multicapa y su disposición, el lecho de asiento, el suelo de relleno y el suelo nativo, donde el calor generado en los conductores se transfiere hacia el entorno. & Ficha del caso; geometría y disposición; materiales; carga; condiciones de borde. \\
+
+Unidad de análisis & Sección transversal 2D del objeto de estudio & Caso computacional parametrizado por geometría, materiales, fuentes, contornos, referencia y versión del artefacto. & Identificador de caso; archivo de entrada; metadatos de ejecución; salida reproducible. \\
+
+Variable independiente discreta de OE1 & \textbf{VI1=$P_1$. Paquete inicial de requisitos y datos} & Objeto documental sin entrada heredada. Realizaciones: básico; completo; completo documentado. Define los datos, requisitos y fuentes disponibles para elaborar VD1. & Código de realización; lista de campos; fuentes; versión; ficha de integridad. \\
+
+Variable independiente discreta de OE2 & \textbf{VI2=$\{\mathrm{VD1},R_2\}$. Expediente de construcción y verificación} & Paquete compuesto por VD1 trazable aceptada y un conjunto nuevo $R_2$. Realizaciones de $R_2$: analítica/manufacturada; FEM convergente; publicada; mixta. & Identificador de VD1; código de $R_2$; procedencia; versión; evidencia de convergencia o validez. \\
+
+Variable independiente discreta de OE3 & \textbf{VI3=$\{\mathrm{VD2},E_3\}$. Expediente de evaluación térmica} & Paquete compuesto por VD2 aceptada, o aceptada con restricciones compatibles, y un catálogo nuevo $E_3$. Realizaciones: base; estratificada; localizada; mejorada; seca; multimaterial. & Identificador de VD2; estado heredado; código de $E_3$; archivo de entrada; ficha física. \\
+
+Variable independiente discreta de OE4 & \textbf{VI4=$\{\mathrm{VD3},C_4\}$. Expediente de comparación de ampacidad} & Paquete compuesto por VD3 concluyente y un catálogo nuevo $C_4$. Realizaciones: par heterogéneo 2D--homogéneo equivalente; conservador; optimista. & Identificador de VD3; estado heredado; código de $C_4$; regla de equivalencia; identificador del par. \\
+
+Variable dependiente de OE1 / entrada heredada de OE2 & \textbf{VD1$\equiv\mathrm{VI}_{2,h}$. Especificación trazable} & Producto documental con requisitos, criterios y correspondencia requisito--prueba. Estados: incompleta; completa pendiente de trazabilidad; trazable aceptada. Solo el último estado habilita VI2. & Estado de VD1; cobertura; trazabilidad; consistencia de unidades; supuestos y exclusiones. \\
+
+Variable dependiente de OE2 / entrada heredada de OE3 & \textbf{VD2$\equiv\mathrm{VI}_{3,h}$. Artefacto verificado y expediente de aceptación} & Objeto versionado formado por prototipo, pruebas, métricas y dominio. Estados: rechazado; aceptado con restricciones; aceptado en el dominio. Los estados aceptados compatibles habilitan VI3. & Estado de VD2; error de $\Tmax$; MAE; NRMSE; residuos; balance; robustez; dominio de validez. \\
+
+Variable dependiente de OE3 / entrada heredada de OE4 & \textbf{VD3$\equiv\mathrm{VI}_{4,h}$. Expediente de evidencia térmica} & Objeto documental y de datos por escenario. Estados: inconcluso; sin efecto relevante; efecto relevante no crítico; condición crítica. Los estados concluyentes habilitan VI4. & Estado de VD3; $T(x,y)$; $\Tmax$; $\Delta\Tmax$; gradiente; punto caliente; cobertura del catálogo. \\
+
+Variable dependiente final de OE4 & \textbf{VD4. Expediente comparativo de ampacidad} & Objeto final con resultados, márgenes y casos críticos. Estados: sin discrepancia relevante; reducción de ampacidad; aumento de ampacidad; inconcluso/fuera del dominio. & Estado de VD4; $\Imax$; $\Delta I\pct$; margen; cobertura de pares; clasificación de casos críticos. \\
+
+Parámetros físicos de caso (no son VI ni VD) & Propiedades y configuración del sistema físico & Atributos incorporados en $P_1$, $E_3$ y $C_4$ para describir la física: no representan objetos de transición entre etapas. & Mapa $\kx$; contraste $C_k$; extensión $f_h$; proximidad $d_h/D$; geometría; materiales; pérdidas; $T_{\mathrm{amb}}$; dominio y contornos. \\
+
+Criterios transversales DSR & Exactitud, consistencia física, robustez, trazabilidad y reproducibilidad & Criterios aplicados a VD1--VD4 y a la síntesis metodológica posterior. No constituyen una quinta VD ni un problema específico adicional. & Cumplimiento de umbrales; casos aceptados reproducidos; cobertura documental; límites de validez; bitácora de decisiones. \\
+
+Controles numéricos y metadatos & Configuración aceptada y registro de ejecución & Condiciones que se fijan tras el piloto o se registran para interpretar la evidencia sin atribuirles el efecto físico. & Arquitectura; pesos de pérdida; densidad de puntos; semilla; convergencia; tolerancia FEM; versión de código; tiempo, memoria y hardware. \\
+
+Condiciones no controladas registradas & Incertidumbre documental y variabilidad numérica & Condiciones que no siempre pueden fijarse, pero que se reportan para interpretar la evidencia sin ocultar limitaciones. & Semilla; convergencia; tolerancia FEM; datos faltantes de publicaciones; rango de propiedades térmicas; hardware. \\
+
+Instrumento de registro y evaluación & Artefacto PINN y protocolo de verificación & Conjunto formado por especificación, implementación, casos de referencia, programas de evaluación, bitácora y repositorio. & Código versionado; archivos parametrizados; pruebas; tablas de resultados; figuras térmicas; bitácora DSR. \\
+
+Característica de registro & Registro computacional del campo térmico y métricas escalares & Registro de matrices espaciales, máximos, diferencias porcentuales, residuos, tiempos y metadatos. & Matrices $T(x,y)$; mapas $\kx$; CSV de métricas; reporte de energía; salida gráfica. \\
+
+Tamaño de muestra metodológico & Paquete de referencias, escenarios y pares & Selección intencional de realizaciones de $R_2$, $E_3$ y $C_4$, acompañadas por los productos heredados aceptados y por combinaciones de parámetros físicos suficientes para verificar el artefacto y cubrir escenarios relevantes. & Casos analíticos o manufacturados; referencias FEM; casos publicados; malla de cobertura del \ref{anx:diseno-casos}. \\
+
+\end{longtable}

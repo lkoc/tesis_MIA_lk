@@ -1,0 +1,74 @@
+\section{ESTRATEGIA DE REVISIÓN DOCUMENTAL}
+\thispagestyle{empty}
+
+La base documental se construirá con fuentes académicas, normativas y técnicas reconocidas. Además, se usarán fuentes recientes o vigentes, recuperadas como texto completo y organizadas en Zotero.
+
+Para los antecedentes se priorizarán artículos revisados por pares de 2021--2026. Sin embargo, no se excluirán normas vigentes ni fuentes clásicas indispensables.
+
+Las búsquedas combinarán términos de cable subterráneo, ampacidad, suelo nativo, suelo de relleno, heterogeneidad, FEM, PINN, conducción de calor y DSR. Por tanto, cada afirmación cuantitativa se vinculará con página, tabla o figura de la fuente primaria.
+
+La estrategia se ejecutó el 5 de junio de 2026. Además de auditar los registros del gestor bibliográfico y los PDF locales, se verificaron DOI, títulos y disponibilidad de texto completo mediante fuentes editoriales, Crossref y OpenAlex. El string general de partida fue:
+
+\begin{quote}\scriptsize\ttfamily\RaggedRight
+("underground power cable*" OR "buried power cable*" OR "underground cable system*")\\
+AND (thermal OR ampacity OR "thermal rating" OR temperature)\\
+AND (review OR assessment OR systematic OR survey OR mapping OR overview)
+\end{quote}
+
+Para mantener la búsqueda reproducible sin extender este anexo, la Tabla~\ref{tab:strings-documentales} se incluye como evidencia operativa de la estrategia y resume los bloques booleanos usados por tema. En cada bloque se aplicaron, según el tipo de fuente requerida, los filtros estado del arte: \texttt{review OR systematic OR bibliometric OR survey OR mapping OR overview OR assessment}; aporte: \texttt{method OR framework OR model OR formulation OR algorithm OR "inverse problem" OR "calculation method"}; y aplicación: \texttt{application OR prediction OR reconstruction OR monitoring OR simulation OR experiment OR optimization OR "case study"}.
+
+La Tabla~\ref{tab:criterios-documentales} se incluye para explicitar los criterios de selección documental y reducir la arbitrariedad al aceptar, excluir o usar una fuente solo como apoyo.
+
+\clearpage
+\begin{landscape}
+\thispagestyle{empty}
+\begin{center}
+\captionsetup{type=table,hypcap=false}
+\phantomsection
+\caption{Strings de búsqueda documental usados por tema. Fuente: Elaboración propia.}
+\label{tab:strings-documentales}
+\vspace{0.4em}
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.22}
+\begin{tabularx}{\linewidth}{>{\bfseries}L{4.1cm}>{\ttfamily\scriptsize\RaggedRight\arraybackslash}X}
+\toprule
+\normalfont\bfseries Tema & \normalfont\bfseries Bloque booleano usado \\
+\midrule
+PINNs & ("physics-informed neural network*" OR PINN* OR XPINN* OR "scientific machine learning" OR "physics-enhanced" OR "FEM-BPNN") AND ("partial differential equation*" OR PDE OR "heat conduction" OR "heat transfer" OR "thermal conductivity" OR "underground power cable*" OR "temperature field") \\
+\addlinespace[0.35em]
+Transferencia de calor & ("heat transfer" OR "heat conduction" OR "thermal assessment" OR "thermal model" OR "temperature field") AND ("power cable*" OR "underground cable*" OR "buried cable*" OR soil OR backfill OR "multi-layered soil") \\
+\addlinespace[0.35em]
+Suelo nativo, suelo de relleno y humedad & ("soil thermal conductivity" OR "soil thermal resistivity" OR "thermal backfill" OR "soil moisture" OR "unsaturated soils") AND ("underground cable*" OR "buried infrastructure" OR "power cable*" OR measurement OR model* OR moisture OR backfill) \\
+\addlinespace[0.35em]
+FEM y métodos numéricos & ("finite element method" OR FEM OR "finite element" OR "finite difference" OR "numerical simulation" OR "spectral finite element" OR "adaptive finite element") AND ("heat transfer" OR "heat conduction" OR "heterogeneous media" OR "multi-layered soil" OR "power cable rating") \\
+\addlinespace[0.35em]
+Cables y ampacidad & ("power cable*" OR "underground power cable*" OR "buried power cable*" OR "insulated cable*") AND (ampacity OR "current rating" OR "thermal rating" OR "temperature rise" OR "load capability") \\
+\addlinespace[0.35em]
+DTR y cargas cíclicas & ("dynamic thermal rating" OR DTR OR "cyclic loading" OR "emergency rating" OR "dynamic thermal analysis" OR "transient temperature") AND ("underground cable*" OR "XLPE cable*" OR "power cable*" OR "transmission line*") \\
+\addlinespace[0.35em]
+Normas y estándares & (IEC OR IEEE OR CIGRE OR ASTM OR standard*) AND (ampacity OR "current rating" OR "thermal rating" OR "cable ampacity" OR "calculation method" OR "measurement method") AND ("power cable*" OR "underground cable*" OR soil OR backfill) \\
+\bottomrule
+\end{tabularx}
+
+\vspace{1.0em}
+
+\phantomsection
+\caption{Criterios de inclusión y exclusión documental. Fuente: Elaboración propia.}
+\label{tab:criterios-documentales}
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\linewidth}{L{3.2cm}Y Y}
+\toprule
+\textbf{Criterio} & \textbf{Incluir} & \textbf{Excluir o usar solo como apoyo} \\
+\midrule
+Pertinencia & Transferencia de calor, ampacidad, heterogeneidad, PINN térmica o DSR. & Inteligencia artificial (IA) o cables sin relación con el problema de investigación. \\
+Calidad & Artículo arbitrado, norma, guía técnica o libro reconocido. & Sitios sin autoría o metodología verificable. \\
+Actualidad & 2021--2026 para estado del arte. & Fuentes antiguas salvo normas, fundamentos o benchmarks. \\
+Trazabilidad & Texto completo y localizador de página. & Resúmenes sin acceso al método o resultado citado. \\
+Duplicación & Versión final y registro canónico. & Copias duplicadas de la misma publicación. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{landscape}

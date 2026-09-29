@@ -1,0 +1,164 @@
+\section{MATRIZ DE CONSISTENCIA}
+\label{anx:matriz-consistencia}
+\thispagestyle{empty}
+\scriptsize
+La matriz articula los problemas de investigación con los objetivos, productos verificables, insumos, resultados, hipótesis y evidencia de evaluación del artefacto. Los problemas se formulan como enunciados narrativos, de modo que cada fila exprese una carencia verificable que será atendida por el diseño, implementación, evaluación y comunicación del artefacto PINN 2D.
+
+La Tabla~\ref{tab:matriz-consistencia-a} presenta la primera parte de la matriz y verifica la correspondencia entre cada fase DSR, el problema que atiende, el objetivo asociado y el producto que permitirá comprobar su avance.
+
+% ---------------------------------------------------------------------------
+% Tabla 1: Desde fase/actividad hasta producto verificable
+% ---------------------------------------------------------------------------
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.18}
+
+\begin{longtable}{%
+L{3.8cm}
+L{6.2cm}
+L{5.3cm}
+L{5.0cm}}
+\caption{Matriz de consistencia del plan de tesis: problema, objetivo y producto verificable. Fuente: Elaboración propia.}
+\label{tab:matriz-consistencia-a}\\
+\toprule
+\textbf{Fase DSR / actividad} &
+\textbf{Problema} &
+\textbf{Objetivo} &
+\textbf{Producto verificable} \\
+\midrule
+\endfirsthead
+
+\toprule
+\textbf{Fase DSR / actividad} &
+\textbf{Problema} &
+\textbf{Objetivo} &
+\textbf{Producto verificable} \\
+\midrule
+\endhead
+
+\midrule
+\multicolumn{4}{r}{\small Continúa en la siguiente página.}\\
+\midrule
+\endfoot
+
+\bottomrule
+\endlastfoot
+
+\textbf{F0. Definición del objeto de estudio, caso de uso y alcance del artefacto} &
+\textbf{PG.} En el arreglo de cables--entorno térmico, la heterogeneidad espacial del suelo nativo, el lecho de asiento y el suelo de relleno puede modificar $T(x,y)$, $\Tmax$ e $\Imax$ respecto de una representación homogénea equivalente \parencites[4--6]{enescu2021}[3--4,93--99]{cigre2025}. Sin embargo, resulta difícil cuantificar esas diferencias de forma reproducible y establecer cuándo son relevantes para las decisiones de diseño y operación. Las representaciones homogéneas equivalentes son rápidas, aunque no describen de forma explícita la conductividad variable $\kx$; los modelos FEM sí pueden representarla, pero exigen construir, mallar y verificar cada escenario. En consecuencia, persiste la necesidad de una formulación computacional verificada y trazable que represente $\kx$, estime el campo térmico y documente la exactitud, la consistencia física y la robustez del análisis. &
+\textbf{OG.} Diseñar y evaluar un artefacto computacional basado en una red neuronal informada por física (PINN) que represente el arreglo de cables--entorno térmico, estime $T(x,y)$, $\Tmax$ e $\Imax$, cuantifique el efecto de la heterogeneidad térmica espacial y documente su exactitud, consistencia física, robustez y reproducibilidad. &
+Protocolo general del artefacto; dominio de validez; criterios de aceptación; repositorio de escenarios y resultados. \\
+
+\midrule
+\textbf{F1. Especificación física, datos y requisitos} &
+\textbf{PE1.} La representación física requerida por el artefacto no está formalizada en términos de entradas, requisitos funcionales y criterios de calidad que ordenen el cable multicapa, las interfaces, las fuentes, los contornos y $\kx$ en escenarios heterogéneos. &
+\textbf{OE1.} Elaborar una especificación trazable de las entradas físicas, los requisitos funcionales y los criterios de calidad del artefacto para representar el arreglo de cables--entorno térmico, incluyendo dominios multicapa, fuentes térmicas, condiciones de contorno, interfaces y conductividad térmica espacialmente variable $\kx$. &
+\textbf{VD1.} Especificación trazable: documento de requisitos; catálogo de materiales y geometrías; ficha de supuestos; matriz requisito--prueba; estado incompleto, completo pendiente o trazable aceptado. \\
+
+\midrule
+\textbf{F2. Preparación de datos sintéticos, geometría y referencias} &
+\textbf{PE2.} No se dispone de un paquete reproducible de soluciones analíticas o manufacturadas, referencias FEM con convergencia y casos publicados que permita construir y verificar el artefacto dentro del dominio delimitado. &
+\textbf{OE2.} Construir y verificar el artefacto a partir de la especificación trazable y de un conjunto de soluciones analíticas o manufacturadas, benchmarks FEM con convergencia y casos publicados, clasificando su estado de aceptación según la exactitud, la consistencia física y la robustez entre ejecuciones. &
+\textbf{VD2.} Artefacto verificado: versión del prototipo, base de benchmarks, pruebas, métricas, dominio de validez e informe con estado rechazado, aceptado con restricciones o aceptado. \\
+
+\midrule
+\textbf{F3. Experimentación numérica y análisis de sensibilidad} &
+\textbf{PE3.} No se ha cuantificado de forma trazable cómo el contraste, el patrón, la extensión y la proximidad de las heterogeneidades modifican $\Tmax$, el campo $T(x,y)$ y la localización del punto caliente. &
+\textbf{OE3.} Aplicar el artefacto verificado a un catálogo de escenarios controlados de contraste, patrón, extensión y proximidad de heterogeneidades del suelo nativo y de los suelos de relleno, y consolidar un expediente de evidencia con los cambios en $\Tmax$, el campo de temperatura $T(x,y)$ y la localización del punto caliente. &
+\textbf{VD3.} Expediente de evidencia térmica: plan de casos; mapas de $\kx$ y $T(x,y)$; resultados de sensibilidad; punto caliente; límites; y estado inconcluso, sin efecto relevante, con efecto relevante no crítico o con condición crítica. \\
+
+\midrule
+\textbf{F4. Evaluación de ampacidad y comparación de escenarios} &
+\textbf{PE4.} No se han identificado las condiciones que producen la mayor discrepancia de ampacidad entre una representación 2D heterogénea verificada y una representación homogénea equivalente. &
+\textbf{OE4.} Usar el expediente de evidencia térmica y un catálogo de representaciones pareadas para elaborar un expediente comparativo de ampacidad entre la representación 2D heterogénea y las representaciones homogéneas, e identificar las condiciones que generan mayor discrepancia. &
+\textbf{VD4.} Expediente comparativo de ampacidad: rutina de búsqueda de $\Imax$; tabla de reducción o aumento; clasificación de escenarios críticos; y estado sin discrepancia relevante, reducción, aumento o inconcluso/fuera del dominio. \\
+
+\end{longtable}
+
+La matriz de consistencia concluye en PE4--OE4 porque la síntesis y la comunicación no expresan una brecha específica adicional. El repositorio depurado, la guía de reproducción, el procedimiento y los principios de diseño se obtendrán en la actividad metodológica descrita en la Sección~\ref{subsec:sintesis-dsr}, a partir de la evidencia producida por las cuatro correspondencias problema--objetivo.
+
+\vspace{0.6cm}
+
+La Tabla~\ref{tab:matriz-consistencia-b} completa la matriz con las variables independientes discretas que ingresan a cada etapa, sus variables dependientes o productos, los estados posibles, las hipótesis, los indicadores y los parámetros controlados. Su función es comprobar que cada VD intermedia se conserva como parte heredada de la VI siguiente, mientras $\kx$, el contraste y los demás atributos físicos permanecen en una columna metodológica distinta.
+
+% ---------------------------------------------------------------------------
+% Tabla 2: Entradas discretas, salidas, hipótesis, evidencia y controles
+% ---------------------------------------------------------------------------
+\setlength{\tabcolsep}{1pt}
+\renewcommand{\arraystretch}{1.15}
+
+\begin{longtable}{%
+L{2.25cm}
+L{3.20cm}
+L{3.30cm}
+L{3.10cm}
+L{4.10cm}
+L{3.40cm}
+L{3.40cm}}
+\caption{Matriz de consistencia del plan de tesis: entradas discretas, salidas, hipótesis, indicadores y parámetros de caso. Fuente: Elaboración propia.}
+\label{tab:matriz-consistencia-b}\\
+\toprule
+\textbf{Fase / objetivo} &
+\textbf{VI discreta: composición} &
+\textbf{Realizaciones de la VI} &
+\textbf{VD discreta: objeto y estados} &
+\textbf{Hipótesis} &
+\textbf{Indicadores de evaluación} &
+\textbf{Parámetros, controles y metadatos} \\
+\midrule
+\endfirsthead
+
+\toprule
+\textbf{Fase / objetivo} &
+\textbf{VI discreta: composición} &
+\textbf{Realizaciones de la VI} &
+\textbf{VD discreta: objeto y estados} &
+\textbf{Hipótesis} &
+\textbf{Indicadores de evaluación} &
+\textbf{Parámetros, controles y metadatos} \\
+\midrule
+\endhead
+
+\midrule
+\multicolumn{7}{r}{\small Continúa en la siguiente página.}\\
+\midrule
+\endfoot
+
+\bottomrule
+\endlastfoot
+
+\textbf{F1 / OE1. Especificación física, datos y requisitos} &
+\textbf{VI1=$P_1$. Paquete inicial de requisitos y datos.} No posee entrada heredada. &
+Básico; completo; completo documentado. Incluye, según realización, geometría, materiales, fuentes, contornos, interfaces, unidades, supuestos y procedencia. &
+\textbf{VD1. Especificación trazable:} requisitos verificables, catálogo de datos, criterios y matriz requisito--prueba. Estados: incompleta; completa pendiente de trazabilidad; trazable aceptada. &
+\textbf{HE1.} Un paquete inicial completo y documentado permitirá producir una especificación trazable aceptada, cubrir los requisitos críticos y vincular cada requisito con al menos una prueba física o funcional. &
+Porcentaje de requisitos críticos cubiertos; número de pruebas asociadas por requisito; trazabilidad completa/incompleta; cumplimiento de unidades y supuestos. &
+Parámetros del caso contenidos en el paquete: geometría, materiales, $\kx$, fuentes y contornos. Controles: norma, sistema de unidades, alcance y exclusiones. \\
+
+\midrule
+\textbf{F2 / OE2. Construcción y verificación} &
+\textbf{VI2=$\{\mathrm{VD1},R_2\}$. Expediente de construcción y verificación.} Hereda VD1 y agrega referencias. &
+VD1 trazable aceptada más $R_2$ analítico/manufacturado; FEM convergente; publicado; o mixto. Sin VD1 aceptada no se habilita OE2. &
+\textbf{VD2. Artefacto verificado y expediente de aceptación:} versión, pruebas, métricas y dominio. Estados: rechazado; aceptado con restricciones; aceptado en el dominio. &
+\textbf{HE2.} La especificación trazable y referencias válidas permitirán producir un artefacto aceptado dentro del dominio, con error de $\Tmax$ y NRMSE no mayores a 5\,\pct{}, desequilibrio no mayor a 2\,\pct{} y variabilidad menor que el efecto relevante. &
+$e_{\Tmax}$; MAE; RMSE/NRMSE; error máximo; residuo PDE; error de contorno; error de interfaz; balance de energía; CV de $\Tmax$. &
+Parámetros físicos coincidentes entre artefacto y referencia. Controles/metadatos: dominio, malla y tolerancia FEM, puntos de colocación, arquitectura aceptada, pesos de pérdida y semilla. \\
+
+\midrule
+\textbf{F3 / OE3. Evaluación de escenarios} &
+\textbf{VI3=$\{\mathrm{VD2},E_3\}$. Expediente de evaluación térmica.} Hereda VD2 y agrega escenarios. &
+VD2 aceptada o aceptada con restricciones compatibles más $E_3$ base; estratificado; localizado; mejorado; seco; o multimaterial. &
+\textbf{VD3. Expediente de evidencia térmica:} mapas, diferencias y límites. Estados: inconcluso; sin efecto relevante; efecto relevante no crítico; condición crítica. &
+\textbf{HE3.} El artefacto verificado aplicado a $E_3$ producirá un expediente concluyente: una región de baja $k$ cercana aumentará $\Tmax$ y una región de alta $k$ usada como relleno la reducirá. &
+$\Delta\Tmax$; coordenadas del punto caliente $(x_h,y_h)$; $|\nabla T|_{\max}$; cambio de temperatura media; tamaño de efecto; intervalos por repetición. &
+Parámetros físicos del escenario, no VI: mapa $\kx$, $C_k$, $f_h$ y $d_h/D$. Controles: corriente o pérdidas, profundidad, disposición, $T_{\mathrm{amb}}$, dominio, contornos y configuración aceptada. \\
+
+\midrule
+\textbf{F4 / OE4. Comparación de ampacidad} &
+\textbf{VI4=$\{\mathrm{VD3},C_4\}$. Expediente de comparación de ampacidad.} Hereda VD3 y agrega representaciones pareadas. &
+VD3 concluyente más $C_4$: heterogénea 2D frente a homogénea equivalente; conservadora; u optimista. &
+\textbf{VD4. Expediente comparativo de ampacidad:} resultados, márgenes y casos críticos. Estados: sin discrepancia relevante; reducción; aumento; inconcluso/fuera del dominio. &
+\textbf{HE4.} El expediente térmico combinado con $C_4$ producirá un expediente comparativo en el que la aproximación homogénea tenderá a sobreestimar $\Imax$ al promediar una zona local de baja $k$. &
+$\Imax$; $\Delta I\pct$; margen respecto de $T_{\mathrm{lim}}$; número de iteraciones de búsqueda; incertidumbre combinada modelo--referencia. &
+Parámetros físicos contenidos en el escenario $E_3$ heredado mediante VD3. Controles: $T_{\mathrm{lim}}$, modelo de pérdidas dependiente de corriente, paso/tolerancia de bisección, geometría y condiciones de borde. \\
+
+\end{longtable}

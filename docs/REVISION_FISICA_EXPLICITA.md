@@ -12,7 +12,7 @@ La revisión metodológica iniciada el 14 de septiembre de 2026 precede a estos 
 | [Benchmarks/explicit_results/coaxial_full/fixed/subdomain/seed11/pinn_seed11.json](../Benchmarks/explicit_results/coaxial_full/fixed/subdomain/seed11/pinn_seed11.json) | subdomain | 31.976627 | 0.003146 | 0.006289 | Aceptada |
 | [Benchmarks/explicit_results/xlpe_single/fixed/subdomain/seed11/pinn_seed11.json](../Benchmarks/explicit_results/xlpe_single/fixed/subdomain/seed11/pinn_seed11.json) | subdomain | 36.544649 | 0.307839 | 0.392917 | Aceptada |
 
-Los pilotos aceptados cumplen también los saltos de temperatura/flujo y el balance por material registrados en sus JSON. El piloto mixto rechazado se conserva. Este informe corresponde a los pilotos previos. La confirmación independiente y la extensión de ampacidad se documentan en [la revisión integral](REVISION_INTEGRAL_TESIS.md), sin sumar estos pilotos a sus réplicas.
+Los pilotos aceptados cumplen también los saltos de temperatura/flujo y el balance por material registrados en sus JSON. El piloto mixto rechazado se conserva. Este informe corresponde a los pilotos previos. La confirmación independiente y la extensión de ampacidad se documentan en [el capítulo III de la tesis](../Tesis_LaTeX_Borrador_UNI/capitulos/03_propuesta_y_desarrollo.tex) y en el [protocolo de ampacidad](PROTOCOLO_AMPACIDAD_EXPLICITA.md), sin sumar estos pilotos a sus réplicas.
 
 Pruebas automatizadas: 362 ejecutadas; 0 fallos y 0 errores. Tres pruebas lentas fueron excluidas por la configuración existente. La primera ejecución conjunta detectó contaminación de la precisión global de PyTorch entre pruebas; se aisló el estado de cada prueba y se repitió la suite completa.
 

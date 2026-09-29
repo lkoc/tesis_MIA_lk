@@ -1,32 +1,70 @@
 ﻿\chapter{MARCO TEÓRICO}
 \label{ch:marco-teorico}
+\thispagestyle{empty}
 
 Este capítulo reúne los antecedentes y las bases necesarias para explicar el problema y evaluar la solución. La revisión conecta los métodos de ampacidad, la heterogeneidad térmica, las redes neuronales informadas por física y la ciencia del diseño. Luego precisa los términos usados en los capítulos siguientes.
 
 \section{ANTECEDENTES BIBLIOGRÁFICOS}
 \label{sec:antecedentes}
 
+La Tabla~\ref{tab:antecedentes-cronologia} ordena los antecedentes de la fuente más antigua a la más reciente; las subsecciones siguientes los agrupan por tema y también siguen ese orden dentro de cada tema. Ocho de las 21 fuentes son anteriores a 2021 y se conservan por ser clásicos (\textcite{neher1957}), normas de la Comisión Electrotécnica Internacional (\textit{International Electrotechnical Commission}, IEC) \parencite{iec60853}, fundamentos metodológicos (\textcite{peffers2007}; \textcite{gregor2013}), el enfoque PINN original (\textcite{raissi2017}) o estudios y revisiones que siguen siendo referencia del tema (\textcite{aras2005}; \textcite{oclon2015}; \textcite{enescu2020}). Las 13 restantes son de 2021 o posteriores.
+
+\begingroup\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{longtable}{L{1.1cm}L{3.4cm}L{7.6cm}L{2.4cm}}
+\caption{Evolución cronológica de los antecedentes, de la fuente más antigua a la más reciente. Fuente: Elaboración propia a partir de las referencias citadas.}\label{tab:antecedentes-cronologia}\\
+\toprule
+Año & Fuente & Aporte al problema & Naturaleza \\
+\midrule\endfirsthead
+\toprule
+Año & Fuente & Aporte al problema & Naturaleza \\
+\midrule\endhead
+1957 & \textcite{neher1957} & Formulación clásica de pérdidas, resistencias térmicas y elevación de temperatura. & Clásico \\
+2002 & \textcite{iec60853} & Corriente cíclica y de emergencia: ciclos de carga y secado parcial. & Norma \\
+2005 & \textcite{aras2005} & Comparación de enfoques analíticos y numéricos para cables enterrados; FEM representa fuentes cercanas. & Estudio de referencia \\
+2007 & \textcite{peffers2007} & Seis actividades de la ciencia del diseño. & Método \\
+2013 & \textcite{gregor2013} & Artefacto situado y contribuciones abstractas; evaluación por validez, utilidad, calidad y eficacia. & Método \\
+2015 & \textcite{oclon2015} & Optimización del lecho de asiento: una región de alta conductividad mejora la disipación. & Estudio técnico \\
+2017 & \textcite{raissi2017} & Enfoque PINN para problemas directos e inversos. & Fundamento PINN \\
+2020 & \textcite{enescu2020} & Revisión de la evaluación térmica y del rating; métodos analíticos, circuitales y de campo. & Revisión \\
+2021 & \textcite{enescu2021} & Revisión de conceptos y métodos de rating térmico dinámico; influencia del suelo y del secado. & Revisión \\
+2021 & \textcite{shukla2021} & Descomposición de dominio en PINN para tratar regiones e interfaces complejas. & Estudio técnico \\
+2022 & \textcite{lawal2022} & Revisión sistemática de PINN: ventajas y dificultades de entrenamiento. & Revisión \\
+2023 & \textcite{xing2023} & PINN para conducción de calor anisótropa estacionaria 3D. & Estudio técnico \\
+2023 & \textcite{iec60287} & Ecuaciones de corriente admisible y pérdidas en régimen permanente. & Norma \\
+2024 & \textcite{atoccsa2024} & Optimización de ampacidad con relleno térmico en cables de alta tensión. & Estudio técnico \\
+2024 & \textcite{aldulaimi2024} & Modelo FEM--BPNN adaptativo de temperatura; sustituto supervisado, no PINN. & Estudio técnico \\
+2024 & \textcite{delport2024} & Ciclos de evaluación durante el desarrollo; criterios de abstracción, originalidad, justificación y beneficio. & Método \\
+2025 & \textcite{khumalo2025} & Relación entre humedad, resistividad, profundidad y temperatura del suelo. & Estudio técnico \\
+2025 & \textcite{kim2025} & Reducción de temperatura con un material de relleno de mayor conductividad. & Estudio técnico \\
+2025 & \textcite{pan2025} & Reconstrucción de un campo térmico 2D y de sus condiciones de borde con datos limitados. & Estudio técnico \\
+2025 & \textcite{ren2025} & Revisión de la evolución metodológica de las PINN y de sus dificultades de entrenamiento. & Revisión \\
+2025 & \textcite{cigre2025} & Casos heterogéneos y verificación de las herramientas de rating por elementos finitos. & Recomendación técnica \\
+\bottomrule
+\end{longtable}\endgroup
+
 \subsection{MODELOS TÉRMICOS Y AMPACIDAD}
 
-\textcite[752--772]{neher1957} establecieron una formulación clásica que relaciona pérdidas, resistencias térmicas y elevación de temperatura. La IEC 60287 formaliza ecuaciones de corriente admisible y pérdidas para régimen permanente, mientras la IEC 60853 amplía el tratamiento a ciclos de carga y secado parcial \parencites[cláusulas~4--5]{iec60287}[cláusulas~2--4]{iec60853}.
+\textcite[752--772]{neher1957} establecieron una formulación clásica que relaciona pérdidas, resistencias térmicas y elevación de temperatura. La norma IEC 60853-3 (2002) amplía el tratamiento a ciclos de carga y secado parcial \parencite[cláusulas~2--4]{iec60853}. \textcite[1387--1400]{aras2005} compararon enfoques analíticos y numéricos para cables enterrados; sus resultados muestran que FEM puede representar fuentes cercanas y distribuciones de temperatura mediante geometría explícita.
 
-Estas referencias son necesarias para el cálculo y la comparación, pero no sustituyen una solución de campo cuando la topología térmica incumple sus supuestos. Las recomendaciones de CIGRÉ documentan casos heterogéneos y señalan la necesidad de verificar las herramientas de \textit{rating} antes de aplicarlas \parencite[3--4,41--42,93--99]{cigre2025}.
+Las revisiones de \textcite[4,11,17]{enescu2020} y \textcite[3--6]{enescu2021} ordenan métodos analíticos, circuitales y de campo, y destacan la influencia del suelo y del secado. La edición de 2023 de la IEC 60287 formaliza ecuaciones de corriente admisible y pérdidas para régimen permanente \parencite[cláusulas~4--5]{iec60287}. Las recomendaciones del Consejo Internacional de Grandes Redes Eléctricas (CIGRÉ) de 2025 documentan casos heterogéneos y señalan la necesidad de verificar las herramientas de \textit{rating} antes de aplicarlas \parencite[3--4,41--42,93--99]{cigre2025}.
 
-\textcite[1387--1400]{aras2005} compararon enfoques analíticos y numéricos para cables enterrados. Sus resultados muestran que FEM puede representar fuentes cercanas y distribuciones de temperatura mediante geometría explícita. Las revisiones de \textcite[4,11,17]{enescu2020} y \textcite[3--6]{enescu2021} ordenan métodos analíticos, circuitales y de campo, y destacan la influencia del suelo y del secado.
+Estas referencias son necesarias para el cálculo y la comparación, pero no sustituyen una solución de campo cuando la topología térmica incumple sus supuestos.
 
 \subsection{HETEROGENEIDAD, SUELO NATIVO Y SUELO DE RELLENO}
 
-\textcite[1,6--9]{khumalo2025} analizaron la relación entre humedad, resistividad, profundidad y temperatura del suelo. Por su parte, \textcite[1,10,16]{kim2025} cuantificaron la reducción de temperatura obtenida con un material de relleno de mayor conductividad. Ambos trabajos muestran que la propiedad térmica del terreno no es un dato secundario.
+Los estudios de optimización del lecho de asiento y del suelo de relleno muestran que una región de alta conductividad puede mejorar la disipación \parencites[1--3]{oclon2015}[1--4]{atoccsa2024}. Sin embargo, estos trabajos se apoyan principalmente en FEM y optimización externa.
 
-Los estudios de optimización del lecho de asiento y del suelo de relleno muestran que una región de alta conductividad puede mejorar la disipación \parencites[1--3]{oclon2015}[1--4]{atoccsa2024}. Sin embargo, estos trabajos se apoyan principalmente en FEM y optimización externa. El presente estudio investiga otra ruta: incorporar la física en una PINN y evaluar escenarios controlados por contraste, patrón, extensión y proximidad.
+\textcite[1,6--9]{khumalo2025} analizaron la relación entre humedad, resistividad, profundidad y temperatura del suelo. Por su parte, \textcite[1,10,16]{kim2025} cuantificaron la reducción de temperatura obtenida con un material de relleno de mayor conductividad. Ambos trabajos muestran que la propiedad térmica del terreno no es un dato secundario. La investigación explora otra ruta: incorporar la física en una PINN y evaluar escenarios controlados por contraste, patrón, extensión y proximidad.
 
 \subsection{REDES NEURONALES INFORMADAS POR FÍSICA}
 
-\textcite[4--5]{raissi2017} consolidaron el enfoque PINN para problemas directos e inversos mediante la combinación de datos y residuos de ecuaciones diferenciales. Las revisiones posteriores identifican ventajas potenciales y dificultades de entrenamiento, entre ellas la competencia entre términos de pérdida, el comportamiento multiescala y la necesidad de ponderación o descomposición adaptativa \parencites[1--2,14--17]{lawal2022}[2--6]{ren2025}.
-
-En conducción de calor, \textcite[1,3,17]{xing2023} aplicaron una PINN a un problema anisotrópico estacionario 3D. \textcite[1,3,16]{pan2025} reconstruyeron un campo térmico 2D y condiciones de borde con datos limitados. Estos antecedentes muestran viabilidad en dominios controlados, pero no sustituyen la evaluación específica de interfaces, capas y fuentes de un cable enterrado.
+\textcite[4--5]{raissi2017} consolidaron el enfoque PINN para problemas directos e inversos mediante la combinación de datos y residuos de ecuaciones diferenciales.
 
 Las estrategias de descomposición de dominio, como las propuestas por \textcite[1--2]{shukla2021}, ofrecen una ruta para tratar regiones o interfaces complejas. Para interfaces con flujo no nulo y salto de k, la descomposición permite derivadas normales distintas. Una única red global C1 comparte la derivada a ambos lados y no puede satisfacer exactamente ese salto; se considera un control de limitación arquitectónica, no una candidata admisible por aumentar sus neuronas.
+
+Las revisiones posteriores identifican ventajas potenciales y dificultades de entrenamiento, entre ellas la competencia entre términos de pérdida, el comportamiento multiescala y la necesidad de ponderación o descomposición adaptativa \parencites[1--2,14--17]{lawal2022}[2--6]{ren2025}.
+
+En conducción de calor, \textcite[1,3,17]{xing2023} aplicaron una PINN a un problema anisotrópico estacionario 3D. \textcite[1,3,16]{pan2025} reconstruyeron un campo térmico 2D y condiciones de borde con datos limitados. Estos antecedentes muestran viabilidad en dominios controlados, pero no sustituyen la evaluación específica de interfaces, capas y fuentes de un cable enterrado.
 
 \subsection{CIENCIA DEL DISEÑO}
 
@@ -48,7 +86,7 @@ El análisis numérico de PINN distingue capacidad de aproximación, generalizac
 
 \subsection{FAMILIAS PINN Y ELECCIÓN CONDICIONAL}
 
-cPINN enfatiza conservación entre subdominios y XPINN amplía la descomposición espacial o espaciotemporal \parencites{jagtap2020cpinn}{jagtap2020xpinn}. La descomposición permite asignar escalas y capacidad distintas, pero añade condiciones de acoplamiento y puede reducir los datos disponibles en cada parte. \textcite{hu2022xpinn} muestran que su ventaja de generalización depende del problema; no basta con dividir el dominio. En esta tesis, las subredes por material imponen la transmisión térmica física. No se exige continuidad del residuo fuerte a través de materiales con fuentes y conductividades diferentes ni se presenta esa implementación como una reproducción literal de XPINN.
+cPINN enfatiza conservación entre subdominios y XPINN amplía la descomposición espacial o espaciotemporal \parencites{jagtap2020cpinn}{jagtap2020xpinn}. La descomposición permite asignar escalas y capacidad distintas, pero añade condiciones de acoplamiento y puede reducir los datos disponibles en cada parte. \textcite{hu2022xpinn} muestran que su ventaja de generalización depende del problema; no basta con dividir el dominio. En la investigación, las subredes por material imponen la transmisión térmica física. No se exige continuidad del residuo fuerte a través de materiales con fuentes y conductividades diferentes ni se presenta esa implementación como una reproducción literal de XPINN. La Tabla~\ref{tab:familias-pinn} resume la elección condicional de cada familia.
 
 \begin{table}[htbp]
 \centering
@@ -56,7 +94,7 @@ cPINN enfatiza conservación entre subdominios y XPINN amplía la descomposició
 \label{tab:familias-pinn}
 \begin{tabularx}{\textwidth}{L{2.6cm}Y Y}
 \toprule
-Familia & Situación que motiva evaluarla & Condición o limitación para esta tesis \\
+Familia & Situación que motiva evaluarla & Condición o limitación para la investigación \\
 \midrule
 Global de temperatura & Campo suave, un material o coeficientes continuos. & Una red global $C^1$ no representa exactamente el salto de derivada con flujo no nulo; no es candidata principal multicapa. \\
 Descomposición por materiales & Interfaces exactas y espesores muy distintos. & Candidata principal; requiere verificar ambas trazas y balances, además de la temperatura. \\
@@ -68,7 +106,13 @@ FBPINN & Dominios amplios con escalas locales y ventanas solapadas. & La normali
 \end{tabularx}
 \end{table}
 
-La formulación mixta se apoya en \textcite{gladstone2022fopinn}; las entradas Fourier, en \textcite{wang2020fourier}; y las alternativas variacional y de base finita, en \textcite{kharazmi2020hpvpinn} y \textcite{moseley2021fbpinn}. El cuadro expresa razones para comparar, no un ranking empírico transferido desde otros problemas. La búsqueda de esta tesis decide entre implementaciones y presupuestos declarados; una familia no ensayada no recibe un resultado ficticio.
+La formulación mixta se apoya en \textcite{gladstone2022fopinn}; las entradas Fourier, en \textcite{wang2020fourier}; y las alternativas variacional y de base finita, en \textcite{kharazmi2020hpvpinn} y \textcite{moseley2021fbpinn}. El cuadro expresa razones para comparar, no un ranking empírico transferido desde otros problemas. La búsqueda de la investigación decide entre implementaciones y presupuestos declarados; una familia no ensayada no recibe un resultado ficticio.
+
+\subsection{UBICACIÓN DEL PROYECTO}
+
+El proyecto se ubica en la intersección de tres líneas de trabajo: el cálculo térmico y la ampacidad de cables enterrados, las redes neuronales informadas por física y la ciencia del diseño de artefactos. Se desarrolla como tesis profesionalizante del programa de Maestría en Inteligencia Artificial de la Unidad de Posgrado de la Facultad de Ingeniería Industrial y de Sistemas (FIIS) de la Universidad Nacional de Ingeniería.
+
+Respecto de la primera línea, no reemplaza las normas ni la referencia FEM: usa la IEC 60287 como línea base cuando el caso es comparable y FEM como referencia independiente del campo. Respecto de la segunda, aporta una comparación trazable de una formulación PINN por material, con transmisión de temperatura y de flujo en las interfaces, aplicada a configuraciones de cable enterrado. Respecto de la tercera, corresponde a un artefacto situado con principios de diseño derivados, en el sentido de \textcite{gregor2013}. La brecha descrita en la Sección~\ref{sec:antecedentes} delimita el aporte: la comparación específica entre esas tres líneas, y no una novedad general sobre ninguna de ellas.
 
 
 \section{BASES TEÓRICAS}
@@ -84,7 +128,7 @@ El calor fluye desde zonas de mayor temperatura hacia zonas de menor temperatura
 \label{for:fourier}
 \mathbf{q}_{\mathrm{cond}}(x,y)=-k(x,y)\nabla T(x,y).
 \end{equation}
-\caption{Ley de Fourier para conducción en un medio heterogéneo.}
+\caption{Ley de Fourier para conducción en un medio heterogéneo. Fuente: Elaboración propia a partir de \textcite{carslaw1959conduction}.}
 \end{formula}
 
 La Fórmula~\ref{for:fourier} muestra que una región de baja conductividad cercana al cable ofrece mayor oposición al flujo. En cambio, un material de relleno con mayor conductividad puede facilitar la disipación. Por ello, dos mapas con el mismo promedio de $k$ no necesariamente producen la misma temperatura máxima.
@@ -120,7 +164,7 @@ La ecuación transitoria incorpora la capacidad térmica volumétrica y permite 
 \rho(x,y)c_p(x,y)\frac{\partial T(x,y,t)}{\partial t}
 =\nabla\!\cdot\!\left(k(x,y)\nabla T(x,y,t)\right)+Q(x,y,t).
 \end{equation}
-\caption{Ecuación de conducción de calor 2D transitoria.}
+\caption{Ecuación de conducción de calor 2D transitoria. Fuente: Elaboración propia a partir de \textcite{carslaw1959conduction}.}
 \end{formula}
 
 En la Fórmula~\ref{for:calor-transitorio}, $\rho c_p$ representa la capacidad térmica volumétrica, $k$ controla la conducción local y $Q$ agrupa las fuentes internas. El régimen transitorio queda fuera del alcance principal, pero la ecuación permite identificar la simplificación adoptada.
@@ -134,7 +178,7 @@ En régimen estacionario se anula la acumulación térmica. La formulación cent
 \nabla\!\cdot\!\left(\kx\nabla T(x,y)\right)+Q(x,y)=0,
 \qquad (x,y)\in\Omega.
 \end{equation}
-\caption{Ecuación de conducción de calor 2D estacionaria.}
+\caption{Ecuación de conducción de calor 2D estacionaria. Fuente: Elaboración propia a partir de \textcite{carslaw1959conduction}.}
 \end{formula}
 
 La Fórmula~\ref{for:calor-estacionario} conserva $\kx$ dentro del operador diferencial. Esta forma se aplica dentro de cada región material; las discontinuidades se completan con condiciones de transmisión, sin sustituirlas por una propiedad global.
@@ -150,7 +194,7 @@ T_1=T_2,
 \mathbf{n}\cdot k_1\nabla T_1=\mathbf{n}\cdot k_2\nabla T_2
 \quad\text{en }\Gamma_{12}.
 \end{equation}
-\caption{Condiciones de continuidad térmica en una interfaz.}
+\caption{Condiciones de continuidad térmica en una interfaz. Fuente: Elaboración propia a partir de \textcite{carslaw1959conduction}.}
 \end{formula}
 
 La Fórmula~\ref{for:interfaces} evita saltos no físicos entre materiales. El borde exterior puede usar temperatura prescrita, flujo o una condición convectiva equivalente, según la referencia elegida.
@@ -165,9 +209,9 @@ En un anillo, las coordenadas polares conservan ambas direcciones de difusión:
 \rho c_p T_t-\frac{1}{r}\partial_r(rkT_r)-\frac{1}{r^2}\partial_\varphi(kT_\varphi)=Q.
 \label{for:polar-completa}
 \end{equation}
-\caption{Ecuación de calor polar completa en las capas anulares.}
+\caption{Ecuación de calor polar completa en las capas anulares. Fuente: Elaboración propia.}
 \end{formula}
-Eliminar el término angular solo es admisible para una prueba axisimétrica. La proximidad de otros cables y las heterogeneidades del suelo rompen generalmente esa simetría. El núcleo que contiene $r=0$ se representa en cartesianas, donde la regularidad es natural. Una solución 2D regular no exige anular toda derivada radial direccional en el centro.
+La Fórmula~\ref{for:polar-completa} conserva ambos términos de difusión; eliminar el término angular solo es admisible para una prueba axisimétrica. La proximidad de otros cables y las heterogeneidades del suelo rompen generalmente esa simetría. El núcleo que contiene $r=0$ se representa en cartesianas, donde la regularidad es natural. Una solución 2D regular no exige anular toda derivada radial direccional en el centro.
 
 Para $a\le r\le b$ se emplea $\eta=\log(r/a)/\log(b/a)$, junto con $\cos\varphi$ y $\sin\varphi$. La transformación amplía numéricamente una capa milimétrica sin aumentar su espesor físico. La diferenciación respecto a $x,y$ conserva los jacobianos y el operador completo. En suelo se normalizan las coordenadas globales y se añaden distancias logarítmicas a los cables; estas son entradas geométricas, no temperaturas analíticas impuestas. La combinación de normalización local y descomposición tiene antecedentes en \textcite{moseley2021fbpinn}, aunque no se reproduce su método de ventanas solapadas.
 
@@ -182,7 +226,7 @@ La ley térmica conserva la PDE incluso si la fuente volumétrica es uniforme. P
 E_z=\frac{I}{\int_{\Omega_c}\sigma(T)\,dA},\qquad Q=\sigma(T)E_z^2.
 \label{for:fuente-dc-local}
 \end{equation}
-\caption{Fuente Joule DC dependiente de la temperatura local.}
+\caption{Fuente Joule DC dependiente de la temperatura local. Fuente: Elaboración propia.}
 \end{formula}
 La integral garantiza la corriente impuesta; no sustituye el problema térmico ni reconstruye la temperatura. Se distingue $\rho_e$, resistividad eléctrica, de $\rho c_p$, capacidad térmica volumétrica. La relación entre resistencia por unidad de longitud y resistividad es $\rho_{e,0}=R_{0}A_c$ bajo la hipótesis homogénea declarada.
 
@@ -194,9 +238,9 @@ J_z(r)=\frac{I\gamma J_0(\gamma r)}{2\pi aJ_1(\gamma a)},\quad
 Q(r)=\rho_e|J_z(r)|^2,\quad\gamma=(1-\mathrm i)/\delta.
 \label{for:piel-volumetrica}
 \end{equation}
-\caption{Estimación cilíndrica del efecto piel y su fuente volumétrica.}
+\caption{Estimación cilíndrica del efecto piel y su fuente volumétrica. Fuente: Elaboración propia.}
 \end{formula}
-La integral de $Q$ da $I^2R_{\mathrm{AC}}$. Una resistencia ya medida a 60 Hz no se corrige otra vez por piel, y debe identificarse su temperatura. No se infiere automáticamente su dependencia térmica multiplicándola por el factor DC. Una resistencia AC tampoco identifica por sí sola el perfil de corriente. La proximidad, pantallas, armaduras y conductores segmentados exigen información adicional; \textcite{patel2013skin} presentan un tratamiento conjunto de piel y proximidad que no se reemplaza aquí por la estimación aislada.
+En la Fórmula~\ref{for:piel-volumetrica}, la integral de $Q$ da $I^2R_{\mathrm{AC}}$. Una resistencia ya medida a 60 Hz no se corrige otra vez por piel, y debe identificarse su temperatura. No se infiere automáticamente su dependencia térmica multiplicándola por el factor DC. Una resistencia AC tampoco identifica por sí sola el perfil de corriente. La proximidad, pantallas, armaduras y conductores segmentados exigen información adicional; \textcite{patel2013skin} presentan un tratamiento conjunto de piel y proximidad que no se reemplaza aquí por la estimación aislada.
 
 Se separan dos sensibilidades: cambiar la potencia total DC a AC y redistribuir la misma potencia dentro del conductor. La comparación a igual potencia evita atribuir a la distribución espacial un cambio causado por pérdidas distintas. La pequeña diferencia térmica estacionaria de un perfil no justifica eliminar el interior de la PDE, ni demuestra una equivalencia para transitorios. La estimación eléctrica usa temperatura prescrita; el acoplamiento electromagnético AC con temperatura no uniforme queda fuera de esta implementación.
 
@@ -210,7 +254,7 @@ La conductividad térmica $k$ expresa la facilidad para transferir calor. La res
 \label{for:k-rho}
 \rhoth=\frac{1}{k},\qquad k=\frac{1}{\rhoth}.
 \end{equation}
-\caption{Relación entre conductividad y resistividad térmica.}
+\caption{Relación entre conductividad y resistividad térmica. Fuente: Elaboración propia.}
 \end{formula}
 
 La Fórmula~\ref{for:k-rho} permite convertir los valores publicados antes de parametrizar el modelo. En suelos, estas propiedades dependen de composición, densidad y contenido de agua. Los valores empleados para diseño deben representar el estado de la instalación y seguir procedimientos normalizados cuando proceden de ensayos \parencites{farouki1981thermal,devries1966thermal}[secciones~4--6]{ieee442}.
@@ -227,7 +271,7 @@ La ampacidad no es una propiedad fija del cable aislado. Cambia con la temperatu
 \label{for:ampacidad}
 \Imax=\max\left\{I:\max_{(x,y)\in\Omega_c}T(x,y;I)\leq T_{\mathrm{lim}}\right\}.
 \end{equation}
-\caption{Condición operacional para calcular la ampacidad.}
+\caption{Condición operacional para calcular la ampacidad. Fuente: Elaboración propia.}
 \end{formula}
 
 La Fórmula~\ref{for:ampacidad} define $\Imax$ como la mayor corriente que mantiene la temperatura máxima del conductor por debajo del límite adoptado. Por tanto, la calidad del cálculo de ampacidad depende de la calidad del campo $T(x,y;I)$ y de la representación de las pérdidas.
@@ -273,7 +317,7 @@ w_i\mathcal{L}_{\mathrm{int}}+
 w_d\mathcal{L}_{\mathrm{datos}}+
 w_e\mathcal{L}_{\mathrm{energía}}.
 \end{equation}
-\caption{Función de pérdida lógica del artefacto PINN.}
+\caption{Función de pérdida lógica del artefacto PINN. Fuente: Elaboración propia a partir de \textcite{raissi2017}.}
 \end{formula}
 
 La Fórmula~\ref{for:perdida-pinn} describe una familia general. En la investigación ejecutada se fija $w_d=0$: las temperaturas FEM no son etiquetas de entrenamiento. La variante mixta añade la ley constitutiva del flujo y todas las variantes conservan la PDE interior. Los pesos no se consideran universales, porque un balance inadecuado de gradientes puede sesgar el entrenamiento \parencites[16]{pan2025}[1--2,17]{lawal2022}.

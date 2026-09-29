@@ -1,5 +1,7 @@
 # Auditoría y consolidación de la tesis
 
+> **Documento histórico.** Registra el plan de trabajo del 10-sep-2026 para la formulación reducida. El estado vigente está en [ESTADO.md](../ESTADO.md) y en [PENDIENTES.md](../Tesis_LaTeX_Borrador_UNI/PENDIENTES.md).
+
 Fecha de inicio: 10 de septiembre de 2026.
 
 ## Secuencia de ejecución

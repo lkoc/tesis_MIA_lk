@@ -1,0 +1,47 @@
+Verificaciones adicionales (29-sep-2026). Resultados copiados de la salida de comandos ejecutados en la raíz del proyecto.
+
+== Pruebas recolectadas (sin ejecutar; pytest -p no:cacheprovider)
+python -m pytest --collect-only -q            -> 307/310 tests collected (3 deselected)   [testpaths = pinn_cables/tests]
+python -m pytest Benchmarks/tests --collect-only -q -> 59 tests collected
+Archivos test_*.py en pinn_cables/tests, Benchmarks/tests y tests/: 27
+
+== Git
+git ls-files | wc -l                 -> 8765
+git count-objects -vH                -> count: 472; size: 57.78 MiB; in-pack: 7349; packs: 2; size-pack: 2.30 GiB
+git log --oneline -3                 -> f6466b2 25.09.26 | b21e82b . | 639bf98 18.09.2026
+git status --short (línea base)      -> M .github/copilot-instructions.md, M .gitignore, M matriz_consistencia/*.xlsx;
+                                         ?? .clineignore, .clinerules/, .github/agents/, Plan/envío_rev0/,
+                                            Plan/envío_rev1/01_Referencias_Zotero.zip, docs/ENGIE_AI_BRIDGE.md,
+                                            problema de investigación/problema_cables_termico_beamer.log, scripts/*engie*
+
+== Código (Get-ChildItem *.py; líneas con Measure-Object -Line)
+pinn_cables : 50 archivos, 8797 líneas
+Benchmarks (nivel 0) : 48 archivos, 4559 líneas
+Benchmarks (todo, con copias archivadas) : 796 archivos, 121882 líneas (filtrado parcial)
+   .py por subcarpeta: explicit_study 1907; comparisons 355; multiscale_exploration 192; results 161;
+                       coupled_results 110; explicit_results 77; coupled_final 77; ampacity_final 65; verification_final 40
+scripts : 34 archivos, 5210 líneas | examples : 22 archivos, 8824 líneas | raíz : 38 archivos, 5612 líneas
+
+== Higiene (repocheck.py)
+LICENSE.md                      -> 'tbd'
+.gitignore                      -> BOM UTF-8; líneas con doble codificación:
+   '# Carpeta de informaciÃ³n no sincronizada', 'InformaciÃ³n/', 'problema de investigaciÃ³n/*.log',
+   'Plan/envÃ­o_rev0/', '/Plan/envÃ­o_rev*/01_Referencias_Zotero.zip'
+archivos en la raíz             -> 56 (38 .py; 26 con prefijo '_')
+archivos con rutas absolutas    -> 926 (primeros: explicit_study/*/manifest.json y job.json; scripts Zotero de la raíz)
+patrón de secretos              -> ninguno
+.engie/                         -> existe y está ignorado
+.github/workflows               -> no existe
+pyproject.toml                  -> torch>=2.1, numpy>=1.24 (sin límite superior); testpaths = ["pinn_cables/tests"]
+requisitos fijados              -> Benchmarks/environment/requirements-review.txt, conda-explicit-linux-64.txt
+
+== Entregas
+Plan/envío_rev0: 01_Referencias_Zotero.zip 254,5 MB; informe PDF 3,1 MB (23-jul); presentación 1,79 MB
+Plan/envío_rev1: informe PDF 2,3 MB (18-ago); presentación 1,85 MB (18-sep); 00_INDICE_envio_rev1.md (18-sep)
+Entrega_Google_Drive: 4 subcarpetas + índice (27-jun; 24-jul para datos de objeto de estudio)
+
+== Marcas de tiempo relevantes
+Plan/plan_tesis_cables_pinn.tex 2026-09-14 23:54 | Plan/plan_tesis_cables_pinn.pdf 2026-08-18 15:14
+Tesis tesis.pdf 2026-09-15 01:25 | 03_propuesta 01:58 | 04_conclusiones 02:04 | 05_anexos 02:06 | 02_marco_teorico 2026-09-18 22:04
+Benchmarks/explicit_study: A/B summary 09-15 01:59 | C 02:31 | C2 02:57 | D 05:38 | status.json 05:38 (completed=true, 7/21)
+Benchmarks/MANIFEST.json 2026-09-10 14:44 (sin 'explicit_study')

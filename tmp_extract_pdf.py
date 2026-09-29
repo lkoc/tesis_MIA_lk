@@ -1,6 +1,6 @@
 from pathlib import Path
 from pypdf import PdfReader
-p = Path(r'Plan/GUÍA N°01 Plan.pdf')
+p = Path(r'Plan/guias/GUÍA N°01 Plan.pdf')
 r = PdfReader(str(p))
 print('pages', len(r.pages))
 for i in range(min(20, len(r.pages))):
