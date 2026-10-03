@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><title>Evaluación y criterios de aceptación - PINN_v2</title>
+<link rel="stylesheet" href="style.css"></head><body>
+<div class="layout">
+<div class="sidebar"><h1><a href="index.html" style="border:none">PINN_v2</a></h1>
+<h3>Navegación</h3><ul><li><a href="index.html">PINN_v2</a></li><li><a href="quickstart.html">Inicio rápido</a></li><li><a href="architecture.html">Arquitectura del paquete</a></li><li><a href="cases.html">Formato de caso</a></li><li><a href="models.html">Modelos</a></li><li><a href="training.html">Entrenamiento</a></li><li><a href="search.html">Búsqueda de hiperparámetros</a></li><li><a href="fem.html">Referencia FEM (FEniCSx)</a></li><li class="current"><a href="evaluation.html">Evaluación y criterios de aceptación</a><ul><li><a href="#compuertas-propuestas">Compuertas propuestas</a></li><li><a href="#qu-no-es-una-referencia">Qué NO es una referencia</a></li></ul></li><li><a href="reproducibility.html">Reproducibilidad</a></li><li><a href="cli.html">Referencia de la línea de comandos</a></li><li><a href="frontend.html">Interfaz web (front-end)</a></li><li><a href="results.html">Resultados de la Fase 6</a></li><li><a href="limitations.html">Limitaciones</a></li></ul>
+<h3>Búsqueda rápida</h3><input id="q" type="text" placeholder="buscar..." autocomplete="off"><ul id="hits"></ul>
+</div>
+<div class="content"><h1 id="evaluaci-n-y-criterios-de-aceptaci-n">Evaluación y criterios de aceptación</h1>
+<p>Después de entrenar se hace una <strong>auditoría independiente</strong>: puntos densos con una semilla (909091) que el entrenamiento nunca usa. Se reporta, por corrida:</p>
+<table><thead><tr><th>Medida</th><th>Qué mide</th></tr></thead><tbody><tr><td><code>pde_rms</code></td><td>residuo de la ecuación por región</td></tr><tr><td><code>constitutive_rms</code></td><td>residuo de la ley constitutiva (M2)</td></tr><tr><td><code>interfaces</code></td><td>salto de temperatura y de flujo normal en cada interfaz</td></tr><tr><td><code>boundary</code></td><td>error en cada tramo de frontera, con su unidad</td></tr><tr><td><code>balance</code></td><td>balance de energía global y por región, relativo a la potencia total</td></tr></tbody></table>
+<p>Si hay referencia (exacta o suministrada) se añade:</p>
+<table><thead><tr><th>Medida</th><th>Qué mide</th></tr></thead><tbody><tr><td><code>nrmse_pct</code></td><td>error RMS ponderado por área, como porcentaje del aumento de temperatura</td></tr><tr><td><code>error_rise_pct</code></td><td>error de Tmax como porcentaje del aumento de temperatura</td></tr><tr><td><code>region_rmse_rise_pct</code></td><td>error RMS en cada región</td></tr><tr><td><code>hotspot_distance_m</code></td><td>distancia entre el punto caliente predicho y el de referencia</td></tr><tr><td><code>conductor_mean_error_K</code></td><td>error de la temperatura media de cada conductor</td></tr></tbody></table>
+<h2 id="compuertas-propuestas">Compuertas propuestas</h2>
+<table><thead><tr><th>Compuerta</th><th>Umbral</th></tr></thead><tbody><tr><td>NRMSE</td><td>5 %</td></tr><tr><td>Error de Tmax (aumento)</td><td>5 %</td></tr><tr><td>Error RMS por región (aumento)</td><td>5 %</td></tr><tr><td>Balance de energía (global y por región)</td><td>2 %</td></tr><tr><td>Salto máximo de T en interfaces</td><td>0.1 K</td></tr><tr><td>Salto RMS de flujo en interfaces</td><td>1 %</td></tr></tbody></table>
+<p>Veredictos: <code>accepted</code>, <code>rejected</code> o <code>no_reference</code> (sin referencia no se puede aceptar).</p>
+<blockquote><p>Estos umbrales son una <strong>propuesta</strong>. No han sido confirmados por la persona responsable de la tesis. Están en <code>pinn_v2/evaluation/metrics.py</code> (<code>CRITERIA</code>) y se cambian ahí.</p></blockquote>
+<h2 id="qu-no-es-una-referencia">Qué NO es una referencia</h2>
+<p>Los valores de un artículo y los resultados FEM sirven para <strong>evaluar</strong>. No se usan como etiquetas. Cada resultado dice con qué referencia se comparó (<code>reference_label</code>).</p><div class="pager"><span>&laquo; <a href="fem.html">Referencia FEM (FEniCSx)</a></span><span><a href="reproducibility.html">Reproducibilidad</a> &raquo;</span></div><div class="footer">Documentación generada con docs/build_docs.py; funciona sin conexión.</div></div>
+</div>
+<script src="search_index.js"></script><script src="search.js"></script>
+</body></html>

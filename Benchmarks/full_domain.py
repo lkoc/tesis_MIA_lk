@@ -10,7 +10,7 @@ import json
 import math
 import numpy as np
 from Benchmarks.cases import field_k, interfaces, validate_case
-from Benchmarks.skin_effect import loss_specification,prescribed_source
+from Benchmarks.skin_effect import loss_specification,prescribed_power,prescribed_source
 
 PHYSICS_VERSION = 'explicit-heat-2d-v1'
 
@@ -56,7 +56,8 @@ class FullDomain:
         if mode not in ('fixed','dc_temperature'):
             raise ValueError('Source mode must be fixed or dc_temperature')
         c=copy.deepcopy(case)
-        extra={'outer_radius','physics_version','heat_capacity_J_m3K','outer_gradient_K_m','electrical'}
+        extra={'outer_radius','physics_version','heat_capacity_J_m3K','outer_gradient_K_m','electrical',
+            'boundary_conditions','source_power_W_m'}
         validate_case({k:v for k,v in c.items() if k not in extra})
         if c['kind']!='cable':raise ValueError('Explicit cable solver requires a cable case')
         if c.get('outer_radius'):
@@ -65,6 +66,12 @@ class FullDomain:
             if interfaces(c):raise ValueError('Circular outer boundary with soil strata is not supported')
         self.case=c
         self.mode=mode
+        self.boundary_conditions=c.get('boundary_conditions')
+        if self.boundary_conditions is not None:
+            self._validate_boundary_conditions(self.boundary_conditions)
+        self.power_per_cable=float(c.get('source_power_W_m',prescribed_power(c)))
+        if not np.isfinite(self.power_per_cable) or self.power_per_cable<=0:
+            raise ValueError('Thermal source power must be positive and finite')
         self.electrical=loss_specification(c)
         if mode=='dc_temperature' and (self.electrical['resistance_basis']!='dc' or self.electrical['frequency_Hz']!=0):
             raise ValueError('Local DC coupling requires DC inputs; AC is a prescribed heat-source model in this version')
@@ -100,14 +107,108 @@ class FullDomain:
             if value is not None and (not np.isfinite(value) or value<=0):
                 raise ValueError('Volumetric heat capacity must be positive')
 
+    def _validate_boundary_conditions(self,conditions):
+        sides={'left','right','bottom','top'}
+        if set(conditions)!=sides:raise ValueError('Specify one thermal boundary condition per outer side')
+        for side,spec in conditions.items():
+            kind=spec.get('type')
+            if kind=='dirichlet':
+                if not np.isfinite(spec.get('temperature_C',np.nan)):raise ValueError(f'Invalid {side} temperature')
+            elif kind=='dirichlet_profile':
+                depths=np.asarray(spec.get('depth_m',[]),dtype=float)
+                temperatures=np.asarray(spec.get('temperature_C',[]),dtype=float)
+                if len(depths)<2 or len(depths)!=len(temperatures) or not np.isfinite(depths).all() or not np.isfinite(temperatures).all():
+                    raise ValueError(f'Invalid {side} temperature profile')
+                if depths[0]!=0 or np.any(np.diff(depths)<=0):raise ValueError(f'{side} profile depths must increase from the surface')
+            elif kind=='robin':
+                if not np.isfinite(spec.get('ambient_C',np.nan)) or not np.isfinite(spec.get('h_W_m2K',np.nan)) or spec['h_W_m2K']<=0:
+                    raise ValueError(f'Invalid {side} convection data')
+            elif kind=='neumann':
+                if not np.isfinite(spec.get('flux_W_m2',0.0)):raise ValueError(f'Invalid {side} heat flux')
+            else:raise ValueError(f'Unsupported {side} boundary type: {kind}')
+
+    def _profile_temperature(self,xy,spec):
+        depths=np.asarray(spec['depth_m'],dtype=float)
+        temperatures=np.asarray(spec['temperature_C'],dtype=float)
+        depth=self.case['bounds'][3]-xy[:,1:2]
+        if hasattr(xy,'new_tensor'):
+            import torch
+            knots=xy.new_tensor(depths);values=xy.new_tensor(temperatures)
+            index=torch.bucketize(depth.contiguous(),knots[1:-1])
+            lo=knots[index];hi=knots[index+1]
+            vlo=values[index];vhi=values[index+1]
+            fraction=((depth-lo)/(hi-lo)).clamp(0,1)
+            return vlo+fraction*(vhi-vlo)
+        return np.interp(depth.ravel(),depths,temperatures).reshape(-1,1)
+
+    def boundary_value(self,side,xy):
+        if self.boundary_conditions is None:return self.boundary_temperature(xy)
+        spec=self.boundary_conditions[side]
+        if spec['type']=='dirichlet':return xy[:,0:1]*0+spec['temperature_C']
+        if spec['type']=='dirichlet_profile':return self._profile_temperature(xy,spec)
+        raise ValueError(f'{side} does not have a Dirichlet boundary value')
+
+    def boundary_lift(self,xy):
+        if self.boundary_conditions is None:return self.boundary_temperature(xy)
+        c=self.case;x0,x1,y0,y1=c['bounds']
+        u=(xy[:,:1]-x0)/(x1-x0);v=(xy[:,1:2]-y0)/(y1-y0)
+        baseline=xy[:,0:1]*0+c['T0']
+        corners={}
+        for name,point,sides in (
+            ('bl',(x0,y0),('left','bottom')),('br',(x1,y0),('right','bottom')),
+            ('tl',(x0,y1),('left','top')),('tr',(x1,y1),('right','top'))):
+            xy_corner=xy.new_tensor([point]) if hasattr(xy,'new_tensor') else np.asarray([point],dtype=float)
+            prescribed=[self.boundary_value(side,xy_corner) for side in sides
+                if self.boundary_conditions[side]['type'] in ('dirichlet','dirichlet_profile')]
+            if prescribed:
+                reference=prescribed[0]
+                for value in prescribed[1:]:
+                    difference=value-reference
+                    difference=float(difference.detach().abs().max().item() if hasattr(difference,'detach') else np.max(np.abs(difference)))
+                    if difference>1e-6:raise ValueError(f'Incompatible Dirichlet data at {name} corner')
+                corners[name]=reference
+            else:corners[name]=baseline[:1]
+        values={
+            'left':self.boundary_value('left',xy) if self.boundary_conditions['left']['type'] in ('dirichlet','dirichlet_profile') else (1-v)*corners['bl']+v*corners['tl'],
+            'right':self.boundary_value('right',xy) if self.boundary_conditions['right']['type'] in ('dirichlet','dirichlet_profile') else (1-v)*corners['br']+v*corners['tr'],
+            'bottom':self.boundary_value('bottom',xy) if self.boundary_conditions['bottom']['type'] in ('dirichlet','dirichlet_profile') else (1-u)*corners['bl']+u*corners['br'],
+            'top':self.boundary_value('top',xy) if self.boundary_conditions['top']['type'] in ('dirichlet','dirichlet_profile') else (1-u)*corners['tl']+u*corners['tr'],
+        }
+        return ((1-u)*values['left']+u*values['right']+(1-v)*values['bottom']+v*values['top']
+            -((1-u)*(1-v)*corners['bl']+u*(1-v)*corners['br']+(1-u)*v*corners['tl']+u*v*corners['tr']))
+
+    def boundary_flux_value(self,side):
+        return float(self.boundary_conditions[side].get('flux_W_m2',0.0))
+
+    def boundary_type(self,normal):
+        if self.boundary_conditions is None:return {'type':'dirichlet'}
+        direction=np.asarray(normal)[0]
+        side=('right' if direction[0]>0 else 'left') if abs(direction[0])>.5 else ('top' if direction[1]>0 else 'bottom')
+        return dict(self.boundary_conditions[side],side=side)
+
+    def boundary_envelope(self,xy):
+        c=self.case;x0,x1,y0,y1=c['bounds']
+        u=(xy[:,:1]-x0)/(x1-x0);v=(xy[:,1:2]-y0)/(y1-y0)
+        if self.boundary_conditions is None:return 4*u*(1-u)*4*v*(1-v)
+        envelope=xy[:,0:1]*0+1
+        for side,spec in self.boundary_conditions.items():
+            if spec['type'] not in ('dirichlet','dirichlet_profile'):continue
+            factor={'left':u,'right':1-u,'bottom':v,'top':1-v}[side]
+            envelope=envelope*factor
+        return envelope
+
     def specification(self):
-        return dict(physics_version=PHYSICS_VERSION, case=self.case, source_mode=self.mode,
+        spec=dict(physics_version=PHYSICS_VERSION, case=self.case, source_mode=self.mode,
             equation='rho_cp*dT/dt + div(q) = Q; q = -k*grad(T)',
             interface='continuous T and normal heat flux',
             interior='explicit conductor and every material layer',
             electrical=self.electrical, electrical_coupling='prescribed source' if self.mode=='fixed' else 'sigma(T)*Ez^2; Ez=I/integral(sigma dA)',
             assumptions=['2D long cable','isotropic conduction','perfect thermal contact','DC or prescribed heat sources'],
             excluded=(['skin effect'] if self.electrical['skin_model']=='none' and self.electrical['resistance_basis']=='dc' else [])+([] if self.electrical.get('includes_proximity',False) else ['proximity effect'])+['moisture transport','3D electromagnetic field'])
+        if self.boundary_conditions is not None:spec['boundary_conditions']=self.boundary_conditions
+        if 'source_power_W_m' in self.case:
+            spec['thermal_source']=dict(profile='uniform volumetric source in the copper core',power_per_cable_W_m=self.power_per_cable)
+        return spec
 
     @property
     def fingerprint(self):
@@ -194,6 +295,11 @@ class FullDomain:
                 (np.c_[s*0+x1,y0+(y1-y0)*s],np.tile([1.,0.],(n,1)),y1-y0)]
 
     def boundary_temperature(self,xy):
+        if self.boundary_conditions is not None:
+            profile=next((s for s in (self.boundary_conditions['left'],self.boundary_conditions['right']) if s['type']=='dirichlet_profile'),None)
+            if profile is not None:return self._profile_temperature(xy,profile)
+            bottom=self.boundary_conditions['bottom']
+            if bottom['type']=='dirichlet':return xy[:,0:1]*0+bottom['temperature_C']
         return self.case['T0']+self.case.get('outer_gradient_K_m',0.)*xy[:,0:1]
 
     def conductivity(self,region,xy,backend=np):
@@ -201,12 +307,15 @@ class FullDomain:
 
     def source(self,region,xy):
         if region.kind!='conductor':return xy[:,0:1]*0
+        if 'source_power_W_m' in self.case:
+            density=self.power_per_cable/(math.pi*self.case['layers'][0][1]**2)
+            return xy[:,0:1]*0+density
         points=xy.detach().cpu().numpy() if hasattr(xy,'detach') else np.asarray(xy)
         value=prescribed_source(self.case,points,self.case['cables'][region.cable])
         return xy[:,0:1]*0+xy.new_tensor(value) if hasattr(xy,'new_tensor') else value
 
     def scales(self,region):
-        c=self.case;p=c['power']
+        c=self.case;p=self.power_per_cable
         if region.kind=='soil':
             length=max(c.get('outer_radius',0.),.1) if c.get('outer_radius') else 1.
             k=c['k'];qscale=p/(2*math.pi*max(c['radius'],length*.1))

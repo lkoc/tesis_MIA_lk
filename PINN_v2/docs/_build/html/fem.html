@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><title>Referencia FEM (FEniCSx) - PINN_v2</title>
+<link rel="stylesheet" href="style.css"></head><body>
+<div class="layout">
+<div class="sidebar"><h1><a href="index.html" style="border:none">PINN_v2</a></h1>
+<h3>Navegación</h3><ul><li><a href="index.html">PINN_v2</a></li><li><a href="quickstart.html">Inicio rápido</a></li><li><a href="architecture.html">Arquitectura del paquete</a></li><li><a href="cases.html">Formato de caso</a></li><li><a href="models.html">Modelos</a></li><li><a href="training.html">Entrenamiento</a></li><li><a href="search.html">Búsqueda de hiperparámetros</a></li><li class="current"><a href="fem.html">Referencia FEM (FEniCSx)</a><ul><li><a href="#entorno-usado">Entorno usado</a></li><li><a href="#correr-fem-con-el-mismo-caso">Correr FEM con el mismo caso</a></li><li><a href="#evaluar-un-pinn-contra-el-fem">Evaluar un PINN contra el FEM</a></li><li><a href="#convergencia-y-dominio">Convergencia y dominio</a></li><li><a href="#si-no-tienes-wsl">Si no tienes WSL</a></li></ul></li><li><a href="evaluation.html">Evaluación y criterios de aceptación</a></li><li><a href="reproducibility.html">Reproducibilidad</a></li><li><a href="cli.html">Referencia de la línea de comandos</a></li><li><a href="frontend.html">Interfaz web (front-end)</a></li><li><a href="results.html">Resultados de la Fase 6</a></li><li><a href="limitations.html">Limitaciones</a></li></ul>
+<h3>Búsqueda rápida</h3><input id="q" type="text" placeholder="buscar..." autocomplete="off"><ul id="hits"></ul>
+</div>
+<div class="content"><h1 id="referencia-fem-fenicsx">Referencia FEM (FEniCSx)</h1>
+<p>FEniCSx solo está instalado en <strong>WSL2</strong>. El lado Windows lo invoca por subproceso y recibe JSON y NPZ. Ningún dato FEM entra en la pérdida de un PINN.</p>
+<h2 id="entorno-usado">Entorno usado</h2>
+<table><thead><tr><th>Elemento</th><th>Valor</th></tr></thead><tbody><tr><td>Distribución WSL</td><td><code>Ubuntu</code> (variable <code>PINN_V2_WSL_DISTRO</code>)</td></tr><tr><td>Python</td><td><code>/home/lkoc/miniforge3/envs/fenicsx/bin/python</code> (variable <code>PINN_V2_FEM_PYTHON</code>)</td></tr><tr><td>dolfinx</td><td>0.10.0</td></tr><tr><td>gmsh</td><td>4.15.2</td></tr></tbody></table>
+<h2 id="correr-fem-con-el-mismo-caso">Correr FEM con el mismo caso</h2>
+<div class="highlight"><pre>python<span class="w"> </span>-m<span class="w"> </span>pinn_v2<span class="w"> </span>fem<span class="w"> </span>--case<span class="w"> </span>xlpe_single<span class="w"> </span>--levels<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span>--output<span class="w"> </span>results/runs/fem_xlpe
+python<span class="w"> </span>-m<span class="w"> </span>pinn_v2<span class="w"> </span>fem<span class="w"> </span>--definition<span class="w"> </span>mi_caso.json<span class="w"> </span>--levels<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span>--output<span class="w"> </span>results/runs/fem_mi_caso
+</pre></div>
+<p><code>--levels</code> son niveles de refinamiento de la malla. <code>--mode</code> puede ser <code>fixed</code> (potencia prescrita, por defecto) o <code>dc_temperature</code> (acoplamiento electrotérmico en corriente continua, con iteración sobre la conductividad eléctrica). El PINN solo usa la fuente prescrita.</p>
+<p>Por cada nivel se escribe <code>fem_l&lt;nivel&gt;.json</code> (Tmax, grados de libertad y temperatura media por región) y <code>fem_l&lt;nivel&gt;.npz</code> (campo de temperatura en los puntos de evaluación).</p>
+<h2 id="evaluar-un-pinn-contra-el-fem">Evaluar un PINN contra el FEM</h2>
+<div class="highlight"><pre>python<span class="w"> </span>-m<span class="w"> </span>pinn_v2<span class="w"> </span>train<span class="w"> </span>--case<span class="w"> </span>xlpe_single<span class="w"> </span>--model<span class="w"> </span>M1<span class="w"> </span>--reference<span class="w"> </span>results/runs/fem_xlpe/fem_l2.npz<span class="w"> </span>--output<span class="w"> </span>results/runs/m1_vs_fem
+</pre></div>
+<p>El NPZ debe traer <code>xy</code> y <code>T</code>. Si <code>xy</code> no coincide con los puntos de evaluación del problema, la corrida se rechaza: comparar en puntos distintos no tendría sentido. La referencia solo se usa después de entrenar.</p>
+<h2 id="convergencia-y-dominio">Convergencia y dominio</h2>
+<p>El estudio de la fase 6 (<code>pinn_v2/experiments/fem_ladder.py</code>) llama a un resultado FEM "referencia" solo si las dos mallas más finas difieren menos de 0.5 % del aumento de temperatura (criterio <strong>propuesto</strong>). También duplica el semiancho y la profundidad del dominio para medir cuánto depende la respuesta del dominio reducido. Los resultados están en <a href="results.html">Resultados</a>.</p>
+<h2 id="si-no-tienes-wsl">Si no tienes WSL</h2>
+<p>El PINN funciona sin FEM. Puedes entrenar, buscar hiperparámetros y evaluar contra los casos con solución exacta (<code>mms_*</code>). Las pruebas con la marca <code>fem</code> se omiten sin WSL.</p><div class="pager"><span>&laquo; <a href="search.html">Búsqueda de hiperparámetros</a></span><span><a href="evaluation.html">Evaluación y criterios de aceptación</a> &raquo;</span></div><div class="footer">Documentación generada con docs/build_docs.py; funciona sin conexión.</div></div>
+</div>
+<script src="search_index.js"></script><script src="search.js"></script>
+</body></html>

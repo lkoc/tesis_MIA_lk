@@ -1,0 +1,257 @@
+{
+  "physics_version": "explicit-heat-2d-v1",
+  "physics_sha256": "8c478b90d5b70b466a4bd3b86268df46fff14cbfb12585b759f632ae9d177e45",
+  "specification": {
+    "physics_version": "explicit-heat-2d-v1",
+    "case": {
+      "R20": 0.000193,
+      "T0": 20.0,
+      "alpha": 0.00393,
+      "bands": [],
+      "bounds": [
+        0.0,
+        4.0,
+        -4.0,
+        0.0
+      ],
+      "cables": [
+        [
+          0.5,
+          -1.5
+        ]
+      ],
+      "current": 270.0,
+      "id": "symmetric_half",
+      "k": 1.0,
+      "kind": "cable",
+      "layers": [
+        [
+          0.0,
+          0.0055,
+          400.0
+        ],
+        [
+          0.0055,
+          0.012,
+          0.286
+        ],
+        [
+          0.012,
+          0.013,
+          380.0
+        ],
+        [
+          0.013,
+          0.015,
+          0.45
+        ]
+      ],
+      "pair": null,
+      "patch": null,
+      "physics_version": "explicit-heat-2d-v1",
+      "power": 14.069700000000001,
+      "radius": 0.015,
+      "scale": 1.0,
+      "source": "Synthetic concentric verification",
+      "boundary_conditions": {
+        "bottom": {
+          "temperature": {
+            "unit": "degC",
+            "value": 15.0
+          },
+          "type": "dirichlet"
+        },
+        "left": {
+          "heat_flux_out": {
+            "unit": "W/m2",
+            "value": 0.0
+          },
+          "type": "neumann"
+        },
+        "right": {
+          "temperature": {
+            "unit": "degC",
+            "value": 15.0
+          },
+          "type": "dirichlet"
+        },
+        "top": {
+          "T_inf": {
+            "unit": "degC",
+            "value": 20.0
+          },
+          "h": {
+            "unit": "W/(m2 K)",
+            "value": 15.0
+          },
+          "type": "robin"
+        }
+      }
+    },
+    "source_mode": "fixed",
+    "equation": "rho_cp*dT/dt + div(q) = Q; q = -k*grad(T)",
+    "interface": "continuous T and normal heat flux",
+    "interior": "explicit conductor and every material layer",
+    "electrical": {
+      "resistance_basis": "dc",
+      "resistance_ohm_m": 0.000193,
+      "reference_temperature_C": 20.0,
+      "source_temperature_C": 20.0,
+      "frequency_Hz": 0.0,
+      "skin_model": "none",
+      "profile": "uniform",
+      "mu_r": 1.0,
+      "provenance": "Legacy R20 explicitly treated as DC; confirm original datasheet before AC operation"
+    },
+    "electrical_coupling": "prescribed source",
+    "assumptions": [
+      "2D long cable",
+      "isotropic conduction",
+      "perfect thermal contact",
+      "DC or prescribed heat sources"
+    ],
+    "excluded": [
+      "skin effect",
+      "proximity effect",
+      "moisture transport",
+      "3D electromagnetic field"
+    ]
+  },
+  "method": "explicit_multimaterial_FEniCSx",
+  "level": 2,
+  "ndofs": 90073,
+  "degree": 2,
+  "regions": [
+    {
+      "name": "soil_0",
+      "area_m2": 15.99929314164723,
+      "exact_area_m2": 15.999293141652942,
+      "area_error_pct": 3.569367024169878e-11
+    },
+    {
+      "name": "cable_0_layer_0",
+      "area_m2": 9.503313218035758e-05,
+      "exact_area_m2": 9.503317777109123e-05,
+      "area_error_pct": 4.7973491701380766e-05,
+      "Tmax_C": 38.048915821392775,
+      "hotspot_xy_m": [
+        0.5,
+        -1.5
+      ],
+      "T_mean_C": 38.047516283239155,
+      "power_W_m": 14.069693250273662
+    },
+    {
+      "name": "cable_0_layer_1",
+      "area_m2": 0.0003573562099255476,
+      "exact_area_m2": 0.000357356164345839,
+      "area_error_pct": 1.2754700540185127e-05
+    },
+    {
+      "name": "cable_0_layer_2",
+      "area_m2": 7.853981634138121e-05,
+      "exact_area_m2": 7.853981633974477e-05,
+      "area_error_pct": 2.0835777547745238e-09
+    },
+    {
+      "name": "cable_0_layer_3",
+      "area_m2": 0.000175929188496838,
+      "exact_area_m2": 0.00017592918860102845,
+      "area_error_pct": 5.9222948767256867e-08
+    }
+  ],
+  "Tmax_C": 38.048915821392775,
+  "conductor_max_C": [
+    38.048915821392775
+  ],
+  "source_W_m": 14.069693250273662,
+  "outer_flux_W_m": 14.2566507753279,
+  "boundary_flux_W_m": {
+    "bottom": 7.343429902301038,
+    "top": -7.2860767216271745,
+    "left": 0.0004961321630739173,
+    "right": 14.198801462490962
+  },
+  "boundary_conditions": {
+    "bottom": {
+      "type": "dirichlet",
+      "T_C": 15.0
+    },
+    "top": {
+      "type": "robin",
+      "h_W_m2K": 15.0,
+      "T_inf_C": 20.0
+    },
+    "left": {
+      "type": "neumann",
+      "q_n_W_m2": 0.0
+    },
+    "right": {
+      "type": "dirichlet",
+      "T_C": 15.0
+    }
+  },
+  "boundary_check": {
+    "top": {
+      "type": "robin",
+      "length_m": 4.0,
+      "constitutive_outflow_W_m": -8.527305725641114,
+      "traction_outflow_W_m": -7.2860767216271745
+    },
+    "left": {
+      "type": "neumann",
+      "length_m": 3.999999999999998,
+      "prescribed_outflow_W_m": 0.0,
+      "traction_outflow_W_m": 0.0004961321630739173
+    }
+  },
+  "balance_pct": 1.3287960279489497,
+  "dirichlet_reaction_W_m": 22.596998977391262,
+  "consistent_outflow_W_m": 14.069693251750149,
+  "balance_consistent_pct": 1.0494091536776732e-08,
+  "source_normalization_factors": {},
+  "electrothermal_history": [
+    {
+      "iteration": 0,
+      "temperature_change_K": 18.048913892406752
+    }
+  ],
+  "elapsed_s": 4.2190955709999685,
+  "dolfinx": "0.10.0",
+  "gmsh": "4.15.2",
+  "completed_utc": "2026-10-02T07:05:45.874985+00:00",
+  "source_sha256": {
+    "pinn_v2/__init__.py": "2327c7cc19a349d99785882f6ea6863ab173a92efb8ef38e57372e01372a85c4",
+    "pinn_v2/cases/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pinn_v2/cases/boundary.py": "5fa6f23dfd7ccc9fecd0da98e64420533165a98a36ec20a6bd604027a5b8793d",
+    "pinn_v2/cases/catalog.py": "9abe0bd7d4c9c1c99a4d1a6a46e4629f419643fdece19aa804677e3486cacf4c",
+    "pinn_v2/cases/definition.py": "c8cf209ca2f7bc885fb16c035d74439c4b458322c78f75e236ff176abb9c60f4",
+    "pinn_v2/cases/errors.py": "f31de8aa1fd7a28be89c77e20330cf1c5750828fc556d61071d70702f3957105",
+    "pinn_v2/cases/expressions.py": "b59d46dfb4094c4e79f491384c7baef6641fb4753cd87fcb8a588f72164596e6",
+    "pinn_v2/cases/units.py": "e52d48d9d6f40b36761b784881ac2cb82c4353600c76495277b940f03bfa21e2",
+    "pinn_v2/cases/verification.py": "a332918afa6bca462235c6bdaf16c2cb158ff55ee9feb713fba59d337fda0fa9",
+    "pinn_v2/experiments/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pinn_v2/experiments/fem_reference.py": "ca19713cab0ee5fcfe8eee10cd98c7b045f27fdf870c07489d1d83790ad67e3e",
+    "pinn_v2/geometry/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pinn_v2/geometry/domain.py": "adf63b777fde1046fdfb431083de7249bb4007c6ee1e3259215e37d1a33051f8",
+    "pinn_v2/manifest/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pinn_v2/manifest/provenance.py": "ccff6a57ba285dd92300069b3ffcf9afdd5f33d4a84ce17e62daa9767e27ef22",
+    "pinn_v2/manifest/run_manifest.py": "a951e9585c1d2256aacf352c7e6f114166e01f1830964fb87ff9b5dbfc289f37",
+    "pinn_v2/physics/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pinn_v2/physics/operators.py": "eaf35d49d2c043ea300b6087fc06eb7c5d9563041855b8f3dc24001e05f53a40",
+    "pinn_v2/physics/residuals.py": "60086c7cc19e329d6cf1ea996914acd310faf816951ee20c2589f1f8bfd61cc2",
+    "pinn_v2/physics/skin_effect.py": "bdbf529b5d3b130d98151127b063da0d6eecb56e823233d09d5f06dfb99c3f9e",
+    "pinn_v2/sampling/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pinn_v2/sampling/collocation.py": "681a195dbccc91d95dedd285eea6cf8585897e5444565bacf06321397092231c",
+    "pinn_v2/solvers/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pinn_v2/solvers/ampacity.py": "fe5624fba25fe85dc1fdfba1c5985bb6da38d2bc71ac67d45970ef161cbd3e8e",
+    "pinn_v2/solvers/fem/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pinn_v2/solvers/fem/adapter.py": "15a14d581b0592279111a1a5592acdfaa3d4e432c817488f7c0b73d33a8a4d7e",
+    "pinn_v2/solvers/fem/backend.py": "5f00b8cfe732fa7591bdd52a74a172bef00390d2c84d5c2b47125a4cfd51f3e1",
+    "pinn_v2/solvers/fem/environment.py": "1de7ceb9ac93f9def161643f85a8631908deead47bb59f72af00ad2b3a46b098",
+    "pinn_v2/solvers/fem/full_fem.py": "aacab8f7bd4b92e24de3d37ca65dd7984b0557c8758963fa4846e0a3d88f4a3e",
+    "pinn_v2/solvers/fem/mms_fem.py": "af6e7be16939251d107db25c04559bd73bea36a0613b4e81008d51c10c3cb3ab",
+    "pinn_v2/solvers/pinn/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pinn_v2/solvers/pinn/full_pinn.py": "71aabda4327c29d57ada6960bd4fdcd4f2676735d736b68daff41e8656666d88"
+  }
+}

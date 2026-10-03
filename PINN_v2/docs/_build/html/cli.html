@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><title>Referencia de la línea de comandos - PINN_v2</title>
+<link rel="stylesheet" href="style.css"></head><body>
+<div class="layout">
+<div class="sidebar"><h1><a href="index.html" style="border:none">PINN_v2</a></h1>
+<h3>Navegación</h3><ul><li><a href="index.html">PINN_v2</a></li><li><a href="quickstart.html">Inicio rápido</a></li><li><a href="architecture.html">Arquitectura del paquete</a></li><li><a href="cases.html">Formato de caso</a></li><li><a href="models.html">Modelos</a></li><li><a href="training.html">Entrenamiento</a></li><li><a href="search.html">Búsqueda de hiperparámetros</a></li><li><a href="fem.html">Referencia FEM (FEniCSx)</a></li><li><a href="evaluation.html">Evaluación y criterios de aceptación</a></li><li><a href="reproducibility.html">Reproducibilidad</a></li><li class="current"><a href="cli.html">Referencia de la línea de comandos</a><ul><li><a href="#comandos">Comandos</a></li><li><a href="#c-mo-elegir-el-caso">Cómo elegir el caso</a></li><li><a href="#train">train</a></li><li><a href="#fem">fem</a></li><li><a href="#search">search</a></li><li><a href="#salidas-por-defecto">Salidas por defecto</a></li></ul></li><li><a href="frontend.html">Interfaz web (front-end)</a></li><li><a href="results.html">Resultados de la Fase 6</a></li><li><a href="limitations.html">Limitaciones</a></li></ul>
+<h3>Búsqueda rápida</h3><input id="q" type="text" placeholder="buscar..." autocomplete="off"><ul id="hits"></ul>
+</div>
+<div class="content"><h1 id="referencia-de-la-l-nea-de-comandos">Referencia de la línea de comandos</h1>
+<p>Un solo punto de entrada: <code>python -m pinn_v2 &lt;comando&gt;</code>. Los textos de ayuda integrados se leen con <code>python -m pinn_v2 help</code> y <code>python -m pinn_v2 help &lt;tema&gt;</code>; los temas son overview, cases, models, train, search, fem y files.</p>
+<p>En PowerShell, antes de empezar:</p>
+<div class="highlight"><pre><span class="nv">$env:PYTHONPATH</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Location</span><span class="p">).</span><span class="n">Path</span>
+</pre></div>
+<h2 id="comandos">Comandos</h2>
+<table><thead><tr><th>comando</th><th>para qué sirve</th></tr></thead><tbody><tr><td><code>help [tema]</code></td><td>ayuda integrada</td></tr><tr><td><code>cases</code></td><td>lista los casos disponibles</td></tr><tr><td><code>show</code></td><td>resume un caso</td></tr><tr><td><code>validate</code></td><td>revisa un archivo de caso; devuelve 1 si no es válido</td></tr><tr><td><code>train</code></td><td>entrena un PINN</td></tr><tr><td><code>fem</code></td><td>corre la referencia FEniCSx en WSL2</td></tr><tr><td><code>search</code></td><td>búsqueda de hiperparámetros</td></tr></tbody></table>
+<h2 id="c-mo-elegir-el-caso">Cómo elegir el caso</h2>
+<p>Todos los comandos aceptan lo mismo:</p>
+<ul><li><code>--case NOMBRE</code>: un id del catálogo (por ejemplo <code>xlpe_single</code> o <code>kim_v5_summer</code>).</li><li><code>--definition RUTA</code>: un JSON propio, en formato v2 o en el formato anterior.</li></ul>
+<h2 id="train">train</h2>
+<div class="highlight"><pre><span class="n">python</span> <span class="n">-m</span> <span class="n">pinn_v2</span> <span class="n">train</span> <span class="p">-</span><span class="n">-case</span> <span class="n">xlpe_single</span> <span class="p">-</span><span class="n">-model</span> <span class="n">M1</span> <span class="p">-</span><span class="n">-adam-steps</span> <span class="n">6000</span> <span class="p">-</span><span class="n">-lbfgs-steps</span> <span class="n">100</span>
+</pre></div>
+<p>Opciones: <code>--model</code>, <code>--adam-steps</code>, <code>--lbfgs-steps</code>, <code>--lr</code>, <code>--width</code>, <code>--depth</code>, <code>--activation</code>, <code>--seed</code>, <code>--sampling-seed</code>, <code>--output</code>, <code>--config</code>, <code>--reference</code>, <code>--weights nombre=valor ...</code> y <code>--points nombre=valor ...</code>.</p>
+<p>La prioridad es: valores por defecto, luego el archivo <code>--config</code>, luego las banderas. Si la carpeta de salida ya existe, el comando se rechaza.</p>
+<h2 id="fem">fem</h2>
+<div class="highlight"><pre><span class="n">python</span> <span class="n">-m</span> <span class="n">pinn_v2</span> <span class="n">fem</span> <span class="p">-</span><span class="n">-case</span> <span class="n">xlpe_single</span> <span class="p">-</span><span class="n">-levels</span> <span class="n">0</span> <span class="n">1</span> <span class="n">2</span>
+</pre></div>
+<p>Opciones: <code>--levels</code>, <code>--mode {fixed,dc_temperature}</code>, <code>--output</code>. Con <code>fixed</code> la fuente es la misma que usa el PINN. Necesita WSL2; ver <a href="fem.html">Referencia FEM</a>.</p>
+<h2 id="search">search</h2>
+<div class="highlight"><pre><span class="n">python</span> <span class="n">-m</span> <span class="n">pinn_v2</span> <span class="n">search</span> <span class="p">-</span><span class="n">-case</span> <span class="n">xlpe_single</span> <span class="p">-</span><span class="n">-config</span> <span class="n">configs</span><span class="p">/</span><span class="n">search_example</span><span class="p">.</span><span class="n">json</span> <span class="p">-</span><span class="n">-trials</span> <span class="n">8</span>
+</pre></div>
+<p>Opciones: <code>--trials</code>, <code>--strategy {random,grid}</code>, <code>--seed</code>, <code>--output</code>. Detalles en <a href="search.html">Búsqueda de hiperparámetros</a>.</p>
+<h2 id="salidas-por-defecto">Salidas por defecto</h2>
+<ul><li><code>results/runs/&lt;caso&gt;_&lt;modelo&gt;</code> para <code>train</code>.</li><li><code>results/runs/fem_&lt;nombre&gt;</code> para <code>fem</code>.</li><li><code>results/runs/search_&lt;nombre&gt;</code> para <code>search</code>.</li></ul><div class="pager"><span>&laquo; <a href="reproducibility.html">Reproducibilidad</a></span><span><a href="frontend.html">Interfaz web (front-end)</a> &raquo;</span></div><div class="footer">Documentación generada con docs/build_docs.py; funciona sin conexión.</div></div>
+</div>
+<script src="search_index.js"></script><script src="search.js"></script>
+</body></html>

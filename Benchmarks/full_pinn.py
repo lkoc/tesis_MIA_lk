@@ -71,10 +71,7 @@ class FullPINN(nn.Module):
         return result
 
     def envelope(self,xy):
-        c=self.domain.case
-        if c.get('outer_radius'):return 1-(xy[:,:2]**2).sum(dim=1,keepdim=True)/c['outer_radius']**2
-        x0,x1,y0,y1=c['bounds'];u=2*(xy[:,:1]-x0)/(x1-x0)-1;v=2*(xy[:,1:2]-y0)/(y1-y0)-1
-        return (1-u*u)*(1-v*v)
+        return self.domain.boundary_envelope(xy)
 
     def field(self,region,xy):
         index=0 if self.global_network else region.id
@@ -94,7 +91,7 @@ class FullPINN(nn.Module):
             for _ in range(3):columns.extend([ar,ai]);ar,ai=ar*real-ai*imag,ar*imag+ai*real
             temperature=temperature+amplitude*(torch.cat(columns,dim=1)@self.harmonics[index].reshape(-1,1))
         if self.global_network or region.kind=='soil':temperature=temperature*self.envelope(xy)
-        temperature=temperature+self.domain.boundary_temperature(xy)
+        temperature=temperature+self.domain.boundary_lift(xy)
         flux=raw[:,1:3]*scales['flux'] if self.mixed else None
         return temperature,flux
 
@@ -108,10 +105,12 @@ class FullPINN(nn.Module):
 
 class PhysicsLoss:
     """Every variant traverses every material. Source and transmission are shared."""
-    def __init__(self,model,n=512,n_layer=256,n_interface=128,seed=11,sampling='mixed',temperature_weight=100):
+    def __init__(self,model,n=512,n_layer=256,n_interface=128,seed=11,sampling='mixed',temperature_weight=100,boundary_weight=10):
         self.model=model;self.domain=model.domain
         if not np.isfinite(temperature_weight) or temperature_weight<=0:raise ValueError('Positive finite interface temperature weight required')
+        if not np.isfinite(boundary_weight) or boundary_weight<=0:raise ValueError('Positive finite boundary weight required')
         self.temperature_weight=temperature_weight
+        self.boundary_weight=boundary_weight
         reference=next(model.parameters())
         self.tensor=lambda a: torch.as_tensor(a,dtype=reference.dtype,device=reference.device).clone().detach().requires_grad_(True)
         self.interior={r.id:self.tensor(stratified_sample(self.domain,r,n if r.kind=='soil' else n_layer,seed+7919*r.id,sampling)) for r in self.domain.regions}
@@ -128,7 +127,7 @@ class PhysicsLoss:
         self.static={r.id:self.domain.source(r,self.interior[r.id]).detach() for r in self.domain.regions}
 
     def electrical_fields(self):
-        if self.domain.mode=='fixed':return {},{r.id:prescribed_power(self.domain.case) for r in self.domain.conductors}
+        if self.domain.mode=='fixed':return {},{r.id:self.domain.power_per_cable for r in self.domain.conductors}
         fields={};powers={}
         for r in self.domain.conductors:
             temperature=self.model.field(r,self.quadrature[r.id])[0]
@@ -142,7 +141,7 @@ class PhysicsLoss:
 
     def __call__(self):
         reference=next(self.model.parameters());zero=reference.new_zeros(())
-        fields,powers=self.electrical_fields();pde=zero;constitutive=zero;temperature_jump=zero;flux_jump=zero
+        fields,powers=self.electrical_fields();pde=zero;constitutive=zero;temperature_jump=zero;flux_jump=zero;boundary=zero
         region_pde={};balance={r.id:zero for r in self.domain.regions};derived_balance=dict(balance)
         for r in self.domain.regions:
             xy=self.interior[r.id];T,q=self.model.field(r,xy)
@@ -184,13 +183,20 @@ class PhysicsLoss:
             derived=-self.domain.conductivity(r,xy,torch)*gradients(T,xy)[:,:2]
             if q is None:q=derived
             if self.model.mixed:constitutive=constitutive+torch.mean(((q-derived)/self.domain.scales(r)['flux'])**2)
-            balance[r.id]=balance[r.id]+length*(q*normal).sum(1).mean()
+            normal_flux=(q*normal).sum(1,keepdim=True)
+            boundary_spec=self.domain.boundary_type(normal.detach().cpu().numpy())
+            if boundary_spec['type']=='robin':
+                residual=normal_flux-boundary_spec['h_W_m2K']*(T-boundary_spec['ambient_C'])
+                boundary=boundary+torch.mean((residual/self.domain.scales(r)['flux'])**2)
+            elif boundary_spec['type']=='neumann':
+                boundary=boundary+torch.mean((normal_flux/self.domain.scales(r)['flux'])**2)
+            balance[r.id]=balance[r.id]+length*normal_flux.mean()
             derived_balance[r.id]=derived_balance[r.id]+length*(derived*normal).sum(1).mean()
-        energy=sum((value/self.domain.case['power'])**2 for value in balance.values())
-        if self.model.mixed:energy=energy+sum((value/self.domain.case['power'])**2 for value in derived_balance.values())
-        parts=dict(pde=pde,constitutive=constitutive,interface_temperature=temperature_jump,interface_flux=flux_jump,energy=energy)
+        energy=sum((value/self.domain.power_per_cable)**2 for value in balance.values())
+        if self.model.mixed:energy=energy+sum((value/self.domain.power_per_cable)**2 for value in derived_balance.values())
+        parts=dict(pde=pde,constitutive=constitutive,interface_temperature=temperature_jump,interface_flux=flux_jump,energy=energy,boundary=boundary)
         # Same physics terms in every variant; mixed adds the constitutive equation.
-        total=pde+constitutive+self.temperature_weight*temperature_jump+10*flux_jump+10*energy
+        total=pde+constitutive+self.temperature_weight*temperature_jump+10*flux_jump+10*energy+self.boundary_weight*boundary
         return total,parts,region_pde
 
 
@@ -238,8 +244,8 @@ def evaluate(model,output,seed,reference_path=None):
         q=derived if q is None else q
         balance_q[r.id]+=length*float((q*normal).sum(1).mean().detach())
         balance_T[r.id]+=length*float((derived*normal).sum(1).mean().detach())
-    report['region_energy_error_pct']={r.name:100*abs(balance_q[r.id])/d.case['power'] for r in d.regions}
-    report['region_derived_energy_error_pct']={r.name:100*abs(balance_T[r.id])/d.case['power'] for r in d.regions}
+    report['region_energy_error_pct']={r.name:100*abs(balance_q[r.id])/d.power_per_cable for r in d.regions}
+    report['region_derived_energy_error_pct']={r.name:100*abs(balance_T[r.id])/d.power_per_cable for r in d.regions}
     report['balance_pct']=100*abs(sum(balance_q.values()))/ptotal
     report['derived_balance_pct']=100*abs(sum(balance_T.values()))/ptotal
     report['total_power_W_m']=ptotal
@@ -285,7 +291,7 @@ def train(domain,config,output):
     output=Path(output);output.mkdir(parents=True,exist_ok=True)
     if (output/f'pinn_seed{seed}.json').exists():raise FileExistsError('Use a new run directory; existing evidence will not be overwritten')
     model=FullPINN(domain,config.get('variant','mixed'),config.get('width',32),config.get('depth',3))
-    objective=PhysicsLoss(model,config.get('n',512),config.get('n_layer',256),config.get('n_interface',128),config.get('sampling_seed',seed),config.get('sampling','mixed'),config.get('temperature_weight',100))
+    objective=PhysicsLoss(model,config.get('n',512),config.get('n_layer',256),config.get('n_interface',128),config.get('sampling_seed',seed),config.get('sampling','mixed'),config.get('temperature_weight',100),config.get('boundary_weight',10))
     config=dict(config,physics=domain.specification(),physics_sha256=domain.fingerprint)
     (output/'configuration.json').write_text(json.dumps(config,indent=2),encoding='utf-8')
     source_files=[Path(__file__),Path(__file__).with_name('full_domain.py'),Path(__file__).with_name('full_physics.py'),Path(__file__).with_name('full_sampling.py'),Path(__file__).with_name('skin_effect.py'),Path(__file__).with_name('cases.py'),Path(__file__).with_name('expressions.py'),ROOT/'pinn_cables/pinn/pde.py']
@@ -343,6 +349,7 @@ def main():
     ap.add_argument('--adam',type=int,default=1500);ap.add_argument('--lbfgs',type=int,default=1500);ap.add_argument('--threads',type=int,default=1)
     ap.add_argument('--lr',type=float,default=.001);ap.add_argument('--sampling',choices=['mixed','uniform','interface','residual'],default='mixed')
     ap.add_argument('--sampling-seed',type=int);ap.add_argument('--temperature-weight',type=float,default=100.)
+    ap.add_argument('--boundary-weight',type=float,default=10.)
     ap.add_argument('--reference');ap.add_argument('--output',type=Path,required=True)
     a=ap.parse_args();c=json.loads(a.case_file.read_text()) if a.case_file else (coaxial_case() if a.case=='coaxial_full' else cases()[a.case])
     config={k:v for k,v in vars(a).items() if k not in ('case_file','output')}

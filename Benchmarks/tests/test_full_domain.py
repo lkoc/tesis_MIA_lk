@@ -27,6 +27,47 @@ def test_all_layers_partition_and_have_physical_sources():
     assert all(i.radius>0 for i in domain.interfaces)
 
 
+def test_kim_thermal_source_and_mixed_boundary_contract_are_explicit():
+    import json
+    from pathlib import Path
+    case=json.loads((Path(__file__).resolve().parents[2]/'examples/kim_2024_154kv_bedding/data/kim_thermal_pde_case.json').read_text())
+    domain=FullDomain(case)
+    assert case['bounds']==[-45.5,45.5,-45.5,0.0]
+    assert len(domain.conductors)==6 and domain.power_per_cable==pytest.approx(27.97)
+    assert [region.lower for region in domain.regions[:domain.nsoil]]==[-45.5,-1.76,-.56]
+    assert [region.upper for region in domain.regions[:domain.nsoil]]==[-1.76,-.56,0.0]
+    conductor=domain.conductors[0]
+    points=domain.sample(conductor,512,31)
+    assert float(domain.source(conductor,points).mean())*domain.area(conductor)==pytest.approx(27.97)
+    assert domain.boundary_type(np.array([[0.,1.]]))['type']=='robin'
+    assert domain.boundary_type(np.array([[1.,0.]]))['type']=='dirichlet_profile'
+    bounds=case['bounds'];x0,x1,y0,y1=bounds
+    xy=tensor([[x0,-1.],[x1,-1.],[0.,y0],[0.,y1]])
+    envelope=domain.boundary_envelope(xy)
+    assert torch.allclose(envelope[:3],torch.zeros_like(envelope[:3]))
+    assert envelope[3].item()>0
+    assert domain.boundary_value('left',tensor([[x0,-1.4]])).item()==pytest.approx(19.89)
+    assert domain.fingerprint!=FullDomain(cases()['kim_layered']).fingerprint
+    soil=domain.regions[0]
+    sample=tensor([[3.,-2.],[3.,-1.],[3.,-.2],[0.,-1.4]])
+    conductivity=domain.conductivity(soil,sample,torch).detach().numpy().ravel()
+    assert conductivity[:3]==pytest.approx([1.517,1.351,1.804])
+    assert conductivity[3]==pytest.approx(2.094,abs=1e-3)
+    model=FullPINN(domain,'subdomain',width=8,depth=2)
+    objective=PhysicsLoss(model,n=12,n_layer=8,n_interface=8)
+    _,powers=objective.electrical_fields()
+    assert len(powers)==6 and all(value==pytest.approx(27.97) for value in powers.values())
+    _,parts,_=objective()
+    assert torch.isfinite(parts['boundary']) and parts['boundary'].item()>0
+    for side,xy in (
+        ('left',tensor([[x0,-1.4],[x0,-3.0]])),
+        ('right',tensor([[x1,-1.4],[x1,-3.0]])),
+        ('bottom',tensor([[0.,y0],[10.,y0]]))):
+        xy=xy.to(dtype=next(model.parameters()).dtype)
+        actual,_=model.field(soil,xy)
+        torch.testing.assert_close(actual,domain.boundary_value(side,xy),atol=1e-5,rtol=0)
+
+
 @pytest.mark.parametrize('variant',VARIANTS)
 def test_every_variant_enforces_pde_in_every_layer_and_backpropagates(variant):
     torch.set_default_dtype(torch.float64);torch.set_num_threads(1);torch.manual_seed(3)

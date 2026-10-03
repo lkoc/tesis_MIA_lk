@@ -1,0 +1,60 @@
+{
+  "schema_version": "pinn-v2-case-1",
+  "id": "mms_high_contrast",
+  "title": "MMS 2D: alto contraste de conductividad",
+  "physical": {
+    "id": "mms_high_contrast",
+    "kind": "mms_high_contrast",
+    "bounds": [
+      0.0,
+      1.0,
+      0.0,
+      1.0
+    ],
+    "T0": 20.0,
+    "scale": 30.0,
+    "conductivity": {
+      "type": "expression",
+      "expression": "exp(log(10)*(x+y)/2)"
+    },
+    "exact_expression": "20 + 30*sin(pi*x)*sin(pi*y)",
+    "source_expression": "manufactured",
+    "source": "Elaboración propia: extensión de la batería manufacturada del Plan",
+    "adaptation": "k=exp(ln(10)*(x+y)/2); rango 1 a 10 W/(m K); T*=20+30 sin(pi x) sin(pi y)"
+  },
+  "boundary_conditions": null,
+  "contact": [],
+  "provenance": [
+    {
+      "id": "v1_record",
+      "citation": "PINN_v2/pinn_v2/cases/data/mms_high_contrast.json; physical values preserved during v2 migration"
+    },
+    {
+      "id": "original_source",
+      "citation": "Elaboración propia: extensión de la batería manufacturada del Plan"
+    }
+  ],
+  "data_status": {
+    "geometry": {
+      "status": "supuesto",
+      "source": "v1_record",
+      "note": "Values preserved from the v1 record; source attribution was not audited field by field."
+    },
+    "materials": {
+      "status": "supuesto",
+      "source": "v1_record",
+      "note": "Values preserved from the v1 record; source attribution was not audited field by field."
+    },
+    "source": {
+      "status": "supuesto",
+      "source": "v1_record",
+      "note": "Values preserved from the v1 record; source attribution was not audited field by field."
+    },
+    "boundary_conditions": {
+      "status": "supuesto",
+      "source": "v1_record",
+      "note": "Values preserved from the v1 record; source attribution was not audited field by field."
+    }
+  },
+  "inconsistencies": []
+}

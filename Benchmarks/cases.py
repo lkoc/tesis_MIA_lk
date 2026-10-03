@@ -47,7 +47,7 @@ def validate_case(c):
         if 'where' in expr:raise ValueError('Specify conductivity jumps with type=layers, not a hidden where expression')
         if isinstance(spec,dict) and spec.get('type')=='layers':
             if spec.get('axis') not in ('x','y') or len(spec['values'])!=len(spec['interfaces'])+1 or any(a>=b for a,b in zip(spec['interfaces'],spec['interfaces'][1:])) or min(spec['values'])<=0 or spec.get('smoothing',0)<0:raise ValueError('Invalid layer specification')
-        if c.get('patch') or c.get('bands'):raise ValueError('Use either conductivity or legacy patch/bands, not both')
+        if c.get('bands'):raise ValueError('Use conductivity layers instead of legacy bands')
         if c['kind'].startswith('mms') and not all(k in c for k in ['exact_expression','source_expression']):raise ValueError('Manufactured data need exact and source expressions')
         x0,x1,y0,y1=c['bounds'];gx,gy=np.meshgrid(np.linspace(x0,x1,41),np.linspace(y0,y1,41))
         kval=conductivity(spec,gx,gy,np)
@@ -96,13 +96,14 @@ def fingerprint(case):
 
 def field_k(c,x,y,backend=np):
     """Same expression evaluated by numpy, torch or a UFL adapter."""
-    if 'conductivity' in c:return conductivity(c['conductivity'],x,y,backend)
-    kind=c['kind']
-    if kind=='mms_variable': return 1+x
-    if kind=='mms_smooth_2d': return 1+.4*backend.sin(2*math.pi*x)*backend.cos(2*math.pi*y)
-    if kind=='mms_high_contrast': return backend.exp(math.log(10)*(x+y)/2)
-    if kind=='mms_interface': return backend.where(x<=.5,.5+0*x,2.+0*x)
-    k=c.get('k',1.)+0*x
+    if 'conductivity' in c:k=conductivity(c['conductivity'],x,y,backend)
+    else:
+        kind=c['kind']
+        if kind=='mms_variable': return 1+x
+        if kind=='mms_smooth_2d': return 1+.4*backend.sin(2*math.pi*x)*backend.cos(2*math.pi*y)
+        if kind=='mms_high_contrast': return backend.exp(math.log(10)*(x+y)/2)
+        if kind=='mms_interface': return backend.where(x<=.5,.5+0*x,2.+0*x)
+        k=c.get('k',1.)+0*x
     if c.get('bands'):
         k=c['bands'][-1][2]+0*x
         for height,above,below in reversed(c['bands']):

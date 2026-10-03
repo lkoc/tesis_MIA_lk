@@ -1,0 +1,535 @@
+{
+  "best_step": 4038,
+  "case": "mms_robin",
+  "config": {
+    "activation": "tanh",
+    "adam_steps": 4000,
+    "architecture": "M1",
+    "depth": 3,
+    "lbfgs_steps": 60,
+    "lr": 0.003,
+    "points": {
+      "n_boundary": 128,
+      "n_face": 128,
+      "n_interior": 512,
+      "n_layer": 256
+    },
+    "weights": {},
+    "width": 32
+  },
+  "elapsed_s": 160.77374610002153,
+  "error": null,
+  "evaluation": {
+    "Tmax_pred_C": 34.96898370380303,
+    "Tmax_ref_C": 34.968014014925465,
+    "acceptance": {
+      "accepted": true,
+      "gates": {
+        "Tmax_rise_pct": true,
+        "balance_pct": true,
+        "nrmse_pct": true,
+        "region_rmse_rise_pct": true
+      },
+      "state": "accepted"
+    },
+    "balance": {
+      "global_constitutive_pct": 0.007537367592497112,
+      "global_derived_pct": 0.008115307373428336,
+      "power_scale_W_m": 90.0,
+      "region_constitutive_pct": {
+        "mms_0": 0.007537367592497112
+      },
+      "region_derived_pct": {
+        "mms_0": 0.008115307373428336
+      }
+    },
+    "boundary": [
+      {
+        "region": "mms_0",
+        "rms": 0.0038244107487037287,
+        "side": "bottom",
+        "type": "dirichlet",
+        "unit": "K"
+      },
+      {
+        "region": "mms_0",
+        "rms": 0.00044727154693829035,
+        "side": "top",
+        "type": "robin",
+        "unit": "flux_scale"
+      },
+      {
+        "region": "mms_0",
+        "rms": 0.0028232682904703694,
+        "side": "left",
+        "type": "dirichlet",
+        "unit": "K"
+      },
+      {
+        "region": "mms_0",
+        "rms": 0.002923300461036847,
+        "side": "right",
+        "type": "dirichlet",
+        "unit": "K"
+      }
+    ],
+    "conductor_mean_error_K": {},
+    "conductor_mean_pred_C": {},
+    "conductor_mean_ref_C": {},
+    "constitutive_rms": {},
+    "error_Tmax_abs_K": 0.0009696888775678758,
+    "error_percentiles_K": {
+      "50": 0.0005350427946808622,
+      "90": 0.0020102437404748486,
+      "95": 0.002781081892537786,
+      "99": 0.004097408842550765
+    },
+    "error_rise_pct": 0.006478407065900282,
+    "hotspot_distance_m": 0.0,
+    "hotspot_pred_xy": [
+      0.5065258743943876,
+      0.9960752297056081
+    ],
+    "hotspot_ref_xy": [
+      0.5065258743943876,
+      0.9960752297056081
+    ],
+    "interfaces": [],
+    "level_C": 20.0,
+    "max_error_K": 0.0064252088746989955,
+    "nrmse_pct": 0.007972468626855507,
+    "pde_rms": {
+      "mms_0": 0.004216354907125616
+    },
+    "reference_label": "exact manufactured solution",
+    "region_max_error_K": {
+      "mms_0": 0.0064252088746989955
+    },
+    "region_rmse_K": {
+      "mms_0": 0.0011933202214032684
+    },
+    "region_rmse_rise_pct": {
+      "mms_0": 0.007972468626855508
+    },
+    "rise_ref_K": 14.968014014925465,
+    "rmse_K": 0.0011933202214032682
+  },
+  "fem_labels_used": 0,
+  "final_loss": 1.844787558095451e-05,
+  "final_parts": {
+    "constitutive": 0.0,
+    "dirichlet": 3.459528110309802e-08,
+    "energy": 6.5921473838982406e-09,
+    "interface_flux": 0.0,
+    "interface_temperature": 0.0,
+    "neumann": 0.0,
+    "pde": 1.2983539598699137e-05,
+    "robin": 1.9982157245616735e-07
+  },
+  "final_region_pde": {
+    "mms_0": 1.2983539598699137e-05
+  },
+  "history": [
+    {
+      "constitutive": 0.0,
+      "dirichlet": 0.017662390590422832,
+      "energy": 1.0,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 0.0029999995419886945,
+      "neumann": 0.0,
+      "pde": 9.38913926417133,
+      "phase": "adam",
+      "robin": 26.98474093310093,
+      "step": 0,
+      "total": 282.0027876542229
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 0.0009399045304888194,
+      "energy": 0.05391083931813772,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 0.0029815342813679347,
+      "neumann": 0.0,
+      "pde": 1.931937928726342,
+      "phase": "adam",
+      "robin": 0.013708191855987283,
+      "step": 200,
+      "total": 2.2169211396532345
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 0.0001103246651388267,
+      "energy": 2.642631647547525e-05,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 0.0029269580795916604,
+      "neumann": 0.0,
+      "pde": 0.15246834271178297,
+      "phase": "adam",
+      "robin": 0.0008799380587460671,
+      "step": 400,
+      "total": 0.1723266161296018
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 3.688376402511627e-05,
+      "energy": 6.64863701520247e-05,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 0.0028376147838756307,
+      "neumann": 0.0,
+      "pde": 0.055598518394971694,
+      "phase": "adam",
+      "robin": 0.00025758036570900614,
+      "step": 600,
+      "total": 0.06192918482472541
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 1.809971683914152e-05,
+      "energy": 5.342042913070179e-05,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 0.0027157043226737777,
+      "neumann": 0.0,
+      "pde": 0.02590340314126529,
+      "phase": "adam",
+      "robin": 0.0001409111677937596,
+      "step": 800,
+      "total": 0.02917590693224774
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 1.3784223486847737e-05,
+      "energy": 4.165359086240604e-05,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 0.0025642285361385164,
+      "neumann": 0.0,
+      "pde": 0.014961919241895882,
+      "phase": "adam",
+      "robin": 0.00011728198154291531,
+      "step": 1000,
+      "total": 0.017554814996872215
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 0.00015420937975927116,
+      "energy": 2.5543941132016156e-05,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 0.002386917260853655,
+      "neumann": 0.0,
+      "pde": 0.010275664915251134,
+      "phase": "adam",
+      "robin": 0.0066951907291764624,
+      "step": 1200,
+      "total": 0.0926740541240749
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 1.2546535897220303e-05,
+      "energy": 2.9344776904811072e-05,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 0.0021881364888790924,
+      "neumann": 0.0,
+      "pde": 0.007680074878930918,
+      "phase": "adam",
+      "robin": 8.67952983156408e-05,
+      "step": 1400,
+      "total": 0.00983202622871417
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 1.2193289142216284e-05,
+      "energy": 2.5412821889182888e-05,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 0.0019727808625364,
+      "neumann": 0.0,
+      "pde": 0.006118625650258036,
+      "phase": "adam",
+      "robin": 7.211203655674715e-05,
+      "step": 1600,
+      "total": 0.008084487751936318
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 1.174769711583448e-05,
+      "energy": 2.2629429498636878e-05,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 0.0017461531520704804,
+      "neumann": 0.0,
+      "pde": 0.005155976902604821,
+      "phase": "adam",
+      "robin": 6.0360744055617586e-05,
+      "step": 1800,
+      "total": 0.006956983484243082
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 1.1290262456013749e-05,
+      "energy": 2.0641009907006704e-05,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 0.0015138336838472612,
+      "neumann": 0.0,
+      "pde": 0.004545394537760936,
+      "phase": "adam",
+      "robin": 5.149000737426121e-05,
+      "step": 2000,
+      "total": 0.00620996186701193
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 1.0863006182782502e-05,
+      "energy": 1.9186021225744563e-05,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 0.0012815429341985038,
+      "neumann": 0.0,
+      "pde": 0.004141610397827996,
+      "phase": "adam",
+      "robin": 4.4959041854500966e-05,
+      "step": 2200,
+      "total": 0.005696687455877001
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 1.0484289745350657e-05,
+      "energy": 1.809759009236758e-05,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 0.0010550006723093566,
+      "neumann": 0.0,
+      "pde": 0.003861155825827243,
+      "phase": "adam",
+      "robin": 4.0184389434593846e-05,
+      "step": 2400,
+      "total": 0.005329526284800615
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 1.0161037460970557e-05,
+      "energy": 1.7271943722328543e-05,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 0.000839785120518199,
+      "neumann": 0.0,
+      "pde": 0.0036579870448206365,
+      "phase": "adam",
+      "robin": 3.669599575252172e-05,
+      "step": 2600,
+      "total": 0.005058322692165238
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 9.894712530952372e-06,
+      "energy": 1.66447404740225e-05,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 0.0006411955999695892,
+      "neumann": 0.0,
+      "pde": 0.0035073436142446647,
+      "phase": "adam",
+      "robin": 3.415442188145356e-05,
+      "step": 2800,
+      "total": 0.004855003826628461
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 9.684005035603354e-06,
+      "energy": 1.6175129335853286e-05,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 0.00046412204374026735,
+      "neumann": 0.0,
+      "pde": 0.0033957532492356387,
+      "phase": "adam",
+      "robin": 3.232469692030285e-05,
+      "step": 3000,
+      "total": 0.004703575851334856
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 9.525855631964661e-06,
+      "energy": 1.5835378852355642e-05,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 0.00031292459045804207,
+      "neumann": 0.0,
+      "pde": 0.0033153215028807015,
+      "phase": "adam",
+      "robin": 3.104391750060702e-05,
+      "step": 3200,
+      "total": 0.0045941816199355934
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 9.415558772618454e-06,
+      "energy": 1.560400261138782e-05,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 0.00019132622321829966,
+      "neumann": 0.0,
+      "pde": 0.003260584905470527,
+      "phase": "adam",
+      "robin": 3.019338566127057e-05,
+      "step": 3400,
+      "total": 0.0045196786419564655
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 9.34628878628227e-06,
+      "energy": 1.5460798779592896e-05,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 0.00010232109738432402,
+      "neumann": 0.0,
+      "pde": 0.0032266974558131213,
+      "phase": "adam",
+      "robin": 2.9676028790061852e-05,
+      "step": 3600,
+      "total": 0.00447354742112156
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 9.308213588348847e-06,
+      "energy": 1.538273009903597e-05,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 4.8100814545225794e-05,
+      "neumann": 0.0,
+      "pde": 0.0032082158539206576,
+      "phase": "adam",
+      "robin": 2.9396962722855104e-05,
+      "step": 3800,
+      "total": 0.00444838957008313
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 9.28740864823058e-06,
+      "energy": 1.534025710810897e-05,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 3e-05,
+      "neumann": 0.0,
+      "pde": 0.003198158006160754,
+      "phase": "adam",
+      "robin": 2.9246029571755734e-05,
+      "step": 3999,
+      "total": 0.004434699423809479
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 9.30674859058675e-06,
+      "energy": 1.596984063504048e-05,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 1.0,
+      "neumann": 0.0,
+      "pde": 0.0020842281701443075,
+      "phase": "lbfgs",
+      "robin": 1.858233087591285e-05,
+      "step": 4000,
+      "total": 0.003216696178597151
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 2.490677382963442e-07,
+      "energy": 4.106415774049771e-09,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 1.0,
+      "neumann": 0.0,
+      "pde": 8.257110879172767e-05,
+      "phase": "lbfgs",
+      "robin": 2.821591979997497e-06,
+      "step": 4010,
+      "total": 0.0001356979088371111
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 1.439635143192416e-07,
+      "energy": 2.9970618667693356e-11,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 1.0,
+      "neumann": 0.0,
+      "pde": 4.273287001331458e-05,
+      "phase": "lbfgs",
+      "robin": 1.1830146043472354e-06,
+      "step": 4020,
+      "total": 6.895939745932976e-05
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 2.245309099053579e-08,
+      "energy": 2.2644845765956131e-10,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 1.0,
+      "neumann": 0.0,
+      "pde": 2.0956937005781993e-05,
+      "phase": "lbfgs",
+      "robin": 2.2718424176482078e-07,
+      "step": 4030,
+      "total": 2.547431497094144e-05
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 3.459528110309802e-08,
+      "energy": 6.5921473838982406e-09,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 1.0,
+      "neumann": 0.0,
+      "pde": 1.2983539598699137e-05,
+      "phase": "lbfgs",
+      "robin": 1.9982157245616735e-07,
+      "step": 4040,
+      "total": 1.844787558095451e-05
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 3.459528110309802e-08,
+      "energy": 6.5921473838982406e-09,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 1.0,
+      "neumann": 0.0,
+      "pde": 1.2983539598699137e-05,
+      "phase": "lbfgs",
+      "robin": 1.9982157245616735e-07,
+      "step": 4050,
+      "total": 1.844787558095451e-05
+    },
+    {
+      "constitutive": 0.0,
+      "dirichlet": 3.459528110309802e-08,
+      "energy": 6.5921473838982406e-09,
+      "interface_flux": 0.0,
+      "interface_temperature": 0.0,
+      "lr": 1.0,
+      "neumann": 0.0,
+      "pde": 1.2983539598699137e-05,
+      "phase": "lbfgs",
+      "robin": 1.9982157245616735e-07,
+      "step": 4059,
+      "total": 1.844787558095451e-05
+    }
+  ],
+  "parameters": 2242,
+  "physics_sha256": "a3e2e94a0b5d7e6a1d42d5daf7af5d9ef63b34dbac50edf6cdc8635b2a364d5f",
+  "reference_used_in_loss": false,
+  "seeds": {
+    "init": 0,
+    "sampling": 11
+  },
+  "status": "completed",
+  "study": "p4_v0"
+}

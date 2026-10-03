@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><title>Arquitectura del paquete - PINN_v2</title>
+<link rel="stylesheet" href="style.css"></head><body>
+<div class="layout">
+<div class="sidebar"><h1><a href="index.html" style="border:none">PINN_v2</a></h1>
+<h3>Navegación</h3><ul><li><a href="index.html">PINN_v2</a></li><li><a href="quickstart.html">Inicio rápido</a></li><li class="current"><a href="architecture.html">Arquitectura del paquete</a><ul><li><a href="#flujo-de-una-corrida-pinn">Flujo de una corrida PINN</a></li><li><a href="#flujo-de-una-corrida-fem">Flujo de una corrida FEM</a></li><li><a href="#datos-que-viajan-entre-m-dulos">Datos que viajan entre módulos</a></li><li><a href="#c-mo-se-ve-cada-capa">Cómo se ve cada capa</a></li></ul></li><li><a href="cases.html">Formato de caso</a></li><li><a href="models.html">Modelos</a></li><li><a href="training.html">Entrenamiento</a></li><li><a href="search.html">Búsqueda de hiperparámetros</a></li><li><a href="fem.html">Referencia FEM (FEniCSx)</a></li><li><a href="evaluation.html">Evaluación y criterios de aceptación</a></li><li><a href="reproducibility.html">Reproducibilidad</a></li><li><a href="cli.html">Referencia de la línea de comandos</a></li><li><a href="frontend.html">Interfaz web (front-end)</a></li><li><a href="results.html">Resultados de la Fase 6</a></li><li><a href="limitations.html">Limitaciones</a></li></ul>
+<h3>Búsqueda rápida</h3><input id="q" type="text" placeholder="buscar..." autocomplete="off"><ul id="hits"></ul>
+</div>
+<div class="content"><h1 id="arquitectura-del-paquete">Arquitectura del paquete</h1>
+<div class="highlight"><pre>pinn_v2/
+  cli.py, __main__.py       punto de entrada: python -m pinn_v2
+  cases/                    definición de casos (JSON), catálogo y validación
+    data/                   19 casos heredados (un JSON cada uno)
+    v2/                     casos nativos del formato v2
+  geometry/                 dominio completo: regiones, capas, fuentes
+  physics/                  operadores, residuales, efecto piel
+  sampling/                 puntos de colocación
+  solvers/
+    pinn/                   problema, redes, objetivo, entrenador, atención, variantes
+    fem/                    adaptador de Windows y ejecutores de FEniCSx (WSL2)
+    ampacity.py             capacidad de corriente
+  evaluation/               métricas, auditoría independiente, lectura de referencias
+  experiments/              estudios por fases y búsqueda de hiperparámetros
+  manifest/                 registro de cada corrida (versiones, semillas, huellas)
+configs/                    ejemplos de configuración JSON
+tests/                      pruebas unitarias e integración
+docs/                       esta documentación
+results/                    una carpeta por corrida; nunca se sobrescribe
+</pre></div>
+<h2 id="flujo-de-una-corrida-pinn">Flujo de una corrida PINN</h2>
+<ol><li><code>load_problem(fuente)</code> lee el caso (id o archivo JSON) y construye el <code>Problem</code>: regiones, conductividades, fuentes, caras de interfaz y tramos de frontera.</li><li><code>build_model(problem, arquitectura, ancho, profundidad, activación)</code> crea la red.</li><li><code>Objective</code> genera los puntos de colocación (con su propia semilla) y calcula los términos de pérdida.</li><li><code>trainer.fit</code> aplica Adam con decaimiento coseno y luego L-BFGS opcional; se restaura el mejor estado finito.</li><li><code>evaluate_model</code> hace la auditoría independiente con puntos nuevos y, si hay referencia, el reporte de errores.</li><li><code>trainer.run</code> escribe los archivos de la corrida y el manifest.</li></ol>
+<h2 id="flujo-de-una-corrida-fem">Flujo de una corrida FEM</h2>
+<p><code>python -m pinn_v2 fem</code> llama a <code>solvers/fem/adapter.py</code>, que ejecuta <code>full_fem.py</code> dentro de WSL2 con el mismo caso. Los resultados vuelven como JSON y NPZ. Las dos ramas comparten la definición del caso y los puntos de evaluación, por eso se pueden comparar punto a punto.</p>
+<h2 id="datos-que-viajan-entre-m-dulos">Datos que viajan entre módulos</h2>
+<table><thead><tr><th>Objeto</th><th>Qué es</th></tr></thead><tbody><tr><td><code>CaseDefinition</code></td><td>caso declarativo con procedencia y estado de cada dato</td></tr><tr><td><code>Problem</code></td><td>caso listo para el PINN (regiones, escalas, muestreo)</td></tr><tr><td><code>Objective</code></td><td>pérdida ponderada, nunca lee referencia</td></tr><tr><td><code>result.json</code></td><td>configuración, historia, pérdidas finales y evaluación</td></tr><tr><td><code>manifest.json</code></td><td>versiones, semillas, huellas de entradas y código</td></tr></tbody></table>
+<h2 id="c-mo-se-ve-cada-capa">Cómo se ve cada capa</h2>
+<p>Cada capa del cable y cada material del suelo es una <strong>región</strong>. En M1, M2 y las variantes por región, cada región tiene su propia red; en M0 hay una sola red para todo el dominio. Las interfaces entre regiones se imponen como pérdidas de continuidad de temperatura y de flujo normal.</p><div class="pager"><span>&laquo; <a href="quickstart.html">Inicio rápido</a></span><span><a href="cases.html">Formato de caso</a> &raquo;</span></div><div class="footer">Documentación generada con docs/build_docs.py; funciona sin conexión.</div></div>
+</div>
+<script src="search_index.js"></script><script src="search.js"></script>
+</body></html>

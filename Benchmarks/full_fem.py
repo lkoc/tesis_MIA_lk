@@ -18,8 +18,21 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from Benchmarks.full_domain import FullDomain,coaxial_case,dc_conductivity,radial_exact,PHYSICS_VERSION
 from Benchmarks.cases import cases,field_k
-from Benchmarks.skin_effect import prescribed_power
 from Benchmarks.fem import UFLBackend
+
+SIDE_TAGS={'bottom':1001,'top':1002,'left':1003,'right':1004}
+
+
+def check_corner_consistency(domain,conditions):
+    for first,second,point in (
+        ('bottom','left',(domain.case['bounds'][0],domain.case['bounds'][2])),
+        ('bottom','right',(domain.case['bounds'][1],domain.case['bounds'][2])),
+        ('top','left',(domain.case['bounds'][0],domain.case['bounds'][3])),
+        ('top','right',(domain.case['bounds'][1],domain.case['bounds'][3]))):
+        if conditions[first]['type'] in ('dirichlet','dirichlet_profile') and conditions[second]['type'] in ('dirichlet','dirichlet_profile'):
+            xy=np.asarray([point],dtype=float)
+            a=float(domain.boundary_value(first,xy)[0,0]);b=float(domain.boundary_value(second,xy)[0,0])
+            if not math.isclose(a,b,abs_tol=1e-6):raise ValueError(f'Dirichlet values differ at the {first}/{second} corner')
 
 
 def create_mesh(domain,level):
@@ -72,7 +85,18 @@ def create_mesh(domain,level):
                 fields.append(threshold)
         boundary=gmsh.model.getBoundary([(2,t) for t in all_faces],combined=True,oriented=False)
         outer_curves=[tag for dim,tag in boundary if dim==1]
-        gmsh.model.addPhysicalGroup(1,outer_curves,1000)
+        if domain.boundary_conditions is None:
+            gmsh.model.addPhysicalGroup(1,outer_curves,1000)
+        else:
+            sides={side:[] for side in SIDE_TAGS};tol=1e-9*max(x1-x0,y1-y0)
+            for tag in outer_curves:
+                mx,my,_=occ.getCenterOfMass(1,tag)
+                found=[side for side,coordinate,value in (('bottom',my,y0),('top',my,y1),('left',mx,x0),('right',mx,x1)) if abs(coordinate-value)<tol]
+                if len(found)!=1:raise RuntimeError('Outer curve does not lie on exactly one rectangular side')
+                sides[found[0]].append(tag)
+            for side,curves in sides.items():
+                if not curves:raise RuntimeError(f'No boundary curves on side {side}')
+                gmsh.model.addPhysicalGroup(1,sorted(curves),SIDE_TAGS[side])
         for j,inter in enumerate(domain.interfaces):
             left=set(tag for dim,tag in gmsh.model.getBoundary([(2,t) for t in region_faces[inter.left]],combined=True,oriented=False) if dim==1)
             right=set(tag for dim,tag in gmsh.model.getBoundary([(2,t) for t in region_faces[inter.right]],combined=True,oriented=False) if dim==1)
@@ -109,14 +133,17 @@ def evaluate_material(solution,xy,labels,cell_tags):
             nearby=geometry.compute_collisions_points(fallback_tree,point.reshape(1,3))
             options=[cell for cell in nearby.links(0) if tag[cell]==labels[i]+1]
         if not options:raise RuntimeError(f'No {labels[i]} material cell for evaluation point {point}')
-        scores=[]
+        scores=[];valid_options=[]
         for cell in options:
             nodes=mesh.geometry.x[mesh.geometry.dofmap[cell]]
-            xi=mesh.geometry.cmap.pull_back(point.reshape(1,3),nodes)[0]
+            try:xi=mesh.geometry.cmap.pull_back(point.reshape(1,3),nodes)[0]
+            except RuntimeError:continue
             scores.append(min(xi[0],xi[1],1-xi.sum()))
+            valid_options.append(cell)
+        if not valid_options:raise RuntimeError(f'No same-material cell inverse map converged for {labels[i]} at {point}')
         best=int(np.argmax(scores))
         if scores[best]<-1e-3:raise RuntimeError('Evaluation outside the declared material mesh')
-        chosen.append(options[best])
+        chosen.append(valid_options[best])
     return solution.eval(points,np.asarray(chosen,dtype=np.int32)).ravel()
 
 
@@ -131,9 +158,23 @@ def solve(domain,level,output,normalize_source=False,save_fields=True):
     # Each material has a separate integration domain; no averaging of layer k.
     kvals={r.id:(field_k(c,x[0],x[1],UFLBackend) if r.kind=='soil' else r.k) for r in domain.regions}
     a=sum(kvals[r.id]*ufl.inner(ufl.grad(u),ufl.grad(v))*dx(r.id+1) for r in domain.regions)
-    old=fem.Function(V);old.x.array[:]=c['T0'];boundary=fem.Function(V)
-    boundary.interpolate(lambda points:c['T0']+c.get('outer_gradient_K_m',0.)*points[0])
-    bd=fem.locate_dofs_topological(V,1,facets.find(1000));bc=fem.dirichletbc(boundary,bd)
+    old=fem.Function(V);old.x.array[:]=c['T0'];conditions=domain.boundary_conditions
+    if conditions is None:
+        boundary=fem.Function(V);boundary.interpolate(lambda points:c['T0']+c.get('outer_gradient_K_m',0.)*points[0])
+        bcs=[fem.dirichletbc(boundary,fem.locate_dofs_topological(V,1,facets.find(1000)))];L_boundary=0
+    else:
+        check_corner_consistency(domain,conditions);bcs=[];L_boundary=0
+        for side,spec in conditions.items():
+            tag=SIDE_TAGS[side]
+            if spec['type'] in ('dirichlet','dirichlet_profile'):
+                boundary=fem.Function(V)
+                boundary.interpolate(lambda points,side=side:domain.boundary_value(side,points[:2].T).ravel())
+                bcs.append(fem.dirichletbc(boundary,fem.locate_dofs_topological(V,1,facets.find(tag))))
+            elif spec['type']=='robin':
+                a=a+spec['h_W_m2K']*u*v*ds(tag)
+                L_boundary=L_boundary+spec['h_W_m2K']*spec['ambient_C']*v*ds(tag)
+            elif spec['type']=='neumann':
+                L_boundary=L_boundary-domain.boundary_flux_value(side)*v*ds(tag)
     electric={r.id:fem.Constant(mesh,0.) for r in domain.conductors}
     sources={};source_factors={}
     for r in domain.conductors:
@@ -147,11 +188,11 @@ def solve(domain,level,output,normalize_source=False,save_fields=True):
             source.interpolate(lambda points,r=r:domain.source(r,points[:2].T).ravel())
             if normalize_source:
                 integrated=fem.assemble_scalar(fem.form(source*dx(r.id+1)))
-                factor=prescribed_power(c)/integrated
+                factor=domain.power_per_cable/integrated
                 source.x.array[:]*=factor;source_factors[r.name]=factor
             sources[r.id]=source
-    L=sum(sources[r.id]*v*dx(r.id+1) for r in domain.conductors)
-    problem=LinearProblem(a,L,bcs=[bc],petsc_options_prefix=f'explicit_{c["id"]}_{level}_',
+    L=sum(sources[r.id]*v*dx(r.id+1) for r in domain.conductors)+L_boundary
+    problem=LinearProblem(a,L,bcs=bcs,petsc_options_prefix=f'explicit_{c["id"]}_{level}_',
         petsc_options={'ksp_type':'preonly','pc_type':'lu','pc_factor_mat_solver_type':'mumps','ksp_error_if_not_converged':True})
     history=[]
     for iteration in range(100):
@@ -180,11 +221,27 @@ def solve(domain,level,output,normalize_source=False,save_fields=True):
             conductor_max.append(maximum);entry.update(Tmax_C=maximum,power_W_m=p)
         regions.append(entry)
     normal=ufl.FacetNormal(mesh)
-    flux=fem.assemble_scalar(fem.form(-field_k(c,x[0],x[1],UFLBackend)*ufl.dot(ufl.grad(solution),normal)*ds(1000)))
+    if conditions is None:
+        boundary_flux={'outer':float(fem.assemble_scalar(fem.form(-field_k(c,x[0],x[1],UFLBackend)*ufl.dot(ufl.grad(solution),normal)*ds(1000))))}
+    else:
+        boundary_flux={side:float(fem.assemble_scalar(fem.form(-field_k(c,x[0],x[1],UFLBackend)*ufl.dot(ufl.grad(solution),normal)*ds(SIDE_TAGS[side])))) for side in conditions}
+    flux=sum(boundary_flux.values())
+    dirichlet_tags=([1000] if conditions is None else [SIDE_TAGS[side] for side,spec in conditions.items() if spec['type'] in ('dirichlet','dirichlet_profile')])
+    test_function=fem.Function(V)
+    for tag in dirichlet_tags:
+        dofs=fem.locate_dofs_topological(V,1,facets.find(tag));test_function.x.array[dofs]=1.
+    test_function.x.scatter_forward()
+    reaction=-float(fem.assemble_scalar(fem.form(ufl.replace(a,{u:solution,v:test_function})-ufl.replace(L,{v:test_function}))))
+    robin_outflow=sum(float(fem.assemble_scalar(fem.form(spec['h_W_m2K']*(solution-spec['ambient_C'])*ds(SIDE_TAGS[side]))))
+        for side,spec in (conditions or {}).items() if spec['type']=='robin')
+    neumann_outflow=sum(domain.boundary_flux_value(side)*float(fem.assemble_scalar(fem.form(1*ds(SIDE_TAGS[side]))))
+        for side,spec in (conditions or {}).items() if spec['type']=='neumann')
+    consistent_flux=reaction+robin_outflow+neumann_outflow
     meta=dict(physics_version=PHYSICS_VERSION,physics_sha256=domain.fingerprint,specification=domain.specification(),
         method='explicit_multimaterial_FEniCSx',level=level,ndofs=V.dofmap.index_map.size_global,degree=2,
         regions=regions,Tmax_C=max(conductor_max),conductor_max_C=conductor_max,
-        source_W_m=power,outer_flux_W_m=flux,balance_pct=100*abs(flux-power)/power,
+        source_power_per_cable_W_m=domain.power_per_cable,source_W_m=power,outer_flux_W_m=flux,boundary_flux_W_m=boundary_flux,balance_pct=100*abs(flux-power)/power,
+        dirichlet_reaction_W_m=reaction,consistent_outflow_W_m=consistent_flux,balance_consistent_pct=100*abs(consistent_flux-power)/power,
         source_normalization_factors=source_factors,
         electrothermal_history=history,elapsed_s=time.perf_counter()-start,
         dolfinx=dolfinx.__version__,gmsh=gmsh.__version__,completed_utc=datetime.now(timezone.utc).isoformat())

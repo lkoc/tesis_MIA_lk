@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><title>Limitaciones - PINN_v2</title>
+<link rel="stylesheet" href="style.css"></head><body>
+<div class="layout">
+<div class="sidebar"><h1><a href="index.html" style="border:none">PINN_v2</a></h1>
+<h3>Navegación</h3><ul><li><a href="index.html">PINN_v2</a></li><li><a href="quickstart.html">Inicio rápido</a></li><li><a href="architecture.html">Arquitectura del paquete</a></li><li><a href="cases.html">Formato de caso</a></li><li><a href="models.html">Modelos</a></li><li><a href="training.html">Entrenamiento</a></li><li><a href="search.html">Búsqueda de hiperparámetros</a></li><li><a href="fem.html">Referencia FEM (FEniCSx)</a></li><li><a href="evaluation.html">Evaluación y criterios de aceptación</a></li><li><a href="reproducibility.html">Reproducibilidad</a></li><li><a href="cli.html">Referencia de la línea de comandos</a></li><li><a href="frontend.html">Interfaz web (front-end)</a></li><li><a href="results.html">Resultados de la Fase 6</a></li><li class="current"><a href="limitations.html">Limitaciones</a><ul><li><a href="#criterios">Criterios</a></li><li><a href="#modelos">Modelos</a></li><li><a href="#f-sica-y-datos">Física y datos</a></li><li><a href="#entorno">Entorno</a></li></ul></li></ul>
+<h3>Búsqueda rápida</h3><input id="q" type="text" placeholder="buscar..." autocomplete="off"><ul id="hits"></ul>
+</div>
+<div class="content"><h1 id="limitaciones">Limitaciones</h1>
+<p>Lo que este marco no hace o todavía no está confirmado.</p>
+<h2 id="criterios">Criterios</h2>
+<ul><li>Las compuertas de aceptación (NRMSE 5 %, Tmax 5 %, región 5 %, balance 2 %, salto de T 0.1 K, flujo en interfaces 1 %) son <strong>propuestas</strong>. Falta que la persona responsable las confirme.</li><li>Las compuertas de convergencia FEM (0.5 % de malla, 2 % de dominio) también son propuestas.</li></ul>
+<h2 id="modelos">Modelos</h2>
+<ul><li>CUSP, DCSNN, FBPINN, RBA y SA son variantes <strong>adaptadas</strong> de la idea de cada artículo, no reproducciones. Los DOI y arXiv citados en el código están marcados "por verificar".</li><li>I-PINN, AdaI-PINN y VPINN no están implementados.</li><li>La pérdida held-out de la búsqueda se compara bien dentro de una familia; entre familias distintas puede no ser comparable.</li></ul>
+<h2 id="f-sica-y-datos">Física y datos</h2>
+<ul><li>Solo régimen permanente en 2D.</li><li>El caso de Kim solo tiene verano; no hay caso de invierno.</li><li>El modo <code>dc_temperature</code> de FEM es un acople electrotérmico en corriente continua; el PINN usa la fuente fija.</li><li>Un dato faltante rechaza el caso; no se inventa.</li></ul>
+<h2 id="entorno">Entorno</h2>
+<ul><li>FEniCSx solo corre en WSL2 Ubuntu; sin WSL las pruebas con marca <code>fem</code> se omiten.</li><li>El entrenamiento es en CPU y float64, y puede tardar horas en casos con muchas regiones.</li><li>El nivel 3 de malla de Kim agota la memoria de WSL.</li></ul><div class="pager"><span>&laquo; <a href="results.html">Resultados de la Fase 6</a></span><span></span></div><div class="footer">Documentación generada con docs/build_docs.py; funciona sin conexión.</div></div>
+</div>
+<script src="search_index.js"></script><script src="search.js"></script>
+</body></html>

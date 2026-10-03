@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><title>Reproducibilidad - PINN_v2</title>
+<link rel="stylesheet" href="style.css"></head><body>
+<div class="layout">
+<div class="sidebar"><h1><a href="index.html" style="border:none">PINN_v2</a></h1>
+<h3>Navegación</h3><ul><li><a href="index.html">PINN_v2</a></li><li><a href="quickstart.html">Inicio rápido</a></li><li><a href="architecture.html">Arquitectura del paquete</a></li><li><a href="cases.html">Formato de caso</a></li><li><a href="models.html">Modelos</a></li><li><a href="training.html">Entrenamiento</a></li><li><a href="search.html">Búsqueda de hiperparámetros</a></li><li><a href="fem.html">Referencia FEM (FEniCSx)</a></li><li><a href="evaluation.html">Evaluación y criterios de aceptación</a></li><li class="current"><a href="reproducibility.html">Reproducibilidad</a><ul><li><a href="#qu-se-guarda">Qué se guarda</a></li><li><a href="#semillas">Semillas</a></li><li><a href="#huellas-del-caso">Huellas del caso</a></li><li><a href="#nada-se-sobrescribe">Nada se sobrescribe</a></li><li><a href="#repetir-una-corrida">Repetir una corrida</a></li><li><a href="#qu-no-entra-al-entrenamiento">Qué no entra al entrenamiento</a></li></ul></li><li><a href="cli.html">Referencia de la línea de comandos</a></li><li><a href="frontend.html">Interfaz web (front-end)</a></li><li><a href="results.html">Resultados de la Fase 6</a></li><li><a href="limitations.html">Limitaciones</a></li></ul>
+<h3>Búsqueda rápida</h3><input id="q" type="text" placeholder="buscar..." autocomplete="off"><ul id="hits"></ul>
+</div>
+<div class="content"><h1 id="reproducibilidad">Reproducibilidad</h1>
+<p>Cada corrida deja suficiente información para repetirla y para saber qué código la produjo.</p>
+<h2 id="qu-se-guarda">Qué se guarda</h2>
+<p>En la carpeta de salida de un entrenamiento hay:</p>
+<table><thead><tr><th>archivo</th><th>contenido</th></tr></thead><tbody><tr><td><code>result.json</code></td><td>configuración usada, historial de pérdida, evaluación y auditoría</td></tr><tr><td><code>model.pt</code></td><td>pesos entrenados</td></tr><tr><td><code>collocation.npz</code></td><td>puntos de colocación usados</td></tr><tr><td><code>evaluation.npz</code></td><td>campo predicho y, si hubo referencia, el campo de referencia</td></tr><tr><td><code>manifest.json</code></td><td>comando, semillas, versiones, estado de git y huellas sha256</td></tr><tr><td><code>source/</code></td><td>copia de los fuentes tal como estaban al correr</td></tr></tbody></table>
+<p>El manifest guarda el comando exacto, las semillas, las versiones de Python, NumPy, SciPy y PyTorch, el commit de git y si la carpeta <code>PINN_v2</code> tenía cambios sin confirmar (<code>dirty</code>).</p>
+<h2 id="semillas">Semillas</h2>
+<ul><li><code>init_seed</code>: inicialización de la red.</li><li><code>sampling_seed</code>: puntos de colocación del entrenamiento.</li><li>Auditoría: semilla fija 909091, que el entrenamiento nunca usa.</li><li>Búsqueda de hiperparámetros: semilla fija 424243 para la pérdida held-out.</li></ul>
+<p>Con las mismas semillas, el mismo caso y los mismos ajustes se repite la corrida en CPU y float64.</p>
+<h2 id="huellas-del-caso">Huellas del caso</h2>
+<p>Un caso tiene dos huellas: <code>sha256</code> del archivo completo y <code>physics_sha256</code> solo de la parte física. Si cambias el título o las notas, cambia la primera pero no la segunda. Úsala para comprobar que dos corridas resolvieron la misma física.</p>
+<h2 id="nada-se-sobrescribe">Nada se sobrescribe</h2>
+<ul><li>Una carpeta de salida que ya existe se rechaza.</li><li>Los JSON se escriben de forma atómica y no reemplazan un archivo existente.</li><li>Los estudios fallidos se conservan; no se borran.</li></ul>
+<h2 id="repetir-una-corrida">Repetir una corrida</h2>
+<ol><li>Abre <code>manifest.json</code> y copia el campo <code>command</code>.</li><li>Usa una carpeta de salida nueva.</li><li>Compara <code>physics_sha256</code> y las semillas con las de la corrida original.</li></ol>
+<h2 id="qu-no-entra-al-entrenamiento">Qué no entra al entrenamiento</h2>
+<p>La referencia FEM y los datos de artículos se pasan solo a la evaluación. El resultado dice <code>reference_used_in_loss: false</code> y <code>fem_labels_used: 0</code>.</p><div class="pager"><span>&laquo; <a href="evaluation.html">Evaluación y criterios de aceptación</a></span><span><a href="cli.html">Referencia de la línea de comandos</a> &raquo;</span></div><div class="footer">Documentación generada con docs/build_docs.py; funciona sin conexión.</div></div>
+</div>
+<script src="search_index.js"></script><script src="search.js"></script>
+</body></html>

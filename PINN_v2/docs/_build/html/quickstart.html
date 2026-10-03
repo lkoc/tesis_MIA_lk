@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><title>Inicio rápido - PINN_v2</title>
+<link rel="stylesheet" href="style.css"></head><body>
+<div class="layout">
+<div class="sidebar"><h1><a href="index.html" style="border:none">PINN_v2</a></h1>
+<h3>Navegación</h3><ul><li><a href="index.html">PINN_v2</a></li><li class="current"><a href="quickstart.html">Inicio rápido</a><ul><li><a href="#requisitos">Requisitos</a></li><li><a href="#instalaci-n">Instalación</a></li><li><a href="#primeros-comandos">Primeros comandos</a></li><li><a href="#primer-entrenamiento">Primer entrenamiento</a></li><li><a href="#cambiar-de-modelo">Cambiar de modelo</a></li><li><a href="#usar-un-archivo-de-configuraci-n">Usar un archivo de configuración</a></li><li><a href="#pruebas">Pruebas</a></li><li><a href="#construir-esta-documentaci-n">Construir esta documentación</a></li></ul></li><li><a href="architecture.html">Arquitectura del paquete</a></li><li><a href="cases.html">Formato de caso</a></li><li><a href="models.html">Modelos</a></li><li><a href="training.html">Entrenamiento</a></li><li><a href="search.html">Búsqueda de hiperparámetros</a></li><li><a href="fem.html">Referencia FEM (FEniCSx)</a></li><li><a href="evaluation.html">Evaluación y criterios de aceptación</a></li><li><a href="reproducibility.html">Reproducibilidad</a></li><li><a href="cli.html">Referencia de la línea de comandos</a></li><li><a href="frontend.html">Interfaz web (front-end)</a></li><li><a href="results.html">Resultados de la Fase 6</a></li><li><a href="limitations.html">Limitaciones</a></li></ul>
+<h3>Búsqueda rápida</h3><input id="q" type="text" placeholder="buscar..." autocomplete="off"><ul id="hits"></ul>
+</div>
+<div class="content"><h1 id="inicio-r-pido">Inicio rápido</h1>
+<h2 id="requisitos">Requisitos</h2>
+<ul><li>Python 3.12 con <code>numpy</code> y <code>scipy</code>; PyTorch para entrenar (la configuración usada es CPU, <code>float64</code>).</li><li>Opcional, solo para la referencia FEM: WSL2 con un entorno que tenga <code>dolfinx</code> (ver <a href="fem.html">Referencia FEM</a>).</li><li>No necesita conexión a internet para ejecutar nada de lo descrito aquí.</li></ul>
+<h2 id="instalaci-n">Instalación</h2>
+<p>Desde la carpeta <code>PINN_v2</code>:</p>
+<div class="highlight"><pre>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
+</pre></div>
+<p>Si prefieres no instalar, basta con definir la ruta del paquete en la sesión de PowerShell:</p>
+<div class="highlight"><pre><span class="nv">$env:PYTHONPATH</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Location</span><span class="p">).</span><span class="n">Path</span>
+</pre></div>
+<h2 id="primeros-comandos">Primeros comandos</h2>
+<div class="highlight"><pre>python<span class="w"> </span>-m<span class="w"> </span>pinn_v2<span class="w"> </span><span class="nb">help</span><span class="w">            </span><span class="c1"># ayuda integrada</span>
+python<span class="w"> </span>-m<span class="w"> </span>pinn_v2<span class="w"> </span>cases<span class="w">           </span><span class="c1"># casos disponibles</span>
+python<span class="w"> </span>-m<span class="w"> </span>pinn_v2<span class="w"> </span>show<span class="w"> </span>xlpe_single
+</pre></div>
+<h2 id="primer-entrenamiento">Primer entrenamiento</h2>
+<div class="highlight"><pre>python<span class="w"> </span>-m<span class="w"> </span>pinn_v2<span class="w"> </span>train<span class="w"> </span>--case<span class="w"> </span>xlpe_single<span class="w"> </span>--model<span class="w"> </span>M1<span class="w"> </span>--adam-steps<span class="w"> </span><span class="m">2000</span><span class="w"> </span>--output<span class="w"> </span>results/runs/mi_primera
+</pre></div>
+<p>Al terminar, la carpeta de salida contiene <code>result.json</code>, <code>evaluation.npz</code>, <code>collocation.npz</code>, <code>model.pt</code> y <code>manifest.json</code>. La consola resume el estado, la pérdida final y el veredicto de aceptación.</p>
+<blockquote><p>El veredicto <code>no_reference</code> aparece cuando no hay solución de referencia. Para comparar con FEM, ver <a href="fem.html">Referencia FEM</a>.</p></blockquote>
+<h2 id="cambiar-de-modelo">Cambiar de modelo</h2>
+<p>Solo cambia <code>--model</code>:</p>
+<div class="highlight"><pre>python<span class="w"> </span>-m<span class="w"> </span>pinn_v2<span class="w"> </span>train<span class="w"> </span>--case<span class="w"> </span>xlpe_single<span class="w"> </span>--model<span class="w"> </span>M0<span class="w"> </span>--output<span class="w"> </span>results/runs/m0
+python<span class="w"> </span>-m<span class="w"> </span>pinn_v2<span class="w"> </span>train<span class="w"> </span>--case<span class="w"> </span>xlpe_single<span class="w"> </span>--model<span class="w"> </span>M2<span class="w"> </span>--output<span class="w"> </span>results/runs/m2
+python<span class="w"> </span>-m<span class="w"> </span>pinn_v2<span class="w"> </span>train<span class="w"> </span>--case<span class="w"> </span>xlpe_single<span class="w"> </span>--model<span class="w"> </span>M1+rba<span class="w"> </span>--output<span class="w"> </span>results/runs/m1_rba
+</pre></div>
+<h2 id="usar-un-archivo-de-configuraci-n">Usar un archivo de configuración</h2>
+<div class="highlight"><pre>python<span class="w"> </span>-m<span class="w"> </span>pinn_v2<span class="w"> </span>train<span class="w"> </span>--config<span class="w"> </span>configs/train_m1.json<span class="w"> </span>--output<span class="w"> </span>results/runs/desde_json
+</pre></div>
+<p>Cualquier opción dada en la línea de comandos tiene prioridad sobre el archivo.</p>
+<h2 id="pruebas">Pruebas</h2>
+<div class="highlight"><pre>pytest<span class="w"> </span>tests<span class="w"> </span>-q<span class="w">                  </span><span class="c1"># pruebas rápidas</span>
+pytest<span class="w"> </span>tests<span class="w"> </span>-q<span class="w"> </span>-m<span class="w"> </span>fem<span class="w">           </span><span class="c1"># incluye FEM (requiere WSL2)</span>
+</pre></div>
+<h2 id="construir-esta-documentaci-n">Construir esta documentación</h2>
+<div class="highlight"><pre>python<span class="w"> </span>docs/build_docs.py
+</pre></div>
+<p>El resultado queda en <code>docs/_build/html/index.html</code> y se abre con doble clic.</p><div class="pager"><span>&laquo; <a href="index.html">PINN_v2</a></span><span><a href="architecture.html">Arquitectura del paquete</a> &raquo;</span></div><div class="footer">Documentación generada con docs/build_docs.py; funciona sin conexión.</div></div>
+</div>
+<script src="search_index.js"></script><script src="search.js"></script>
+</body></html>
