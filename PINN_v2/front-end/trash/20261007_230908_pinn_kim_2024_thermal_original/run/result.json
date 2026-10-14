@@ -1,0 +1,46 @@
+{
+  "case": "kim_2024_thermal_original",
+  "config": {
+    "activation": "sin",
+    "adam_steps": 100,
+    "architecture": "DCSNN",
+    "attention": "rba",
+    "depth": 3,
+    "lbfgs_steps": 0,
+    "lr": 0.003,
+    "points": {
+      "n_boundary": 72,
+      "n_face": 72,
+      "n_interior": 192,
+      "n_layer": 96
+    },
+    "weights": {
+      "constitutive": 1,
+      "dirichlet": 100,
+      "energy": 1,
+      "interface_flux": 10,
+      "interface_temperature": 100,
+      "neumann": 10,
+      "pde": 100,
+      "robin": 10
+    },
+    "width": 24
+  },
+  "device": "xpu",
+  "elapsed_s": 0.019298200000775978,
+  "error": {
+    "message": "'sin'",
+    "traceback": "Traceback (most recent call last):\n  File \"C:\\usr\\ths_mia_fiis\\tesis_MIA_lk\\PINN_v2\\pinn_v2\\solvers\\pinn\\trainer.py\", line 148, in run\n    model = build_model(problem, architecture, width, depth, activation).to(device=selected_device, dtype=torch.float64)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\usr\\ths_mia_fiis\\tesis_MIA_lk\\PINN_v2\\pinn_v2\\solvers\\pinn\\networks.py\", line 82, in build_model\n    return VARIANTS[architecture](problem, architecture, width, depth, activation)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\usr\\ths_mia_fiis\\tesis_MIA_lk\\PINN_v2\\pinn_v2\\solvers\\pinn\\variants.py\", line 58, in __init__\n    self.networks = nn.ModuleList([mlp(base_size + self.count, width, depth, 1, activation)])\n                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\usr\\ths_mia_fiis\\tesis_MIA_lk\\PINN_v2\\pinn_v2\\solvers\\pinn\\networks.py\", line 20, in mlp\n    act = dict(tanh=nn.Tanh, silu=nn.SiLU)[activation]\n          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^\nKeyError: 'sin'\n",
+    "type": "KeyError"
+  },
+  "fem_labels_used": 0,
+  "history": [],
+  "physics_sha256": "2e9ddfb6ef31e2696754530409f55af830f8468cc18b5007dc29c8b0296605a2",
+  "reference_used_in_loss": false,
+  "seeds": {
+    "init": 0,
+    "sampling": 11
+  },
+  "status": "failed",
+  "study": "front-end"
+}

@@ -33,10 +33,12 @@ STATIC = HERE.joinpath('static')
 DOCS = ROOT.joinpath('docs', '_build', 'html')
 RUNS = store.RUNS
 TRASH = HERE.joinpath('trash')
+RUN_SETTINGS = HERE.joinpath('run_settings.json')
 MAX_RUNNING = 2
 PIDS = {}
 PIDS_PROCS = {}
 INFO = {}
+RUN_SETTINGS_LOCK = threading.Lock()
 JOB_ID = re.compile(r'^[A-Za-z0-9_\-]{6,80}$')
 NO_WINDOW = 0x08000000 if os.name == 'nt' else 0
 
@@ -46,7 +48,8 @@ ARCHITECTURES = [
     dict(id='M2', title='M2 - mixta (T y flujo)', note='Predice T y el flujo q; la ley de Fourier entra como residuo.'),
     dict(id='CUSP', title='CUSP', note='Variante con funciones de nivel en las interfaces.'),
     dict(id='DCSNN', title='DCSNN', note='Variante con descomposicion en subdominios.'),
-    dict(id='FBPINN', title='FBPINN', note='Subdominios con ventanas solapadas.')]
+    dict(id='FBPINN', title='FBPINN', note='Subdominios con ventanas solapadas.'),
+    dict(id='DeepXDE', title='DeepXDE - PINN fuerte', note='Implementacion DeepXDE con perdidas por region, interfaces y fronteras.')]
 PRESETS = dict(
     rapido=dict(title='Rapido (prueba)', adam_steps=400, lbfgs_steps=0, width=24, depth=3, lr=3e-3, points=dict(n_interior=128, n_layer=64, n_face=48, n_boundary=48)),
     estandar=dict(title='Estandar', adam_steps=3000, lbfgs_steps=0, width=32, depth=3, lr=2e-3, points=dict(n_interior=512, n_layer=256, n_face=128, n_boundary=128)),
@@ -56,7 +59,9 @@ PRESETS = dict(
 def options():
     from pinn_v2.solvers.pinn.objective import DEFAULT_WEIGHTS
     from pinn_v2.solvers.pinn.trainer import POINTS
-    return dict(architectures=ARCHITECTURES, attention=[dict(id='', title='Ninguna'), dict(id='rba', title='RBA (pesos residuales adaptativos)'), dict(id='sa', title='SA (autoatencion)')],
+    return dict(architectures=ARCHITECTURES,
+        deepxde_models=[dict(id='PFNN', title='PFNN (subred por region)'), dict(id='FNN', title='FNN (red multisalida)')],
+        attention=[dict(id='', title='Ninguna'), dict(id='rba', title='RBA (pesos residuales adaptativos)'), dict(id='sa', title='SA (autoatencion)')],
         activations=['tanh', 'sin', 'silu', 'gelu'], weights=DEFAULT_WEIGHTS, points=POINTS, presets=PRESETS, fem_levels=[0, 1, 2, 3])
 
 
@@ -102,7 +107,8 @@ def job_summary(folder, full=False):
         status = 'interrupted'
     row = dict(id=folder.name, kind=job['kind'], case=job.get('case_id'), case_kind=case_kind, title=job.get('title'), created=job.get('created'), status=status, phase=prog.get('phase'), step=prog.get('step', 0),
         total_steps=prog.get('total_steps', 0), elapsed_s=prog.get('elapsed_s'), summary=prog.get('summary'), message=prog.get('message'), solutions=prog.get('solutions', []),
-        params=job.get('params'), live_step=prog.get('live_step'), live_at=prog.get('live_at'))
+        params=job.get('params'), sha=job.get('sha'), threads=job.get('threads', 2), live_every_s=job.get('live_every_s', 4),
+        has_checkpoint=folder.joinpath('run', 'model.pt').is_file(), live_step=prog.get('live_step'), live_at=prog.get('live_at'))
     if full:
         history = prog.get('history', [])
         row.update(history=history[-1500:], levels=prog.get('levels', []), traceback=prog.get('traceback'), has_live=folder.joinpath('live_grid.npz').exists())
@@ -198,6 +204,11 @@ def start_job(body):
         raise ValueError('FEniCSx no esta disponible (WSL2). Revisa la pestana Ayuda > Entorno.')
     if running_count() >= MAX_RUNNING:
         raise ValueError(f'Ya hay {MAX_RUNNING} trabajos en marcha; espera o detiene uno.')
+    resume_from = body.get('resume_from')
+    if resume_from:
+        if kind != 'pinn':
+            raise ValueError('Solo se puede continuar desde una solucion PINN')
+        resume_from = validate_resume_job(resume_from, verdict['summary']['sha256'], body.get('params') or {}, doc)
     stamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     safe = re.sub(r'[^A-Za-z0-9_]+', '_', doc['id'])[:30]
     folder = RUNS.joinpath(f'{stamp}_{kind}_{safe}')
@@ -206,6 +217,8 @@ def start_job(body):
     folder.joinpath('case.json').write_text(json.dumps(doc, ensure_ascii=False), encoding='utf-8')
     job = dict(kind=kind, case_kind=casestore._kind_of(doc), params=params, threads=int(body.get('threads', 2)), live_every_s=float(body.get('live_every_s', 4)), case_id=doc['id'], title=body.get('title') or doc.get('title') or doc['id'],
         sha=verdict['summary']['sha256'], created=datetime.datetime.now().isoformat(timespec='seconds'), ref=body.get('ref'))
+    if resume_from:
+        job['resume_from'] = resume_from
     folder.joinpath('job.json').write_text(json.dumps(job, indent=1), encoding='utf-8')
     env = dict(os.environ, PYTHONPATH=str(ROOT), PYTHONIOENCODING='utf-8')
     log = open(folder.joinpath('worker.log'), 'wb')
@@ -239,6 +252,41 @@ def job_folder(job_id):
     if not JOB_ID.match(job_id) or not RUNS.joinpath(job_id).is_dir():
         raise KeyError('trabajo no encontrado')
     return RUNS.joinpath(job_id)
+
+
+def validate_resume_job(job_id, case_sha, params, case_doc=None):
+    if not isinstance(job_id, str) or not JOB_ID.fullmatch(job_id):
+        raise ValueError('La corrida anterior no es valida')
+    folder = job_folder(job_id)
+    if folder.is_symlink() or folder.resolve().parent != RUNS.resolve():
+        raise ValueError('La corrida anterior no es valida')
+    previous = read_json(folder.joinpath('job.json'), {}) or {}
+    progress = read_json(folder.joinpath('progress.json'), {}) or {}
+    status = progress.get('status')
+    if status == 'running':
+        pid = (read_json(folder.joinpath('pid.json'), {}) or {}).get('pid')
+        if alive(pid):
+            raise ValueError('No se puede continuar una corrida PINN que sigue en marcha')
+        status = 'interrupted'
+    if previous.get('kind') != 'pinn' or status not in ('done', 'failed', 'stopped', 'interrupted'):
+        raise ValueError('La corrida anterior debe ser un PINN terminado o detenido')
+    same_case = bool(case_sha and previous.get('sha') == case_sha)
+    if not same_case and case_doc is not None:
+        same_case = read_json(folder.joinpath('case.json')) == case_doc
+    if not same_case:
+        raise ValueError('La corrida anterior pertenece a otro caso')
+    previous_params = previous.get('params') or {}
+    signature = ('architecture', 'width', 'depth', 'activation', 'deepxde_model')
+    defaults = dict(architecture='M1', width=32, depth=3, activation='tanh', deepxde_model='PFNN')
+    if any(previous_params.get(key, defaults[key]) != params.get(key, defaults[key]) for key in signature):
+        raise ValueError('La corrida anterior usa una arquitectura o estructura de red incompatible')
+    if (previous_params.get('attention') or '') != (params.get('attention') or ''):
+        raise ValueError('La corrida anterior usa una atencion incompatible')
+    run_dir = folder.joinpath('run')
+    checkpoint = run_dir.joinpath('model.pt')
+    if run_dir.is_symlink() or checkpoint.is_symlink() or not checkpoint.is_file() or checkpoint.resolve().parent != run_dir.resolve():
+        raise ValueError('La corrida anterior no tiene un checkpoint PINN valido')
+    return job_id
 
 
 def doc_of(ref=None, doc=None):
@@ -278,6 +326,26 @@ def compare_payload(q):
     return ref, ok, skipped
 
 
+def latest_run_settings(ref):
+    matches = []
+    for folder in RUNS.glob('*'):
+        if not folder.is_dir():
+            continue
+        job = read_json(folder.joinpath('job.json'), {}) or {}
+        if job.get('ref') == ref:
+            matches.append((str(job.get('created') or ''), folder.name, job))
+    if not matches:
+        return None
+    job = max(matches, key=lambda row: (row[0], row[1]))[2]
+    params = job.get('params') or {}
+    kind = job.get('kind', 'pinn')
+    run_params = {key: value for key, value in params.items() if key not in ('architecture', 'levels')}
+    return dict(kind=kind, arch=params.get('architecture', 'M1'), preset='custom',
+                p=run_params if kind == 'pinn' else None, levels=params.get('levels', [0, 1]),
+                threads=job.get('threads', 2), liveEvery=job.get('live_every_s', 4),
+                pointMultiplier=1, deepxdeModel=params.get('deepxde_model', 'PFNN'))
+
+
 def route_get(path, q):
     if path == '/api/info':
         return dict(fem=fem_state(), root=str(ROOT), user_cases=str(casestore.USER), runs=str(RUNS), python=sys.version.split()[0], max_running=MAX_RUNNING)
@@ -289,12 +357,24 @@ def route_get(path, q):
         return dict(items=casestore.listing(), folders=casestore.folders())
     if path == '/api/case':
         return casestore.load(q['ref'][0])
+    if path == '/api/run-settings':
+        ref = q.get('ref', [''])[0]
+        if not ref or len(ref) > 512:
+            raise ValueError('referencia de caso no valida')
+        settings = read_json(RUN_SETTINGS, {}) or {}
+        return dict(settings=settings.get(ref) or latest_run_settings(ref))
     if path == '/api/template':
         return dict(doc=casestore.template(q.get('kind', ['empty'])[0]))
     if path == '/api/jobs':
         return dict(jobs=list_jobs())
     if path == '/api/trash':
         return dict(jobs=list_trash())
+    m = re.match(r'^/api/job/([^/]+)/case$', path)
+    if m:
+        case_doc = read_json(job_folder(m.group(1)).joinpath('case.json'))
+        if not isinstance(case_doc, dict):
+            raise ValueError('La corrida no tiene una definicion de caso valida')
+        return dict(doc=case_doc)
     m = re.match(r'^/api/job/([^/]+)$', path)
     if m:
         row = job_summary(job_folder(m.group(1)), full=True)
@@ -366,6 +446,19 @@ def route_post(path, body):
         return dict(folder=casestore.make_folder(body['folder']))
     if path == '/api/run':
         return start_job(body)
+    if path == '/api/run-settings':
+        ref, settings = body.get('ref'), body.get('settings')
+        if not isinstance(ref, str) or not ref or len(ref) > 512:
+            raise ValueError('referencia de caso no valida')
+        if not isinstance(settings, dict):
+            raise ValueError('parametros de corrida no validos')
+        with RUN_SETTINGS_LOCK:
+            saved = read_json(RUN_SETTINGS, {}) or {}
+            saved[ref] = settings
+            temp = RUN_SETTINGS.with_suffix('.tmp')
+            temp.write_text(json.dumps(saved, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+            temp.replace(RUN_SETTINGS)
+        return dict(ok=True)
     m = re.match(r'^/api/job/([^/]+)/stop$', path)
     if m:
         return stop_job(job_folder(m.group(1)).name)

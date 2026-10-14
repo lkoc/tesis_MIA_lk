@@ -2,7 +2,7 @@
 
 ## Requisitos
 
-- Python 3.12 con `numpy` y `scipy`; PyTorch para entrenar (la configuración usada es CPU, `float64`).
+- Python 3.12 con `numpy` y `scipy`; PyTorch para entrenar (`float64`). El dispositivo predeterminado es `auto`: usa XPU si PyTorch lo detecta y, si no, CPU.
 - Opcional, solo para la referencia FEM: WSL2 con un entorno que tenga `dolfinx` (ver [Referencia FEM](fem.md)).
 - No necesita conexión a internet para ejecutar nada de lo descrito aquí.
 
@@ -13,6 +13,14 @@ Desde la carpeta `PINN_v2`:
 ```bash
 pip install -e ".[dev]"
 ```
+
+En Windows con una GPU Intel compatible y el controlador Intel instalado, instala la compilación XPU de PyTorch en el entorno activo:
+
+```powershell
+python -m pip install --index-url https://download.pytorch.org/whl/xpu --extra-index-url https://pypi.org/simple "torch==2.9.0+xpu"
+```
+
+Comprueba el dispositivo con `python -c "import torch; print(torch.__version__, torch.xpu.is_available())"`. Fuerza CPU con `--device cpu`; `--device xpu` falla explícitamente si XPU no está disponible.
 
 Si prefieres no instalar, basta con definir la ruta del paquete en la sesión de PowerShell:
 

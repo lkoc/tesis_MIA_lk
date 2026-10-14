@@ -3,6 +3,11 @@
 FEniCSx solo está instalado en **WSL2**. El lado Windows lo invoca por subproceso y recibe JSON y NPZ.
 Ningún dato FEM entra en la pérdida de un PINN.
 
+La compilación XPU de PyTorch en Windows solo acelera los PINN de Windows; no habilita la GPU de
+FEniCSx dentro de WSL. El FEM actual usa PETSc con `preonly` + `LU` + `MUMPS`, una ruta de CPU.
+Para aprovechar una GPU desde WSL harían falta acceso GPU visible dentro de Linux y un backend de
+PETSc/FEniCSx compatible con esa GPU; la instalación actual no los configura.
+
 ## Entorno usado
 
 | Elemento | Valor |

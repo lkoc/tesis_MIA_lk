@@ -70,7 +70,8 @@ def label_problem(problem, X, Y):
 
 def evaluate_pinn(model, labels, X, Y, chunk=20000):
     import torch
-    dtype = next(model.parameters()).dtype
+    parameter = next(model.parameters())
+    dtype, device = parameter.dtype, parameter.device
     pts = np.c_[X.ravel(), Y.ravel()]
     lab = labels.ravel().astype(np.int64)
     out = np.full(len(pts), np.nan)
@@ -78,8 +79,9 @@ def evaluate_pinn(model, labels, X, Y, chunk=20000):
     with torch.no_grad():
         for start in range(0, len(inside), chunk):
             idx = inside[start:start + chunk]
-            xy = torch.as_tensor(pts[idx], dtype=dtype)
-            out[idx] = model.temperature(xy, torch.as_tensor(lab[idx])).numpy().ravel()
+            xy = torch.as_tensor(pts[idx], dtype=dtype, device=device)
+            region_ids = torch.as_tensor(lab[idx], dtype=torch.long, device=device)
+            out[idx] = model.temperature(xy, region_ids).detach().cpu().numpy().ravel()
     return out.reshape(X.shape)
 
 
@@ -171,6 +173,9 @@ def load_pinn_model(run_dir, problem):
     import torch
     from pinn_v2.solvers.pinn.networks import build_model
     cfg = json.loads(Path(run_dir).joinpath('result.json').read_text(encoding='utf-8'))['config']
+    if cfg['architecture'] == 'DeepXDE':
+        from pinn_v2.solvers.pinn.deepxde_solver import load_model
+        return load_model(run_dir, problem)
     model = build_model(problem, cfg['architecture'], cfg['width'], cfg['depth'], cfg['activation']).double()
     model.load_state_dict(torch.load(Path(run_dir).joinpath('model.pt'), map_location='cpu'))
     model.eval()

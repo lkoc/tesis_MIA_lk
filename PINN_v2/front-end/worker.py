@@ -17,6 +17,7 @@ sys.path[:0] = [str(HERE), str(HERE.parent)]
 import numpy as np
 
 import grids
+import store
 
 
 def swap_in(tmp, final):
@@ -87,9 +88,23 @@ def run_pinn(folder, job, case_doc, progress):
             swap_in(tmp, folder.joinpath('live_grid.npz'))
             progress.update(live_step=row['step'], live_at=now)
 
+    initial_state = None
+    resume_from = job.get('resume_from')
+    if resume_from:
+        if not isinstance(resume_from, str) or Path(resume_from).name != resume_from:
+            raise ValueError('Invalid previous run reference')
+        previous_folder = store.RUNS.joinpath(resume_from)
+        run_dir = previous_folder.joinpath('run')
+        checkpoint = run_dir.joinpath('model.pt')
+        if previous_folder.is_symlink() or run_dir.is_symlink() or checkpoint.is_symlink() or not checkpoint.is_file():
+            raise ValueError('Previous PINN checkpoint is unavailable')
+        initial_state = torch.load(checkpoint, map_location='cpu', weights_only=True)
+
     result = trainer.run(definition, p.get('architecture', 'M1'), folder.joinpath('run'), adam_steps=adam, lbfgs_steps=lbfgs, lr=float(p.get('lr', 2e-3)),
         width=int(p.get('width', 32)), depth=int(p.get('depth', 3)), activation=p.get('activation', 'tanh'), weights=p.get('weights') or None, points=p.get('points') or None,
         init_seed=int(p.get('init_seed', 0)), sampling_seed=int(p.get('sampling_seed', 11)), log_every=int(p.get('log_every', 20)), attention=attention,
+        deepxde_model=p.get('deepxde_model', 'PFNN'),
+        initial_state=initial_state,
         study='front-end', command=['front-end', 'worker', str(folder)], on_log=on_log)
     folder.joinpath('run', 'case.json').write_text(json.dumps(case_doc), encoding='utf-8')
     if result['status'] != 'completed':
@@ -97,7 +112,7 @@ def run_pinn(folder, job, case_doc, progress):
     progress.update(phase='generando campo final', force=True)
     model = grids.load_pinn_model(folder.joinpath('run'), problem)
     pieces = grids.build_problem_pinn(model, problem)
-    label = p.get('architecture', 'M1') + (f'+{attention}' if attention else '')
+    label = p.get('architecture', 'M1') + (f'/{p.get("deepxde_model", "PFNN")}' if p.get('architecture') == 'DeepXDE' else f'+{attention}' if attention else '')
     out = folder.joinpath('grids')
     out.mkdir(exist_ok=True)
     grids.save(out.joinpath('final.npz'), pieces, names, dict(kind='pinn', label=f'PINN {label}', physics_sha256=problem.physics_sha256))

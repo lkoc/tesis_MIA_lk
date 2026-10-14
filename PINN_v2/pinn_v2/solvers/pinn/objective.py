@@ -45,7 +45,8 @@ class Objective:
         self.sources = {r.id: problem.source(r, self.interior[r.id]).detach() for r in problem.regions}
         self.faces = [(f, self.tensor(f.xy), self.tensor(f.normal)) for f in problem.faces(n_face)]
         self.pieces = [(p, self.tensor(p.xy), self.tensor(p.normal)) for p in problem.pieces(n_boundary)]
-        self.attention = None if attention is None else Attention(attention, {r.name: len(self.interior[r.id]) for r in problem.regions})
+        self.attention = None if attention is None else Attention(attention,
+            {r.name: len(self.interior[r.id]) for r in problem.regions}, device=reference.device)
         self.residuals = {}
 
     def update_attention(self):

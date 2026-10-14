@@ -47,7 +47,7 @@ def audit(model, n_interior=2048, n_layer=1024, n_face=512, n_boundary=512, seed
         qln, qrn = (ql * normal).sum(1, keepdim=True), (qr * normal).sum(1, keepdim=True)
         dln, drn = (dl * normal).sum(1, keepdim=True), (dr * normal).sum(1, keepdim=True)
         scale = max(problem.scales(left)['flux'], problem.scales(right)['flux'])
-        jump_T, jump_q, jump_d = (Tl - Tr).detach().numpy(), (qln - qrn).detach().numpy(), (dln - drn).detach().numpy()
+        jump_T, jump_q, jump_d = (Tl - Tr).detach().cpu().numpy(), (qln - qrn).detach().cpu().numpy(), (dln - drn).detach().cpu().numpy()
         interfaces.append(dict(name=face.name, T_jump_rms_K=float(np.sqrt(np.mean(jump_T ** 2))), T_jump_max_K=float(np.abs(jump_T).max()),
             flux_jump_rms_pct=float(100 * np.sqrt(np.mean(jump_q ** 2)) / scale), flux_jump_max_pct=float(100 * np.abs(jump_q).max() / scale),
             derived_flux_jump_rms_pct=float(100 * np.sqrt(np.mean(jump_d ** 2)) / scale), flux_scale_W_m2=float(scale)))
@@ -64,12 +64,12 @@ def audit(model, n_interior=2048, n_layer=1024, n_face=512, n_boundary=512, seed
         bc = piece.bc
         scale = problem.scales(region)['flux']
         if bc['type'] == 'dirichlet':
-            error, flux_out = (T - bc['value'](xy)).detach().numpy() , dn
+            error, flux_out = (T - bc['value'](xy)).detach().cpu().numpy(), dn
         elif bc['type'] == 'neumann':
-            error, flux_out = ((dn - bc['value'](xy)) / scale).detach().numpy(), dn
+            error, flux_out = ((dn - bc['value'](xy)) / scale).detach().cpu().numpy(), dn
         else:
             robin = bc['h'] * (T - bc['T_inf'](xy))
-            error, flux_out = ((dn - robin) / scale).detach().numpy(), robin
+            error, flux_out = ((dn - robin) / scale).detach().cpu().numpy(), robin
         boundary.append(dict(side=piece.side, region=names[region.id], type=bc['type'], rms=float(np.sqrt(np.mean(error ** 2))),
             unit='K' if bc['type'] == 'dirichlet' else 'flux_scale'))
         derived_balance[region.id] += piece.weight * float(dn.sum().detach())
@@ -82,16 +82,18 @@ def audit(model, n_interior=2048, n_layer=1024, n_face=512, n_boundary=512, seed
     return dict(pde_rms=pde, constitutive_rms=constitutive, interfaces=interfaces, boundary=boundary, balance=balance)
 
 
-def evaluate_model(model, reference=None, reference_label='supplied'):
-    """Error report on the problem's evaluation points plus the audit. reference: optional array on those points."""
+def evaluate_model(model, reference=None, reference_label='supplied', include_audit=True):
+    """Evaluate the field and optionally run the more expensive physics audit."""
     problem = model.problem
     xy, labels, weights = problem.evaluation()
     with torch.no_grad():
         reference_tensor = next(model.parameters())
-        T = model.temperature(torch.as_tensor(xy, dtype=reference_tensor.dtype), torch.as_tensor(labels)).numpy().ravel()
+        evaluation_xy = torch.as_tensor(xy, dtype=reference_tensor.dtype, device=reference_tensor.device)
+        evaluation_labels = torch.as_tensor(labels, device=reference_tensor.device)
+        T = model.temperature(evaluation_xy, evaluation_labels).cpu().numpy().ravel()
     truth = problem.reference(xy, labels) if reference is None else np.asarray(reference, dtype=float).ravel()
     names = [r.name for r in problem.regions]
-    report = dict(audit(model))
+    report = dict(audit(model)) if include_audit else {}
     arrays = dict(xy=xy, labels=labels, weights=weights, T=T)
     if truth is not None:
         report.update(error_report(T, truth, xy, labels, weights, names, problem.T_level, problem.conductors()))
@@ -99,6 +101,6 @@ def evaluate_model(model, reference=None, reference_label='supplied'):
     else:
         hot = np.isin(labels, problem.conductors())
         report.update(Tmax_pred_C=float(T[hot].max()) if hot.any() else float(T.max()))
-    report['acceptance'] = acceptance(report)
+    report['acceptance'] = acceptance(report) if include_audit else dict(state='not_audited', gates={})
     report['reference_label'] = problem.reference_label if reference is None else reference_label
     return report, arrays

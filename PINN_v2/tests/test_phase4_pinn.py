@@ -174,12 +174,44 @@ def test_trainer_writes_record_and_never_overwrites(tmp_path):
     out = tmp_path / 'run'
     result = trainer.run('mms_constant', 'M1', out, adam_steps=30, width=8, depth=2, points=SMALL, log_every=10)
     assert result['status'] == 'completed' and result['fem_labels_used'] == 0 and result['reference_used_in_loss'] is False
-    for name in ('result.json', 'manifest.json', 'evaluation.npz', 'collocation.npz', 'model.pt'):
+    for name in ('result.json', 'manifest.json', 'evaluation.npz', 'collocation.npz', 'model.pt', 'checkpoint_meta.json'):
         assert out.joinpath(name).exists()
     manifest = json.loads(out.joinpath('manifest.json').read_text())
     assert manifest['seeds'] == dict(init=0, sampling=11)
+    assert manifest['extra']['device'] == result['device']
+    checkpoint_meta = json.loads(out.joinpath('checkpoint_meta.json').read_text())
+    assert checkpoint_meta['checkpoint_file'] == 'model.pt'
+    assert checkpoint_meta['status'] == 'completed'
+    assert checkpoint_meta['progress']['phase'] == 'finished'
+    assert checkpoint_meta['progress']['step_zero_based'] is True
+    assert checkpoint_meta['progress']['best_step'] == result['best_step']
+    assert checkpoint_meta['physics_sha256'] == result['physics_sha256']
+    state = torch.load(out.joinpath('model.pt'), map_location='cpu', weights_only=True)
+    assert all(tensor.device.type == 'cpu' for tensor in state.values())
+    with np.load(out.joinpath('collocation.npz')) as collocation:
+        assert collocation.files
     with pytest.raises(FileExistsError):
         trainer.run('mms_constant', 'M1', out, adam_steps=1, points=SMALL)
+
+
+def test_trainer_fails_and_preserves_nonfinite_evaluation(tmp_path, monkeypatch):
+    report = dict(nrmse_pct=float('nan'), acceptance=dict(state='rejected'))
+    arrays = dict(T=np.array([np.nan]), xy=np.array([[0., 0.]]))
+    monkeypatch.setattr(trainer, 'evaluate_model', lambda *args, **kwargs: (report, arrays))
+
+    out = tmp_path / 'nonfinite_evaluation'
+    result = trainer.run('mms_constant', 'M1', out, adam_steps=1, width=8, depth=1,
+        points=SMALL, log_every=1)
+
+    assert result['status'] == 'failed'
+    assert result['evaluation_finite'] is False
+    assert result['error']['type'] == 'FloatingPointError'
+    assert out.joinpath('failure.json').exists()
+    assert out.joinpath('evaluation.npz').exists()
+    assert out.joinpath('model.pt').exists()
+    checkpoint_meta = json.loads(out.joinpath('checkpoint_meta.json').read_text())
+    assert checkpoint_meta['status'] == 'failed'
+    assert checkpoint_meta['progress']['phase'] in ('initialized', 'adam')
 
 
 def test_trainer_is_deterministic(tmp_path):
@@ -189,6 +221,46 @@ def test_trainer_is_deterministic(tmp_path):
     assert a['final_loss'] == b['final_loss']
     c = trainer.run('mms_interface', 'M1', tmp_path / 'c', init_seed=3, **kwargs)
     assert c['final_loss'] != a['final_loss']
+
+
+def test_adam_best_checkpoint_matches_the_loss_evaluation():
+    parameter = torch.nn.Parameter(torch.tensor(1., dtype=torch.float64))
+    model = torch.nn.Module()
+    model.register_parameter('parameter', parameter)
+
+    class QuadraticObjective:
+        def __call__(self):
+            loss = model.parameter.square()
+            return loss, {'quadratic': loss}, {}
+
+        def update_attention(self):
+            pass
+
+    _, best = trainer.fit(model, QuadraticObjective(), adam_steps=1, lbfgs_steps=0, lr=.1, log_every=1)
+    assert best['total'] == pytest.approx(1.)
+    assert best['state']['parameter'].item() == pytest.approx(1.)
+    assert model.parameter.item() == pytest.approx(1.)
+
+
+def test_adam_stop_callback_ends_at_requested_checkpoint():
+    parameter = torch.nn.Parameter(torch.tensor(1., dtype=torch.float64))
+    model = torch.nn.Module()
+    model.register_parameter('parameter', parameter)
+
+    class QuadraticObjective:
+        def __call__(self):
+            loss = model.parameter.square()
+            return loss, {'quadratic': loss}, {}
+
+        def update_attention(self):
+            pass
+
+    checkpoints = []
+    history, _ = trainer.fit(model, QuadraticObjective(), adam_steps=20, lbfgs_steps=0,
+        lr=.1, log_every=2, stop_callback=lambda row, _: checkpoints.append(row['step']) or row['step'] >= 4)
+
+    assert checkpoints == [0, 2, 4]
+    assert len(history) == 3
 
 
 def test_failure_is_preserved(tmp_path):

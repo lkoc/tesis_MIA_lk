@@ -142,7 +142,7 @@ def cmd_train(args):
     from pinn_v2.solvers.pinn import trainer
     from pinn_v2.solvers.pinn.objective import TERMS
     from pinn_v2.solvers.pinn.problem import load_problem
-    keys = ('case', 'definition', 'model', 'adam_steps', 'lbfgs_steps', 'lr', 'width', 'depth', 'activation', 'seed', 'sampling_seed', 'output', 'reference')
+    keys = ('case', 'definition', 'model', 'adam_steps', 'lbfgs_steps', 'lr', 'width', 'depth', 'activation', 'seed', 'sampling_seed', 'output', 'reference', 'device')
     config = settings_from(args, keys)
     config['weights'] = {**config.get('weights', {}), **read_pairs(args.weights, TERMS, 'weights')}
     config['points'] = {**config.get('points', {}), **read_pairs(args.points, ('n_interior', 'n_layer', 'n_face', 'n_boundary'), 'points')}
@@ -159,7 +159,7 @@ def cmd_train(args):
         lr=config.get('lr', 2e-3), width=config.get('width', 32), depth=config.get('depth', 3), activation=config.get('activation', 'tanh'),
         weights=config['weights'], points=config['points'], init_seed=config.get('seed', 0), sampling_seed=config.get('sampling_seed', 11),
         log_every=config.get('log_every', 200), reference=reference, reference_label=reference_label or 'supplied', attention=attention,
-        command=[sys.executable, '-m', 'pinn_v2', 'train', *sys.argv[2:]])
+        command=[sys.executable, '-m', 'pinn_v2', 'train', *sys.argv[2:]], device=config.get('device', 'auto'))
     evaluation = result.get('evaluation', {})
     print(f"{result['status']}  loss={result.get('final_loss')}  time={result['elapsed_s']:.0f}s  acceptance={evaluation.get('acceptance', {}).get('state')}")
     print(f'record: {output}')
@@ -231,6 +231,7 @@ def build_parser():
     p.add_argument('--model'); p.add_argument('--adam-steps', dest='adam_steps', type=int); p.add_argument('--lbfgs-steps', dest='lbfgs_steps', type=int)
     p.add_argument('--lr', type=float); p.add_argument('--width', type=int); p.add_argument('--depth', type=int); p.add_argument('--activation')
     p.add_argument('--seed', type=int); p.add_argument('--sampling-seed', dest='sampling_seed', type=int); p.add_argument('--reference')
+    p.add_argument('--device', choices=['auto', 'cpu', 'xpu'])
     p.add_argument('--weights', nargs='*'); p.add_argument('--points', nargs='*')
     p = sub.add_parser('fem', help='FEniCSx reference in WSL2'); common(p); p.set_defaults(run=cmd_fem)
     p.add_argument('--levels', nargs='*', type=int); p.add_argument('--mode', choices=['fixed', 'dc_temperature'])

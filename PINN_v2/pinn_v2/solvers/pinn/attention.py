@@ -14,13 +14,13 @@ DECAY = 0.999
 
 
 class Attention:
-    def __init__(self, kind, sizes, dtype=torch.float64, rate=None, decay=DECAY):
+    def __init__(self, kind, sizes, dtype=torch.float64, device=None, rate=None, decay=DECAY):
         if kind not in KINDS:
             raise ValueError(f'Unknown attention {kind!r}; expected one of {KINDS}')
         self.kind, self.decay = kind, decay
         self.rate = DEFAULT_RATE[kind] if rate is None else rate
         start = 0. if kind == 'rba' else 1.
-        self.state = {key: torch.full((n, 1), start, dtype=dtype) for key, n in sizes.items()}
+        self.state = {key: torch.full((n, 1), start, dtype=dtype, device=device) for key, n in sizes.items()}
 
     def weight(self, key):
         state = self.state[key]

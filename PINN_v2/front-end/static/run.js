@@ -2,7 +2,7 @@
 // Pestana Ejecucion (1/2): que caso, que metodo y con que parametros.
 
 const R = { src: 'current', doc: null, check: null, kind: 'pinn', arch: 'M1', preset: 'rapido', p: null, levels: [0, 1], threads: 2, liveEvery: 4, geoView: 'full',
-  view: 'zoom', cmap: 'inferno', iso: false, overlay: true, jobId: null, job: null, variant: null, timer: null, busy: false, pointMultiplier: 1 };
+  view: 'zoom', cmap: 'inferno', iso: false, overlay: true, jobId: null, job: null, variant: null, timer: null, busy: false, pointMultiplier: 1, deepxdeModel: 'PFNN', settingsKey: null, continueFrom: false, resumeJobId: null };
 
 const POINT_MULTIPLIERS = [0.5, 1, 1.5, 2, 3, 4];
 
@@ -22,6 +22,8 @@ function runCaseOptions() {
   const verification = (x) => !cable(x);
   const opt = (x, pre) => h('option', { value: x.ref, selected: R.src === x.ref }, (pre || '') + x.name + (x.title ? '  -  ' + String(x.title).slice(0, 40) : ''));
   const groups = [];
+  if (R.src && R.src.startsWith('job:') && R.doc) groups.push(h('optgroup', { label: 'Desde una corrida previa' },
+    h('option', { value: R.src, selected: true }, R.doc.id + ' (caso guardado con la corrida)')));
   if (S.doc && S.doc.physical) groups.push(h('optgroup', { label: 'En el editor' }, h('option', { value: 'current', selected: R.src === 'current' }, 'Caso abierto: ' + S.doc.id + (S.dirty ? ' (con cambios sin guardar)' : ''))));
   for (const [label, filter] of [['Mis casos de cable', cable], ['Mis casos de verificacion 2D', verification]]) {
     const mine = c.user.filter(filter);
@@ -36,16 +38,116 @@ function runCaseOptions() {
   for (const group of Object.keys(catalog).sort()) groups.push(h('optgroup', { label: group }, catalog[group].map((x) => opt(x))));
   return groups;
 }
+
+function runSettingsKey() {
+  if (R.src === 'current') return S.ref || (R.doc ? 'draft:' + R.doc.id : null);
+  return R.src || null;
+}
+
+function applyPreviousRunParameters(job) {
+  const params = clone(job.params || {});
+  R.kind = 'pinn';
+  if (S.options.architectures.some((item) => item.id === params.architecture)) R.arch = params.architecture;
+  R.deepxdeModel = params.deepxde_model || 'PFNN';
+  R.preset = 'custom';
+  const base = presetParams('rapido');
+  R.p = Object.assign(base, params);
+  delete R.p.architecture;
+  R.p.weights = Object.assign(base.weights, params.weights || {});
+  R.p.points = Object.assign(base.points, params.points || {});
+  R.pointMultiplier = 1;
+  R.threads = Number.isFinite(job.threads) ? job.threads : 2;
+  R.liveEvery = Number.isFinite(job.live_every_s) ? job.live_every_s : 4;
+  R.resumeJobId = job.id;
+  R.continueFrom = false;
+}
+
+function resetRunSettings() {
+  R.kind = 'pinn'; R.arch = 'M1'; R.preset = 'rapido'; R.p = presetParams('rapido');
+  R.levels = [0, 1]; R.threads = 2; R.liveEvery = 4; R.pointMultiplier = 1; R.deepxdeModel = 'PFNN';
+}
+
+function applyRunSettings(settings) {
+  if (settings.kind === 'pinn' || settings.kind === 'fem') R.kind = settings.kind;
+  if (settings.arch && S.options.architectures.some((item) => item.id === settings.arch)) R.arch = settings.arch;
+  if (settings.preset && (settings.preset === 'custom' || S.options.presets[settings.preset])) R.preset = settings.preset;
+  if (settings.p && typeof settings.p === 'object') {
+    const base = presetParams(R.preset === 'custom' ? 'rapido' : R.preset);
+    R.p = Object.assign(base, clone(settings.p));
+    R.p.weights = Object.assign(base.weights, settings.p.weights || {});
+    R.p.points = Object.assign(base.points, settings.p.points || {});
+  }
+  if (Array.isArray(settings.levels)) R.levels = settings.levels.filter((level) => [0, 1, 2, 3].includes(level));
+  if (!R.levels.length) R.levels = [0, 1];
+  if (Number.isFinite(settings.threads)) R.threads = settings.threads;
+  if (Number.isFinite(settings.liveEvery)) R.liveEvery = settings.liveEvery;
+  if (POINT_MULTIPLIERS.includes(Number(settings.pointMultiplier))) R.pointMultiplier = Number(settings.pointMultiplier);
+  if (S.options.deepxde_models.some((item) => item.id === settings.deepxdeModel)) R.deepxdeModel = settings.deepxdeModel;
+}
+
+function currentRunSettings() {
+  return { kind: R.kind, arch: R.arch, preset: R.preset, p: clone(R.p), levels: R.levels.slice(),
+    threads: R.threads, liveEvery: R.liveEvery, pointMultiplier: R.pointMultiplier, deepxdeModel: R.deepxdeModel };
+}
+
+function previousPinRunsForCase() {
+  const sha = R.check && R.check.summary && R.check.summary.sha256;
+  if (!sha) return [];
+  const loadedJobId = R.src.startsWith('job:') ? R.src.slice(4) : null;
+  return (S.jobs || []).filter((job) => job.kind === 'pinn' && job.status !== 'running' && (job.sha === sha || job.id === loadedJobId) && job.params);
+}
+
+function compatiblePreviousRun() {
+  const current = R.p || {};
+  const candidates = previousPinRunsForCase().filter((job) => job.has_checkpoint && (!R.resumeJobId || job.id === R.resumeJobId));
+  return candidates.find((job) => {
+    const previous = job.params || {};
+    return previous.architecture === R.arch && Number(previous.width || 32) === Number(current.width || 32) &&
+      Number(previous.depth || 3) === Number(current.depth || 3) && (previous.activation || 'tanh') === (current.activation || 'tanh') &&
+      (previous.deepxde_model || 'PFNN') === (R.arch === 'DeepXDE' ? R.deepxdeModel : 'PFNN') &&
+      (previous.attention || '') === (current.attention || '');
+  }) || null;
+}
+
+async function loadPreviousRun(job) {
+  if (!job || job.kind !== 'pinn' || job.status === 'running' || !job.params) return;
+  R.src = 'job:' + job.id;
+  await loadRunCase();
+  const canResume = Boolean(compatiblePreviousRun());
+  toast(canResume ? 'Caso y parametros cargados; puedes personalizarlos antes de continuar.' : 'Parametros cargados, pero la corrida no tiene un checkpoint compatible.', canResume ? 'ok' : 'warn');
+}
+
 async function loadRunCase() {
   R.check = null;
   try {
     if (R.src === 'current') {
       if (!S.doc) { R.src = ''; R.doc = null; drawRunLeft(); drawRunGeo(); return; }
       R.doc = S.doc;
+    } else if (R.src.startsWith('job:')) {
+      const id = R.src.slice(4);
+      const [previous, savedCase] = await Promise.all([api('/api/job/' + encodeURIComponent(id)), api('/api/job/' + encodeURIComponent(id) + '/case')]);
+      R.doc = savedCase.doc;
+      R.check = await post('/api/validate', { doc: R.doc });
+      if (!R.check.ok) throw new Error('El caso guardado con esta corrida ya no valida.');
+      applyPreviousRunParameters(previous);
     } else if (R.src) {
       R.doc = (await api('/api/case?' + qs({ ref: R.src }))).doc;
     }
-    R.check = R.doc ? await post('/api/validate', { doc: R.doc }) : null;
+    if (!R.src.startsWith('job:')) R.check = R.doc ? await post('/api/validate', { doc: R.doc }) : null;
+    const key = runSettingsKey();
+    if (key && key !== R.settingsKey) {
+      R.continueFrom = false;
+      R.settingsKey = key;
+      if (R.src.startsWith('job:')) R.settingsKey = key;
+      else {
+        R.resumeJobId = null;
+        try {
+          const saved = await api('/api/run-settings?' + qs({ ref: key }));
+          R.settingsKey = key;
+          if (saved.settings) applyRunSettings(saved.settings); else resetRunSettings();
+        } catch (e) { R.settingsKey = null; resetRunSettings(); toast('No se pudieron cargar los parametros guardados: ' + e.message, 'bad'); }
+      }
+    }
   } catch (e) { toast(e.message, 'bad'); }
   if (R.check && R.kind === 'pinn' && !R.check.pinn.supported && R.check.fem.supported) R.kind = 'fem';
   drawRunLeft();
@@ -65,7 +167,7 @@ function enterRun() {
 
 function rnum(label, obj, key, step, hint) {
   return h('label', { class: 'f' }, h('span', {}, label, hint ? h('span', { class: 'hint' }, ' ' + hint) : null),
-    h('input', { type: 'number', step: step || 'any', value: obj[key], onchange: (e) => { const v = parseFloat(e.target.value); if (!Number.isNaN(v)) obj[key] = v; R.preset = 'custom'; } }));
+    h('input', { type: 'number', step: step || 'any', value: obj[key], onchange: (e) => { const v = parseFloat(e.target.value); if (!Number.isNaN(v)) obj[key] = v; R.preset = 'custom'; if (obj === R.p && (key === 'width' || key === 'depth')) drawRunLeft(); } }));
 }
 
 function archCard(a) {
@@ -75,7 +177,7 @@ function archCard(a) {
   const on = fem ? R.kind === 'fem' : R.kind === 'pinn' && R.arch === a.id;
   const why = off ? (fem ? check.fem.reason : check.pinn.reason) : '';
   return h('div', { class: 'arch' + (fem ? ' fem' : '') + (on ? ' on' : '') + (off ? ' off' : ''), title: off ? why : a.note,
-    onclick: () => { if (off) { toast(why || 'No disponible para este caso', 'bad'); return; } R.kind = fem ? 'fem' : 'pinn'; if (!fem) R.arch = a.id; drawRunLeft(); } },
+    onclick: () => { if (off) { toast(why || 'No disponible para este caso', 'bad'); return; } R.kind = fem ? 'fem' : 'pinn'; if (!fem) { R.arch = a.id; if (a.id === 'DeepXDE' && R.p) R.p.attention = ''; } drawRunLeft(); } },
     h('b', {}, a.id), h('span', {}, a.title.replace(/^[A-Z0-9]+ - /, '')));
 }
 function pinnParams() {
@@ -83,7 +185,9 @@ function pinnParams() {
   const P = R.p;
   const chips = Object.keys(o.presets).map((k) => h('span', { class: 'chip' + (R.preset === k ? ' on' : ''), onclick: () => { R.preset = k; R.p = presetParams(k); drawRunLeft(); } }, o.presets[k].title));
   const w = o.weights;
-  return [h('div', { class: 'chips' }, chips, R.preset === 'custom' ? h('span', { class: 'chip on' }, 'Personalizado') : null),
+  const internalModel = R.arch === 'DeepXDE' ? h('label', { class: 'f' }, h('span', {}, 'Red interna de DeepXDE'),
+    h('select', { value: R.deepxdeModel, onchange: (e) => { R.deepxdeModel = e.target.value; drawRunLeft(); } }, o.deepxde_models.map((model) => h('option', { value: model.id, selected: R.deepxdeModel === model.id }, model.title)))) : null;
+  return [internalModel, h('div', { class: 'chips' }, chips, R.preset === 'custom' ? h('span', { class: 'chip on' }, 'Personalizado') : null),
     h('div', { class: 'point-scale' },
       h('label', { class: 'f' }, h('span', {}, 'Multiplicador de puntos'), h('select', { value: String(R.pointMultiplier), onchange: (e) => { R.pointMultiplier = Number(e.target.value); drawRunLeft(); } },
         POINT_MULTIPLIERS.map((value) => h('option', { value: String(value), selected: R.pointMultiplier === value }, value + 'x')))),
@@ -93,10 +197,10 @@ function pinnParams() {
     h('details', { class: 'sec', open: !!R.advOpen, ontoggle: (e) => { R.advOpen = e.target.open; } }, h('summary', {}, 'Opciones avanzadas'),
       h('div', { class: 'in' },
         h('div', { class: 'grid2' },
-          h('label', { class: 'f' }, h('span', {}, 'Activacion'), h('select', { onchange: (e) => { P.activation = e.target.value; R.preset = 'custom'; } }, o.activations.map((a) => h('option', { value: a, selected: P.activation === a }, a)))),
-          h('label', { class: 'f' }, h('span', {}, 'Atencion'), h('select', { onchange: (e) => { P.attention = e.target.value; if (P.attention) P.lbfgs_steps = 0; drawRunLeft(); } }, o.attention.map((a) => h('option', { value: a.id, selected: P.attention === a.id }, a.title)))),
+          h('label', { class: 'f' }, h('span', {}, 'Activacion'), h('select', { onchange: (e) => { P.activation = e.target.value; R.preset = 'custom'; drawRunLeft(); } }, o.activations.map((a) => h('option', { value: a, selected: P.activation === a }, a)))),
+          R.arch === 'DeepXDE' ? null : h('label', { class: 'f' }, h('span', {}, 'Atencion'), h('select', { onchange: (e) => { P.attention = e.target.value; if (P.attention) P.lbfgs_steps = 0; drawRunLeft(); } }, o.attention.map((a) => h('option', { value: a.id, selected: P.attention === a.id }, a.title)))),
           rnum('Semilla de la red', P, 'init_seed', 1), rnum('Semilla del muestreo', P, 'sampling_seed', 1), rnum('Registrar cada N pasos', P, 'log_every', 5)),
-        h('h4', {}, 'Pesos de la perdida'), h('div', { class: 'grid2' }, Object.keys(w).map((k) => rnum(k, P.weights, k, 'any'))),
+        h('h4', {}, 'Pesos de la perdida'), h('div', { class: 'grid2' }, Object.keys(w).filter((k) => R.arch !== 'DeepXDE' || k !== 'constitutive').map((k) => rnum(k, P.weights, k, 'any'))),
         h('h4', {}, 'Puntos de muestreo'), h('div', { class: 'grid2' }, Object.keys(P.points).map((k) => rnum(k, P.points, k, 8))),
         h('p', { class: 'sub' }, 'Los pesos y los puntos son solo hiperparametros del entrenamiento; ninguna referencia (FEM o articulo) entra como dato de entrenamiento.')))];
 }
@@ -120,11 +224,17 @@ function drawRunLeft() {
   const ready = c && c.ok && (R.kind === 'fem' ? c.fem.supported && femOk : c.pinn.supported);
   let why = '';
   if (!R.doc) why = 'Elige un caso.'; else if (c && !c.ok) why = 'El caso no valida: corrigelo en la pestana Casos.'; else if (R.kind === 'fem' && !femOk) why = 'FEniCSx no esta disponible en este equipo.';
+  const priorRuns = R.kind === 'pinn' ? previousPinRunsForCase() : [];
+  const previousRun = compatiblePreviousRun();
+  if (!previousRun) R.continueFrom = false;
   mount(box,
     h('h2', {}, 'Que quieres correr'),
     h('div', { class: 'run-actions' },
       h('div', { class: 'row' },
         h('button', { class: 'btn run-start', disabled: !ready || R.busy, onclick: startRun }, R.kind === 'fem' ? 'Ejecutar FEM' : 'Entrenar ' + R.arch),
+        R.kind === 'pinn' ? h('label', { class: 'chk', title: previousRun ? 'Usa los pesos de ' + previousRun.id + '; se reinicia el optimizador.' : (priorRuns.length ? 'Carga los parámetros y el caso original desde una corrida con checkpoint compatible.' : 'No hay un checkpoint compatible para este caso y esta arquitectura.') },
+          h('input', { type: 'checkbox', checked: R.continueFrom, disabled: !previousRun || R.busy, onchange: (e) => { R.continueFrom = e.target.checked; } }),
+          'Continuar desde la solución anterior') : null,
         h('button', { class: 'btn sec run-reset', onclick: () => { R.preset = R.preset === 'custom' ? 'rapido' : R.preset; R.p = presetParams(R.preset); R.pointMultiplier = 1; drawRunLeft(); } }, 'Restablecer')),
       why ? h('p', { class: 'sub run-why' }, why) : null),
     h('label', { class: 'f' }, h('span', {}, '1. Caso'), h('select', { onchange: (e) => { R.src = e.target.value; loadRunCase(); } }, h('option', { value: '', selected: !R.src }, '- elige -'), runCaseOptions())),
@@ -155,12 +265,21 @@ async function startRun() {
   R.busy = true;
   drawRunLeft();
   try {
-    const params = R.kind === 'fem' ? { levels: R.levels.slice() } : Object.assign({ architecture: R.arch }, clone(R.p));
+    const params = R.kind === 'fem' ? { levels: R.levels.slice() } : Object.assign({ architecture: R.arch }, clone(R.p), R.arch === 'DeepXDE' ? { deepxde_model: R.deepxdeModel, attention: '' } : {});
+    if (R.kind === 'pinn' && R.arch === 'DeepXDE') params.weights.constitutive = 0;
     if (R.kind === 'pinn') params.points = scaledPointCounts(params.points, R.pointMultiplier);
     const body = { kind: R.kind, threads: R.threads, live_every_s: R.liveEvery, params };
-    if (R.src === 'current') body.doc = R.doc; else body.ref = R.src;
+    const resumeJob = R.continueFrom ? compatiblePreviousRun() : null;
+    if (R.continueFrom && !resumeJob) throw new Error('La solucion anterior ya no es compatible con estos parametros.');
+    if (resumeJob) body.resume_from = resumeJob.id;
+    if (R.src === 'current' || R.src.startsWith('job:')) body.doc = R.doc; else body.ref = R.src;
     const r = await post('/api/run', body);
     R.jobId = r.id; R.job = null; R.variant = null;
+    const key = runSettingsKey();
+    if (key) {
+      try { await post('/api/run-settings', { ref: key, settings: currentRunSettings() }); R.settingsKey = key; }
+      catch (e) { toast('El trabajo inicio, pero no se guardaron sus parametros: ' + e.message, 'bad'); }
+    }
     toast('Trabajo en marcha', 'ok');
     pollNow();
   } catch (e) { toast(e.message, 'bad'); }

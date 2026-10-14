@@ -269,6 +269,15 @@ class AnnulusProblem(Problem):
         self.power_total = 0.
         self.power_scale = abs(case['power'])
 
+    def input_size(self, region, partition):
+        return 3
+
+    def coordinates(self, region, xy, partition):
+        radius = torch.linalg.vector_norm(xy[:, :2], dim=1, keepdim=True).clamp_min(torch.finfo(xy.dtype).tiny)
+        log_radius = 2 * torch.log(radius / self.case['ri']) / math.log(self.case['ro'] / self.case['ri']) - 1
+        direction = xy[:, :2] / radius
+        return torch.cat([log_radius, direction], dim=1)
+
     def conductivity(self, zone, xy):
         return xy[:, 0:1] * 0 + self.case['k']
 
@@ -366,14 +375,16 @@ class CableProblem(Problem):
             return self.normalized_xy(xy)
         c = self.case
         if region.kind == 'soil':
-            extras = [torch.log(torch.linalg.vector_norm(xy[:, :2] - xy.new_tensor(center), dim=1, keepdim=True) / c['radius']) for center in c['cables']]
+            epsilon = torch.finfo(xy.dtype).eps
+            extras = [torch.log((torch.linalg.vector_norm(xy[:, :2] - xy.new_tensor(center), dim=1, keepdim=True) / c['radius']).clamp_min(epsilon)) for center in c['cables']]
             return torch.cat([self.normalized_xy(xy), *extras], dim=1)
         delta = xy[:, :2] - xy.new_tensor(c['cables'][region.cable])
         if region.kind == 'conductor':
             return delta / region.ro
         radius = torch.linalg.vector_norm(delta, dim=1, keepdim=True)
-        eta = torch.log(radius / region.ri) / math.log(region.ro / region.ri)
-        return torch.cat([2 * eta - 1, delta / radius], dim=1)
+        safe_radius = radius.clamp_min(region.ri * torch.finfo(xy.dtype).eps)
+        eta = torch.log(safe_radius / region.ri) / math.log(region.ro / region.ri)
+        return torch.cat([2 * eta - 1, delta / safe_radius], dim=1)
 
     def planar_cuts(self):
         return [(i.axis, i.position) for i in self.domain.interfaces if not i.radius]

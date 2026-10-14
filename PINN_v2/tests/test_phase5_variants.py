@@ -10,7 +10,10 @@ from pinn_v2.solvers.pinn.variants import VARIANTS
 from pinn_v2.solvers.pinn import trainer
 
 SMALL = dict(n_interior=48, n_layer=24, n_face=24, n_boundary=24)
-CASES = ['mms_interface', 'coaxial_full']
+CASES = ['annulus', 'mms_constant', 'mms_high_contrast', 'mms_interface', 'mms_layered_y',
+    'mms_robin', 'mms_smooth_2d', 'mms_variable', 'aras_flat', 'aras_single',
+    'xlpe_discrete_layers', 'coaxial_full']
+ARCHITECTURES = ['M0', 'M1', 'M2', *sorted(VARIANTS)]
 
 
 def _model(case, architecture, seed=0):
@@ -19,7 +22,7 @@ def _model(case, architecture, seed=0):
 
 
 @pytest.mark.parametrize('case', CASES)
-@pytest.mark.parametrize('architecture', sorted(VARIANTS))
+@pytest.mark.parametrize('architecture', ARCHITECTURES)
 def test_variant_objective_is_finite_and_differentiable(case, architecture):
     model = _model(case, architecture)
     total, parts, _ = Objective(model, **SMALL)()
@@ -28,7 +31,8 @@ def test_variant_objective_is_finite_and_differentiable(case, architecture):
     grads = [p.grad for p in model.parameters() if p.requires_grad]
     assert any(g is not None and torch.any(g != 0) for g in grads)
     assert all(torch.isfinite(g).all() for g in grads if g is not None)
-    assert model.kind == 'faithful_to_idea_adapted'
+    expected_kind = 'faithful_to_idea_adapted' if architecture in VARIANTS else 'baseline'
+    assert model.kind == expected_kind
 
 
 def test_unknown_architecture_and_unimplemented_ipinn_are_rejected():
@@ -76,11 +80,25 @@ def test_cusp_signs_follow_the_region_side():
     assert set(model.signs[conductor.id].tolist()) == {-1.}
 
 
-def test_dcsnn_is_one_shared_shallow_network():
+@pytest.mark.parametrize('architecture', ['M0', 'M1', 'M2', 'CUSP', 'DCSNN', 'FBPINN'])
+def test_annulus_geometry_features_work_for_every_architecture(architecture):
+    problem = load_problem('annulus')
+    model = _model('annulus', architecture)
+    region = problem.regions[0]
+    xy = torch.tensor([[.06, 0.], [20., 0.], [0., 20.]], dtype=torch.float64)
+    coordinates = problem.coordinates(region, xy, model.partition)
+    assert coordinates.shape == (3, 3)
+    assert torch.allclose(coordinates[:, 0], torch.tensor([-1., 1., 1.], dtype=torch.float64))
+    temperature = model.field(region, xy)[0]
+    temperature.sum().backward()
+    assert all(p.grad is None or torch.isfinite(p.grad).all() for p in model.parameters())
+
+
+def test_dcsnn_is_one_shared_network_with_the_requested_depth():
     model = _model('mms_interface', 'DCSNN')
     assert len(model.networks) == 1
     hidden = [m for m in model.networks[0] if isinstance(m, torch.nn.Linear)]
-    assert len(hidden) == 2
+    assert len(hidden) == 3
     problem = model.problem
     xy = torch.as_tensor(problem.faces(4)[0].xy, dtype=torch.float64)
     a = model.field(problem.regions[0], xy)[0]
@@ -101,6 +119,21 @@ def test_fbpinn_cuts_align_with_the_planar_interface_and_blend_constants():
     values = model.field(problem.regions[0], xy)[0].flatten()
     expected = problem.T_ref + problem.T_scale * torch.tensor([1., 3., 2., 4.], dtype=torch.float64)
     assert torch.allclose(values, expected, atol=1e-6 * problem.T_scale)
+
+
+def test_fbpinn_adds_local_cuts_around_cable_geometry():
+    model = _model('coaxial_full', 'FBPINN')
+    center = model.problem.case['cables'][0]
+    radius = model.problem.case['radius']
+    for axis in (0, 1):
+        assert center[axis] - radius in model.edges[axis]
+        assert center[axis] in model.edges[axis]
+        assert center[axis] + radius in model.edges[axis]
+    assert len(model.networks) > 4
+    xmid = torch.tensor([[(center[0] - radius + center[0]) / 2]], dtype=torch.float64)
+    local_weight = model._window(xmid, center[0] - radius, center[0], 0,
+        model.problem.bounds[0], model.problem.bounds[1])
+    assert float(local_weight) > 0.8
 
 
 def test_rba_and_sa_update_rules():
@@ -124,6 +157,7 @@ def test_attention_keeps_the_loss_value_and_changes_the_gradient(kind):
     model = _model('mms_interface', 'M1')
     plain = Objective(model, **SMALL)
     adaptive = Objective(model, attention=kind, **SMALL)
+    assert all(state.device == next(model.parameters()).device for state in adaptive.attention.state.values())
     assert float(plain()[0].detach()) == pytest.approx(float(adaptive()[0].detach()), rel=1e-12)
     for _ in range(20):
         adaptive()

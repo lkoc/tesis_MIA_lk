@@ -75,3 +75,25 @@ def test_verification_grids_preserve_mms_regions_and_annulus_hole(tmp_path):
     labels, temperatures = pieces['full']['L'], pieces['full']['T']
     assert np.any(labels == 0) and np.isfinite(temperatures[labels == 0]).any()
     assert np.isnan(temperatures[labels < 0]).all()
+
+
+def test_evaluate_pinn_uses_model_device_and_returns_numpy():
+    import torch
+    import grids
+
+    class DeviceCheckingModel(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.anchor = torch.nn.Parameter(torch.empty((), device='meta'))
+            self.input_devices = None
+
+        def temperature(self, xy, labels):
+            self.input_devices = (xy.device, labels.device)
+            return torch.ones((len(xy), 1), dtype=xy.dtype)
+
+    model = DeviceCheckingModel()
+    coordinates = np.array([[0.0]])
+    result = grids.evaluate_pinn(model, np.array([[0]]), coordinates, coordinates)
+
+    assert model.input_devices == (torch.device('meta'), torch.device('meta'))
+    assert np.array_equal(result, np.array([[1.0]]))

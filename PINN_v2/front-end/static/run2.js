@@ -29,7 +29,7 @@ async function pollJobs() {
 
 function jobName(j) {
   const p = j.params || {};
-  const m = j.kind === 'fem' ? 'FEM' : (p.architecture || 'PINN') + (p.attention ? '+' + p.attention : '');
+  const m = j.kind === 'fem' ? 'FEM' : (p.architecture || 'PINN') + (p.deepxde_model ? '/' + p.deepxde_model : '') + (p.attention ? '+' + p.attention : '');
   return m + ' / ' + j.case;
 }
 
@@ -48,7 +48,9 @@ function drawJobs() {
     return h('div', { class: 'j' + (R.jobId === j.id ? ' on' : ''), onclick: () => { R.jobId = j.id; R.job = null; R.variant = null; M.built = null; pollNow(); } },
       h('span', { class: 'dot ' + j.status }), h('div', {}, h('b', {}, jobName(j)), h('div', { class: 'muted small' }, (j.created || '').replace('T', ' ') + (j.title && j.title !== j.case ? '  -  ' + j.title : ''))),
       h('span', { class: 'muted small' }, j.status === 'running' ? pct + '%' : (j.summary && j.summary.Tmax_C !== undefined ? 'Tmax ' + fmt(j.summary.Tmax_C, 2) + ' C' : '')), badge(STATUS_TXT[j.status] || j.status, STATUS_KIND[j.status] || ''),
-      j.status === 'running' ? null : h('button', { class: 'mini', type: 'button', title: 'Mover a la papelera', onclick: (e) => { e.stopPropagation(); archiveJob(j.id); } }, 'Papelera'));
+      h('div', { class: 'job-actions' },
+        j.kind === 'pinn' && j.status !== 'running' && j.params ? h('button', { class: 'mini', type: 'button', title: 'Cargar parámetros de esta corrida en Ejecución', onclick: (e) => { e.stopPropagation(); loadPreviousRun(j); } }, 'Cargar parámetros') : null,
+        j.status === 'running' ? null : h('button', { class: 'mini', type: 'button', title: 'Mover a la papelera', onclick: (e) => { e.stopPropagation(); archiveJob(j.id); } }, 'Papelera')));
   });
   const trashed = S.trash.map((j) => h('div', { class: 'trash-row' },
     h('div', {}, h('b', {}, jobName(j)), h('div', { class: 'muted small' }, (j.created || '').replace('T', ' '))),
@@ -176,7 +178,7 @@ function updateMon(job, force) {
   const sm = job.summary || {};
   const boxes = [];
   if (job.kind === 'pinn') {
-    boxes.push(statBox('perdida actual', fmt(last.total, 3)), statBox('arquitectura', p.architecture + (p.attention ? '+' + p.attention : '')));
+    boxes.push(statBox('perdida actual', fmt(last.total, 3)), statBox('arquitectura', p.architecture + (p.deepxde_model ? '/' + p.deepxde_model : '') + (p.attention ? '+' + p.attention : '')));
     if (sm.Tmax_C !== undefined) boxes.push(statBox('T maxima (C)', fmt(sm.Tmax_C, 2)));
     if (sm.parameters) boxes.push(statBox('parametros', String(sm.parameters)));
     if (sm.power_balance_pct !== undefined && sm.power_balance_pct !== null) boxes.push(statBox('balance de potencia (%)', fmt(sm.power_balance_pct, 3)));
