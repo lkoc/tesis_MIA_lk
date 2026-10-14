@@ -9,6 +9,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
+from pinn_v2.solvers.fem.mesh_resolution import validate_node_multiplier
+
 SEP = chr(47)
 TOP = Path(__file__).resolve().parents[3]
 DISTRO = os.environ.get('PINN_V2_WSL_DISTRO', 'Ubuntu')
@@ -42,10 +44,12 @@ def environment():
     return json.loads(run_module('pinn_v2.solvers.fem.environment').stdout)
 
 
-def run_cable_fem(output, levels, case=None, definition=None, mode='fixed', case_file=None):
+def run_cable_fem(output, levels, case=None, definition=None, mode='fixed', case_file=None, node_multiplier=1.0):
     """Run solvers.fem.full_fem for the given levels; returns the list of level records."""
     output = Path(output)
-    arguments = ['--output', output, '--levels', *map(str, levels), '--mode', mode]
+    node_multiplier = validate_node_multiplier(node_multiplier)
+    arguments = ['--output', output, '--levels', *map(str, levels), '--mode', mode,
+                 '--node-multiplier', str(node_multiplier)]
     if definition is not None:
         arguments += ['--definition', Path(definition)]
     elif case_file is not None:
@@ -56,9 +60,11 @@ def run_cable_fem(output, levels, case=None, definition=None, mode='fixed', case
     return [json.loads(output.joinpath(f'fem_l{level}.json').read_text(encoding='utf-8')) for level in levels]
 
 
-def run_mms_fem(output, case=None, levels=(0, 1), definition=None):
+def run_mms_fem(output, case=None, levels=(0, 1), definition=None, node_multiplier=1.0):
     output = Path(output)
-    arguments = ['--levels', *map(str, levels), '--output', output]
+    node_multiplier = validate_node_multiplier(node_multiplier)
+    arguments = ['--levels', *map(str, levels), '--output', output,
+                 '--node-multiplier', str(node_multiplier)]
     if definition is not None:
         definition = Path(definition)
         case = json.loads(definition.read_text(encoding='utf-8'))['id']

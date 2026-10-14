@@ -6,7 +6,7 @@ from pinn_v2.solvers.pinn.attention import Attention
 from pinn_v2.solvers.pinn.networks import build_model, PINNModel
 from pinn_v2.solvers.pinn.objective import Objective, flux_fields
 from pinn_v2.solvers.pinn.problem import load_problem
-from pinn_v2.solvers.pinn.variants import VARIANTS
+from pinn_v2.solvers.pinn.variants import CUSP_OUTPUT_INIT_GAIN, VARIANTS
 from pinn_v2.solvers.pinn import trainer
 
 SMALL = dict(n_interior=48, n_layer=24, n_face=24, n_boundary=24)
@@ -78,6 +78,38 @@ def test_cusp_signs_follow_the_region_side():
     conductor = next(r for r in problem.regions if r.kind == 'conductor')
     assert set(model.signs[soil.id].tolist()) == {1.}
     assert set(model.signs[conductor.id].tolist()) == {-1.}
+
+
+@pytest.mark.parametrize('case', ['mms_interface', 'aras_flat'])
+def test_cusp_local_interface_features_are_bounded_with_nonzero_slope(case):
+    model = _model(case, 'CUSP')
+    problem = model.problem
+    face = problem.faces(8)[0]
+    region = problem.regions[face.left]
+    xy = torch.as_tensor(face.xy, dtype=torch.float64).requires_grad_(True)
+
+    features = model.features(region, xy)[:, 2:]
+    assert torch.all(features.abs() <= 1.)
+    assert torch.max(torch.abs(features[:, 0])) < 1e-12
+
+    gradient = torch.autograd.grad(features[:, 0].sum(), xy)[0]
+    normal = torch.as_tensor(face.normal, dtype=torch.float64)
+    normal_slope = (gradient * normal).sum(dim=1).abs()
+    assert torch.mean(normal_slope).item() == pytest.approx(1 / model.interface_scales[0], rel=1e-8)
+
+
+def test_cusp_local_scale_and_head_gain_keep_initial_objective_finite():
+    model = _model('aras_flat', 'CUSP')
+    interface = model.problem.domain.interfaces[0]
+    adjacent = (model.problem.regions[interface.left], model.problem.regions[interface.right])
+    expected_scale = min(region.ro - region.ri for region in adjacent)
+    assert model.interface_scales[0] == pytest.approx(expected_scale)
+    assert model.networks[0][-1].weight.abs().max().item() < CUSP_OUTPUT_INIT_GAIN
+
+    objective = Objective(model, **SMALL, sampling='interface')
+    loss, _, _ = objective()
+    assert torch.isfinite(loss)
+    assert float(loss.detach()) < 1e7
 
 
 @pytest.mark.parametrize('architecture', ['M0', 'M1', 'M2', 'CUSP', 'DCSNN', 'FBPINN'])

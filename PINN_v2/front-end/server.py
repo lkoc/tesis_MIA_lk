@@ -61,6 +61,9 @@ def options():
     from pinn_v2.solvers.pinn.trainer import POINTS
     return dict(architectures=ARCHITECTURES,
         deepxde_models=[dict(id='PFNN', title='PFNN (subred por region)'), dict(id='FNN', title='FNN (red multisalida)')],
+        deepxde_samplers=[dict(id='mixed', title='Mixto (actual)'), dict(id='pseudo', title='Pseudoaleatorio'),
+            dict(id='LHS', title='Latin Hypercube'), dict(id='Halton', title='Halton'),
+            dict(id='Hammersley', title='Hammersley'), dict(id='Sobol', title='Sobol')],
         attention=[dict(id='', title='Ninguna'), dict(id='rba', title='RBA (pesos residuales adaptativos)'), dict(id='sa', title='SA (autoatencion)')],
         activations=['tanh', 'sin', 'silu', 'gelu'], weights=DEFAULT_WEIGHTS, points=POINTS, presets=PRESETS, fem_levels=[0, 1, 2, 3])
 
@@ -187,10 +190,33 @@ def running_count():
     return sum(1 for r in list_jobs() if r['status'] == 'running')
 
 
+def validate_fem_params(params):
+    from pinn_v2.solvers.fem.mesh_resolution import validate_node_multiplier
+
+    validated = dict(params)
+    levels = validated.get('levels', [0, 1])
+    if (not isinstance(levels, list) or not levels
+            or any(type(level) is not int or level not in (0, 1, 2, 3) for level in levels)
+            or len(set(levels)) != len(levels)):
+        raise ValueError('levels debe ser una lista sin duplicados con niveles entre 0 y 3')
+    validated['levels'] = levels
+    validated['node_multiplier'] = validate_node_multiplier(validated.get('node_multiplier', 1.0))
+    preset = validated.get('refinement_preset', 'manual')
+    if preset not in ('bajo', 'medio', 'alto', 'manual'):
+        raise ValueError('refinement_preset debe ser bajo, medio, alto o manual')
+    validated['refinement_preset'] = preset
+    return validated
+
+
 def start_job(body):
     kind = body.get('kind')
     if kind not in ('pinn', 'fem'):
         raise ValueError('kind debe ser pinn o fem')
+    params = body.get('params') or {}
+    if not isinstance(params, dict):
+        raise ValueError('params debe ser un objeto')
+    if kind == 'fem':
+        params = validate_fem_params(params)
     if body.get('ref'):
         doc = casestore.load(body['ref'])['doc']
     else:
@@ -213,7 +239,6 @@ def start_job(body):
     safe = re.sub(r'[^A-Za-z0-9_]+', '_', doc['id'])[:30]
     folder = RUNS.joinpath(f'{stamp}_{kind}_{safe}')
     folder.mkdir(parents=True, exist_ok=False)
-    params = body.get('params') or {}
     folder.joinpath('case.json').write_text(json.dumps(doc, ensure_ascii=False), encoding='utf-8')
     job = dict(kind=kind, case_kind=casestore._kind_of(doc), params=params, threads=int(body.get('threads', 2)), live_every_s=float(body.get('live_every_s', 4)), case_id=doc['id'], title=body.get('title') or doc.get('title') or doc['id'],
         sha=verdict['summary']['sha256'], created=datetime.datetime.now().isoformat(timespec='seconds'), ref=body.get('ref'))
@@ -227,6 +252,51 @@ def start_job(body):
     PIDS_PROCS[folder.name] = proc
     folder.joinpath('pid.json').write_text(json.dumps(dict(pid=proc.pid)), encoding='utf-8')
     return dict(id=folder.name)
+
+
+def collocation_preview(body):
+    import numpy as np
+    from pinn_v2.cases.definition import CaseDefinition
+    from pinn_v2.solvers.pinn.problem import load_problem
+    from pinn_v2.solvers.pinn.trainer import POINTS
+
+    doc = body.get('doc')
+    params = body.get('params') or {}
+    if not isinstance(doc, dict) or not isinstance(params, dict):
+        raise ValueError('Caso o parametros de muestreo invalidos')
+    problem = load_problem(CaseDefinition.from_dict(doc))
+    counts = dict(POINTS, **(params.get('points') or {}))
+    if any(type(value) is not int or value < 1 or value > 100000 for value in counts.values()):
+        raise ValueError('Los conteos de puntos deben ser enteros entre 1 y 100000')
+    region_counts = {region.id: counts['n_interior'] if region.kind == 'soil' else counts['n_layer']
+        for region in problem.regions}
+    faces = [face.xy for face in problem.faces(counts['n_face'])]
+    pieces = [piece.xy for piece in problem.pieces(counts['n_boundary'])]
+    summary = dict(regions=len(problem.regions), soil_regions=sum(r.kind == 'soil' for r in problem.regions),
+        layer_regions=sum(r.kind != 'soil' for r in problem.regions), interfaces=len(faces), boundary_pieces=len(pieces),
+        interior_points=sum(region_counts.values()),
+        interface_points=sum(len(points) for points in faces),
+        boundary_points=sum(len(points) for points in pieces))
+    summary['total_points'] = sum(summary[key] for key in ('interior_points', 'interface_points', 'boundary_points'))
+    if not body.get('include_points'):
+        return dict(summary=summary)
+    seed = int(params.get('sampling_seed', 11))
+    if params.get('architecture') == 'DeepXDE':
+        from pinn_v2.solvers.pinn import deepxde_solver
+        import deepxde as dde
+        sampler = params.get('deepxde_sampling', 'mixed')
+        samples = [deepxde_solver.sample_deepxde_interior(dde, problem, region,
+            region_counts[region.id], seed + 7919 * region.id, sampler) for region in problem.regions]
+    else:
+        sampling = params.get('sampling', 'mixed')
+        samples = [problem.sample_interior(region, region_counts[region.id],
+            seed + 7919 * region.id, sampling) for region in problem.regions]
+    def as_list(arrays):
+        return [np.asarray(points, dtype=float).tolist() for points in arrays]
+    return dict(summary=summary, points=dict(
+        interior=[dict(region=region.id, xy=np.asarray(points, dtype=float).tolist())
+            for region, points in zip(problem.regions, samples)],
+        interfaces=as_list(faces), boundary=as_list(pieces)))
 
 
 def stop_job(job_id):
@@ -414,7 +484,14 @@ def route_png(path, q):
         which = q.get('which', ['live'])[0]
         sol = store.get(f'job:{folder.name}:{which}')
         view = q.get('view', ['zoom'])[0]
-        return render.field_png(sol['pieces'], sol['case'], view, q.get('cmap', ['inferno'])[0], flag(q, 'overlay', True), flag(q, 'iso'), num(q, 'vmin'), num(q, 'vmax'), sol['label'])
+        collocation = None
+        point_path = folder.joinpath('run', 'collocation.npz')
+        if flag(q, 'points') and point_path.is_file():
+            import numpy as np
+            with np.load(point_path, allow_pickle=False) as data:
+                collocation = {kind: [data[key] for key in data.files if key.startswith(prefix)]
+                    for kind, prefix in (('interior', 'interior_'), ('interfaces', 'interface_'), ('boundary', 'boundary_'))}
+        return render.field_png(sol['pieces'], sol['case'], view, q.get('cmap', ['inferno'])[0], flag(q, 'overlay', True), flag(q, 'iso'), num(q, 'vmin'), num(q, 'vmax'), sol['label'], collocation=collocation)
     if path == '/api/solution.png':
         sol = store.get(q['sid'][0])
         view = q.get('view', ['full'])[0]
@@ -446,6 +523,8 @@ def route_post(path, body):
         return dict(folder=casestore.make_folder(body['folder']))
     if path == '/api/run':
         return start_job(body)
+    if path == '/api/collocation-preview':
+        return collocation_preview(body)
     if path == '/api/run-settings':
         ref, settings = body.get('ref'), body.get('settings')
         if not isinstance(ref, str) or not ref or len(ref) > 512:

@@ -3,7 +3,7 @@
 ## Comando completo
 
 ```bash
-python -m pinn_v2 train --case xlpe_single --model M1 --adam-steps 6000 --lbfgs-steps 100 --lr 3e-3 --width 32 --depth 3 --activation tanh --seed 0 --sampling-seed 11 --weights dirichlet=100 interface_flux=10 --points n_interior=512 n_layer=256 n_face=128 n_boundary=128 --output results/runs/xlpe_m1
+python -m pinn_v2 train --case xlpe_single --model M1 --adam-steps 6000 --lbfgs-steps 100 --lr 3e-3 --width 32 --depth 3 --activation tanh --seed 0 --sampling-seed 11 --sampling interface --resample-every 500 --weights dirichlet=100 interface_flux=10 --points n_interior=512 n_layer=256 n_face=128 n_boundary=128 --output results/runs/xlpe_m1
 ```
 
 ## Parámetros
@@ -19,6 +19,9 @@ python -m pinn_v2 train --case xlpe_single --model M1 --adam-steps 6000 --lbfgs-
 | `--activation` | `tanh` | `tanh` o `silu` |
 | `--seed` | 0 | semilla de los pesos |
 | `--sampling-seed` | 11 | semilla de los puntos de colocación |
+| `--sampling` | `mixed` | `uniform`, `mixed` o `interface`; la última reserva la mitad de los puntos interiores a bandas próximas a interfaces |
+| `--resample-every` | 0 | renueva los puntos interiores cada N pasos Adam; 0 deja fija la nube. Las cuadraturas de caras/fronteras permanecen fijas |
+| `--deepxde-sampling` | `mixed` | Para `--model DeepXDE`: `pseudo`, `LHS`, `Halton`, `Hammersley` o `Sobol` genera anchors por región con los samplers de DeepXDE; `mixed` conserva el sampler previo del proyecto |
 | `--weights` | ver tabla de pérdidas | pares `termino=valor` |
 | `--points` | 512, 256, 128, 128 | `n_interior` (suelo), `n_layer` (capas), `n_face`, `n_boundary` |
 | `--reference` | ninguno | NPZ con `xy` y `T`; solo para evaluar |
@@ -69,4 +72,5 @@ Con las mismas tres y el mismo código, la corrida se repite en el mismo equipo.
 
 - Para depurar, usa pocos pasos (`--adam-steps 200`) y un caso pequeño como `mms_constant`.
 - Casos con muchas capas (Kim, 55 regiones) son pesados: reduce `n_layer`, `n_face` y `n_boundary`.
+- Si se remuestrea, el mejor `train_loss` se compara solo dentro de la última nube fija; `best_validation` usa una nube independiente fija para comparar toda la corrida.
 - Una pérdida baja no garantiza una buena temperatura. Mira la auditoría: saltos en interfaces y balance de energía.

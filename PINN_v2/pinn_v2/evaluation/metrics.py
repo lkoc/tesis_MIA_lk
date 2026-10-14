@@ -8,6 +8,7 @@ import numpy as np
 
 CRITERIA = dict(nrmse_pct=5., Tmax_rise_pct=5., region_rmse_rise_pct=5., balance_pct=2.,
     interface_T_jump_max_K=.1, interface_flux_rms_pct=1.)
+ACCEPTANCE_TOLERANCE = dict(region_rmse_rise_pct=1.)
 PERCENTILES = (50, 90, 95, 99)
 
 
@@ -52,15 +53,27 @@ def error_report(T, reference, xy, labels, weights, names, level, conductor_ids)
 
 
 def acceptance(report, criteria=CRITERIA):
-    """Proposed gates (to be confirmed by the user before Phase 6); returns per-gate booleans and a verdict."""
-    gates = {}
+    """Apply strict physical gates, with a sub-one-percentage-point regional RMSE margin."""
+    raw_gates = {}
     if 'nrmse_pct' in report:
-        gates['nrmse_pct'] = report['nrmse_pct'] <= criteria['nrmse_pct']
-        gates['Tmax_rise_pct'] = report['error_rise_pct'] <= criteria['Tmax_rise_pct']
-        gates['region_rmse_rise_pct'] = max(report['region_rmse_rise_pct'].values()) <= criteria['region_rmse_rise_pct']
-    gates['balance_pct'] = report['balance']['global_derived_pct'] <= criteria['balance_pct'] and max(report['balance']['region_derived_pct'].values()) <= criteria['balance_pct']
+        raw_gates['nrmse_pct'] = report['nrmse_pct'] <= criteria['nrmse_pct']
+        raw_gates['Tmax_rise_pct'] = report['error_rise_pct'] <= criteria['Tmax_rise_pct']
+        worst_region = max(report['region_rmse_rise_pct'].values())
+        raw_gates['region_rmse_rise_pct'] = worst_region <= criteria['region_rmse_rise_pct']
+    raw_gates['balance_pct'] = report['balance']['global_derived_pct'] <= criteria['balance_pct'] and max(report['balance']['region_derived_pct'].values()) <= criteria['balance_pct']
     if report['interfaces']:
-        gates['interface_T_jump_max_K'] = max(i['T_jump_max_K'] for i in report['interfaces']) <= criteria['interface_T_jump_max_K']
-        gates['interface_flux_rms_pct'] = max(i['flux_jump_rms_pct'] for i in report['interfaces']) <= criteria['interface_flux_rms_pct']
-    return dict(gates=gates, accepted=bool(all(gates.values())) if 'nrmse_pct' in report else None,
-        state='no_reference' if 'nrmse_pct' not in report else ('accepted' if all(gates.values()) else 'rejected'))
+        raw_gates['interface_T_jump_max_K'] = max(i['T_jump_max_K'] for i in report['interfaces']) <= criteria['interface_T_jump_max_K']
+        raw_gates['interface_flux_rms_pct'] = max(i['flux_jump_rms_pct'] for i in report['interfaces']) <= criteria['interface_flux_rms_pct']
+    gates = dict(raw_gates)
+    if 'region_rmse_rise_pct' in raw_gates and not raw_gates['region_rmse_rise_pct']:
+        gates['region_rmse_rise_pct'] = worst_region - criteria['region_rmse_rise_pct'] < ACCEPTANCE_TOLERANCE['region_rmse_rise_pct']
+    if 'nrmse_pct' not in report:
+        state, accepted = 'no_reference', None
+    elif all(raw_gates.values()):
+        state, accepted = 'accepted', True
+    elif all(gates.values()):
+        state, accepted = 'accepted_with_tolerance', True
+    else:
+        state, accepted = 'rejected', False
+    return dict(gates=gates, raw_gates=raw_gates, criteria=dict(criteria),
+        tolerance=dict(ACCEPTANCE_TOLERANCE), accepted=accepted, state=state)

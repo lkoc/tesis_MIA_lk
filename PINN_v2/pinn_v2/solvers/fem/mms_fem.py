@@ -23,6 +23,7 @@ from pinn_v2.cases.boundary import parse_annulus_boundary_conditions
 from pinn_v2.cases.definition import CaseDefinition, load_all
 from pinn_v2.solvers.fem.backend import UFLBackend
 from pinn_v2.manifest.provenance import archive_sources
+from pinn_v2.solvers.fem.mesh_resolution import mesh_size_factor, scaled_cells_per_side, validate_node_multiplier
 
 ROBIN_H = 10.0
 TOP_TAG, OTHER_TAG = 3, 1
@@ -40,7 +41,7 @@ def evaluate(function, xy, vector=False):
     return values if vector else values.reshape(-1)
 
 
-def solve_annulus(source_case, c, level, output):
+def solve_annulus(source_case, c, level, output, node_multiplier=1.):
     if MPI.COMM_WORLD.size != 1:
         raise ValueError('Reference currently requires one MPI rank')
     output = Path(output)
@@ -57,6 +58,8 @@ def solve_annulus(source_case, c, level, output):
                        outer=dict(type='dirichlet', temperature=dict(value=c['T0'], unit='degC')))
     conditions = parse_annulus_boundary_conditions(raw_bcs)
 
+    node_multiplier = validate_node_multiplier(node_multiplier)
+    size_factor = mesh_size_factor(node_multiplier)
     start = time.perf_counter()
     gmsh.initialize()
     try:
@@ -90,8 +93,8 @@ def solve_annulus(source_case, c, level, output):
         gmsh.model.mesh.field.setNumbers(distance, 'CurvesList', inner_curves)
         gmsh.model.mesh.field.setNumber(distance, 'Sampling', 256)
         threshold = gmsh.model.mesh.field.add('Threshold')
-        for key, value in [('InField', distance), ('SizeMin', c['ri'] / (3 * 2 ** level)),
-                           ('SizeMax', c['ro'] / (12 * 2 ** level)), ('DistMin', c['ri']),
+        for key, value in [('InField', distance), ('SizeMin', c['ri'] / (3 * 2 ** level) * size_factor),
+                   ('SizeMax', c['ro'] / (12 * 2 ** level) * size_factor), ('DistMin', c['ri']),
                            ('DistMax', c['ro'] / 4)]:
             gmsh.model.mesh.field.setNumber(threshold, key, value)
         gmsh.model.mesh.field.setAsBackgroundMesh(threshold)
@@ -133,7 +136,8 @@ def solve_annulus(source_case, c, level, output):
     outer_outflow = float(fem.assemble_scalar(fem.form(-kval * ufl.dot(ufl.grad(solution), normal) * ds(12))))
     net_outflow = inner_outflow + outer_outflow
     power = c['power']
-    record = dict(case=c['id'], kind='annulus', level=level, ndofs=V.dofmap.index_map.size_global, degree=2,
+    record = dict(case=c['id'], kind='annulus', level=level, node_multiplier=node_multiplier,
+        nominal_size_factor=size_factor, ndofs=V.dofmap.index_map.size_global, degree=2,
         l2_error_K=l2, h1_seminorm_error_K_per_m=h1,
         rmse_eval_K=float(np.sqrt(np.mean((values - truth) ** 2))),
         max_eval_error_K=float(np.max(np.abs(values - truth))),
@@ -149,12 +153,13 @@ def solve_annulus(source_case, c, level, output):
     return record
 
 
-def solve(source_case, level, output):
+def solve(source_case, level, output, node_multiplier=1.):
+    node_multiplier = validate_node_multiplier(node_multiplier)
     if MPI.COMM_WORLD.size != 1:
         raise ValueError('Reference currently requires one MPI rank')
     c = source_case.physical if isinstance(source_case, CaseDefinition) else source_case
     if c['kind'] == 'annulus':
-        return solve_annulus(source_case, c, level, output)
+        return solve_annulus(source_case, c, level, output, node_multiplier)
     if not c['kind'].startswith('mms'):
         raise ValueError('mms_fem solves manufactured cases only')
     start = time.perf_counter()
@@ -163,7 +168,7 @@ def solve(source_case, level, output):
     stem = f"{c['id']}_l{level}"
     if output.joinpath(stem + '.json').exists():
         raise FileExistsError('Use a new directory for a new reference run')
-    n = 16 * 2 ** level
+    n = scaled_cells_per_side(16 * 2 ** level, node_multiplier)
     msh = mesh.create_unit_square(MPI.COMM_WORLD, n, n)
     V = fem.functionspace(msh, ('Lagrange', 2))
     u, v, x = ufl.TrialFunction(V), ufl.TestFunction(V), ufl.SpatialCoordinate(msh)
@@ -202,7 +207,9 @@ def solve(source_case, level, output):
     normal = ufl.FacetNormal(msh)
     outflow = float(fem.assemble_scalar(fem.form(-k * ufl.dot(ufl.grad(solution), normal) * ds)))
     generated = float(fem.assemble_scalar(fem.form(q * dx)))
-    record = dict(case=c['id'], kind=c['kind'], level=level, cells_per_side=n, h=1.0 / n, ndofs=V.dofmap.index_map.size_global, degree=2,
+    record = dict(case=c['id'], kind=c['kind'], level=level, node_multiplier=node_multiplier,
+        nominal_size_factor=mesh_size_factor(node_multiplier), cells_per_side=n, h=1.0 / n,
+        ndofs=V.dofmap.index_map.size_global, degree=2,
         l2_error_K=l2, h1_seminorm_error_K_per_m=h1, max_nodal_error_K=float(np.max(np.abs(solution.x.array - nodal.x.array))),
         rmse_eval_K=float(np.sqrt(np.mean((values - truth) ** 2))), max_eval_error_K=float(np.max(np.abs(values - truth))),
         generated_W_m=generated, outflow_W_m=outflow, balance_pct=100 * abs(outflow - generated) / abs(generated),
@@ -235,6 +242,7 @@ def main():
     parser.add_argument('--case')
     parser.add_argument('--definition', type=Path)
     parser.add_argument('--levels', nargs='+', type=int, default=[0, 1, 2, 3])
+    parser.add_argument('--node-multiplier', type=float, default=1.0)
     parser.add_argument('--output', type=Path, required=True)
     arguments = parser.parse_args()
     if arguments.definition:
@@ -244,7 +252,7 @@ def main():
     else:
         parser.error('Give --case ID or --definition FILE')
     for level in arguments.levels:
-        solve(case, level, arguments.output)
+        solve(case, level, arguments.output, arguments.node_multiplier)
 
 
 if __name__ == '__main__':

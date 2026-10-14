@@ -108,7 +108,7 @@ def geometry_png(case, view='full', width=6.4):
         return to_png(fig)
 
 
-def field_png(pieces, case, view='full', cmap='inferno', overlay=True, isotherms=False, vmin=None, vmax=None, title='', width=7.2):
+def field_png(pieces, case, view='full', cmap='inferno', overlay=True, isotherms=False, vmin=None, vmax=None, title='', width=7.2, collocation=None):
     piece = pieces[view]
     T = piece['T']
     lo = np.nanmin(T) if vmin is None else vmin
@@ -119,6 +119,23 @@ def field_png(pieces, case, view='full', cmap='inferno', overlay=True, isotherms
         img = _image(ax, piece, T, cmap, lo, hi, isotherms)
         if overlay:
             draw_overlay(ax, case, piece['window'], layers=view == 'zoom')
+        if collocation:
+            x0, x1, y0, y1 = piece['window']
+            styles = dict(interior=('#38bdf8', 5), interfaces=('#f43f5e', 8), boundary=('#facc15', 8))
+            labels = dict(interior='Interior', interfaces='Interfaz', boundary='Frontera')
+            plotted = False
+            for kind, (color, size) in styles.items():
+                groups = collocation.get(kind, [])
+                if not groups:
+                    continue
+                xy = np.vstack(groups)
+                visible = ((xy[:, 0] >= x0) & (xy[:, 0] <= x1) & (xy[:, 1] >= y0) & (xy[:, 1] <= y1))
+                if visible.any():
+                    ax.scatter(xy[visible, 0], xy[visible, 1], s=size, c=color, alpha=0.68,
+                        edgecolors='#0f172a', linewidths=0.2, zorder=5, label=labels[kind])
+                    plotted = True
+            if plotted:
+                ax.legend(loc='upper right', fontsize=6, framealpha=0.8)
         _axes_style(ax, piece['window'])
         _colorbar(fig, ax, img, f'T ({DEG})')
         ax.set_title(title, fontsize=9)

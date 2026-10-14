@@ -46,7 +46,7 @@ function geoWindow(p, view) {
 const LAYER_FILL = ['#f59e0b', '#93c5fd', '#a7f3d0', '#fca5a5', '#ddd6fe', '#fde68a'];
 const BC_COLOR = { dirichlet: '#2563eb', neumann: '#64748b', robin: '#ea580c' };
 
-function geoSvg(doc, view) {
+function geoSvg(doc, view, collocation) {
   const p = doc.physical;
   const w = geoWindow(p, view);
   const sx = (w[1] - w[0]) || 1;
@@ -91,6 +91,18 @@ function geoSvg(doc, view) {
     edge('bottom', X(b[0]), Y(b[2]), X(b[1]), Y(b[2]));
     edge('left', X(b[0]), Y(b[3]), X(b[0]), Y(b[2]));
     edge('right', X(b[1]), Y(b[3]), X(b[1]), Y(b[2]));
+  }
+  if (collocation) {
+    const groups = [
+      ...(collocation.interior || []).map((item) => [item.xy, '#0284c7', 1.15]),
+      ...(collocation.interfaces || []).map((points) => [points, '#e11d48', 1.45]),
+      ...(collocation.boundary || []).map((points) => [points, '#ca8a04', 1.45])
+    ];
+    for (const [points, color, radius] of groups) for (const point of points) {
+      if (point[0] < w[0] || point[0] > w[1] || point[1] < w[2] || point[1] > w[3]) continue;
+      svg.appendChild(sv('circle', { cx: X(point[0]), cy: Y(point[1]), r: radius, fill: color,
+        stroke: '#ffffff', 'stroke-width': 0.45, opacity: 0.78 }));
+    }
   }
   svg.appendChild(sv('text', { x: 8, y: sy * k + 18, 'font-size': 9, fill: '#475569' }, `x ${fmt(w[0], 3)} .. ${fmt(w[1], 3)} m   y ${fmt(w[2], 3)} .. ${fmt(w[3], 3)} m`));
   return svg;

@@ -159,6 +159,7 @@ function monControls(job, which) {
     cable ? seg([['zoom', 'Cables'], ['full', 'Dominio']], R.view, (v) => { R.view = v; updateMon(R.job, true); }) : null,
     h('select', { style: 'width:auto', onchange: (e) => { R.cmap = e.target.value; updateMon(R.job, true); } }, ['inferno', 'viridis', 'magma', 'plasma', 'turbo', 'coolwarm', 'cividis'].map((c) => h('option', { value: c, selected: R.cmap === c }, c))),
     h('label', { class: 'chk' }, h('input', { type: 'checkbox', checked: R.overlay, onchange: (e) => { R.overlay = e.target.checked; updateMon(R.job, true); } }), cable ? 'Cables encima' : 'Fronteras e interfaces'),
+    job.kind === 'pinn' ? h('label', { class: 'chk' }, h('input', { type: 'checkbox', checked: R.showCollocation, onchange: (e) => { R.showCollocation = e.target.checked; updateMon(R.job, true); drawRunGeo(); } }), 'Puntos de colocacion') : null,
     h('label', { class: 'chk' }, h('input', { type: 'checkbox', checked: R.iso, onchange: (e) => { R.iso = e.target.checked; updateMon(R.job, true); } }), 'Isotermas'),
     sols.length > 1 ? h('div', { class: 'chips' }, sols.map((s) => h('span', { class: 'chip fem' + (which === s.variant ? ' on' : ''), onclick: () => { R.variant = s.variant; updateMon(R.job, true); } }, s.label))) : null);
 }
@@ -185,16 +186,18 @@ function updateMon(job, force) {
     if (sm.interface_T_jump_max_K !== undefined && sm.interface_T_jump_max_K !== null) boxes.push(statBox('salto T max. en interfaces (K)', fmt(sm.interface_T_jump_max_K, 4)));
   } else {
     boxes.push(statBox('niveles', (p.levels || []).join(', ')));
+    if (p.node_multiplier !== undefined) boxes.push(statBox('nodos objetivo', String(p.node_multiplier) + 'x'));
     if (sm.Tmax_C !== undefined) boxes.push(statBox('T maxima (C)', fmt(sm.Tmax_C, 3)), statBox('grados de libertad', String(sm.ndofs)));
     if (sm.last_change_pct_of_rise !== undefined && sm.last_change_pct_of_rise !== null) boxes.push(statBox('cambio ultimo nivel (% del salto)', fmt(sm.last_change_pct_of_rise, 3)));
   }
   mount(M.stats, boxes);  const which = monImage(job);
-  const sig = [job.status, (job.solutions || []).length, which, R.view, R.cmap, R.overlay, R.iso].join('|');
+  const sig = [job.status, (job.solutions || []).length, which, R.view, R.cmap, R.overlay, R.showCollocation, R.iso].join('|');
   if (force || sig !== M.sig) { M.sig = sig; monControls(job, which); }
-  const key = [job.id, which, R.view, R.cmap, R.overlay, R.iso, which === 'live' ? job.live_step : 'x'].join('|');
+  const key = [job.id, which, R.view, R.cmap, R.overlay, R.showCollocation, R.iso, which === 'live' ? job.live_step : 'x'].join('|');
   if (which && key !== M.imgKey) {
     M.imgKey = key;
-    M.img.src = '/api/job/' + job.id + '/image.png?' + qs({ which, view: R.view, cmap: R.cmap, overlay: R.overlay ? 1 : 0, iso: R.iso ? 1 : 0, k: key.length + '_' + (job.live_step || 0) });
+    M.img.src = '/api/job/' + job.id + '/image.png?' + qs({ which, view: R.view, cmap: R.cmap, overlay: R.overlay ? 1 : 0,
+      points: R.showCollocation ? 1 : 0, iso: R.iso ? 1 : 0, k: key.length + '_' + (job.live_step || 0) });
     clear(M.cap);
     add(M.cap, [live ? h('span', { class: 'livedot' }) : null, which === 'live' ? 'Campo en vivo' + (job.live_step === undefined || job.live_step === null ? ' (primera foto en camino)' : ' (paso ' + job.live_step + ')') : ((job.solutions || []).find((s) => s.variant === which) || {}).label || which]);
   }

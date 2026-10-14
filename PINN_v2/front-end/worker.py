@@ -104,6 +104,7 @@ def run_pinn(folder, job, case_doc, progress):
         width=int(p.get('width', 32)), depth=int(p.get('depth', 3)), activation=p.get('activation', 'tanh'), weights=p.get('weights') or None, points=p.get('points') or None,
         init_seed=int(p.get('init_seed', 0)), sampling_seed=int(p.get('sampling_seed', 11)), log_every=int(p.get('log_every', 20)), attention=attention,
         deepxde_model=p.get('deepxde_model', 'PFNN'),
+        deepxde_sampling=p.get('deepxde_sampling', 'mixed'),
         initial_state=initial_state,
         study='front-end', command=['front-end', 'worker', str(folder)], on_log=on_log)
     folder.joinpath('run', 'case.json').write_text(json.dumps(case_doc), encoding='utf-8')
@@ -125,6 +126,7 @@ def run_pinn(folder, job, case_doc, progress):
 def run_fem(folder, job, case_doc, progress):
     from pinn_v2.cases.definition import CaseDefinition
     from pinn_v2.solvers.fem import adapter
+    from pinn_v2.solvers.fem.mesh_resolution import validate_node_multiplier
     definition = CaseDefinition.from_dict(case_doc)
     from pinn_v2.solvers.pinn.problem import load_problem
     problem = load_problem(definition)
@@ -134,7 +136,10 @@ def run_fem(folder, job, case_doc, progress):
     verification = domain is None
     case_path = folder.joinpath('case.json')
     levels = [int(v) for v in job['params'].get('levels', [0, 1])]
-    progress.update(total_steps=len(levels), phase='FEM (WSL2)', force=True)
+    node_multiplier = validate_node_multiplier(job['params'].get('node_multiplier', 1.0))
+    refinement_preset = job['params'].get('refinement_preset', 'manual')
+    progress.update(total_steps=len(levels), phase='FEM (WSL2)', node_multiplier=node_multiplier,
+        refinement_preset=refinement_preset, force=True)
     out = folder.joinpath('grids')
     out.mkdir(exist_ok=True)
     rows, solutions = [], []
@@ -142,11 +147,13 @@ def run_fem(folder, job, case_doc, progress):
         progress.update(step=done, phase=f'FEM nivel {level}: mallando y resolviendo', force=True)
         started = time.time()
         if verification:
-            record = adapter.run_mms_fem(folder.joinpath('fem'), levels=[level], definition=case_path)[0]
+            record = adapter.run_mms_fem(folder.joinpath('fem'), levels=[level], definition=case_path,
+                node_multiplier=node_multiplier)[0]
             npz_path = folder.joinpath('fem', f'{case["id"]}_l{level}.npz')
             pieces = grids.build_verification_fem(npz_path, problem)
         else:
-            record = adapter.run_cable_fem(folder.joinpath('fem'), [level], definition=case_path)[0]
+            record = adapter.run_cable_fem(folder.joinpath('fem'), [level], definition=case_path,
+                node_multiplier=node_multiplier)[0]
             npz_path = folder.joinpath('fem', f'fem_l{level}.npz')
             pieces = grids.build_fem(npz_path, domain, case)
         grids.save(out.joinpath(f'l{level}.npz'), pieces, names, dict(kind='fem', label=f'FEM nivel {level}', physics_sha256=record.get('physics_sha256')))
@@ -155,14 +162,17 @@ def run_fem(folder, job, case_doc, progress):
         swap_in(tmp, folder.joinpath('live_grid.npz'))
         tmax = float(np.nanmax(pieces['zoom']['T']))
         rows.append(dict(level=level, ndofs=record.get('ndofs'), Tmax_C=record.get('Tmax_C', tmax),
-                 l2_error_K=record.get('l2_error_K'), balance_pct=record.get('balance_pct'), elapsed_s=time.time() - started))
+                 l2_error_K=record.get('l2_error_K'), balance_pct=record.get('balance_pct'),
+                 node_multiplier=node_multiplier, elapsed_s=time.time() - started))
         solutions.append(dict(variant=f'l{level}', label=f'FEM nivel {level}'))
         progress.update(step=done + 1, levels=rows, solutions=solutions, live_step=level, force=True)
     change = None
     if len(rows) > 1:
         rise = rows[-1]['Tmax_C'] - case['T0']
         change = 100 * abs(rows[-1]['Tmax_C'] - rows[-2]['Tmax_C']) / rise if rise else None
-    progress.update(status='done', phase='terminado', summary=dict(Tmax_C=rows[-1]['Tmax_C'], ndofs=rows[-1]['ndofs'], last_change_pct_of_rise=change), force=True)
+    progress.update(status='done', phase='terminado', summary=dict(Tmax_C=rows[-1]['Tmax_C'],
+        ndofs=rows[-1]['ndofs'], node_multiplier=node_multiplier, refinement_preset=refinement_preset,
+        last_change_pct_of_rise=change), force=True)
 
 
 def main():

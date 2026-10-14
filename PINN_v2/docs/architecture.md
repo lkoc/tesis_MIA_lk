@@ -27,7 +27,7 @@ results/                    una carpeta por corrida; nunca se sobrescribe
 1. `load_problem(fuente)` lee el caso (id o archivo JSON) y construye el `Problem`: regiones, conductividades, fuentes, caras de interfaz y tramos de frontera.
 2. `build_model(problem, arquitectura, ancho, profundidad, activación)` crea la red.
 3. `Objective` genera los puntos de colocación (con su propia semilla) y calcula los términos de pérdida.
-4. `trainer.fit` aplica Adam con decaimiento coseno y luego L-BFGS opcional; se restaura el mejor estado finito.
+4. `trainer.fit` aplica Adam con decaimiento coseno y luego L-BFGS opcional. Si la nube interior es fija, restaura el menor loss de entrenamiento; con remuestreo, el mínimo se reinicia por nube y la validación física fija se conserva para comparar toda la corrida.
 5. `evaluate_model` hace la auditoría independiente con puntos nuevos y, si hay referencia, el reporte de errores.
 6. `trainer.run` escribe los archivos de la corrida y el manifest.
 

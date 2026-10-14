@@ -16,10 +16,35 @@ from torch import nn
 from pinn_v2.solvers.pinn.networks import PINNModel, mlp
 
 WINDOW_SHARPNESS = 0.02
+CUSP_OUTPUT_INIT_GAIN = 3e-3
+
+
+def _cusp_interface_scales(problem, fallback):
+    domain = getattr(problem, 'domain', None)
+    if domain is not None:
+        scales = []
+        for interface in domain.interfaces:
+            adjacent = (problem.regions[interface.left], problem.regions[interface.right])
+            widths = []
+            for region in adjacent:
+                if interface.radius:
+                    width = fallback if region.kind == 'soil' else region.ro - region.ri
+                else:
+                    width = region.upper - region.lower
+                    if not np.isfinite(width):
+                        width = fallback
+                widths.append(float(width))
+            scales.append(min(widths))
+        return tuple(scales)
+
+    interface_info = getattr(problem, 'interface_info', ())
+    return tuple(min(problem.regions[index].upper - problem.regions[index].lower,
+                     problem.regions[index + 1].upper - problem.regions[index + 1].lower)
+                 for index in range(len(interface_info)))
 
 
 class CuspModel(PINNModel):
-    """Cusp-capturing variant of M0: same single network, extra features |d_j| for every material interface."""
+    """Cusp-capturing global net with bounded, locally scaled one-sided interface features."""
     kind = 'faithful_to_idea_adapted'
 
     def __init__(self, problem, architecture='CUSP', width=32, depth=3, activation='tanh'):
@@ -29,7 +54,10 @@ class CuspModel(PINNModel):
         base_size = problem.input_size(problem.regions[0], 'global')
         x0, x1, y0, y1 = problem.bounds
         self.length = 0.5 * max(x1 - x0, y1 - y0)
+        self.interface_scales = _cusp_interface_scales(problem, self.length)
         self.networks = nn.ModuleList([mlp(base_size + extra, width, depth, 1, activation)])
+        with torch.no_grad():
+            self.networks[0][-1].weight.mul_(CUSP_OUTPUT_INIT_GAIN)
         self.offsets = nn.ParameterList([nn.Parameter(torch.zeros(()))])
         self.signs = {}
         for region in problem.regions:
@@ -39,7 +67,9 @@ class CuspModel(PINNModel):
     def features(self, region, xy):
         d = self.problem.level_sets(xy)
         sign = self.signs[region.id].to(dtype=d.dtype, device=d.device)
-        return torch.cat([self.problem.coordinates(region, xy, self.partition), sign * d / self.length], dim=1)
+        scale = xy.new_tensor(self.interface_scales)
+        level_features = torch.tanh(sign * d / scale)
+        return torch.cat([self.problem.coordinates(region, xy, self.partition), level_features], dim=1)
 
     def field(self, region, xy):
         raw = self.networks[0](self.features(region, xy))

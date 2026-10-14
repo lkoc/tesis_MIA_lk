@@ -36,6 +36,8 @@ def main():
     parser.add_argument("--depth", type=int, default=3)
     parser.add_argument("--activation", choices=("tanh", "silu"), default="tanh")
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--full-audit", action="store_true",
+        help="Include PDE, boundary, interface, and energy-balance audits")
     args = parser.parse_args()
 
     checkpoint = args.checkpoint.resolve()
@@ -51,7 +53,7 @@ def main():
     model.load_state_dict(state)
     model.eval()
 
-    report, arrays = evaluate_model(model, reference, "FEniCS level-2 FEM", include_audit=False)
+    report, arrays = evaluate_model(model, reference, "FEniCS level-2 FEM", include_audit=args.full_audit)
     temperatures_finite = bool(np.isfinite(arrays["T"]).all())
     parameters_finite = all(bool(torch.isfinite(value).all()) for value in model.state_dict().values())
     result = dict(
@@ -64,7 +66,7 @@ def main():
         case=problem.name,
         physics_sha256=problem.physics_sha256,
         reference=str(args.reference.resolve()),
-        full_audit_run=False,
+        full_audit_run=args.full_audit,
         parameters_finite=parameters_finite,
         temperatures_finite=temperatures_finite,
         evaluation=report,

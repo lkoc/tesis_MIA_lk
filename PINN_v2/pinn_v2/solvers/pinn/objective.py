@@ -34,13 +34,16 @@ class Objective:
     def __init__(self, model, n_interior=512, n_layer=256, n_face=128, n_boundary=128, seed=11, sampling='mixed', weights=None, attention=None):
         self.model = model
         self.problem = problem = model.problem
+        self.seed = int(seed)
+        self.sampling = sampling
+        self.counts = {r.id: n_interior if r.kind == 'soil' else n_layer for r in problem.regions}
         self.weights = dict(DEFAULT_WEIGHTS, **(weights or {}))
         unknown = set(self.weights) - set(TERMS)
         if unknown or any(not np.isfinite(v) or v < 0 for v in self.weights.values()):
             raise ValueError(f'Invalid objective weights: {sorted(unknown)}')
         reference = next(model.parameters())
         self.tensor = lambda a: torch.as_tensor(np.asarray(a), dtype=reference.dtype, device=reference.device).clone().detach().requires_grad_(True)
-        self.interior = {r.id: self.tensor(problem.sample_interior(r, n_interior if r.kind == 'soil' else n_layer, seed + 7919 * r.id, sampling))
+        self.interior = {r.id: self.tensor(problem.sample_interior(r, self.counts[r.id], seed + 7919 * r.id, sampling))
                          for r in problem.regions}
         self.sources = {r.id: problem.source(r, self.interior[r.id]).detach() for r in problem.regions}
         self.faces = [(f, self.tensor(f.xy), self.tensor(f.normal)) for f in problem.faces(n_face)]
@@ -48,6 +51,24 @@ class Objective:
         self.attention = None if attention is None else Attention(attention,
             {r.name: len(self.interior[r.id]) for r in problem.regions}, device=reference.device)
         self.residuals = {}
+        self.resampling_count = 0
+
+    def resample(self, seed=None):
+        """Refresh fixed-size interior clouds without changing boundary/interface quadrature."""
+        seed = self.seed + (self.resampling_count + 1) * 1_000_003 if seed is None else int(seed)
+        self.interior = {region.id: self.tensor(self.problem.sample_interior(
+            region, self.counts[region.id], seed + 7919 * region.id, self.sampling))
+            for region in self.problem.regions}
+        self.sources = {region.id: self.problem.source(region, self.interior[region.id]).detach()
+            for region in self.problem.regions}
+        if self.attention is not None:
+            self.attention = Attention(self.attention.kind,
+                {region.name: self.counts[region.id] for region in self.problem.regions},
+                device=next(self.model.parameters()).device,
+                rate=self.attention.rate, decay=self.attention.decay)
+        self.residuals = {}
+        self.resampling_count += 1
+        return seed
 
     def update_attention(self):
         if self.attention is not None:

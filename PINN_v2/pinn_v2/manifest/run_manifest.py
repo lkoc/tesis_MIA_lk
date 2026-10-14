@@ -25,6 +25,21 @@ def write_json_atomic(path, payload):
     return path
 
 
+def replace_json_atomic(path, payload):
+    """Atomically replace a mutable JSON file using a temporary in the same directory."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    handle, name = tempfile.mkstemp(dir=path.parent, suffix='.tmp')
+    try:
+        with os.fdopen(handle, 'w', encoding='utf-8') as file:
+            json.dump(payload, file, indent=2, sort_keys=True)
+        os.replace(name, path)
+    finally:
+        if os.path.exists(name):
+            os.unlink(name)
+    return path
+
+
 def git_state(root=None):
     root = Path(root or PACKAGE.parents[1])
 

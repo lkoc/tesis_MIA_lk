@@ -1,10 +1,17 @@
 'use strict';
 // Pestana Ejecucion (1/2): que caso, que metodo y con que parametros.
 
-const R = { src: 'current', doc: null, check: null, kind: 'pinn', arch: 'M1', preset: 'rapido', p: null, levels: [0, 1], threads: 2, liveEvery: 4, geoView: 'full',
-  view: 'zoom', cmap: 'inferno', iso: false, overlay: true, jobId: null, job: null, variant: null, timer: null, busy: false, pointMultiplier: 1, deepxdeModel: 'PFNN', settingsKey: null, continueFrom: false, resumeJobId: null };
+const R = { src: 'current', doc: null, check: null, kind: 'pinn', arch: 'M1', preset: 'rapido', p: null, levels: [0, 1], femPreset: 'medio', nodeMultiplier: 1, threads: 2, liveEvery: 4, geoView: 'full',
+  view: 'zoom', cmap: 'inferno', iso: false, overlay: true, showCollocation: false, collocationCache: null, collocationRequest: 0, geoRequest: 0,
+  jobId: null, job: null, variant: null, timer: null, busy: false, pointMultiplier: 1, deepxdeModel: 'PFNN', deepxdeSampling: 'mixed', settingsKey: null, continueFrom: false, resumeJobId: null };
 
 const POINT_MULTIPLIERS = [0.5, 1, 1.5, 2, 3, 4];
+const FEM_REFINEMENT_PRESETS = { bajo: [0], medio: [0, 1], alto: [0, 1, 2] };
+const FEM_NODE_MULTIPLIERS = [1, 1.5, 2, 3];
+
+function femPresetForLevels(levels) {
+  return Object.keys(FEM_REFINEMENT_PRESETS).find((name) => JSON.stringify(FEM_REFINEMENT_PRESETS[name]) === JSON.stringify(levels)) || 'manual';
+}
 
 function scaledPointCounts(points, multiplier) {
   return Object.fromEntries(Object.entries(points).map(([key, count]) => [key, Math.max(1, Math.round(Number(count) * multiplier))]));
@@ -49,6 +56,7 @@ function applyPreviousRunParameters(job) {
   R.kind = 'pinn';
   if (S.options.architectures.some((item) => item.id === params.architecture)) R.arch = params.architecture;
   R.deepxdeModel = params.deepxde_model || 'PFNN';
+  R.deepxdeSampling = params.deepxde_sampling || 'mixed';
   R.preset = 'custom';
   const base = presetParams('rapido');
   R.p = Object.assign(base, params);
@@ -64,7 +72,7 @@ function applyPreviousRunParameters(job) {
 
 function resetRunSettings() {
   R.kind = 'pinn'; R.arch = 'M1'; R.preset = 'rapido'; R.p = presetParams('rapido');
-  R.levels = [0, 1]; R.threads = 2; R.liveEvery = 4; R.pointMultiplier = 1; R.deepxdeModel = 'PFNN';
+  R.levels = [0, 1]; R.femPreset = 'medio'; R.nodeMultiplier = 1; R.threads = 2; R.liveEvery = 4; R.pointMultiplier = 1; R.deepxdeModel = 'PFNN'; R.deepxdeSampling = 'mixed'; R.collocationCache = null;
 }
 
 function applyRunSettings(settings) {
@@ -79,15 +87,21 @@ function applyRunSettings(settings) {
   }
   if (Array.isArray(settings.levels)) R.levels = settings.levels.filter((level) => [0, 1, 2, 3].includes(level));
   if (!R.levels.length) R.levels = [0, 1];
+  if (Object.hasOwn(FEM_REFINEMENT_PRESETS, settings.femPreset)) R.femPreset = settings.femPreset;
+  else R.femPreset = femPresetForLevels(R.levels);
+  if (FEM_NODE_MULTIPLIERS.includes(Number(settings.nodeMultiplier))) R.nodeMultiplier = Number(settings.nodeMultiplier);
   if (Number.isFinite(settings.threads)) R.threads = settings.threads;
   if (Number.isFinite(settings.liveEvery)) R.liveEvery = settings.liveEvery;
   if (POINT_MULTIPLIERS.includes(Number(settings.pointMultiplier))) R.pointMultiplier = Number(settings.pointMultiplier);
   if (S.options.deepxde_models.some((item) => item.id === settings.deepxdeModel)) R.deepxdeModel = settings.deepxdeModel;
+  if ((S.options.deepxde_samplers || []).some((item) => item.id === settings.deepxdeSampling)) R.deepxdeSampling = settings.deepxdeSampling;
 }
 
 function currentRunSettings() {
   return { kind: R.kind, arch: R.arch, preset: R.preset, p: clone(R.p), levels: R.levels.slice(),
-    threads: R.threads, liveEvery: R.liveEvery, pointMultiplier: R.pointMultiplier, deepxdeModel: R.deepxdeModel };
+    femPreset: R.femPreset, nodeMultiplier: R.nodeMultiplier,
+    threads: R.threads, liveEvery: R.liveEvery, pointMultiplier: R.pointMultiplier, deepxdeModel: R.deepxdeModel,
+    deepxdeSampling: R.deepxdeSampling };
 }
 
 function previousPinRunsForCase() {
@@ -119,6 +133,7 @@ async function loadPreviousRun(job) {
 
 async function loadRunCase() {
   R.check = null;
+  R.collocationCache = null;
   try {
     if (R.src === 'current') {
       if (!S.doc) { R.src = ''; R.doc = null; drawRunLeft(); drawRunGeo(); return; }
@@ -167,7 +182,55 @@ function enterRun() {
 
 function rnum(label, obj, key, step, hint) {
   return h('label', { class: 'f' }, h('span', {}, label, hint ? h('span', { class: 'hint' }, ' ' + hint) : null),
-    h('input', { type: 'number', step: step || 'any', value: obj[key], onchange: (e) => { const v = parseFloat(e.target.value); if (!Number.isNaN(v)) obj[key] = v; R.preset = 'custom'; if (obj === R.p && (key === 'width' || key === 'depth')) drawRunLeft(); } }));
+    h('input', { type: 'number', step: step || 'any', value: obj[key], onchange: (e) => {
+      const v = parseFloat(e.target.value);
+      if (!Number.isNaN(v)) obj[key] = v;
+      R.preset = 'custom';
+      if (obj === R.p && (key === 'width' || key === 'depth')) drawRunLeft();
+      if (obj === R.p.points) { R.collocationCache = null; drawRunLeft(); if (R.showCollocation) drawRunGeo(); }
+    } }));
+}
+
+function pinnRunParams() {
+  const params = Object.assign({ architecture: R.arch }, clone(R.p));
+  params.points = scaledPointCounts(params.points, R.pointMultiplier);
+  if (R.arch === 'DeepXDE') {
+    params.deepxde_model = R.deepxdeModel;
+    params.deepxde_sampling = R.deepxdeSampling;
+    params.attention = '';
+    params.weights.constitutive = 0;
+  }
+  return params;
+}
+
+function collocationKey(params) {
+  return JSON.stringify([R.check && R.check.summary && R.check.summary.sha256, params]);
+}
+
+async function requestCollocationPreview(includePoints) {
+  if (!R.doc || !R.check || !R.check.ok || R.kind !== 'pinn') return null;
+  const params = pinnRunParams();
+  const key = collocationKey(params);
+  if (R.collocationCache && R.collocationCache.key === key && (!includePoints || R.collocationCache.points)) return R.collocationCache;
+  const result = await post('/api/collocation-preview', { doc: R.doc, params, include_points: includePoints });
+  if (collocationKey(pinnRunParams()) !== key) return null;
+  R.collocationCache = Object.assign({ key }, result);
+  return R.collocationCache;
+}
+
+async function refreshCollocationSummary() {
+  const node = $('#collocationSummary');
+  if (!node || R.kind !== 'pinn' || !R.check || !R.check.ok) return;
+  const key = collocationKey(pinnRunParams());
+  node.textContent = 'Calculando total de puntos...';
+  try {
+    const result = await requestCollocationPreview(false);
+    if (!result || !node.isConnected || key !== collocationKey(pinnRunParams())) return;
+    const summary = result.summary;
+    node.textContent = `Total previsto: ${summary.total_points.toLocaleString('es-PE')} puntos (${summary.interior_points.toLocaleString('es-PE')} interiores, ${summary.interface_points.toLocaleString('es-PE')} interfaces, ${summary.boundary_points.toLocaleString('es-PE')} frontera).`;
+  } catch (error) {
+    if (node.isConnected) node.textContent = 'No se pudo calcular el total: ' + error.message;
+  }
 }
 
 function archCard(a) {
@@ -185,11 +248,16 @@ function pinnParams() {
   const P = R.p;
   const chips = Object.keys(o.presets).map((k) => h('span', { class: 'chip' + (R.preset === k ? ' on' : ''), onclick: () => { R.preset = k; R.p = presetParams(k); drawRunLeft(); } }, o.presets[k].title));
   const w = o.weights;
-  const internalModel = R.arch === 'DeepXDE' ? h('label', { class: 'f' }, h('span', {}, 'Red interna de DeepXDE'),
-    h('select', { value: R.deepxdeModel, onchange: (e) => { R.deepxdeModel = e.target.value; drawRunLeft(); } }, o.deepxde_models.map((model) => h('option', { value: model.id, selected: R.deepxdeModel === model.id }, model.title)))) : null;
+  const internalModel = R.arch === 'DeepXDE' ? h('div', { class: 'grid2' },
+    h('label', { class: 'f' }, h('span', {}, 'Red interna'),
+      h('select', { value: R.deepxdeModel, onchange: (e) => { R.deepxdeModel = e.target.value; R.collocationCache = null; drawRunLeft(); if (R.showCollocation) drawRunGeo(); } },
+        o.deepxde_models.map((model) => h('option', { value: model.id, selected: R.deepxdeModel === model.id }, model.title)))),
+    h('label', { class: 'f' }, h('span', {}, 'Muestreador DeepXDE'),
+      h('select', { value: R.deepxdeSampling, onchange: (e) => { R.deepxdeSampling = e.target.value; R.collocationCache = null; drawRunLeft(); if (R.showCollocation) drawRunGeo(); } },
+        (o.deepxde_samplers || []).map((sampler) => h('option', { value: sampler.id, selected: R.deepxdeSampling === sampler.id }, sampler.title))))) : null;
   return [internalModel, h('div', { class: 'chips' }, chips, R.preset === 'custom' ? h('span', { class: 'chip on' }, 'Personalizado') : null),
     h('div', { class: 'point-scale' },
-      h('label', { class: 'f' }, h('span', {}, 'Multiplicador de puntos'), h('select', { value: String(R.pointMultiplier), onchange: (e) => { R.pointMultiplier = Number(e.target.value); drawRunLeft(); } },
+      h('label', { class: 'f' }, h('span', {}, 'Multiplicador de puntos'), h('select', { value: String(R.pointMultiplier), onchange: (e) => { R.pointMultiplier = Number(e.target.value); R.collocationCache = null; drawRunLeft(); if (R.showCollocation) drawRunGeo(); } },
         POINT_MULTIPLIERS.map((value) => h('option', { value: String(value), selected: R.pointMultiplier === value }, value + 'x')))),
       h('span', { class: 'sub' }, 'Escala los cuatro conteos al iniciar.')),
     h('div', { class: 'grid2', style: 'margin-top:8px' }, rnum('Pasos Adam', P, 'adam_steps', 100), rnum('Pasos L-BFGS', P, 'lbfgs_steps', 10, P.attention ? '(0 con atencion)' : ''),
@@ -201,7 +269,20 @@ function pinnParams() {
           R.arch === 'DeepXDE' ? null : h('label', { class: 'f' }, h('span', {}, 'Atencion'), h('select', { onchange: (e) => { P.attention = e.target.value; if (P.attention) P.lbfgs_steps = 0; drawRunLeft(); } }, o.attention.map((a) => h('option', { value: a.id, selected: P.attention === a.id }, a.title)))),
           rnum('Semilla de la red', P, 'init_seed', 1), rnum('Semilla del muestreo', P, 'sampling_seed', 1), rnum('Registrar cada N pasos', P, 'log_every', 5)),
         h('h4', {}, 'Pesos de la perdida'), h('div', { class: 'grid2' }, Object.keys(w).filter((k) => R.arch !== 'DeepXDE' || k !== 'constitutive').map((k) => rnum(k, P.weights, k, 'any'))),
-        h('h4', {}, 'Puntos de muestreo'), h('div', { class: 'grid2' }, Object.keys(P.points).map((k) => rnum(k, P.points, k, 8))),
+        h('h4', {}, 'Puntos de colocacion'), h('div', { class: 'grid2' }, Object.keys(P.points).filter((key) => {
+          if (key === 'n_layer') return R.doc && R.doc.physical && R.doc.physical.kind === 'cable';
+          if (key === 'n_face') return !R.check || !R.check.summary || R.check.summary.regions > 1;
+          return true;
+        }).map((key) => {
+          const labels = {
+            n_interior: ['Puntos interiores por region base', 'Por cada region fuera de las capas de cable'],
+            n_layer: ['Interiores por capa de cable', 'Por cada conductor y capa'],
+            n_face: ['Puntos por interfaz', 'Por cada interfaz material'],
+            n_boundary: ['Puntos por tramo de frontera', 'Por cada pieza de frontera']
+          };
+          return rnum(labels[key][0], P.points, key, 8, labels[key][1]);
+        })),
+        h('p', { class: 'sub', id: 'collocationSummary' }, 'Calculando total de puntos...'),
         h('p', { class: 'sub' }, 'Los pesos y los puntos son solo hiperparametros del entrenamiento; ninguna referencia (FEM o articulo) entra como dato de entrenamiento.')))];
 }
 
@@ -209,10 +290,25 @@ function femParams() {
   const chips = [0, 1, 2, 3].map((l) => h('span', { class: 'chip fem' + (R.levels.includes(l) ? ' on' : ''), onclick: () => {
     R.levels = R.levels.includes(l) ? R.levels.filter((x) => x !== l) : R.levels.concat([l]).sort();
     if (!R.levels.length) R.levels = [l];
+    R.femPreset = femPresetForLevels(R.levels);
     drawRunLeft();
   } }, 'Nivel ' + l));
-  return [h('p', { class: 'sub' }, 'FEniCSx (WSL2): elementos P2 sobre una malla de triangulos. Cada nivel refina mas la malla; con dos niveles se ve como converge la solucion.'), h('div', { class: 'chips' }, chips),
-    h('p', { class: 'sub' }, 'Tiempo orientativo: niveles 0-1 en segundos; nivel 3 puede tardar varios minutos.')];
+  const presets = Object.entries(FEM_REFINEMENT_PRESETS).map(([name, levels]) => h('button', {
+    class: R.femPreset === name ? 'on' : '', title: 'Ejecuta los niveles ' + levels.join(', '),
+    onclick: () => { R.femPreset = name; R.levels = levels.slice(); drawRunLeft(); }
+  }, name[0].toUpperCase() + name.slice(1)));
+  const multipliers = FEM_NODE_MULTIPLIERS.map((value) => h('button', {
+    class: R.nodeMultiplier === value ? 'on' : '',
+    onclick: () => { R.nodeMultiplier = value; drawRunLeft(); }
+  }, value + 'x'));
+  return [
+    h('p', { class: 'sub' }, 'FEniCSx (WSL2), elementos P2. Los presets ejecutan una escalera de niveles para comparar refinamiento.'),
+    h('label', { class: 'f' }, h('span', {}, 'Refinamiento'), h('div', { class: 'seg' }, presets,
+      R.femPreset === 'manual' ? h('span', { class: 'chip fem on' }, 'Manual') : null)),
+    h('div', { class: 'chips' }, chips),
+    h('label', { class: 'f' }, h('span', {}, 'Densidad nodal objetivo'), h('div', { class: 'seg' }, multipliers)),
+    h('p', { class: 'sub' }, '1,5x / 2x / 3x escala aproximadamente los DOFs objetivo; el FEM informa los grados de libertad reales. Nivel 3 o multiplicadores altos pueden tardar más y usar más memoria.')
+  ];
 }
 function drawRunLeft() {
   const box = $('#runLeft');
@@ -235,7 +331,7 @@ function drawRunLeft() {
         R.kind === 'pinn' ? h('label', { class: 'chk', title: previousRun ? 'Usa los pesos de ' + previousRun.id + '; se reinicia el optimizador.' : (priorRuns.length ? 'Carga los parámetros y el caso original desde una corrida con checkpoint compatible.' : 'No hay un checkpoint compatible para este caso y esta arquitectura.') },
           h('input', { type: 'checkbox', checked: R.continueFrom, disabled: !previousRun || R.busy, onchange: (e) => { R.continueFrom = e.target.checked; } }),
           'Continuar desde la solución anterior') : null,
-        h('button', { class: 'btn sec run-reset', onclick: () => { R.preset = R.preset === 'custom' ? 'rapido' : R.preset; R.p = presetParams(R.preset); R.pointMultiplier = 1; drawRunLeft(); } }, 'Restablecer')),
+        h('button', { class: 'btn sec run-reset', onclick: () => { R.preset = R.preset === 'custom' ? 'rapido' : R.preset; R.p = presetParams(R.preset); R.pointMultiplier = 1; R.femPreset = 'medio'; R.levels = FEM_REFINEMENT_PRESETS.medio.slice(); R.nodeMultiplier = 1; drawRunLeft(); } }, 'Restablecer')),
       why ? h('p', { class: 'sub run-why' }, why) : null),
     h('label', { class: 'f' }, h('span', {}, '1. Caso'), h('select', { onchange: (e) => { R.src = e.target.value; loadRunCase(); } }, h('option', { value: '', selected: !R.src }, '- elige -'), runCaseOptions())),
     c ? h('div', { class: 'row', style: 'margin:6px 0' }, c.ok ? badge('valido', 'ok') : badge('no valido', 'bad'), c.pinn.supported ? badge('PINN', 'pinn') : null, c.fem.supported ? badge('FEM', 'fem') : null,
@@ -247,17 +343,31 @@ function drawRunLeft() {
     h('div', { class: 'archs' }, archs),
     h('div', { style: 'margin-top:10px' }, h('label', { class: 'f' }, h('span', {}, '3. Parametros')), R.kind === 'fem' ? femParams() : pinnParams()),
     h('div', { class: 'grid2', style: 'margin-top:8px' }, rnum('Hilos de CPU', R, 'threads', 1, '(1-8)'), rnum('Foto en vivo cada (s)', R, 'liveEvery', 1)));
+  refreshCollocationSummary();
 }
 
-function drawRunGeo() {
+async function drawRunGeo() {
   const box = $('#runGeo');
   if (!box) return;
   const kind = R.doc && R.doc.physical && R.doc.physical.kind;
   if (!kind || (kind !== 'cable' && kind !== 'annulus' && !kind.startsWith('mms'))) { mount(box, h('div', { class: 'muted small' }, 'Este tipo de caso no tiene vista geometrica.')); return; }
+  const request = ++R.geoRequest;
+  let preview = null;
+  if (R.kind === 'pinn' && R.showCollocation) {
+    try { preview = await requestCollocationPreview(true); }
+    catch (error) { toast('No se pudieron cargar los puntos de colocacion: ' + error.message, 'bad'); }
+  }
+  if (request !== R.geoRequest || !box.isConnected) return;
   let svg;
-  try { svg = geoSvg(R.doc, R.geoView); } catch (e) { mount(box, h('div', { class: 'muted small' }, 'No se puede dibujar: ' + e.message)); return; }
+  try { svg = geoSvg(R.doc, R.geoView, preview && preview.points); } catch (e) { mount(box, h('div', { class: 'muted small' }, 'No se puede dibujar: ' + e.message)); return; }
   mount(box, h('div', { class: 'row', style: 'justify-content:space-between' }, h('h3', { style: 'margin:0' }, kind === 'cable' ? 'Geometria del caso' : 'Dominio de verificacion 2D'),
-    kind === 'cable' ? h('div', { class: 'seg' }, [['full', 'Dominio'], ['zoom', 'Cables']].map(([v, l]) => h('button', { class: R.geoView === v ? 'on' : '', onclick: () => { R.geoView = v; drawRunGeo(); } }, l))) : null), svg);
+    h('div', { class: 'row' }, kind === 'cable' ? h('div', { class: 'seg' }, [['full', 'Dominio'], ['zoom', 'Cables']].map(([v, l]) => h('button', { class: R.geoView === v ? 'on' : '', onclick: () => { R.geoView = v; drawRunGeo(); } }, l))) : null,
+      R.kind === 'pinn' ? h('label', { class: 'chk' }, h('input', { type: 'checkbox', checked: R.showCollocation, onchange: (e) => { R.showCollocation = e.target.checked; drawRunGeo(); if (R.job) updateMon(R.job, true); } }), 'Puntos de colocacion') : null)),
+    svg, preview ? h('div', { class: 'row small muted', style: 'gap:10px;margin-top:6px' },
+      h('span', {}, h('i', { style: 'display:inline-block;width:8px;height:8px;border-radius:50%;background:#0284c7;margin-right:4px' }), 'Interior'),
+      h('span', {}, h('i', { style: 'display:inline-block;width:8px;height:8px;border-radius:50%;background:#e11d48;margin-right:4px' }), 'Interfaces'),
+      h('span', {}, h('i', { style: 'display:inline-block;width:8px;height:8px;border-radius:50%;background:#ca8a04;margin-right:4px' }), 'Frontera'),
+      h('b', {}, 'Total ' + preview.summary.total_points.toLocaleString('es-PE'))) : null);
 }
 
 async function startRun() {
@@ -265,9 +375,7 @@ async function startRun() {
   R.busy = true;
   drawRunLeft();
   try {
-    const params = R.kind === 'fem' ? { levels: R.levels.slice() } : Object.assign({ architecture: R.arch }, clone(R.p), R.arch === 'DeepXDE' ? { deepxde_model: R.deepxdeModel, attention: '' } : {});
-    if (R.kind === 'pinn' && R.arch === 'DeepXDE') params.weights.constitutive = 0;
-    if (R.kind === 'pinn') params.points = scaledPointCounts(params.points, R.pointMultiplier);
+    const params = R.kind === 'fem' ? { levels: R.levels.slice(), refinement_preset: R.femPreset, node_multiplier: R.nodeMultiplier } : pinnRunParams();
     const body = { kind: R.kind, threads: R.threads, live_every_s: R.liveEvery, params };
     const resumeJob = R.continueFrom ? compatiblePreviousRun() : null;
     if (R.continueFrom && !resumeJob) throw new Error('La solucion anterior ya no es compatible con estos parametros.');

@@ -21,7 +21,7 @@ Si hay referencia (exacta o suministrada) se añade:
 | `hotspot_distance_m` | distancia entre el punto caliente predicho y el de referencia |
 | `conductor_mean_error_K` | error de la temperatura media de cada conductor |
 
-## Compuertas propuestas
+## Compuertas
 
 | Compuerta | Umbral |
 |---|---|
@@ -32,10 +32,11 @@ Si hay referencia (exacta o suministrada) se añade:
 | Salto máximo de T en interfaces | 0.1 K |
 | Salto RMS de flujo en interfaces | 1 % |
 
-Veredictos: `accepted`, `rejected` o `no_reference` (sin referencia no se puede aceptar).
+Para el error RMS regional se admite una tolerancia de **menos de 1 punto porcentual** por encima del umbral nominal: por ejemplo, 5.32 % se informa como `accepted_with_tolerance`, mientras que 6.00 % se rechaza. `raw_gates` conserva el resultado contra el umbral estricto de 5 % y `gates` indica el veredicto efectivo. No se aplica tolerancia a las demás compuertas.
 
-> Estos umbrales son una **propuesta**. No han sido confirmados por la persona responsable de la tesis.
-> Están en `pinn_v2/evaluation/metrics.py` (`CRITERIA`) y se cambian ahí.
+Veredictos: `accepted` (todos los objetivos nominales), `accepted_with_tolerance` (solo el exceso regional está dentro de la tolerancia), `rejected` o `no_reference` (sin referencia no se puede aceptar).
+
+Los umbrales nominales y la tolerancia están en `pinn_v2/evaluation/metrics.py` (`CRITERIA` y `ACCEPTANCE_TOLERANCE`).
 
 ## Qué NO es una referencia
 

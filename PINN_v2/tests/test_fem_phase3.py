@@ -10,7 +10,7 @@ import pytest
 from pinn_v2.cases.definition import load_all
 from pinn_v2.cases.verification import coaxial_robin, symmetric_pair
 from pinn_v2.experiments import fem_reference
-from pinn_v2.manifest.run_manifest import build_manifest, write_json_atomic, write_manifest
+from pinn_v2.manifest.run_manifest import build_manifest, write_json_atomic, write_manifest, replace_json_atomic
 from pinn_v2.solvers.fem import adapter
 
 needs_fem = pytest.mark.skipif(not adapter.fem_available(), reason='FEniCSx environment not available in WSL2 Ubuntu')
@@ -23,6 +23,15 @@ def test_write_json_atomic_never_overwrites(tmp_path):
         write_json_atomic(target, dict(value=2))
     assert json.loads(target.read_text(encoding='utf-8')) == dict(value=1)
     assert [p.name for p in target.parent.iterdir()] == ['record.json']
+
+
+def test_replace_json_atomic_updates_existing_file_and_cleans_temp(tmp_path):
+    target = tmp_path.joinpath('mutable', 'checkpoint_meta.json')
+    replace_json_atomic(target, dict(step=100, loss=1.5))
+    replace_json_atomic(target, dict(step=200, loss=.5))
+
+    assert json.loads(target.read_text(encoding='utf-8')) == dict(step=200, loss=.5)
+    assert [path.name for path in target.parent.iterdir()] == ['checkpoint_meta.json']
 
 
 def test_manifest_records_inputs_seeds_environment_and_sources(tmp_path):

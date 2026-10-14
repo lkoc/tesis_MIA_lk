@@ -17,6 +17,7 @@ from pinn_v2.solvers.pinn.problem import load_problem
 
 POINTS = dict(n_interior=512, n_layer=256, n_face=128, n_boundary=128)
 INTERNAL_MODELS = ('PFNN', 'FNN')
+DEEPXDE_SAMPLERS = ('mixed', 'pseudo', 'LHS', 'Halton', 'Hammersley', 'Sobol')
 
 
 class DeepXDEModel:
@@ -77,6 +78,87 @@ def _load_network_state(network, state):
 def _augmented(points, region_id):
     points = np.asarray(points, dtype=np.float64)
     return np.column_stack((points, np.full(len(points), region_id, dtype=np.float64)))
+
+
+def _save_collocation(path, anchors, problem, points):
+    arrays = {f'interior_{region.id}': anchors[np.round(anchors[:, 2]).astype(int) == region.id, :2]
+        for region in problem.regions}
+    arrays.update({f'interface_{index}': face.xy
+        for index, face in enumerate(problem.faces(points['n_face']))})
+    arrays.update({f'boundary_{index}': piece.xy
+        for index, piece in enumerate(problem.pieces(points['n_boundary']))})
+    temporary = Path(path).with_name('collocation.tmp.npz')
+    with temporary.open('wb') as stream:
+        np.savez_compressed(stream, **arrays)
+    os.replace(temporary, path)
+
+
+def sample_deepxde_interior(dde, problem, region, count, seed, sampler='mixed'):
+    """Sample physical per-region points, optionally using DeepXDE's QMC samplers."""
+    if sampler not in DEEPXDE_SAMPLERS:
+        raise ValueError(f'Unknown DeepXDE sampler {sampler!r}; choose from {DEEPXDE_SAMPLERS}')
+    if sampler == 'mixed':
+        return problem.sample_interior(region, count, seed, 'mixed')
+
+    from deepxde.geometry.sampler import sample as unit_sample
+
+    def unit_points(size, batch):
+        batch_seed = (int(seed) + 104729 * batch) % (2 ** 32)
+        requested_size = size
+        if sampler == 'Sobol':
+            size = (1 << size.bit_length()) - 1
+        state = np.random.get_state()
+        np.random.seed(batch_seed)
+        try:
+            values = unit_sample(size, 2, sampler=sampler)
+        finally:
+            np.random.set_state(state)
+        if sampler != 'pseudo':
+            shift = np.random.default_rng(batch_seed).random(2)
+            values = (values + shift) % 1.0
+        return values[:requested_size]
+
+    case = getattr(problem, 'case', {})
+    if case.get('kind') == 'annulus':
+        uv = unit_points(count, 0)
+        angle = 2 * np.pi * uv[:, 0]
+        radius = np.sqrt(case['ri'] ** 2 + uv[:, 1] * (case['ro'] ** 2 - case['ri'] ** 2))
+        return np.column_stack((radius * np.cos(angle), radius * np.sin(angle)))
+
+    if region.kind in ('conductor', 'layer'):
+        uv = unit_points(count, 0)
+        angle = 2 * np.pi * uv[:, 0]
+        radius = np.sqrt(region.ri ** 2 + uv[:, 1] * (region.ro ** 2 - region.ri ** 2))
+        center = np.asarray(case['cables'][region.cable])
+        return center + np.column_stack((radius * np.cos(angle), radius * np.sin(angle)))
+
+    if region.kind != 'soil':
+        raise ValueError(f'Unsupported region kind for DeepXDE sampling: {region.kind}')
+
+    if hasattr(problem, '_box'):
+        x0, x1, y0, y1 = problem._box(region)
+    else:
+        x0, x1, y0, y1 = problem.bounds
+        if region.axis == 0:
+            x0, x1 = region.lower, region.upper
+        else:
+            y0, y1 = region.lower, region.upper
+
+    batches = []
+    accepted = 0
+    for batch in range(1000):
+        remaining = count - accepted
+        candidates_uv = unit_points(max(256, 2 * remaining), batch)
+        candidates = np.column_stack((x0 + (x1 - x0) * candidates_uv[:, 0],
+                                      y0 + (y1 - y0) * candidates_uv[:, 1]))
+        if hasattr(problem, 'domain'):
+            candidates = candidates[problem.domain.contains(region, candidates)]
+        if len(candidates):
+            batches.append(candidates)
+            accepted += len(candidates)
+        if accepted >= count:
+            return np.vstack(batches)[:count]
+    raise RuntimeError(f'Unable to draw {count} DeepXDE points in {region.name} using {sampler}')
 
 
 def _region_inputs(inputs, region_id):
@@ -262,7 +344,8 @@ def _build_constraints(dde, problem, network, anchors, points, weights):
 def run(source, output, internal_model='PFNN', adam_steps=3000, lbfgs_steps=0, lr=2e-3,
         width=32, depth=3, activation='tanh', weights=None, points=None, init_seed=0,
         sampling_seed=11, log_every=100, reference=None, reference_label='supplied',
-    study=None, command=None, on_log=None, stop_callback=None, full_audit=True, initial_state=None):
+    study=None, command=None, on_log=None, stop_callback=None, full_audit=True, initial_state=None,
+    deepxde_sampling='mixed', device='cpu'):
     """Train one DeepXDE PINN from the same case JSON and return the common run record."""
     try:
         import deepxde as dde
@@ -270,9 +353,16 @@ def run(source, output, internal_model='PFNN', adam_steps=3000, lbfgs_steps=0, l
         raise RuntimeError('Install DeepXDE with: pip install -e ".[deepxde]"') from exc
     if internal_model not in INTERNAL_MODELS:
         raise ValueError(f'Unknown DeepXDE network {internal_model!r}; choose from {INTERNAL_MODELS}')
+    if deepxde_sampling not in DEEPXDE_SAMPLERS:
+        raise ValueError(f'Unknown DeepXDE sampler {deepxde_sampling!r}; choose from {DEEPXDE_SAMPLERS}')
+    if device not in ('cpu', 'xpu'):
+        raise ValueError("DeepXDE device must be 'cpu' or 'xpu'")
+    if device == 'xpu' and (not hasattr(torch, 'xpu') or not torch.xpu.is_available()):
+        raise RuntimeError('XPU was requested, but PyTorch reports no available XPU device')
     if min(adam_steps, lbfgs_steps) < 0 or width < 1 or depth < 1 or lr <= 0:
         raise ValueError('Invalid DeepXDE training parameters')
 
+    selected_device = torch.device(device)
     output = Path(output)
     output.mkdir(parents=True, exist_ok=False)
     started = time.perf_counter()
@@ -290,12 +380,14 @@ def run(source, output, internal_model='PFNN', adam_steps=3000, lbfgs_steps=0, l
 
     config = dict(architecture='DeepXDE', deepxde_model=internal_model, width=width, depth=depth,
                   activation=activation, adam_steps=adam_steps, lbfgs_steps=lbfgs_steps, lr=lr,
-                  weights=loss_weights, points=points, attention=None)
+                  weights=loss_weights, points=points, attention=None, deepxde_sampling=deepxde_sampling)
     result = dict(case=problem.name, config=config, seeds=dict(init=init_seed, sampling=sampling_seed),
                   status='failed', physics_sha256=problem.physics_sha256, fem_labels_used=0,
-                  reference_used_in_loss=False, study=study, device='cpu', solver='DeepXDE')
+                  reference_used_in_loss=False, study=study, device=str(selected_device), solver='DeepXDE')
     history = []
+    previous_default_device = torch.get_default_device()
     try:
+        torch.set_default_device(selected_device)
         random.seed(init_seed)
         np.random.seed(init_seed)
         torch.manual_seed(init_seed)
@@ -305,13 +397,19 @@ def run(source, output, internal_model='PFNN', adam_steps=3000, lbfgs_steps=0, l
         interior = []
         for region in problem.regions:
             count = points['n_interior'] if region.kind == 'soil' else points['n_layer']
-            xy = problem.sample_interior(region, count, sampling_seed + 7919 * region.id, 'mixed')
+            xy = sample_deepxde_interior(dde, problem, region, count,
+                sampling_seed + 7919 * region.id, deepxde_sampling)
             interior.append(_augmented(xy, region.id))
         anchors = np.vstack(interior)
+        _save_collocation(output.joinpath('collocation.npz'), anchors, problem, points)
         x0, x1, y0, y1 = problem.bounds
         selector_max = max(len(problem.regions) - 1, 1)
         geometry = dde.geometry.Cuboid([x0, y0, -0.5], [x1, y1, selector_max + 0.5])
         network = _network(dde, problem, internal_model, width, depth, activation)
+        actual_device = str(next(network.parameters()).device)
+        if torch.device(actual_device).type != selected_device.type:
+            raise RuntimeError(f'DeepXDE network is on {actual_device}, expected {selected_device}')
+        result['device'] = actual_device
         if initial_state is not None:
             _load_network_state(network, initial_state)
         checkpoint = output.joinpath('model.pt')
@@ -323,8 +421,9 @@ def run(source, output, internal_model='PFNN', adam_steps=3000, lbfgs_steps=0, l
 
         save_checkpoint()
         pde_residual, conditions, dde_loss_weights = _build_constraints(dde, problem, network, anchors, points, loss_weights)
+        # Region-tagged anchors define the domain set; DeepXDE's generic domain sampler stays disabled.
         data = dde.data.PDE(geometry, pde_residual, conditions, num_domain=0, num_boundary=0,
-                            anchors=anchors, train_distribution='pseudo')
+                    anchors=anchors, train_distribution='pseudo')
         dde_model = dde.Model(data, network)
         model = DeepXDEModel(problem, network, internal_model)
         labels = [f'pde_{region.name}' for region in problem.regions]
@@ -377,10 +476,12 @@ def run(source, output, internal_model='PFNN', adam_steps=3000, lbfgs_steps=0, l
         result.update(status='failed', elapsed_s=time.perf_counter() - started,
                       error=dict(type=type(exc).__name__, message=str(exc), traceback=traceback.format_exc()))
         write_json_atomic(output.joinpath('failure.json'), dict(error=result['error'], history=history, config=config))
+    finally:
+        torch.set_default_device(previous_default_device)
     write_json_atomic(output.joinpath('result.json'), result)
     write_manifest(output, build_manifest('deepxde_pinn_run', command or [sys.executable, '-m', 'pinn_v2.solvers.pinn.deepxde_solver'],
         seeds=result['seeds'], extra=dict(case=problem.name, config=config, status=result['status'],
-            physics_sha256=problem.physics_sha256, fem_labels_used=0, study=study, device='cpu')))
+            physics_sha256=problem.physics_sha256, fem_labels_used=0, study=study, device=result['device'])))
     return result
 
 

@@ -20,6 +20,7 @@ from pinn_v2.cases.definition import CaseDefinition,load_all
 from pinn_v2.cases.catalog import cases,field_k
 from pinn_v2.physics.skin_effect import prescribed_power
 from pinn_v2.solvers.fem.backend import UFLBackend
+from pinn_v2.solvers.fem.mesh_resolution import mesh_size_factor, validate_node_multiplier
 from pinn_v2.manifest.provenance import archive_sources
 
 
@@ -35,7 +36,8 @@ def check_corner_consistency(domain,conditions):
             raise ValueError(f'Dirichlet values differ at the {first}/{second} corner')
 
 
-def create_mesh(domain,level):
+def create_mesh(domain,level,node_multiplier=1.):
+    node_multiplier=validate_node_multiplier(node_multiplier);size_factor=mesh_size_factor(node_multiplier)
     if MPI.COMM_WORLD.size!=1:raise ValueError('Reference currently requires one MPI rank; do not silently assemble partial balances')
     if domain.has_imperfect_contact:raise NotImplementedError(NO_CONTACT)
     c=domain.case;gmsh.initialize()
@@ -69,7 +71,7 @@ def create_mesh(domain,level):
         if set.union(*region_faces.values())!=all_faces or sum(len(v) for v in region_faces.values())!=len(all_faces):
             raise RuntimeError('Material partition does not cover the domain exactly once')
         fields=[];interface_curves=set()
-        far=min(x1-x0,y1-y0)/10/2**level
+        far=min(x1-x0,y1-y0)/10/2**level*size_factor
         for r in domain.regions:
             faces=region_faces[r.id]
             if not faces:raise RuntimeError('Empty material region')
@@ -80,7 +82,7 @@ def create_mesh(domain,level):
                 distance=gmsh.model.mesh.field.add('Distance')
                 gmsh.model.mesh.field.setNumbers(distance,'CurvesList',sorted(curves));gmsh.model.mesh.field.setNumber(distance,'Sampling',256)
                 threshold=gmsh.model.mesh.field.add('Threshold')
-                local=(r.ro-r.ri)/max(2,2**(level+1))
+                local=(r.ro-r.ri)/max(2,2**(level+1))*size_factor
                 for key,value in [('InField',distance),('SizeMin',local),('SizeMax',far),('DistMin',(r.ro-r.ri)*.6),('DistMax',max(.1,4*r.ro))]:
                     gmsh.model.mesh.field.setNumber(threshold,key,value)
                 fields.append(threshold)
@@ -151,12 +153,13 @@ def evaluate_material(solution,xy,labels,cell_tags):
     return solution.eval(points,np.asarray(chosen,dtype=np.int32)).ravel()
 
 
-def solve(domain,level,output,normalize_source=False,save_fields=True):
+def solve(domain,level,output,normalize_source=False,save_fields=True,node_multiplier=1.):
     if domain.has_imperfect_contact:raise NotImplementedError(NO_CONTACT)
     start=time.perf_counter();output=Path(output);output.mkdir(parents=True,exist_ok=True)
     stem=f'fem_l{level}'
     if (output/(stem+'.json')).exists():raise FileExistsError('Use a new directory for a new reference run')
-    mesh,cells,facets=create_mesh(domain,level);c=domain.case
+    node_multiplier=validate_node_multiplier(node_multiplier)
+    mesh,cells,facets=create_mesh(domain,level,node_multiplier);c=domain.case
     V=fem.functionspace(mesh,('Lagrange',2));u=ufl.TrialFunction(V);v=ufl.TestFunction(V);x=ufl.SpatialCoordinate(mesh)
     dx=ufl.Measure('dx',domain=mesh,subdomain_data=cells,metadata={'quadrature_degree':8})
     ds=ufl.Measure('ds',domain=mesh,subdomain_data=facets,metadata={'quadrature_degree':8})
@@ -245,7 +248,8 @@ def solve(domain,level,output,normalize_source=False,save_fields=True):
             elif condition['type']=='neumann':
                 boundary_check[side]=dict(type='neumann',length_m=length,prescribed_outflow_W_m=condition['q_n_W_m2']*length,traction_outflow_W_m=side_flux[side])
     meta=dict(physics_version=PHYSICS_VERSION,physics_sha256=domain.fingerprint,specification=domain.specification(),
-        method='explicit_multimaterial_FEniCSx',level=level,ndofs=V.dofmap.index_map.size_global,degree=2,
+        method='explicit_multimaterial_FEniCSx',level=level,node_multiplier=node_multiplier,
+        nominal_size_factor=mesh_size_factor(node_multiplier),ndofs=V.dofmap.index_map.size_global,degree=2,
         regions=regions,Tmax_C=max(conductor_max),conductor_max_C=conductor_max,
         source_W_m=power,outer_flux_W_m=flux,boundary_flux_W_m=side_flux,boundary_conditions=conditions,boundary_check=boundary_check,
         balance_pct=100*abs(flux-power)/power,
@@ -270,13 +274,13 @@ def solve(domain,level,output,normalize_source=False,save_fields=True):
 def main():
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--case',default='coaxial_full');ap.add_argument('--case-file',type=Path)
     ap.add_argument('--definition',type=Path,help='CaseDefinition v2 JSON file')
-    ap.add_argument('--mode',choices=['fixed','dc_temperature'],default='fixed');ap.add_argument('--levels',nargs='+',type=int,default=[0,1,2]);ap.add_argument('--output',type=Path,required=True)
+    ap.add_argument('--mode',choices=['fixed','dc_temperature'],default='fixed');ap.add_argument('--levels',nargs='+',type=int,default=[0,1,2]);ap.add_argument('--node-multiplier',type=float,default=1.);ap.add_argument('--output',type=Path,required=True)
     a=ap.parse_args()
     if a.definition:domain=CaseDefinition.load(a.definition).domain(a.mode)
     elif a.case_file:domain=FullDomain(json.loads(a.case_file.read_text()),a.mode)
     elif a.case=='coaxial_full':domain=FullDomain(coaxial_case(),a.mode)
     else:domain=load_all()[a.case].domain(a.mode)
-    for level in a.levels:solve(domain,level,a.output)
+    for level in a.levels:solve(domain,level,a.output,node_multiplier=a.node_multiplier)
 
 
 if __name__=='__main__':main()

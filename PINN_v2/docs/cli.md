@@ -36,7 +36,7 @@ python -m pinn_v2 train --case xlpe_single --model M1 --adam-steps 6000 --lbfgs-
 ```
 
 Opciones: `--model`, `--adam-steps`, `--lbfgs-steps`, `--lr`, `--width`, `--depth`, `--activation`,
-`--seed`, `--sampling-seed`, `--output`, `--config`, `--reference`, `--weights nombre=valor ...`
+`--seed`, `--sampling-seed`, `--sampling`, `--resample-every`, `--deepxde-sampling`, `--validation-every`, `--output`, `--config`, `--reference`, `--weights nombre=valor ...`
 y `--points nombre=valor ...`.
 
 La prioridad es: valores por defecto, luego el archivo `--config`, luego las banderas.

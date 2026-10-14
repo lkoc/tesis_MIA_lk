@@ -110,6 +110,19 @@ def test_objective_is_finite_and_differentiable(name, architecture):
     assert (parts['constitutive'] > 0) == (architecture == 'M2')
 
 
+def test_objective_interface_resampling_is_deterministic_and_preserves_counts():
+    model = _model('aras_flat', 'M2')
+    first = Objective(model, seed=23, sampling='interface', **SMALL)
+    second = Objective(model, seed=23, sampling='interface', **SMALL)
+    first.resample(seed=701)
+    second.resample(seed=701)
+
+    assert first.resampling_count == 1
+    assert {key: len(points) for key, points in first.interior.items()} == {key: len(points) for key, points in second.interior.items()}
+    assert all(torch.equal(first.interior[key], second.interior[key]) for key in first.interior)
+    assert all(first.sources[key].shape[0] == len(first.interior[key]) for key in first.interior)
+
+
 def test_model_shapes_and_parameter_partition():
     for architecture, networks in (('M0', 1), ('M1', 2), ('M2', 2)):
         model = _model('mms_interface', architecture)
@@ -170,22 +183,51 @@ def test_acceptance_rejects_and_records_gates():
     assert verdict['state'] == 'rejected' and verdict['gates']['interface_T_jump_max_K'] is False
 
 
+def test_acceptance_allows_sub_one_percentage_point_regional_excess():
+    report = dict(nrmse_pct=1., error_rise_pct=1., region_rmse_rise_pct=dict(a=5.32),
+        balance=dict(global_derived_pct=1., region_derived_pct=dict(a=1.)),
+        interfaces=[dict(T_jump_max_K=.05, flux_jump_rms_pct=.5)])
+
+    verdict = acceptance(report)
+
+    assert verdict['state'] == 'accepted_with_tolerance'
+    assert verdict['accepted'] is True
+    assert verdict['raw_gates']['region_rmse_rise_pct'] is False
+    assert verdict['gates']['region_rmse_rise_pct'] is True
+    assert verdict['criteria']['region_rmse_rise_pct'] == 5.
+    assert verdict['tolerance']['region_rmse_rise_pct'] == 1.
+
+
+def test_acceptance_rejects_regional_excess_at_or_above_one_percentage_point():
+    report = dict(nrmse_pct=1., error_rise_pct=1., region_rmse_rise_pct=dict(a=6.),
+        balance=dict(global_derived_pct=1., region_derived_pct=dict(a=1.)),
+        interfaces=[dict(T_jump_max_K=.05, flux_jump_rms_pct=.5)])
+
+    assert acceptance(report)['state'] == 'rejected'
+
+
 def test_trainer_writes_record_and_never_overwrites(tmp_path):
     out = tmp_path / 'run'
     result = trainer.run('mms_constant', 'M1', out, adam_steps=30, width=8, depth=2, points=SMALL, log_every=10)
     assert result['status'] == 'completed' and result['fem_labels_used'] == 0 and result['reference_used_in_loss'] is False
-    for name in ('result.json', 'manifest.json', 'evaluation.npz', 'collocation.npz', 'model.pt', 'checkpoint_meta.json'):
+    for name in ('result.json', 'manifest.json', 'evaluation.npz', 'collocation.npz', 'model.pt',
+                 'latest.pt', 'best_train_loss.pt', 'best_validation.pt', 'checkpoint_meta.json'):
         assert out.joinpath(name).exists()
     manifest = json.loads(out.joinpath('manifest.json').read_text())
-    assert manifest['seeds'] == dict(init=0, sampling=11)
+    assert manifest['seeds'] == dict(init=0, sampling=11, validation=1_000_014)
     assert manifest['extra']['device'] == result['device']
     checkpoint_meta = json.loads(out.joinpath('checkpoint_meta.json').read_text())
     assert checkpoint_meta['checkpoint_file'] == 'model.pt'
     assert checkpoint_meta['status'] == 'completed'
     assert checkpoint_meta['progress']['phase'] == 'finished'
     assert checkpoint_meta['progress']['step_zero_based'] is True
+    assert checkpoint_meta['progress']['step'] == result['history'][-1]['step']
+    assert checkpoint_meta['progress']['optimizer_steps_completed'] == result['history'][-1]['step'] + 1
     assert checkpoint_meta['progress']['best_step'] == result['best_step']
     assert checkpoint_meta['physics_sha256'] == result['physics_sha256']
+    assert checkpoint_meta['progress']['checkpoint_files'] == dict(latest='latest.pt',
+        best_train_loss='best_train_loss.pt', best_validation='best_validation.pt')
+    assert result['checkpoint_selection']['best_validation']['loss'] < float('inf')
     state = torch.load(out.joinpath('model.pt'), map_location='cpu', weights_only=True)
     assert all(tensor.device.type == 'cpu' for tensor in state.values())
     with np.load(out.joinpath('collocation.npz')) as collocation:
@@ -212,6 +254,15 @@ def test_trainer_fails_and_preserves_nonfinite_evaluation(tmp_path, monkeypatch)
     checkpoint_meta = json.loads(out.joinpath('checkpoint_meta.json').read_text())
     assert checkpoint_meta['status'] == 'failed'
     assert checkpoint_meta['progress']['phase'] in ('initialized', 'adam')
+
+
+def test_trainer_rejects_invalid_validation_cadence_before_creating_output(tmp_path):
+    output = tmp_path / 'invalid_validation'
+
+    with pytest.raises(ValueError, match='validation_every'):
+        trainer.run('mms_constant', 'M1', output, validation_every=0)
+
+    assert not output.exists()
 
 
 def test_trainer_is_deterministic(tmp_path):
@@ -261,6 +312,56 @@ def test_adam_stop_callback_ends_at_requested_checkpoint():
 
     assert checkpoints == [0, 2, 4]
     assert len(history) == 3
+
+
+def test_adam_resamples_objective_at_requested_cadence():
+    parameter = torch.nn.Parameter(torch.tensor(1., dtype=torch.float64))
+    model = torch.nn.Module()
+    model.register_parameter('parameter', parameter)
+
+    class QuadraticObjective:
+        def __init__(self):
+            self.resampled_at = []
+
+        def __call__(self):
+            loss = model.parameter.square()
+            return loss, {'quadratic': loss}, {}
+
+        def update_attention(self):
+            pass
+
+        def resample(self):
+            self.resampled_at.append(len(self.resampled_at))
+
+    objective = QuadraticObjective()
+    trainer.fit(model, objective, adam_steps=5, lbfgs_steps=0, lr=.1, log_every=5, resample_every=2)
+
+    assert objective.resampled_at == [0, 1]
+
+
+def test_adam_best_loss_resets_when_collocation_cloud_changes():
+    parameter = torch.nn.Parameter(torch.tensor(0., dtype=torch.float64))
+    model = torch.nn.Module()
+    model.register_parameter('parameter', parameter)
+
+    class ChangingObjective:
+        target = 0.
+
+        def __call__(self):
+            loss = (model.parameter - self.target).square()
+            return loss, {'quadratic': loss}, {}
+
+        def update_attention(self):
+            pass
+
+        def resample(self):
+            self.target = 1.
+
+    _, best = trainer.fit(model, ChangingObjective(), adam_steps=4, lbfgs_steps=0,
+        lr=.1, log_every=4, resample_every=2)
+
+    assert best['step'] == 3
+    assert best['state']['parameter'].item() > 0.
 
 
 def test_failure_is_preserved(tmp_path):
