@@ -1,0 +1,1151 @@
+﻿% ============================================================================
+%  PROBLEMA DE LA INVESTIGACIÓN
+%  Análisis térmico de cables eléctricos subterráneos
+%  Luis Koc - Herbert Melendez  ---  MIA 3er Ciclo A 2026-1 - FIIS/UNMSM
+%  Mayo 2026
+% ============================================================================
+\documentclass[aspectratio=169]{beamer}
+\usetheme{Madrid}
+\usecolortheme{seahorse}
+\usefonttheme{professionalfonts}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage{lmodern}
+% Fix babel-Spanish \es@chf error with fonts that have \hyphenchar=-1
+\makeatletter
+\def\es@chf{\ifnum\hyphenchar\font>\m@ne\char\hyphenchar\font\fi}
+\makeatother
+\usepackage{ragged2e}
+\usepackage{booktabs}
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{amsmath}
+
+\usepackage{tikz}
+\usetikzlibrary{
+  mindmap,
+  trees,
+  shapes.geometric,
+  arrows.meta,
+  positioning,
+  backgrounds,
+  fit,
+  calc,
+  decorations.pathmorphing
+}
+
+% Carpeta con figuras reutilizadas del beamer propuesta
+\graphicspath{{c:/usr/ths_mia_fiis/tesis_MIA_lk/temas_cursos_Tesis_1/graficos_ppt/}}
+
+% ---- Beamer settings -------------------------------------------------------
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]
+\setbeamertemplate{bibliography item}[text]
+
+% ---- Comandos de referencia ------------------------------------------------
+\newcommand{\refcite}[1]{{\footnotesize\color{gray!70!black} #1}}
+\newcommand{\rcite}[1]{{\scriptsize\color{gray!70!black} #1}}
+
+% ---- Separadores de sección ------------------------------------------------
+\AtBeginSection[]{%
+  \begin{frame}[plain, noframenumbering]
+    \vfill
+    \centering
+    \begin{beamercolorbox}[sep=12pt, center, shadow=true, rounded=true]{title}
+      \usebeamerfont{title}\insertsectionhead\par%
+    \end{beamercolorbox}
+    \vfill
+  \end{frame}
+}
+
+% ---- Portada ---------------------------------------------------------------
+\title{El Problema de la Investigación}
+\subtitle{Análisis térmico de cables eléctricos subterráneos:\\
+          identificación de la brecha y estado del arte}
+\author{Luis Koc \and Herbert Meléndez}
+\institute{Maestría en Inteligencia Artificial --- FIIS/UNMSM\\
+           Trabajo de Investigación I $\cdot$ MIA 3er Ciclo A 2026-1 $\cdot$ Grupo G91}
+\date{Mayo 2026}
+
+% ============================================================================
+\begin{document}
+% ============================================================================
+
+% ---------------------------------------------------------------------------
+% PORTADA
+% ---------------------------------------------------------------------------
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% ---------------------------------------------------------------------------
+% ESTRUCTURA
+% ---------------------------------------------------------------------------
+\begin{frame}{Estructura de la presentación}
+  \begin{columns}[t]
+    \column{0.48\textwidth}
+    \tableofcontents[sections={1-3},hideallsubsections]
+    \column{0.48\textwidth}
+    \tableofcontents[sections={4-6},hideallsubsections]
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+% TÍTULO TENTATIVO
+% ---------------------------------------------------------------------------
+\begin{frame}{Título tentativo de la tesis}
+\begin{block}{}
+\centering\large
+\textbf{Efecto de la heterogeneidad térmica del entorno sobre la temperatura del
+conductor en cables eléctricos subterráneos en centrales solares y eólicas: modelado numérico 2D}
+\end{block}
+
+\vspace{0.6em}
+\begin{columns}[T]
+\column{0.32\textwidth}
+\textbf{Área disciplinaria}
+\begin{itemize}[leftmargin=*]\small
+  \item Sistemas eléctricos de potencia
+  \item Transferencia de calor computacional
+  \item Modelado numérico e IA aplicada
+\end{itemize}
+
+\column{0.32\textwidth}
+\textbf{Variables centrales}
+\begin{itemize}[leftmargin=*]\small
+  \item \textbf{X}: conductividad $k(x,y)$ del suelo/relleno
+  \item \textbf{Y}: temperatura máxima $T_{\max}$ del conductor
+  \item Ampacidad disponible
+\end{itemize}
+
+\column{0.32\textwidth}
+\textbf{Palabras clave}
+\begin{itemize}[leftmargin=*]\small
+  \item Underground power cable
+  \item Thermal ampacity rating
+  \item Soil thermal heterogeneity
+  \item Physics-informed neural networks
+  \item Dynamic thermal rating (DTR)
+\end{itemize}
+\end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+% CLASIFICACIÓN DE LA INVESTIGACIÓN
+% ---------------------------------------------------------------------------
+\begin{frame}{Clasificación de la investigación}
+\begin{columns}[T]
+
+\column{0.44\textwidth}
+\begin{block}{\normalsize Clasificación IEEE}
+\scriptsize\textbf{Computing and Processing} /
+\textbf{Power, Energy and Industry Applications}
+\vspace{0.25em}
+\begin{itemize}[leftmargin=*,nosep]\scriptsize
+  \item \textbf{Power cables} --- thermal rating, ampacity
+  \item \textbf{Heat transfer} --- computational methods
+  \item \textbf{Neural networks} --- physics-informed (PINN)
+  \item \textbf{Finite element methods} --- 2D heat conduction
+  \item \textbf{Soil properties} --- thermal resistivity, drying
+\end{itemize}
+\end{block}
+
+\vspace{0.4em}
+\begin{block}{\normalsize Clasificación ACM CCS}
+\scriptsize
+\textbf{Computing methodologies} $\to$ Machine learning $\to$ Neural networks\\[2pt]
+\textbf{Applied computing} $\to$ Physical sciences and engineering
+\end{block}
+
+\column{0.52\textwidth}
+\begin{alertblock}{\normalsize Tipo de investigación}
+\vspace{0.35em}
+
+\fcolorbox{blue!50!black}{blue!10}{\parbox{0.88\linewidth}{\centering\vspace{3pt}
+  {\small\textbf{Investigación Tecnológica}}\\[4pt]
+  {\scriptsize Modelado numérico, validación con benchmark,\\
+  análisis cuantitativo de la brecha IEC vs.\ FEM}
+\vspace{3pt}}}
+
+\vspace{0.45em}
+
+\fcolorbox{green!50!black}{green!10}{\parbox{0.88\linewidth}{\centering\vspace{3pt}
+  {\small\textbf{Innovación de Proceso / Producto}}\\[4pt]
+  {\scriptsize Herramienta computacional abierta para\\
+  cálculo térmico 2D con $k(x,y)$ variable}
+\vspace{3pt}}}
+\vspace{0.3em}
+\end{alertblock}
+
+\vspace{0.4em}
+%\begin{exampleblock}{\normalsize Nivel de la investigación}
+%\scriptsize
+%\textbf{Exploratoria--descriptiva}: caracteriza cuantitativamente la brecha
+%entre métodos normativos y el comportamiento bajo condiciones
+%heterogéneas de suelo.
+%\end{exampleblock}
+\end{columns}
+\end{frame}
+
+
+% ===========================================================================
+\section{Problemática}
+% ===========================================================================
+
+% ---------------------------------------------------------------------------
+% INFRAESTRUCTURA CRÍTICA
+% ---------------------------------------------------------------------------
+\begin{frame}{Cables subterráneos: infraestructura crítica sin margen de error}
+\begin{columns}[T]
+
+\column{0.59\textwidth}
+\justifying\small
+Los cables eléctricos subterráneos son la columna vertebral de la transmisión en
+zonas urbanas y la única vía de evacuación de energía en parques solares y eólicos.
+
+\vspace{0.4em}
+\textbf{¿Qué ocurre cuando fallan?}
+\begin{itemize}[leftmargin=*]\small
+  \item Reparación: \textbf{semanas a meses} (excavación, empalmes, pruebas dieléctricas)
+  \item En sistemas sin redundancia: corte total de suministro
+  \item Impacto en hospitales, agua potable, industria crítica
+  \item Para renovables: toda la generación inactiva durante la reparación
+  \item Se convierte en \textbf{cuello de botella} para la transición energética
+\end{itemize}
+
+\vspace{0.3em}
+\refcite{(Fariz et al., 2026, p.~1~[R4]); (Möbius et al., 2025, p.~1~[R5]); (Enescu et al., 2021, p.~2~[R2])}
+
+\column{0.39\textwidth}
+\begin{tikzpicture}[>=Stealth,
+  box/.style={draw, rounded corners=4pt, align=center, font=\tiny,
+              minimum height=0.82cm, text width=2.2cm, inner sep=3pt}]
+
+  \node[box, fill=yellow!30]         (sub)    at ( 0.0, 5.2) {Subestación\\de transmisión};
+  \node[box, fill=gray!25]           (cable)  at ( 0.0, 3.8) {Cable\\subterráneo\\(tramo único)};
+  \node[box, fill=blue!15]           (ciudad) at (-1.7, 2.3) {Red\\urbana};
+  \node[box, fill=green!15]          (solar)  at ( 1.7, 2.3) {Parque\\solar\,/\,eólico};
+  \node[box, fill=red!15,
+        draw=red!70!black, dashed]   (falla)  at ( 0.0, 0.4)
+        {\textbf{FALLA}\\semanas\\sin servicio};
+
+  \draw[->, thick]              (sub.south) -- (cable.north);
+  \draw[->, thick] (cable.south west) to[out=240, in=90] (ciudad.north);
+  \draw[->, thick] (cable.south east) to[out=300, in=90] (solar.north);
+  \draw[->, thick, red!70!black, dashed] (cable.south) -- (falla.north);
+
+  \node[font=\tiny, gray] at (0,-0.3) {Sin redundancia $\Rightarrow$ impacto total};
+\end{tikzpicture}
+\end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+% COSTO DE LA INCERTIDUMBRE
+% ---------------------------------------------------------------------------
+\begin{frame}{El costo de la incertidumbre térmica}
+\begin{columns}[T]
+\column{0.48\textwidth}
+\begin{alertblock}{Cuando se \textbf{subestima} la temperatura}
+\scriptsize
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+  \item Temperatura real supera el límite del aislamiento XLPE ($T_{\max} = 90\,^{\circ}$C)
+  \item Deterioro acelerado; falla prematura no prevista ni diagnosticada
+  \item Especialmente grave en cruces urbanos de alta densidad
+  \item Consecuencia: reemplazo no planificado, semanas sin servicio
+\end{itemize}
+\end{alertblock}
+
+\column{0.48\textwidth}
+\begin{exampleblock}{Cuando se \textbf{sobreestima} la temperatura}
+\scriptsize
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+  \item Cable opera por debajo de su capacidad real
+  \item Sobredimensionamiento innecesario o subutilización del activo
+  \item Pérdida de capacidad para integrar más renovables
+  \item DTR estático conservador: capacidad dinámica real no aprovechada
+  \refcite{(Fariz et al., 2026~[R4])}
+\end{itemize}
+\end{exampleblock}
+\end{columns}
+
+\vspace{0.4em}
+\begin{columns}[T]
+\column{0.48\textwidth}
+\begin{block}{Causa raíz}
+\scriptsize Los métodos normativos asumen condiciones \textbf{homogéneas y estacionarias}.
+En la realidad, el suelo es heterogéneo, variable con la estación y la historia de carga.
+Esta discrepancia es la brecha que se investiga.
+\refcite{(IEC 60287-1-1, 2023); (Enescu et al., 2021)}
+\end{block}
+
+\column{0.48\textwidth}
+\begin{block}{Magnitud de la brecha}
+\scriptsize Variaciones de $k_s$ de $0.5$ a $2.5$\,K\,m/W pueden modificar la
+ampacidad en \textbf{más del 20\,\%}. El secado térmico puede reducirla
+adicionalmente un \textbf{15--30\,\%}.
+\refcite{(Khumalo et al., 2025~[R3]); (Anders, 2005~[N3])}
+\end{block}
+\end{columns}
+\end{frame}
+
+
+% ===========================================================================
+\section{Objeto de estudio}
+% ===========================================================================
+
+% ---------------------------------------------------------------------------
+% ESTRUCTURA INTERNA DEL CABLE
+% ---------------------------------------------------------------------------
+\begin{frame}{Estructura interna: el cable como sistema de capas concéntricas}
+\begin{columns}[T]
+\column{0.65\textwidth}
+\justifying\small
+Un cable de alta tensión está formado por capas concéntricas con funciones
+eléctricas y térmicas bien definidas \refcite{(Thue, 2012~[E1]; IEC~60287-1-1, 2023~[N2])}:
+
+\begin{itemize}[leftmargin=*]\scriptsize
+  \item \textbf{Conductor} (Cu o Al, 95--1\,200~mm²): fuente primaria de calor
+        $Q = I^2 R_\text{ac}$; $k_\text{Cu} \approx 385$~W/(m\,K)
+  \item \textbf{Capas semiconductoras}: uniformizan el campo eléctrico;
+        $k \approx 0{,}3$~W/(m\,K)
+  \item \textbf{Aislamiento XLPE}: barrera térmica principal;
+        $k \approx 0{,}286$~W/(m\,K); $T_{\max} = 90\,^{\circ}$C (continuo)
+  \item \textbf{Pantalla metálica} (Cu/Al): fuente secundaria por corrientes inducidas;
+        factor $\lambda_1$
+  \item \textbf{Cubierta exterior} (PE/PVC): protección mecánica;
+        $k \approx 0{,}2$--$0{,}4$~W/(m\,K)
+\end{itemize}
+
+% \vspace{0.2em}
+\begin{alertblock}{}\scriptsize
+La resistividad del suelo ($\rho_T = 1/k_s$) es el parámetro de mayor
+incertidumbre: variaciones de $0{,}5$ a $2{,}5$\,K\,m/W modifican la
+ampacidad en $>$\,20\,\%.
+\refcite{(Khumalo et al., 2025~[R3])}
+\end{alertblock}
+
+\column{0.35\textwidth}
+\centering
+\includegraphics[width=0.6\linewidth]{kim2025_cable_xsection}\\[2pt]
+{\tiny\color{gray} Sección transversal cable XLPE 154\,kV (7 capas concéntricas).\\
+\refcite{Kim et al.\ (2025~[A1]) --- Fig.~2}}
+\end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+% INSTALACIÓN: ZANJA, BEDDING, BACKFILL
+% ---------------------------------------------------------------------------
+\begin{frame}{La instalación: zanja, bedding y configuraciones}
+\begin{columns}[T]
+\column{0.4\textwidth}
+\justifying\scriptsize
+El cable está integrado en un \textbf{sistema de instalación} cuyo diseño determina
+cómo se disipa el calor \refcite{(Ocłoń et al., 2015~[A2]; Kim et al., 2025~[A1])}:
+
+\begin{itemize}[leftmargin=*,nosep]\scriptsize
+  \item \textbf{Profundidad} (0{,}8--1{,}5\,m): mayor profundidad
+        estabiliza $T_\text{suelo}$ pero alarga la trayectoria de disipación
+  \item \textbf{Bedding}: arena fina ($\pm$15\,cm); primera resistencia
+        térmica dominante entre cable y suelo nativo
+  \item \textbf{Backfill}: relleno de la zanja; tierra excavada (variable)
+        o granular seleccionado
+  \item \textbf{Thermal backfill (FTB)}: mezcla arena-cemento-agua;
+        maximiza $k$ para aumentar ampacidad sin cambiar el cable
+  \item \textbf{Configuración}: \textit{trefoil} (menor calor mutuo) vs.\
+        \textit{plana} (acceso más fácil)
+\end{itemize}
+
+\vspace{0.15em}
+{\scriptsize\color{teal!70!black}
+\textbf{Nota IEC~60287:} asume $k$ único del medio; no distingue bedding de
+suelo nativo, generando error sistemático en instalaciones con materiales
+diferenciados. \refcite{(Atoccsa et al., 2024~[A3]; Kim et al., 2025~[A1])}}
+
+\column{0.54\textwidth}
+\centering
+\includegraphics[width=1.0\linewidth,height=4.0cm,keepaspectratio]{enescu_trench_xsection}\\[1pt]
+{\tiny\color{gray} Sección de zanja: cable, bedding, backfill, suelo nativo.\\
+\refcite{Enescu et al.\ (2021~[R2]) --- Fig.~1}}
+
+\vspace{0.15em}
+\begin{block}{\scriptsize Configuraciones típicas}\scriptsize
+\begin{tabular}{ll}
+  \textbf{Trefoil} & menor calor mutuo, preferida\\
+  \textbf{Plana}   & acceso más fácil, mayor\\
+                   & calentamiento mutuo\\
+\end{tabular}
+\refcite{(Ocłoń et al., 2015~[A2])}
+\end{block}
+\end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+% SUELO VARIABLE + ECUACIÓN DE CALOR
+% ---------------------------------------------------------------------------
+\begin{frame}{El suelo como medio térmico variable y la física del problema}
+\begin{columns}[T]
+\column{0.46\textwidth}
+\justifying\scriptsize
+El suelo \textbf{no es uniforme}: $k_s$ varía con composición mineral, humedad,
+compactación y temperatura:
+
+\begin{center}\scriptsize
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{lc}
+\toprule
+\textbf{Tipo / condición}         & \textbf{$k_s$ (W/(m\,K))} \\
+\midrule
+Arena seca                         & 0{,}25--0{,}35 \\
+Arena húmeda                       & 1{,}0--2{,}0   \\
+Arcilla seca                       & 0{,}4--0{,}5   \\
+Arcilla saturada                   & 1{,}4--1{,}8   \\
+Suelo urbano (relleno mixto)       & 0{,}5--1{,}5   \\
+Roca calcárea                      & 2{,}0--3{,}0   \\
+Thermal backfill (FTB)             & 1{,}5--3{,}0   \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.1em}
+\begin{alertblock}{\small Secado térmico}\scriptsize
+Bajo carga sostenida: $T > 50\,^{\circ}$C cerca del cable $\to$
+$k_s$ baja de $\approx$1{,}5 a $< 0{,}5$\,W/(m\,K)
+$\to$ $T_\text{cond}$ sube: ciclo de retroalimentación.
+Ampacidad se reduce \textbf{20--30\,\%}.
+\refcite{(Khumalo et al., 2025, pp.~6--10~[R3])}
+\end{alertblock}
+
+\column{0.50\textwidth}
+\justifying\scriptsize
+\textbf{La ecuación gobernante: difusión de calor 2D}
+
+\begin{block}{\scriptsize Régimen estacionario --- base IEC~60287}
+\centering\scriptsize
+$\displaystyle
+\frac{\partial}{\partial x}\!\Bigl(k\,\frac{\partial T}{\partial x}\Bigr)
++\frac{\partial}{\partial y}\!\Bigl(k\,\frac{\partial T}{\partial y}\Bigr)
++ Q = 0$\\[2pt]
+\scriptsize\justifying
+Con $k = \mathrm{const}$: solución analítica de Kelvin.\\
+Con $k = k(x,y)$: \textbf{no hay solución analítica}
+$\Rightarrow$ FEM, FDM o PINNs.
+\end{block}
+
+\vspace{0.15em}
+\begin{block}{\scriptsize Régimen transitorio --- DTR dinámico}
+\centering\scriptsize
+$\displaystyle\rho c_p\,\frac{\partial T}{\partial t} =
+\nabla\!\cdot\!\bigl(k\,\nabla T\bigr) + Q(t)$\\[2pt]
+\scriptsize\justifying
+La capacidad térmica $\rho c_p$ controla la respuesta ante ciclos de
+carga y sobrecargas (DTR dinámico).
+\end{block}
+
+\vspace{0.1em}
+\begin{tikzpicture}
+  \node[draw=orange!70!black, fill=orange!8, rounded corners=4pt,
+        text width=5.8cm, inner sep=4pt, font=\tiny\justifying] {
+    \textbf{Contraste de conductividades térmicas:} desde
+    $k \approx 0{,}25$\,W/(m\,K) (arena seca) hasta
+    $k \approx 385$\,W/(m\,K) (Cu): diferencia de
+    \textbf{3 órdenes de magnitud} en el mismo dominio.
+    \rcite{(Carslaw \& Jaeger, 1959~[E2]; Aras et al., 2005~[R1])}
+  };
+\end{tikzpicture}
+
+\end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+% TAXONOMÍA DEL OBJETO DE ESTUDIO
+% ---------------------------------------------------------------------------
+\begin{frame}{Taxonomía del objeto de estudio}
+\begin{columns}[T]
+
+\column{0.42\textwidth}
+\centering
+{\scriptsize\textbf{Estructura jerárquica del objeto de estudio}}\\[0.4em]
+\begin{tikzpicture}[>=Stealth, scale=0.88, transform shape,
+  root/.style={draw, rounded corners=5pt, fill=teal!55, text=white,
+               font=\scriptsize\bfseries, align=center, inner sep=5pt,
+               text width=2.3cm, minimum height=0.9cm},
+  L1/.style={draw, rounded corners=4pt, font=\tiny\bfseries,
+             align=center, inner sep=4pt, text width=2.2cm, minimum height=0.78cm}]
+
+\node[root] (root) at (0, 0) {Cable\\eléctrico\\subterráneo};
+
+\node[L1, fill=orange!30] (tension) at (4.5,  2.4) {Nivel de\\tensión};
+\node[L1, fill=blue!22]   (aislam)  at (4.5,  1.2) {Tipo de\\aislamiento};
+\node[L1, fill=purple!18] (config)  at (4.5,  0.0) {Configuración\\instalación};
+\node[L1, fill=green!22]  (entorno) at (4.5, -1.2) {Entorno\\térmico};
+\node[L1, fill=red!18]    (metodo)  at (4.5, -2.4) {Método de\\evaluación};
+
+% trunk line
+\draw[gray!50, thick] (1.8, 2.4) -- (1.8, -2.4);
+% root → trunk
+\draw[->, gray!60, thick] (root.east) -- (1.8, 0);
+% trunk → L1
+\foreach \y in {2.4, 1.2, 0, -1.2, -2.4} {
+  \draw[->, gray!60] (1.8, \y) -- (3.4, \y);
+}
+% colored dots
+\fill[orange!60]  (1.8,  2.4) circle (3pt);
+\fill[blue!50]    (1.8,  1.2) circle (3pt);
+\fill[purple!50]  (1.8,  0.0) circle (3pt);
+\fill[green!50]   (1.8, -1.2) circle (3pt);
+\fill[red!50]     (1.8, -2.4) circle (3pt);
+
+\end{tikzpicture}
+
+\column{0.55\textwidth}
+\vspace{0.4em}
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{0.82}
+\begin{tabular}{>{\tiny\bfseries}p{2.0cm}
+                >{\tiny}p{2.7cm}
+                >{\tiny\color{gray!65}}p{1.3cm}}
+\toprule
+\textbf{Dimensión} & \textbf{Tipos / variantes} & \textbf{Refs.} \\
+\midrule
+\rowcolor{orange!18} Nivel de tensión  & MT (1--36\,kV) · AT/EAT & {[N2],[N5]} \\
+\rowcolor{blue!12}   Aislamiento       & XLPE · EPR · papel impr. & {[N5],[E1]} \\
+\rowcolor{purple!10} Configuración     & Trébol · Plana · ducto & {[N2],[N6]} \\
+\rowcolor{green!12}  Entorno térmico   & Suelo nat.\ · backfill · aire & {[A1],[A2]} \\
+\rowcolor{red!10}    Método evaluación & IEC\,60287 · FEM · PINN/ML & {[N2],[N6],[R1]} \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.6em}
+\begin{alertblock}{\scriptsize Foco de esta investigación}\scriptsize
+Cable \textbf{XLPE MT} en trébol o plano , entorno con \textbf{suelo
+heterogéneo} $k(x,y)$.
+Evaluación mediante \textbf{FEM 2D} y \textbf{PINN} como alternativa eficiente.
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+
+% ===========================================================================
+\section{Estado del arte}
+% ===========================================================================
+
+% ---------------------------------------------------------------------------
+% METODOLOGÍA DE BÚSQUEDA --- MINDMAP + STRINGS
+% ---------------------------------------------------------------------------
+\begin{frame}{Metodología de búsqueda bibliográfica}
+\begin{columns}[T]
+
+\column{0.47\textwidth}
+\centering
+{\scriptsize\textbf{Mapa conceptual de búsqueda}}\\[0.2em]
+\begin{tikzpicture}[
+  mindmap,
+  grow cyclic,
+  text=black,
+  every node/.style={concept, font=\tiny},
+  concept/.append style={fill opacity=0.35, text opacity=1},
+  concept color=teal!45,
+  level 1/.append style={level distance=2.2cm, sibling angle=90,
+                          concept color=blue!40},
+  level 2/.append style={level distance=1.4cm, sibling angle=50,
+                          concept color=cyan!40, font=\tiny},
+  scale=0.67, transform shape]
+
+\node[font=\scriptsize\bfseries, concept color=teal!60]
+  {Cables\\eléctricos\\subterráneos\\análisis térmico}
+  child [grow=right] { node {Tipo de cable}
+    child [grow=north east] { node {\rotatebox{0}{underground cable}} }
+    child [grow=south east] { node {\rotatebox{0}{buried cable}} }
+  }
+  child [grow=up] { node {Aspecto térmico}
+    child [grow=north west] { node {\rotatebox{0}{ampacity}} }
+    child [grow=north] { node {\rotatebox{0}{thermal rating}} }
+    child [grow=north east] { node {\rotatebox{0}{heat transfer}} }
+  }
+  child [grow=left] { node {Entorno suelo}
+    child [grow=south west] { node {\rotatebox{0}{soil resistivity}} }
+    child [grow=north west] { node {\rotatebox{0}{backfill}} }
+  }
+  child [grow=down] { node {Tipo publicación}
+    child [grow=south west] { node {\rotatebox{0}{review}} }
+    child [grow=south] { node {\rotatebox{0}{assessment}} }
+    child [grow=south east] { node {\rotatebox{0}{systematic}} }
+  };
+\end{tikzpicture}
+
+\vspace{0.3em}
+{\tiny\color{gray}
+Bases: Scopus, WoS, IEEE Xplore, ScienceDirect.\\
+Período: 2000--2026. Idioma: inglés.}
+
+\column{0.5\textwidth}
+\begin{block}{\scriptsize String~1 --- Estado del arte}
+\tiny\ttfamily
+("underground power cable*" OR "buried power cable*"\\
+\quad OR "underground cable system*")\\
+AND (thermal OR ampacity OR "thermal rating" OR temperature)\\
+AND (review OR assessment OR systematic OR survey\\
+\quad OR mapping OR overview)
+\end{block}
+
+\vspace{0.4em}
+\begin{block}{\scriptsize String~2 --- Aportes metodológicos}
+\tiny\ttfamily
+("underground power cable*" OR "buried cable*")\\
+AND (soil OR backfill OR bedding OR "thermal resistivity"\\
+\quad OR "soil drying")\\
+AND (FEM OR "finite element" OR PINN OR "neural network"\\
+\quad OR "machine learning" OR numerical)
+\end{block}
+
+\end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+% TABLA COMPARATIVA DE REVISIONES
+% ---------------------------------------------------------------------------
+\begin{frame}{Revisiones sistemáticas y evaluaciones encontradas}
+\centering\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{>{\bfseries\scriptsize}p{2.5cm}
+                >{\scriptsize\centering}p{0.6cm}
+                >{\scriptsize}p{3.0cm}
+                >{\scriptsize}p{2.5cm}
+                >{\scriptsize}p{4.0cm}}
+\toprule
+\textbf{Referencia} & \textbf{Año} & \textbf{Revista / tipo} & \textbf{Cobertura} & \textbf{Hallazgo principal} \\
+\midrule
+\rowcolor{blue!7}
+Aras et al. & 2005 & \textit{EPCS} --- evaluación comparativa & 1957--2005 & IEC~60287 diverge del FEM $>$15\,\% en instalaciones complejas \\
+Enescu et al. & 2021 & \textit{Energies} --- revisión sistemática DTR & 2000--2020 & Resistividad del suelo: principal fuente de incertidumbre en DTR \\
+\rowcolor{blue!7}
+Khumalo et al. & 2025 & \textit{ITEES} --- evaluación crítica & 2000--2024 & Secado del suelo degrada ampacidad 20--30\,\%; IEC~60853-3 insuficiente \\
+Fariz et al. & 2026 & \textit{IEEE Access} --- mapeo sistemático & 2015--2025 & 5 brechas abiertas en DTR: suelo heterogéneo, ML inverso, SCADA \\
+\rowcolor{blue!7}
+Möbius et al. & 2025 & \textit{RSER} --- análisis de impacto & 2010--2024 & Ampacidad varía $\pm$15--20\,\% estacionalmente; ratings estáticos ignoran esto \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.4em}
+{\tiny\color{gray}
+EPCS = \textit{Electric Power Comp.\ \& Systems};
+ITEES = \textit{Int.\ Trans.\ on Electrical Energy Systems};
+RSER = \textit{Renewable and Sustainable Energy Reviews}.}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+% ENESCU 2021
+% ---------------------------------------------------------------------------
+\begin{frame}{Enescu et al.\ (2021) --- revisión sistemática DTR}
+\begin{columns}[T]
+\column{0.65\textwidth}
+\begin{block}{\scriptsize Referencia}
+\scriptsize Enescu, D., Colella, P., \& Russo, A. (2021). Concepts and methods
+to assess the dynamic thermal rating of underground power cables.
+\textit{Energies, 14}(9), 2591.
+\href{https://doi.org/10.3390/en14092591}{doi:10.3390/en14092591}
+\end{block}
+
+\vspace{0.1em}
+\begin{block}{\scriptsize Cadena de búsqueda declarada}
+\tiny\ttfamily
+("underground power cable" OR "buried cable")\\AND ("dynamic thermal rating" OR DTR\\
+\quad OR "ampacity")\\AND (method* OR assessment OR review)
+\end{block}
+
+\vspace{0.05em}
+\textbf{\scriptsize Hallazgos clave}
+\begin{itemize}[leftmargin=*,nosep]\tiny
+  \item Clasifica métodos DTR: normativos, RC equivalentes, FEM, ML
+  \item La \textbf{resistividad del suelo} es la principal fuente de incertidumbre
+  \item El monitoreo DTS (fibra óptica) transforma la precisión del DTR
+  \item Brecha: falta integración entre modelos físicos y datos operativos
+\end{itemize}
+
+\column{0.3\textwidth}
+{\scriptsize\textbf{Criterios de inclusión/exclusión}}
+\begin{itemize}[leftmargin=*,itemsep=0pt]\tiny
+  \item \textbf{Inclusión}: cables subterráneos, métodos de evaluación
+        térmica, 2000--2020, Scopus/WoS
+  \item \textbf{Exclusión}: cables aéreos, BT, sin validación numérica
+\end{itemize}
+
+
+\begin{alertblock}{\scriptsize Relevancia para esta tesis}\tiny
+Confirma que $k(x,y)$ heterogénea es el factor limitante no resuelto en el
+DTR. Justifica la pregunta central de la investigación.
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+% FARIZ 2026
+% ---------------------------------------------------------------------------
+\begin{frame}{Fariz et al.\ (2026) --- mapeo sistemático DTR}
+\begin{columns}[T]
+\column{0.46\textwidth}
+\begin{block}{\scriptsize Referencia}
+\scriptsize Fariz, K., et al.\ (2026). Systematic mapping of dynamic thermal
+rating for underground cables. \textit{IEEE Access.}
+\href{https://doi.org/10.1109/ACCESS.2025.3650354}{doi:10.1109/ACCESS.2025.3650354}
+\end{block}
+
+\vspace{0.15em}
+\begin{block}{\scriptsize Cadena de búsqueda declarada}
+\tiny\ttfamily
+("underground cable" OR "power cable")\\
+AND ("thermal rating" OR "ampacity")\\
+AND ("dynamic" OR "machine learning"\\
+\quad OR "neural network" OR "PINN")
+\end{block}
+
+\vspace{0.15em}
+\textbf{\small Hallazgos clave}
+\begin{itemize}[leftmargin=*,nosep]\scriptsize
+  \item Mapeo de 85$+$ estudios (2015--2025) sobre DTR en cables
+  \item Clasifica: estadísticos, RC, FEM, PINNs, ML supervisado
+  \item \textbf{Problema inverso} ($k$ del suelo desde $T$): sin resolver
+  \item Brecha entre modelos físicos y herramientas operativas
+\end{itemize}
+
+\column{0.50\textwidth}
+\textbf{\small Brechas abiertas (Fariz, 2026)}
+\vspace{0.2em}
+
+\begin{tikzpicture}[
+  gap/.style={draw, rounded corners=4pt, fill=orange!12,
+              text width=6.6cm, font=\scriptsize, inner sep=4pt,
+              minimum height=0.62cm},
+  >=Stealth]
+  \foreach \txt/\y/\col in {
+    {B1: Heterogeneidad espacial $k(x,y)$ del suelo}/4.0/red!15,
+    {B2: Incertidumbre del backfill y bedding}/3.15/orange!15,
+    {B3: Integración con SCADA operacional}/2.3/yellow!20,
+    {B4: ML para estimación inversa de $k$}/1.45/green!12,
+    {B5: DTR en parques renovables variables}/0.6/blue!10
+  }{
+    \node[gap, fill=\col] at (2.3,\y) {\txt};
+  }
+  %\draw[<-, thick, red!60!black] (-0.5,4.0) -- (-0.1,1.45)
+   % node[midway, left, font=\tiny\bfseries, rotate=90, color=red!60!black]
+    {\hbox{Esta tesis}};
+\end{tikzpicture}
+
+\vspace{0.15em}
+\begin{alertblock}{\scriptsize Posicionamiento}\scriptsize
+Aborda \textbf{B1}: brecha IEC vs.\ modelo con $k(x,y)$ variable.\\
+Explora \textbf{B4}: inversión de $k_s$ desde mediciones operativas de $T$.
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+% KHUMALO 2025
+% ---------------------------------------------------------------------------
+\begin{frame}{Khumalo et al.\ (2025) --- evaluación crítica: secado del suelo}
+\begin{columns}[T]
+\column{0.50\textwidth}
+\begin{block}{\scriptsize Referencia}
+\scriptsize Khumalo, N.~Q., et al. (2025). A critical assessment of cable rating
+methods under soil drying out conditions. \textit{Int.\ Trans.\ Electrical Energy
+Systems.}
+\href{https://doi.org/10.1155/etep/5946564}{doi:10.1155/etep/5946564}
+\end{block}
+
+\vspace{0.2em}
+\begin{block}{\scriptsize Enfoque de búsqueda}
+\tiny\ttfamily
+("cable rating" OR "ampacity")\\AND ("soil drying" OR "thermal dryout"\\
+\quad OR "moisture migration")\\AND (IEC OR standard OR method)
+\end{block}
+
+\vspace{0.15em}
+\textbf{\small Hallazgos clave}
+\begin{itemize}[leftmargin=*]\scriptsize
+  \item El secado del suelo reduce la ampacidad en \textbf{20--30\,\%}
+  \item IEC~60853-3 subestima sistemáticamente el riesgo real de secado
+  \item Suelos nativos sin backfill más susceptibles al secado
+  \item Propone metodología de rating adaptada con medición $k$ in-situ
+\end{itemize}
+
+\column{0.46\textwidth}
+\centering
+\includegraphics[width=0.60\linewidth]{own_kim_fem_zoom}\\[2pt]
+{\tiny\color{gray} Cable XLPE 154\,kV: detalle capas concéntricas (zoom FEM).\\
+\refcite{Reproducción propia --- Koc y Meléndez, 2025}}
+
+\vspace{0.2em}
+\begin{exampleblock}{\scriptsize Implicación clave}\scriptsize
+La variabilidad de $k_s$ es tanto \textbf{espacial} como \textbf{temporal}.
+Esta dinámica es el corazón del problema investigado.
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+% ARAS 2005
+% ---------------------------------------------------------------------------
+\begin{frame}{Aras et al.\ (2005) --- evaluación comparativa de métodos de ampacidad}
+\begin{columns}[T]
+\column{0.50\textwidth}
+\begin{block}{\scriptsize Referencia}
+\scriptsize Aras, F., Oysu, C., \& Yilmaz, G. (2005). An assessment of the
+methods for calculating ampacity of underground power cables.
+\textit{Electric Power Components and Systems, 33}(12), 1385--1402.
+\href{https://doi.org/10.1080/15325000590964425}{doi:10.1080/15325000590964425}
+\end{block}
+
+\vspace{0.15em}
+\begin{block}{\scriptsize Metodología comparativa}
+\scriptsize Compara tres métodos sobre el mismo caso de referencia
+(cable 154\,kV en suelo estratificado):\\[2pt]
+\begin{tabular}{ll}\scriptsize
+  (1) & IEC~60287 analítico \\
+  (2) & FEM (elementos finitos) \\
+  (3) & BEM (elementos de contorno)\\
+\end{tabular}
+\end{block}
+
+\vspace{0.15em}
+
+
+\column{0.46\textwidth}
+\centering
+\textbf{\small Hallazgos clave}
+\begin{itemize}[leftmargin=*]\scriptsize
+  \item IEC~60287 diverge del FEM en $\pm$3--8\,\% en condiciones ideales
+  \item En suelo estratificado, la divergencia supera \textbf{15\,\%}
+  \item FEM captura efectos de $k(x,y)$ variable que IEC ignora
+  \item El caso publicado es el \textbf{benchmark} estándar de la literatura
+\end{itemize}
+
+%\includegraphics[width=0.90\linewidth]{own_aras_geometry}\\[2pt]
+%{\tiny\color{gray} Geometría del caso Aras 2005: 154\,kV trefoil en suelo
+%estratificado. Dominio 2D con condiciones de contorno Dirichlet/Neumann.\\
+%\refcite{Reproducción propia --- Koc y Meléndez, 2025}}
+
+\vspace{0.3em}
+\begin{alertblock}{\scriptsize Benchmark para esta tesis}\scriptsize
+El caso Aras 2005 es el caso de validación del modelo computacional propio.
+Las diferencias entre IEC y FEM documentadas aquí son la evidencia cuantitativa
+de la brecha que se pretende caracterizar y cuantificar sistemáticamente.
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+% SÍNTESIS ESTADO DEL ARTE
+% ---------------------------------------------------------------------------
+\begin{frame}{Síntesis del estado del arte: lo que se sabe y lo que falta}
+\begin{columns}[T]
+\column{0.54\textwidth}
+\textbf{\small Lo que el estado del arte \underline{confirma}}\\[0.2em]
+\begin{itemize}[leftmargin=*]\small
+  \item[$\checkmark$] Métodos normativos divergen del comportamiento real cuando
+        el suelo no es uniforme
+        \rcite{(Aras, 2005~[R1]; Enescu, 2021~[R2])}
+  \item[$\checkmark$] Secado térmico: mecanismo cuantificable que degrada la
+        ampacidad 20--30\,\%
+        \rcite{(Khumalo, 2025~[R3])}
+  \item[$\checkmark$] Variabilidad estacional impacta la ampacidad en $\pm$15--20\,\%
+        \rcite{(Möbius, 2025~[R5])}
+  \item[$\checkmark$] DTR dinámico mejora el aprovechamiento pero requiere modelos
+        más precisos
+        \rcite{(Fariz, 2026~[R4])}
+  \item[$\checkmark$] FEM/FVM da resultados más precisos pero es complejo y no
+        accesible
+        \rcite{(CIGRÉ WG B1.56, 2022~[N4])}
+\end{itemize}
+
+\column{0.46\textwidth}
+\textbf{\small Lo que \underline{todavía falta} (brechas abiertas)}\\[0.2em]
+\begin{itemize}[leftmargin=*]\small
+  \item[$\times$] Modelo abierto para $k(x,y)$ arbitraria sin
+        configuración experta
+        \rcite{(Fariz, 2026 --- B1~[R4])}
+  \item[$\times$] Herramienta para el \textbf{problema inverso}: estimar
+        $k_s$ desde mediciones operativas de $T$
+        \rcite{(Fariz, 2026 --- B4~[R4])}
+  \item[$\times$] Cuantificación sistemática de la brecha IEC vs.\ real
+        en función de parámetros de instalación
+  \item[$\times$] Modelos adaptables a suelos nativos (no solo backfill europeo)
+        \rcite{(Khumalo, 2025~[R3])}
+  \item[$\times$] Integración con sensores SCADA/DTS para DTR en cuasi-tiempo real
+\end{itemize}
+\end{columns}
+
+%\vspace{0.3em}
+\begin{exampleblock}{}
+\centering\small
+\textbf{Esta investigación se posiciona en las brechas B1 y B4 de Fariz et al.\
+(2026)}: caracterizar cuantitativamente la brecha IEC vs.\ modelo detallado
+con $k(x,y)$ variable, y explorar la viabilidad del enfoque inverso para
+estimar $k_s$ del suelo desde mediciones de temperatura operativa.
+\end{exampleblock}
+\end{frame}
+
+
+% ===========================================================================
+\section{Formulación del problema}
+% ===========================================================================
+
+% ---------------------------------------------------------------------------
+% GAP DIAGRAM
+% ---------------------------------------------------------------------------
+\begin{frame}{La brecha: de dónde venimos y a dónde queremos llegar}
+\begin{center}
+\resizebox{0.96\textwidth}{!}{%
+\begin{tikzpicture}[>=Stealth,
+  estado/.style={draw, rounded corners=5pt, text width=3.8cm, align=center,
+                 minimum height=3.2cm, font=\small, inner sep=7pt},
+  lbl/.style={font=\tiny\bfseries, text width=3.8cm, align=center}]
+
+  \node[estado, fill=red!10, draw=red!55!black] (actual) at (0,0) {
+    \textbf{Estado actual}\\[5pt]
+    \footnotesize
+    Normas IEC / Neher-McGrath\\con supuestos uniformes\\[3pt]
+    FEM preciso pero no\\accesible ni adaptable\\[3pt]
+    Sin inversión de\\parámetros del suelo\\[3pt]
+    Incertidumbre en $T_\text{cond}$\\no cuantificada
+  };
+
+  \node[estado, fill=orange!14, draw=orange!60!black] (brecha) at (5.6,0) {
+    \textbf{Brecha}\\[5pt]
+    \footnotesize
+    $k(x,y)$ heterogénea\\ignorada o asumida cte.\\[3pt]
+    Casos complejos fuera\\de premisas normativas\\[3pt]
+    Secado, ciclos y\\clima no integrados\\[3pt]
+    Sin herramienta abierta\\y adaptable
+  };
+
+  \node[estado, fill=green!8, draw=green!50!black] (deseable) at (11.2,0) {
+    \textbf{Estado deseable}\\[5pt]
+    \footnotesize
+    Modelo 2D con $k(x,y)$\\variable por zonas\\[3pt]
+    Problema directo\\e inverso resueltos\\[3pt]
+    Open-source, adaptable\\y validado\\[3pt]
+    Eficiente para DTR\\y mantenimiento
+  };
+
+  \draw[->, very thick, red!70!black]
+    (actual.east) -- node[above, font=\tiny, color=red!70!black]
+    {divergencia} (brecha.west);
+
+  \draw[->, very thick, dashed, green!55!black]
+    (brecha.east) -- node[above, font=\tiny, color=green!50!black]
+    {cerrar} (deseable.west);
+
+  \node[lbl, below=0.35cm of actual, text=red!70!black]
+    {Métodos insuficientes\\para condiciones reales};
+  \node[lbl, below=0.35cm of brecha, text=orange!80!black]
+    {Problema a resolver\\(esta investigación)};
+  \node[lbl, below=0.35cm of deseable, text=green!50!black]
+    {Meta: precisión,\\seguridad y eficiencia};
+\end{tikzpicture}%
+}
+\end{center}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+% FORMULACIÓN DEL PROBLEMA
+% ---------------------------------------------------------------------------
+\begin{frame}{Formulación del problema de investigación}
+\begin{exampleblock}{Síntesis}
+\justifying\small
+Los métodos predominantes de evaluación térmica de cables eléctricos
+subterráneos ---basados en normas estacionarias (IEC~60287, IEC~60853,
+Neher-McGrath) o en modelos FEM de uso restringido--- asumen condiciones
+térmicas homogéneas y no están diseñados para representar la
+\textbf{heterogeneidad real del suelo}, los casos de instalación complejos
+ni la estimación inversa de propiedades térmicas desde mediciones operativas.
+
+\vspace{0.3em}
+Esta limitación genera una \textbf{brecha} entre la temperatura estimada del
+conductor y la temperatura real bajo condiciones de suelo variable, secado
+térmico, cargas dinámicas o arreglos de múltiples circuitos.
+
+\vspace{0.3em}
+La brecha se expresa como: (1)~incertidumbre sobre la ampacidad disponible,
+(2)~riesgo de sobrecalentamiento no detectado, y (3)~falta de herramientas
+accesibles para el diseño y operación de instalaciones fuera del caso base
+normativo. Cerrar esta brecha permitiría diseñar instalaciones más seguras,
+operar con mayor aprovechamiento de la capacidad térmica real y habilitar el
+mantenimiento predictivo de activos críticos sin redundancia.
+\end{exampleblock}
+
+\vspace{0.3em}
+\refcite{(Neher y McGrath, 1957~[N1]); (IEC~60287-1-1, 2023~[N2]); (Aras et al., 2005~[R1]);
+(Khumalo et al., 2025~[R3]); (Enescu et al., 2021~[R2]); (Fariz et al., 2026~[R4])}
+\end{frame}
+
+
+% ===========================================================================
+\section{Preguntas y objetivos}
+% ===========================================================================
+
+% ---------------------------------------------------------------------------
+% PREGUNTA CENTRAL + SUBORDINADAS
+% ---------------------------------------------------------------------------
+\begin{frame}{Pregunta de investigación}
+
+\begin{block}{Pregunta central}
+\justifying
+¿En qué medida los métodos simplificados de evaluación térmica de cables
+eléctricos subterráneos representan adecuadamente la distribución de temperatura
+real cuando el suelo presenta conductividad térmica espacialmente variable
+$k(x,y)$, y cuál es el efecto cuantificable de dicha variabilidad sobre la
+temperatura máxima del conductor y la ampacidad estimada?
+\end{block}
+
+\vspace{0.6em}
+\textbf{Preguntas subordinadas:}
+\begin{itemize}[leftmargin=*]\small
+  \item ¿Cuáles son los supuestos de IEC~60287 y del método Neher-McGrath que
+        limitan su validez bajo condiciones reales de suelo e instalación?
+  \item ¿Cuánto varía la temperatura del conductor al cambiar la distribución
+        espacial $k(x,y)$ del suelo y del material de relleno?
+  \item ¿Qué configuraciones de instalación se alejan más de las premisas normativas
+        y generan mayor incertidumbre térmica?
+  \item ¿Qué información operativa y qué tipo de modelo serían necesarios para
+        estimar la ampacidad dinámica real con mayor precisión?
+\end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+% OBJETIVOS
+% ---------------------------------------------------------------------------
+\begin{frame}{Objetivos de la investigación}
+
+\begin{block}{Objetivo general}
+\justifying\small
+Caracterizar y cuantificar la brecha entre los métodos normativos simplificados y
+el comportamiento térmico real de cables eléctricos subterráneos, identificando
+las condiciones de suelo, geometría de instalación y perfil de carga que
+determinan la magnitud de dicha brecha y los requisitos para cerrarla.
+\end{block}
+
+\vspace{0.4em}
+\textbf{Objetivos específicos:}
+\begin{enumerate}[leftmargin=*]\small
+  \item Describir y sistematizar los supuestos y limitaciones de los métodos
+        normativos vigentes (IEC~60287, IEC~60853, Neher-McGrath) para el
+        cálculo de ampacidad en condiciones no ideales.
+  \item Identificar los casos de instalación o condición de entorno donde los
+        métodos simplificados presentan mayor desviación respecto a modelos
+        numéricos más detallados.
+  \item Analizar cuantitativamente el efecto de la variabilidad de $k(x,y)$
+        del suelo/backfill sobre $T_{\max}$ del conductor y la ampacidad estimada.
+  \item Delimitar los requisitos funcionales de un modelo computacional abierto
+        para representar adecuadamente la transferencia de calor 2D con $k(x,y)$
+        variable y condiciones de instalación complejas.
+\end{enumerate}
+\end{frame}
+
+
+% ===========================================================================
+\section{Referencias}
+% ===========================================================================
+
+\begin{frame}{Referencias}
+\begin{columns}[T]
+\column{0.48\textwidth}
+
+{\footnotesize\color{blue!60!black}\textbf{[N] Normas y libros de referencia}}
+\vspace{0.1pt}
+\begin{itemize}[leftmargin=*,itemsep=1pt]\scriptsize
+  \item \textbf{[N1]} Neher \& McGrath (1957). Calc.\ of temperature rise and
+        load capability of cable systems. \textit{AIEE Trans.}
+  \item \textbf{[N2]} IEC~60287-1-1:2023. \textit{Calculation of current rating.}
+  \item \textbf{[N3]} Anders (2005). \textit{Rating of power cables in unfavorable
+        thermal environment.} IEEE Press.
+  \item \textbf{[N4]} CIGRÉ WG B1.56 (2022). \textit{Cable rating examples for
+        calculation tool verification.}
+  \item \textbf{[N5]} IEC~60502-2:2014. \textit{Power cables with extruded
+        insulation, 1\,kV -- 30\,kV.} IEC.
+  \item \textbf{[N6]} CIGRÉ WG B1.87 (2025). \textit{Finite element analysis
+        for cable rating calculations.} TB~963.
+\end{itemize}
+
+\vspace{0.1pt}
+{\footnotesize\color{teal!70!black}\textbf{[R] Revisiones y evaluaciones (estado del arte)}}
+\vspace{0.1pt}
+\begin{itemize}[leftmargin=*,itemsep=1pt]\scriptsize
+  \item \textbf{[R1]} Aras et al.\ (2005). Assessment of methods for calculating
+        ampacity. \textit{EPCS, 33}(12). \href{https://doi.org/10.1080/15325000590964425}{doi}
+  \item \textbf{[R2]} Enescu et al.\ (2021). Concepts and methods for DTR of
+        underground cables. \textit{Energies, 14}(9). \href{https://doi.org/10.3390/en14092591}{doi}
+  \item \textbf{[R3]} Khumalo et al.\ (2025). Critical assessment of cable
+        rating under soil drying. \textit{ITEES.} \href{https://doi.org/10.1155/etep/5946564}{doi}
+  \item \textbf{[R4]} Fariz et al.\ (2026). Systematic mapping of DTR for
+        underground cables. \textit{IEEE Access.} \href{https://doi.org/10.1109/ACCESS.2025.3650354}{doi}
+  \item \textbf{[R5]} Möbius et al.\ (2025). Cable ampacity: seasonal and
+        climate-related changes. \textit{RSER.}
+\end{itemize}
+
+\column{0.48\textwidth}
+
+{\footnotesize\color{orange!70!black}\textbf{[A] Aportes metodológicos}}
+\vspace{0.1pt}
+\begin{itemize}[leftmargin=*,itemsep=1pt]\scriptsize
+  \item \textbf{[A1]} Kim et al.\ (2025). Heat transfer in underground cable
+        with new bedding material. \textit{Geothermics, 125}.
+  \item \textbf{[A2]} Ocłoń et al.\ (2015). Optimizing underground cable
+        bedding using PSO. \textit{Energy, 92}(P2).
+  \item \textbf{[A3]} Atoccsa et al.\ (2024). Ampacity optimization with
+        thermal backfill using dynamic PSO. \textit{Energies, 17}(5).
+\end{itemize}
+
+\vspace{0.1pt}
+{\footnotesize\color{gray!70!black}\textbf{[E] Textos clásicos de soporte}}
+\vspace{0.1pt}
+\begin{itemize}[leftmargin=*,itemsep=1pt]\scriptsize
+  \item \textbf{[E1]} Thue, W.~A. (2012). \textit{Electrical Power Cable
+        Engineering.} CRC Press.
+  \item \textbf{[E2]} Carslaw \& Jaeger (1959). \textit{Conduction of Heat
+        in Solids.} Oxford UP.
+\end{itemize}
+
+\vspace{0.1pt}
+\begin{block}{}\scriptsize
+\textbf{Código}: \textcolor{blue!60!black}{[N]} norma/libro,
+\textcolor{teal!70!black}{[R]} revisión/evaluación (estado del arte),
+\textcolor{orange!70!black}{[A]} aporte metodológico,
+\textcolor{gray!70!black}{[E]} texto clásico de soporte.
+\end{block}
+
+\end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+% CIERRE
+% ---------------------------------------------------------------------------
+\begin{frame}
+\centering
+{\Large \textbf{Gracias}}
+
+\vspace{0.8em}
+\large Luis Koc \quad $|$ \quad Herbert Meléndez
+
+\vspace{0.4em}
+\normalsize Trabajo de Investigación I $\cdot$ MIA 3er Ciclo A 2026-1 $\cdot$ FIIS/UNMSM
+
+\vspace{0.6em}
+\begin{block}{\centering Síntesis del problema}
+\centering\small
+Existe una brecha entre los métodos simplificados de evaluación térmica de cables
+eléctricos subterráneos y la realidad del sistema bajo condiciones heterogéneas,
+dinámicas y complejas. El estado del arte (Enescu 2021, Khumalo 2025, Fariz 2026)
+confirma la brecha pero carece de herramientas abiertas para cuantificarla
+sistemáticamente. Esta investigación apunta a cerrar esa brecha mediante modelos
+numéricos 2D con $k(x,y)$ variable y enfoque directo e inverso.
+\end{block}
+\end{frame}
+
+\end{document}

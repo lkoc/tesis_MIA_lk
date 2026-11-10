@@ -1,0 +1,113 @@
+# .clineignore — rutas que Cline NO debe leer ni enviar al modelo.
+# Objetivo: con modelos locales (Ollama, 9B) el presupuesto de contexto es
+# pequeno; excluir binarios y carpetas pesadas evita que el agente rompa el
+# loop de tool-calling. Basado en los tamanos reales del repositorio:
+# .git 2.4 GB | Benchmarks 2.1 GB | Plan 1.37 GB | examples 1.08 GB
+# zotero_offline 763 MB | .venv-benchmarks-repro 609 MB | Entregas_Google_Drive 321 MB
+
+# --- Control de versiones y entornos ---
+.git/
+.github/
+.venv/
+.venv-benchmarks-repro/
+venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+*.egg-info/
+
+# --- Binarios voluminosos (no aportan contexto util al agente) ---
+*.pdf
+*.ppt
+*.pptx
+*.doc
+*.docx
+*.xls
+*.xlsx
+*.zip
+*.7z
+*.rar
+*.tar
+*.gz
+*.h5
+*.hdf5
+*.npz
+*.npy
+*.pt
+*.pth
+*.ckpt
+*.mph
+*.vtu
+*.vtk
+*.msh
+*.stl
+*.safetensors
+*.bin
+
+# --- Imagenes y graficos (el modelo no puede interpretarlos) ---
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tif
+*.tiff
+*.eps
+*.ps
+
+# --- Salidas auxiliares de LaTeX ---
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.nav
+*.out
+*.run.xml
+*.snm
+*.synctex.gz
+*.toc
+*.vrb
+*.xdv
+*.loe
+*.acn
+*.acr
+*.alg
+*.glg
+*.glo
+*.gls
+*.ist
+*.idx
+*.ilg
+*.ind
+
+# --- Carpetas pesadas / material de referencia no necesario para editar codigo ---
+Información/
+zotero_offline/
+benchmark_papers/
+Entregas_Google_Drive/
+Plan/envío_rev*/
+Estado de arte/
+temas_cursos_Tesis_1/
+docs/
+
+# --- Resultados y mallas regenerables (FEM/PINN) ---
+examples/**/*.h5
+examples/**/*.npz
+Benchmarks/**/*.pt
+Benchmarks/**/*.h5
+Benchmarks/**/*.mph
+Benchmarks/**/*.vtu
+Benchmarks/**/*.png
+
+# --- Archivos temporales / de trabajo locales ---
+*~
+*.bak
+*.tmp
+tmp_*.py
+_tmp_*.py
+_*.txt
+monitor_multiseed.py

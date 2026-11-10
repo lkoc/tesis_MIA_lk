@@ -1,0 +1,265 @@
+from pathlib import Path
+p=Path('Tesis_LaTeX_Borrador_UNI/capitulos/03_propuesta_y_desarrollo.tex')
+old=p.read_text(encoding='utf-8')
+a=old.index(r'\begin{figure}')
+b=old.index(r'\end{figure}',a)+len(r'\end{figure}')
+architecture=old[a:b]
+prefix=r'''\chapter{PROPUESTA Y DESARROLLO DE LA SOLUCIÓN}
+\label{ch:propuesta-desarrollo}
+
+Este capítulo documenta el artefacto implementado, las comparaciones ejecutadas y sus límites de uso. La evaluación combina soluciones manufacturadas, referencias FEniCS y escenarios de cables derivados del Plan. Los resultados históricos se conservan como antecedentes; la evidencia cuantitativa procede de la batería común de \texttt{Benchmarks}.
+
+\section{PRESENTACIÓN DE LA PROPUESTA DE SOLUCIÓN}
+\label{sec:presentacion-propuesta}
+
+La solución integra una especificación física en texto plano, dos solucionadores independientes y un expediente de evaluación por caso. La PINN aproxima la temperatura mediante residuos de la ecuación y de sus condiciones auxiliares. FEniCSx produce las referencias numéricas con tres niveles de malla.
+
+El producto comprende los datos, el código, las configuraciones, los pesos entrenados, las métricas y los cuadernos de revisión. Esta organización permite reconstruir una comparación y distinguir el artefacto de una red particular. La contribución se sitúa en el diseño y evaluación de un procedimiento verificable \parencite{gregor2013}.
+
+El alcance ejecutado corresponde a conducción estacionaria bidimensional y a un modelo reducido de los cables. Se resuelve explícitamente el suelo exterior; cada cable introduce una potencia mediante una frontera circular. Su temperatura interna se reconstruye con resistencias radiales, por lo que los resultados no equivalen a un modelo bidimensional completo de todas las capas.
+
+'''
+body=r'''
+
+\section{DESARROLLO DE LA PROPUESTA DE SOLUCIÓN}
+\label{sec:desarrollo-solucion}
+
+\subsection{ESPECIFICACIÓN FÍSICA Y FORMATO COMÚN}
+
+Cada caso se define en un archivo JSON codificado en UTF-8. El archivo contiene identificador, procedencia, dominio, conductividades, centros de cables, radios, capas, corriente, resistencia y potencia. Los validadores comprueban positividad, continuidad radial de las capas, pertenencia al dominio, ausencia de superposición y consistencia entre corriente y pérdidas.
+
+Las longitudes se expresan en metros, la conductividad en \si{\watt\per\metre\per\kelvin}, la potencia lineal en \si{\watt\per\metre} y la temperatura en grados Celsius. Las diferencias térmicas se expresan en kelvin. La representación admite varios cables del mismo tipo y una potencia común por escenario; otras combinaciones requieren ampliar explícitamente el contrato.
+
+Las opciones de entrenamiento se almacenan en archivos JSON separados. El caso físico se conserva completo dentro de cada resultado y se identifica mediante SHA-256. Por tanto, una modificación de geometría o materiales puede detectarse antes de comparar campos pertenecientes a problemas diferentes.
+
+Los casos de cables usan un dominio de $[-4,4]\times[-4,0]$ m, con temperatura de \SI{20}{\celsius} en sus cuatro lados. Las potencias de referencia se calculan con $P=I^2R_{20}$. Se excluyen pérdidas dieléctricas, pantallas, proximidad y efecto pelicular; esta exclusión define el problema controlado y limita su interpretación operativa.
+
+El campo exterior satisface la ecuación de la Fórmula~\ref{for:modelo-benchmark}. La normal de cada agujero apunta hacia el interior del cable, es decir, hacia fuera del suelo. Este convenio explica el signo negativo del flujo impuesto.
+
+\begin{formula}[htbp]
+\centering
+\begin{equation}
+\label{for:modelo-benchmark}
+\begin{aligned}
+-\nabla\cdot(k\nabla T)&=0 &&\text{en el suelo},\\
+-k\nabla T\cdot\boldsymbol n&=-\frac{P}{2\pi r_o} &&\text{en cada cable},\\
+T_c&=\overline{T}_{r_o}+P\left[\frac{1}{4\pi k_c}
++\sum_{j=2}^{m}\frac{\ln(r_j/r_{j-1})}{2\pi k_j}\right].
+\end{aligned}
+\end{equation}
+\caption{Problema exterior y reconstrucción radial de la temperatura del conductor.}
+\end{formula}
+
+La reconstrucción usa la temperatura media de la superficie externa. Supone generación uniforme en el conductor, conducción radial en las capas y ausencia de resistencia de contacto. Ambas técnicas aplican exactamente esta reconstrucción, de modo que el error comparado corresponde al solucionador del mismo modelo reducido.
+
+\subsection{CATÁLOGO Y RELACIÓN CON EL PLAN}
+
+La batería contiene quince casos: cuatro soluciones manufacturadas, un anillo analítico y diez escenarios de cables. Los casos manufacturados comprueban conductividad constante, conductividad variable, salto de material y frontera convectiva. Su finalidad es identificar errores de implementación antes de interpretar una geometría de ingeniería.
+
+En el cuadrado unitario se prescribe $T^*=20+30\sin(\pi x)\sin(\pi y)$ para conductividad constante y para $k=1+x$. La fuente se obtiene analíticamente como $-\nabla\cdot(k\nabla T^*)$. La solución no se incorpora como etiqueta interior del entrenamiento; solamente determina las fuentes y las condiciones de contorno del problema manufacturado.
+
+El caso de interfaz divide el dominio en $x=0,5$, con conductividades de 0,5 y \SI{2}{\watt\per\metre\per\kelvin}. La temperatura se construye con continuidad y derivadas laterales diferentes, de modo que el flujo sea continuo. El caso Robin prescribe $T^*=20+30x(1-x)(1+y)$ y $h=\SI{10}{\watt\per\metre\squared\per\kelvin}$ en el borde superior.
+
+El anillo tiene radios de 0,06 y 20 m, conductividad de \SI{1.25}{\watt\per\metre\per\kelvin} y potencia de \SI{40}{\watt\per\metre}. La temperatura exacta es logarítmica. FEniCS resuelve su geometría bidimensional; la PINN aprovecha la simetría radial mediante una coordenada logarítmica, por lo que su desempeño no representa el de una red cartesiana general \parencite{cigre2025}.
+
+Los casos de cables recuperan geometrías XLPE y disposiciones documentadas por \textcite{aras2005} y \textcite{kim2025}. Se incluyen un cable, tres cables en disposición plana y seis cables en dos filas. La adaptación conserva los datos geométricos seleccionados, pero unifica dominio, contornos y pérdidas para permitir una comparación controlada.
+
+La identificación bibliográfica de Kim corresponde a 2025, aunque el DOI contiene 2024 y las carpetas históricas conservan ese año. El artículo imprime un coeficiente de resistencia de $0,0393$; la extensión DC adopta explícitamente $0,00393\,\mathrm{K}^{-1}$. Esta discrepancia impide presentar los resultados como reproducción exacta de sus temperaturas publicadas.
+
+Los escenarios XLPE modifican el contraste, la proximidad y la extensión de una región térmica. Una zona seca usa $k=0,5$ y un relleno mejorado usa $k=\SI{2}{\watt\per\metre\per\kelvin}$, frente a un suelo de base con $k=1$. Se comparan zonas de $0,5\times0,5$ m, una zona de $1\times1$ m y un desplazamiento horizontal de 1 m.
+
+Los seis cables se evalúan en arena, con un relleno de mayor conductividad y con suelo estratificado. La arena adopta $k=1,365$ y el relleno $k=\SI{2.094}{\watt\per\metre\per\kelvin}$, a partir de \textcite{kim2025}. Las transiciones localizadas se regularizan mediante tangentes hiperbólicas; su ancho se registra como parte del modelo y se mantiene idéntico en PINN y FEM.
+
+El catálogo del Plan comprende fuentes de propiedades, problemas estacionarios y extensiones transitorias. No todos constituyen pruebas numéricas independientes: los datos de campo parametrizan materiales y los casos IEC transitorios pertenecen a otro alcance. El anexo de cobertura registra qué instancias se ejecutaron, adaptaron o excluyeron y conserva las referencias históricas.
+
+\subsection{REFERENCIA FEM Y CONTROL DE DISCRETIZACIÓN}
+
+FEniCSx 0.10.0 resuelve la formulación débil con elementos triangulares de Lagrange de grado dos. Gmsh 4.15.2 construye las geometrías con agujeros y refina sus proximidades. El sistema lineal se resuelve con PETSc y factorización LU mediante MUMPS; una falta de convergencia detiene la ejecución.
+
+Se ejecutan tres mallas por caso, con reducción progresiva de los tamaños característicos. Se registra el cambio de temperatura máxima, el RMSE entre las dos mallas finas y el balance integrado. La referencia se acepta cuando el cambio máximo es menor que 0,5\,\pct{} del incremento térmico y el desequilibrio global no supera 2\,\pct{}.
+
+La comparación espacial usa 6000 puntos comunes, independientes del entrenamiento. Las superficies se evalúan a una distancia equivalente a 0,2\,\pct{} del radio exterior para evitar ambigüedades de localización en elementos curvos. En el anillo se excluye además una franja exterior de 0,5\,\pct{} del muestreo de área; el entorno del radio interior se revisa por separado.
+
+El balance FEM se calcula integrando el flujo obtenido del gradiente de la solución. No se sustituye ese flujo por el valor impuesto para forzar artificialmente un balance nulo. Su mejora al refinar la malla constituye una comprobación adicional, aunque no elimina el error de modelación física.
+
+\subsection{SELECCIÓN DE ESQUEMA, ARQUITECTURA E HIPERPARÁMETROS}
+\label{sec:seleccion-pinn}
+
+La selección distingue formulación física, arquitectura y entrenamiento. Una red más ancha aumenta la capacidad de aproximación, pero no garantiza una reducción del error ni corrige por sí sola condiciones físicas mal implementadas. Por ello se comparan alternativas con una especificación y una evaluación comunes.
+
+La Tabla~\ref{tab:familias-pinn} organiza las opciones identificadas en la bibliografía. Su inclusión no significa que todas hayan sido implementadas o comparadas numéricamente. La campaña ejecutada se concentra en la formulación directa, el enriquecimiento analítico, el balance integral y la separación de redes en la interfaz manufacturada.
+
+\begin{table}[htbp]
+\centering
+\caption{Familias de PINN y pertinencia para el problema térmico. Fuente: Elaboración propia a partir de las referencias indicadas.}
+\label{tab:familias-pinn}
+\begin{tabularx}{\textwidth}{L{2.7cm}Y Y}
+\toprule
+Familia & Decisión que permite estudiar & Evidencia o alcance \\
+\midrule
+PINN directa & Temperatura aproximada por una sola MLP; referencia de complejidad mínima. & Ablación ejecutada; formulación base de \textcite{raissi2019}. \\
+Enriquecimiento analítico & Fondo térmico conocido más una corrección aprendida. & Adaptación propia de la solución de fuentes e imágenes; comparación ejecutada. \\
+Balance integral & Penalización del desequilibrio energético además de residuos locales. & Implementación propia; se distingue de cPINN por subdominios. \\
+Redes por material & Temperaturas laterales y continuidad explícita de flujo. & Caso de interfaz ejecutado; relacionado con \textcite{jagtap2020cpinn} y \textcite{shukla2021}. \\
+Pesos adaptativos & Equilibrio entre gradientes de pérdidas distintas. & Alternativa bibliográfica; la campaña usa pesos fijos comparables \parencite{wang2020gradients}. \\
+Muestreo adaptativo & Incorporación de puntos donde el residuo es elevado. & Alternativa bibliográfica; se compara densidad fija, sin atribuirle resultados de RAD \parencite{wu2022sampling}. \\
+Formulación mixta & Predicción conjunta de temperatura y flujo con derivadas de primer orden. & Extensión pertinente para materiales contrastantes; no ejecutada \parencite{gladstone2022fopinn}. \\
+VPINN y fronteras exactas & Residuos débiles o restricciones satisfechas mediante la función de aproximación. & Alternativas no ejecutadas; requieren otro diseño de integración o de frontera \parencites{kharazmi2020hpvpinn}{sukumar2021boundary}. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+La MLP base contiene tres capas ocultas de 32 neuronas con activación tangente hiperbólica. Se usa precisión doble, inicialización reproducible y coordenadas escaladas. El entrenamiento combina 1200 pasos de Adam y hasta 800 iteraciones de L-BFGS, con búsqueda lineal y registro del número real de evaluaciones.
+
+La variante enriquecida representa $T=T_{\mathrm{bg}}+s_Tu_\theta$. El fondo suma soluciones de fuentes e imágenes en un semiespacio homogéneo. Su derivada se conserva al evaluar la PDE, porque un fondo armónico para conductividad constante deja de serlo cuando $k$ varía espacialmente.
+
+La variante con balance agrega una penalización integral de energía. Sus pérdidas distinguen PDE, temperatura de frontera, flujo circular, continuidad de interfaz y balance global. Los residuos se normalizan antes de aplicar los pesos, como se expresa en la Fórmula~\ref{for:perdida-ejecutada}.
+
+\begin{formula}[htbp]
+\centering
+\begin{equation}
+\label{for:perdida-ejecutada}
+\mathcal L=w_p\mathcal L_{\mathrm{PDE}}+w_b\mathcal L_{\mathrm{BC}}
++w_f\mathcal L_{\mathrm{flujo}}+10\mathcal L_{\mathrm{interfaz}}
++w_e\mathcal L_{\mathrm{energía}}.
+\end{equation}
+\caption{Pérdida compuesta empleada en la comparación de configuraciones.}
+\end{formula}
+
+La campaña C01--C08 fija una semilla exploratoria, 5, y un caso XLPE de ajuste. C01 usa el fondo analítico y C02 añade balance con $w_p=1$. C03 conserva el balance y adopta $w_p=25$; las demás penalizaciones de frontera, flujo y energía valen 10.
+
+C04 reduce la anchura a 16 neuronas y C05 la aumenta a 64. C06 incorpora una cuarta capa oculta, C07 reduce la tasa de Adam de $10^{-3}$ a $5\times10^{-4}$ y C08 duplica los puntos globales de 768 a 1536. Cada alternativa modifica una decisión respecto a C03, conservando las restantes.
+
+La cantidad final de puntos incluye muestras adicionales próximas a los cables y a las heterogeneidades. Por ello el parámetro global no coincide con el número total de colocaciones. El manifiesto registra ambas cantidades; la evaluación conserva sus puntos independientes para todas las variantes.
+
+La elección exige primero cumplir los umbrales de temperatura, campo y balance. Entre candidatos admisibles se examinan error, número de parámetros y estabilidad entre semillas. Los tiempos observados se conservan, pero no se emplean para afirmar superioridad computacional porque hubo procesos concurrentes y entornos distintos.
+
+La campaña adicional incluye una red global para el salto de material y redes separadas con continuidad explícita. Para varios cables se explora también un enriquecimiento con tres órdenes multipolares por cable. Sus coeficientes se entrenan junto con la MLP; las funciones geométricas y sus derivadas se precalculan sin incorporar datos FEM.
+
+Estas comparaciones no constituyen una búsqueda exhaustiva ni demuestran un óptimo universal. Las semillas 11, 23 y 37 cuantifican sensibilidad a inicialización y muestreo. Cuando una configuración se ajusta en el mismo caso que se reporta, el resultado se identifica como evidencia de ajuste y no como validación independiente de generalización.
+
+\subsection{MÉTRICAS Y REGLA DE ACEPTACIÓN}
+
+Los errores de temperatura se normalizan con el incremento máximo respecto al ambiente. Esta decisión evita dividir por una temperatura Celsius cuyo valor depende del origen de la escala. Se mantienen los umbrales del Plan, pero se hace explícito y físicamente interpretable su denominador.
+
+\begin{formula}[htbp]
+\centering
+\begin{equation}
+\label{for:metricas-ejecutadas}
+\begin{aligned}
+\mathrm{NRMSE}&=100\frac{\sqrt{N^{-1}\sum_i(T_i^{P}-T_i^{F})^2}}
+{|T_{\max}^{F}-T_0|},\\
+E_b&=100\frac{\left|\int_{\partial\Omega}-k\nabla T\cdot n\,ds-\int_\Omega Q\,d\Omega\right|}
+{\max\left(\left|\int_\Omega Q\,d\Omega\right|,\frac12\int_{\partial\Omega}|k\nabla T\cdot n|\,ds\right)}.
+\end{aligned}
+\end{equation}
+\caption{Error de campo y desequilibrio energético usados en la evaluación.}
+\end{formula}
+
+La puerta térmica exige NRMSE menor o igual que 5\,\pct{}, error relativo del incremento máximo menor o igual que 5\,\pct{} y balance menor o igual que 2\,\pct{}. Se reportan además el error máximo espacial y el residuo RMS de la PDE. La aceptación global no sustituye la inspección de defectos locales ni constituye una validación experimental.
+
+\subsection{ÍNDICE DE CORRIENTE Y REPRODUCIBILIDAD}
+
+La respuesta térmica es lineal bajo las propiedades y fronteras fijadas. Esta propiedad permite escalar el incremento térmico y calcular un índice de corriente continua condicionado a resistencia uniforme a \SI{90}{\celsius}. No se presenta como ampacidad IEC completa ni como solución acoplada de resistencias individuales.
+
+\begin{formula}[htbp]
+\centering
+\begin{equation}
+\label{for:indice-corriente}
+I_{90}=I_0\sqrt{\frac{90-T_0}{(T_{\max}(I_0,R_{20})-T_0)
+[1+\alpha(90-20)]}}.
+\end{equation}
+\caption{Índice DC bajo resistencia común fijada a la temperatura límite.}
+\end{formula}
+
+El algoritmo calcula también el índice mediante bisección y comprueba su coincidencia con la expresión cerrada. La tolerancia térmica es de $10^{-4}$ K y el historial queda guardado. En varios cables, fijar la resistencia de todos a la temperatura límite es un supuesto común explícito, no una actualización electrotérmica individual.
+
+Cada expediente contiene resultados FEM, pesos PINN, historial de optimización, campos, semillas, versiones y métricas. Los cuadernos Jupyter cargan la evidencia y permiten ejecutar ambos solucionadores. La evaluación guardada del cuaderno se distingue de la ejecución de los scripts que produjo los resultados.
+
+\section{ANÁLISIS DE LOS DATOS Y RESULTADOS}
+\label{sec:analisis-resultados}
+
+\subsection{CONVERGENCIA Y VERIFICACIÓN BÁSICA}
+
+Se ejecutaron cuarenta y cinco soluciones FEM, correspondientes a quince casos y tres mallas por caso. La Tabla~\ref{tab:benchmark-fem} registra el tamaño de la malla fina, la temperatura máxima, su cambio respecto a la malla precedente y el balance. Las diferencias de discretización deben examinarse antes de atribuir una discrepancia a la PINN.
+
+\input{tablas/benchmark_fem}
+
+Las soluciones manufacturadas comprueban por separado la fuente variable, las derivadas, las condiciones Robin y el salto de conductividad. El anillo añade una referencia analítica de flujo y temperatura logarítmica. La combinación evita que una coincidencia puntual en un cable oculte un defecto en la ecuación o en sus fronteras.
+
+\subsection{COMPARACIÓN Y SELECCIÓN DE CONFIGURACIONES}
+
+La Tabla~\ref{tab:benchmark-seleccion} muestra todos los candidatos de la campaña de ajuste. La semilla y el caso permanecen constantes para comparar el efecto de cada decisión. Las alternativas que no cumplen el balance se conservan como resultados rechazados, aunque su temperatura máxima parezca cercana a FEM.
+
+\input{tablas/benchmark_selection}
+
+En la semilla exploratoria, C01 obtuvo un RMSE de 0,6713 K y un desequilibrio de 88,25\,\pct{}. C02 redujo el RMSE a 0,3949 K y el balance a aproximadamente 0,003\,\pct{}. C03 redujo nuevamente el RMSE a 0,0367 K; esta comparación distingue la contribución del balance de la modificación posterior del peso de la PDE.
+
+El resultado muestra que una pérdida escalar pequeña o una temperatura cercana no bastan para aceptar una configuración. La energía y el campo deben evaluarse simultáneamente. También muestra que el peso de una ecuación puede modificar el resultado más que aumentar indiscriminadamente el tamaño de la red.
+
+\input{tablas/benchmark_findings}
+
+\subsection{CAMPOS TÉRMICOS Y ROBUSTEZ}
+
+La Tabla~\ref{tab:benchmark-pinn} presenta la mediana del RMSE y los máximos del error térmico y del balance entre semillas. La última columna informa cuántas ejecuciones satisfacen la puerta térmica. Una aceptación parcial identifica sensibilidad del entrenamiento y restringe el uso del caso.
+
+\input{tablas/benchmark_pinn}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{benchmarks/mms_interface.png}
+\caption{Temperatura y error en la solución manufacturada con interfaz. Fuente: Elaboración propia a partir de los campos guardados.}
+\label{fig:campo-interfaz}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{benchmarks/xlpe_dry_near.png}
+\caption{Campo térmico del escenario XLPE con región seca próxima. Fuente: Elaboración propia a partir de los campos guardados.}
+\label{fig:campo-seco}
+\end{figure}
+
+Las figuras emplean los mismos puntos y una escala térmica común para ambas soluciones. El mapa de diferencias utiliza una escala centrada en cero. El expediente digital contiene los restantes campos, las métricas por semilla y los historiales completos.
+
+\subsection{EFECTO DE LA HETEROGENEIDAD}
+
+La referencia FEM del cable XLPE homogéneo alcanza aproximadamente \SI{36.859}{\celsius}. Una región seca próxima eleva la temperatura a \SI{42.875}{\celsius}, mientras la región del mismo tamaño desplazada horizontalmente alcanza \SI{36.895}{\celsius}. La proximidad modifica el efecto de una misma conductividad y extensión.
+
+Al ampliar la región seca a $1\times1$ m, la temperatura FEM alcanza \SI{44.861}{\celsius}. El relleno de mayor conductividad reduce el resultado a \SI{33.528}{\celsius}. Estas diferencias pertenecen a los escenarios y dimensiones adoptados; no representan efectos universales del secado o de cualquier material de relleno.
+
+En los seis cables, la referencia FEM pasa de \SI{51.701}{\celsius} en arena a \SI{48.972}{\celsius} con relleno mejorado. El escenario estratificado alcanza \SI{47.612}{\celsius}. Estas magnitudes describen el modelo reducido común y no deben compararse directamente con las temperaturas publicadas bajo otras pérdidas y fronteras.
+
+\subsection{COMPARACIÓN DE CORRIENTE CONDICIONADA}
+
+La Tabla~\ref{tab:benchmark-ampacidad} transforma las respuestas térmicas en índices DC bajo los supuestos de la Fórmula~\ref{for:indice-corriente}. Las diferencias porcentuales se calculan entre cada heterogeneidad y su control. Solo se incorpora una estimación PINN cuando la ejecución supera previamente la puerta térmica.
+
+\input{tablas/benchmark_ampacity}
+
+La reducción de corriente asociada con una región seca surge de su mayor resistencia térmica en el modelo. La bisección comprueba el procedimiento numérico, mientras la expresión cerrada proporciona una referencia independiente para esa búsqueda. Ninguno de estos pasos verifica pérdidas AC ni valida una instalación real.
+
+\section{DISCUSIÓN E INTERPRETACIÓN DE LOS RESULTADOS}
+\label{sec:discusion}
+
+La evidencia identifica condiciones bajo las cuales la PINN aproxima el problema térmico especificado y condiciones que requieren restringir su uso. El hallazgo metodológico central consiste en combinar error de campo, temperatura y conservación. Una comparación basada solamente en temperatura máxima habría aceptado ejecuciones con desequilibrio energético elevado.
+
+La mejora obtenida al modificar los pesos es coherente con las dificultades de optimización de pérdidas compuestas descritas por \textcite{wang2020gradients}. Sin embargo, la campaña no implementa su algoritmo adaptativo ni reproduce sus factores de mejora. El resultado propio corresponde exclusivamente a los pesos, arquitecturas y casos efectivamente ejecutados.
+
+El uso de redes separadas permite representar una derivada lateral distinta a cada lado de un salto material. Esta decisión se relaciona con la continuidad de flujo de cPINN y con la descomposición de dominio \parencites{jagtap2020cpinn}{shukla2021}. Agregar un balance global a una sola red no convierte automáticamente esa formulación en cPINN o XPINN.
+
+Los escenarios de suelo seco y relleno mejorado concuerdan cualitativamente con la relevancia del entorno térmico descrita por \textcite{khumalo2025} y \textcite{kim2025}. La comparación cualitativa no demuestra equivalencia cuantitativa de instalaciones. El dominio finito, las transiciones suavizadas y las pérdidas DC distinguen el modelo ejecutado de esos estudios.
+
+Las principales amenazas a la validez son el alcance reducido de las capas, la ausencia de mediciones, la selección exploratoria en casos conocidos y la discretización de las interfaces regularizadas. La malla convergente reduce una fuente de error, pero no determina si el suelo, las pérdidas y las fronteras representan una instalación particular. Tampoco se demuestra generalización paramétrica: se entrena una red por caso.
+
+Los tiempos registrados no sustentan una aceleración frente a FEM. Incluyen entrenamiento, distintas bibliotecas, sistemas operativos y carga concurrente. Una evaluación de eficiencia requeriría presupuestos y condiciones de ejecución controlados, además de comparar el coste completo de entrenamiento con el número real de consultas posteriores.
+
+El cumplimiento del objetivo general queda circunscrito al modelo estacionario reducido. OE1 aporta una especificación y trazabilidad comunes; OE2 aporta pruebas y clasificación por dominio. OE3 produce contrastes térmicos controlados, mientras OE4 aporta un índice DC condicionado y no una ampacidad normativa completa.
+
+\section{ESTIMACIÓN DEL IMPACTO DE LA SOLUCIÓN}
+\label{sec:impacto}
+
+El impacto demostrado es metodológico y computacional. La batería permite detectar comparaciones físicamente incompatibles, repetir un cálculo y justificar la aceptación o rechazo de una configuración. Los archivos comunes y los cuadernos facilitan una revisión posterior de datos, métodos y resultados.
+
+El impacto profesional potencial corresponde a explorar sensibilidad térmica dentro del dominio verificado. Las diferencias entre suelo homogéneo y heterogéneo permiten identificar escenarios que merecen un análisis de ingeniería más detallado. No se cuantifican ahorros, confiabilidad ni aumentos autorizados de capacidad porque la investigación no aporta evidencia para esas afirmaciones.
+'''
+p.write_text(prefix+architecture+'\n'+body,encoding='utf-8')
+print('Chapter III consolidated')

@@ -1,0 +1,63 @@
+{
+  "schema": "pinn-v3-case-1",
+  "id": "mms_high_contrast",
+  "family": "mms",
+  "legacy_kind": "mms_high_contrast",
+  "domain": {
+    "bounds": [
+      0.0,
+      1.0,
+      0.0,
+      1.0
+    ]
+  },
+  "temperature": {
+    "reference_C": 20.0,
+    "scale_K": 30.0
+  },
+  "material": {
+    "conductivity": {
+      "type": "expression",
+      "expression": "exp(log(10)*(x+y)/2)"
+    }
+  },
+  "reference": {
+    "exact": {
+      "scope": "field",
+      "expression": "20 + 30*sin(pi*x)*sin(pi*y)",
+      "legacy_key": "exact_expression"
+    },
+    "source": "manufactured"
+  },
+  "provenance": {
+    "citation": "Elaboración propia: extensión de la batería manufacturada del Plan",
+    "adaptation": "k=exp(ln(10)*(x+y)/2); rango 1 a 10 W/(m K); T*=20+30 sin(pi x) sin(pi y)"
+  },
+  "title": "mms_high_contrast",
+  "boundaries": {
+    "bottom": {
+      "type": "dirichlet",
+      "temperature_C": {
+        "source": "reference.exact"
+      }
+    },
+    "top": {
+      "type": "dirichlet",
+      "temperature_C": {
+        "source": "reference.exact"
+      }
+    },
+    "left": {
+      "type": "dirichlet",
+      "temperature_C": {
+        "source": "reference.exact"
+      }
+    },
+    "right": {
+      "type": "dirichlet",
+      "temperature_C": {
+        "source": "reference.exact"
+      }
+    }
+  }
+}

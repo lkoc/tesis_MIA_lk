@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><title>PINN_v2 - PINN_v2</title>
+<link rel="stylesheet" href="style.css"></head><body>
+<div class="layout">
+<div class="sidebar"><h1><a href="index.html" style="border:none">PINN_v2</a></h1>
+<h3>Navegación</h3><ul><li class="current"><a href="index.html">PINN_v2</a><ul><li><a href="#qu-hace">Qué hace</a></li><li><a href="#reglas-que-no-se-rompen">Reglas que no se rompen</a></li><li><a href="#por-d-nde-empezar">Por dónde empezar</a></li><li><a href="#estado">Estado</a></li></ul></li><li><a href="quickstart.html">Inicio rápido</a></li><li><a href="architecture.html">Arquitectura del paquete</a></li><li><a href="cases.html">Formato de caso</a></li><li><a href="models.html">Modelos</a></li><li><a href="training.html">Entrenamiento</a></li><li><a href="search.html">Búsqueda de hiperparámetros</a></li><li><a href="fem.html">Referencia FEM (FEniCSx)</a></li><li><a href="evaluation.html">Evaluación y criterios de aceptación</a></li><li><a href="reproducibility.html">Reproducibilidad</a></li><li><a href="cli.html">Referencia de la línea de comandos</a></li><li><a href="frontend.html">Interfaz web (front-end)</a></li><li><a href="results.html">Resultados de la Fase 6</a></li><li><a href="limitations.html">Limitaciones</a></li></ul>
+<h3>Búsqueda rápida</h3><input id="q" type="text" placeholder="buscar..." autocomplete="off"><ul id="hits"></ul>
+</div>
+<div class="content"><h1 id="pinn-v2">PINN_v2</h1>
+<p>Marco de simulación para <strong>conducción de calor 2D en régimen permanente</strong> en cables subterráneos. Compara varias familias de PINN con una referencia de elementos finitos (FEniCSx) y deja un registro completo de cada ejecución.</p>
+<h2 id="qu-hace">Qué hace</h2>
+<ul><li>Resuelve <span class="math">-∇·(k ∇ T)=Q</span> de forma explícita en cada capa del cable y del suelo.</li><li>Entrena modelos PINN intercambiables: M0, M1, M2, CUSP, DCSNN, FBPINN y las variantes con atención RBA y SA.</li><li>Usa <strong>el mismo archivo de caso</strong> para entrenar un PINN y para correr la solución FEM.</li><li>Permite parametrizar el entrenamiento desde la línea de comandos o desde un archivo JSON, y buscar hiperparámetros.</li><li>Guarda en cada corrida los resultados, la configuración, las semillas y una huella del código (manifest).</li></ul>
+<h2 id="reglas-que-no-se-rompen">Reglas que no se rompen</h2>
+<ul><li>Las capas se tratan una por una; no se usan resistencias térmicas equivalentes ni se reconstruye la temperatura del conductor por vía radial.</li><li>Contacto perfecto en las interfaces. Robin nunca se convierte en Dirichlet.</li><li>La referencia FEM y los datos de los artículos <strong>nunca</strong> son etiquetas de entrenamiento; solo se usan para evaluar.</li><li>Ningún resultado se borra ni se sobrescribe: cada corrida usa una carpeta nueva.</li><li>Un dato que falta no se inventa: el caso se rechaza o se marca como <code>supuesto</code> con una nota.</li></ul>
+<h2 id="por-d-nde-empezar">Por dónde empezar</h2>
+<ol><li><a href="quickstart.html">Inicio rápido</a>: instalar y correr el primer entrenamiento.</li><li><a href="cases.html">Formato de caso</a>: cómo se describe un problema (un solo JSON).</li><li><a href="models.html">Modelos</a> y <a href="training.html">Entrenamiento</a>: cambiar de modelo y ajustar parámetros.</li><li><a href="search.html">Búsqueda de hiperparámetros</a>.</li><li><a href="fem.html">Referencia FEM</a>: correr FEniCSx con los mismos datos.</li></ol>
+<p>Para trabajar sin comandos, usa la <a href="frontend.html">interfaz web</a>.</p>
+<p>Si buscas un comando concreto, ve a la <a href="cli.html">referencia de la línea de comandos</a>.</p>
+<h2 id="estado">Estado</h2>
+<p>Los criterios de aceptación y las compuertas de convergencia del proyecto son <strong>propuestos</strong>, todavía no confirmados por la persona responsable de la tesis. Ver <a href="results.html">Resultados</a> y <a href="limitations.html">Limitaciones</a>.</p><div class="pager"><span></span><span><a href="quickstart.html">Inicio rápido</a> &raquo;</span></div><div class="footer">Documentación generada con docs/build_docs.py; funciona sin conexión.</div></div>
+</div>
+<script src="search_index.js"></script><script src="search.js"></script>
+</body></html>

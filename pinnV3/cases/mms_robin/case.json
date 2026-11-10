@@ -1,0 +1,55 @@
+{
+  "schema": "pinn-v3-case-1",
+  "id": "mms_robin",
+  "family": "mms",
+  "legacy_kind": "mms_robin",
+  "domain": {
+    "bounds": [
+      0.0,
+      1.0,
+      0.0,
+      1.0
+    ]
+  },
+  "temperature": {
+    "reference_C": 20.0,
+    "scale_K": 30.0
+  },
+  "provenance": {
+    "citation": "Plan/envío_rev1/04_Datos_objeto_estudio; MMS-2D-01/02; Robin de elaboración propia"
+  },
+  "title": "mms_robin",
+  "reference": {
+    "exact": {
+      "scope": "field",
+      "expression": "20 + 30*x*(1-x)*(1+y)"
+    }
+  },
+  "boundaries": {
+    "bottom": {
+      "type": "dirichlet",
+      "temperature_C": {
+        "source": "reference.exact"
+      }
+    },
+    "top": {
+      "type": "robin",
+      "h_W_m2K": 10.0,
+      "T_inf_C": {
+        "expression": "20 + 63*x*(1-x)"
+      }
+    },
+    "left": {
+      "type": "dirichlet",
+      "temperature_C": {
+        "source": "reference.exact"
+      }
+    },
+    "right": {
+      "type": "dirichlet",
+      "temperature_C": {
+        "source": "reference.exact"
+      }
+    }
+  }
+}

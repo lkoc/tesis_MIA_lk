@@ -1,0 +1,111 @@
+% !TeX program = lualatex
+% Compilar desde esta carpeta: lualatex -output-directory=build -interaction=nonstopmode -halt-on-error Informe_datos_proyecto.tex
+\documentclass[11pt,a4paper,oneside]{report}
+\input{estilo_institucional.tex}
+\begin{document}
+\caratula{INFORME DE DATOS, FUENTES Y CASOS DE ESTUDIO}
+
+\chapter*{Resumen ejecutivo}
+\addcontentsline{toc}{chapter}{Resumen ejecutivo}
+El conjunto documental de partida contiene 16 instancias de estudio (nueve f\'isicas o de campo y siete de verificaci\'on) y el cat\'alogo activo de PINN\_v2 contiene 21 definiciones aceptadas por su cargador. Este informe conserva ese inventario, incorpora los dos casos de cable de CIGRE TB 880 y TB 963 adem\'as del anillo anal\'itico, y ampl\'ia la evidencia peruana con proyectos COES y segmentos subterr\'aneos que aparecen en el Anuario Estad\'istico de Electricidad 2024 del MINEM.
+
+La variable de entrada del proyecto es la descripci\'on geom\'etrica de la instalaci\'on enterrada y de su entorno: capas del cable, arreglo, ductos o zanja, profundidad, estratos, relleno, propiedades t\'ermicas del suelo y condiciones ambientales/fronterizas. Las fuentes peruanas consultadas confirman instalaciones o propuestas a distintas tensiones y aportan rutas, longitudes, secciones de conductor y, en algunos registros, capacidad. No informan por s\'i solas todas las dimensiones de cable, configuraci\'on de zanja, profundidad y propiedades t\'ermicas del terreno; por tanto, son evidencia de contexto y candidatos para solicitar datos, no casos PINN listos para ejecutar.
+
+\section*{Objeto, alcance y unidad de registro}
+La unidad de datos es un caso o segmento documentado, con identificador estable, fuente, ubicaci\'on exacta, valores y unidades tal como se publicaron, transformaciones aplicadas, estado de procedencia y faltantes. Se distinguen: (a) instalaci\'on reportada/operativa; (b) proyecto de transmisi\'on planificado; (c) caso experimental, normativo o num\'erico publicado; y (d) benchmark anal\'itico o manufacturado. Que un registro pertenezca a (a) o (b) no significa que sea model-ready.
+
+\section*{Criterios y estrategia de b\'usqueda}
+Se revisaron el informe de datos previo y su CSV; las fuentes citadas en el plan y el repositorio Zotero local; los PDF locales de CIGRE TB 880 y TB 963; el diagn\'ostico COES 2023 del SEIN 2025--2034; el texto extra\'ido del Anuario MINEM 2024; y los JSON activos de PINN\_v2. Para COES, el cribado abarc\'o referencias a ``subterr\'aneo'', ``l\'inea subterr\'anea'', ``cable'', enlaces y proyectos de transmisi\'on sin filtro de tensi\'on. Se registr\'o tensi\'on cuando estuvo disponible, sin exigir 33 o 60 kV.
+
+Se incluyeron casos cuando la fuente permiti\'o identificar una instalaci\'on/caso, una entrada de verificaci\'on o una variable del entorno pertinente. Se excluyeron de la categor\'ia de model-ready los casos sin geometr\'ia o propiedades t\'ermicas necesarias. No se completaron valores ausentes con promedios ni se infirieron profundidad, formaci\'on, capas o suelo a partir de tensi\'on, secci\'on del conductor o ampacidad.
+
+\chapter*{Inventario previo: 16 instancias}
+\addcontentsline{toc}{chapter}{Inventario previo: 16 instancias}
+La Tabla~\ref{tab:inventario16} reproduce las 16 claves del \texttt{04\_indice\_instancias.csv} de la revisi\'on previa y conserva su clasificaci\'on y uso propuesto. Para las variables y resultados num\'ericos detallados de Kim, Khumalo, Al-Dulaimi, Atoccsa, Oc\~lo\'n, Aras, Quan, Oladunjoye, M\"obius, CIGRE, IEC, Pan, Hahn y la suite MMS, se conserva como documento de detalle el informe previo de 23 p\'aginas; el libro Excel acompa\~nante facilita la b\'usqueda transversal de las 16 entradas.
+
+\begin{landscape}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{p{2.0cm}p{2.8cm}p{3.8cm}p{4.8cm}}
+\caption{Inventario previo de instancias y su utilidad en el proyecto. Fuente: \texttt{04\_indice\_instancias.csv}.}\label{tab:inventario16}\\
+\toprule
+\textbf{Clave} & \textbf{Fuente / tipo} & \textbf{Instancia documentada} & \textbf{Utilidad propuesta} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Clave} & \textbf{Fuente / tipo} & \textbf{Instancia documentada} & \textbf{Utilidad propuesta} \\
+\midrule
+\endhead
+kim2025 & Kim et al. (2025); f\'isico & UPCS 154 kV, seis cables, PAC/arena y tres estratos & Campo t\'ermico, ampacidad y bedding \\
+khumalo2025 & Khumalo et al. (2025); f\'isico & Cable MV XLPE, secado de suelo y ampacidad & Sensibilidad a humedad y resistividad \\
+aldulaimi2024 & Al-Dulaimi et al. (2024); f\'isico & 132 kV, suelo multicapa, SCMB/FTB y FEM--BPNN & Geometr\'ia, materiales y heterogeneidad \\
+atoccsa2024 & Atoccsa et al. (2024); f\'isico & 220 kV, backfill t\'ermico y optimizaci\'on PSO & Ampacidad y dise\~no de relleno \\
+oclon2015 & Oc\~lo\'n et al. (2015); f\'isico & 400 kV, FTB/SBM/HDPE y PSO & Interfaces y relleno localizado \\
+aras2005 & Aras et al. (2005); f\'isico & 154 kV, contraste IEC/FEM/ensayo & Verificaci\'on en suelo homog\'eneo \\
+quan2019 & Quan et al. (2019); f\'isico & Tres cables; formaci\'on plana/tr\'ebol; suelo/FTB & Geometr\'ia, profundidad y $k(T)$ \\
+oladunjoye2012 & Oladunjoye et al. (2012); campo & Diez calicatas con propiedades del suelo & Parametrizaci\'on de suelo observada \\
+mobius2025 & M\"obius et al. (2025); f\'isico & Cables MV en Hamburgo y 32 a\~nos de datos & Escenarios estacionales de suelo \\
+cigre2022\_case0 & CIGRE TB 880; normativo & Cable 132 kV y 14 variantes IEC & Regresi\'on corriente--p\'erdidas--temperatura \\
+cigre2025\_case1 & CIGRE TB 963; FEM 2D & Tres cables 132 kV en ductos, nueve variantes & Campo, dominio, interfaces y ampacidad \\
+iec60853\_annexA & IEC 60853-3; transitorio & Cable tripolar 132 kV; ciclo y secado parcial & Extensi\'on temporal fuera del n\'ucleo estacionario \\
+pan2025\_plate & Pan et al. (2025); PINN 2D & Placa rectangular de Laplace y FEM & Muestreo e inversi\'on de frontera \\
+cigre2025\_annulus & CIGRE TB 963; anal\'itico & Anillo con flujo interior y temperatura exterior & Error de campo contra soluci\'on exacta \\
+hahn2012\_rect & Hahn y \"Ozi\c{s}ik; anal\'itico & Rect\'angulo 2D con frontera convectiva & Validaci\'on de Robin \\
+mms2d\_suite & Elaboraci\'on propia; manufacturado & Conductividad variable e interfaz multimaterial & Pruebas de PDE, $k(x,y)$ e interfaces \\
+\bottomrule
+\end{longtable}
+\end{landscape}
+
+\chapter*{Fuentes CIGRE y referencias de verificaci\'on}
+\addcontentsline{toc}{chapter}{Fuentes CIGRE y referencias de verificaci\'on}
+\textbf{CIGRE TB 880, caso introductorio 0 (2022, pp. 61--125 del informe previo).} Cable 132 kV, tres conductores unipolares Cu de 630 mm\textsuperscript{2} en formaci\'on trebolada, directamente enterrados con centro a 1,0 m; suelo a 20 \textdegree C y resistividad t\'ermica 1,0 K m/W. El caso base reporta ampacidades convergidas de 821,78 A, 886,18 A y 803,16 A para tratamientos de p\'erdidas/pantallas diferenciados. La familia incluye instalaci\'on directa, ductos HDPE y PVC en concreto, aire con radiaci\'on y canal. Es valioso para la cadena normativa IEC y variaciones de instalaci\'on; no entrega por s\'i solo un campo FEM 2D.
+
+\textbf{CIGRE TB 963, caso 1 (2025, pp. 103--121 del informe previo).} Tres cables de 132 kV y 630 mm\textsuperscript{2} en ductos HDPE horizontales dentro de backfill, rodeados por suelo y asfalto. El documento reporta nueve variantes FEM 2D; incluye dominio, capas del cable, ductos, temperatura, resistividades, ampacidades y sensibilidad. Es la referencia publicada m\'as directa para comparar campos, interfaces y resultados t\'ermicos del dominio 2D.
+
+\textbf{CIGRE TB 963, ejemplo anular (2025, pp. 52--55).} Caso anal\'itico de conducci\'on con radio interior 0,06 m, exterior 20 m, resistividad 0,8 K m/W, borde exterior a 20 \textdegree C y flujo interno equivalente a 40 W/m. Se conserva como verificaci\'on exacta; no sustituye los dos casos de cable anteriores.
+
+\chapter*{Instalaciones y proyectos peruanos}
+\addcontentsline{toc}{chapter}{Instalaciones y proyectos peruanos}
+\textbf{COES, diagn\'ostico 2025--2034.} En la tabla de proyectos de transmisi\'on que acompa\~na el informe COES/DP-01-2023 (p. 69 impresa) figura el ``Enlace Subterr\'aneo 220 kV Chavarr\'ia--San Mart\'in'', ligado a una nueva SE San Mart\'in y acometidas subterr\'aneas. Es evidencia de proyecto planificado, no una instalaci\'on ya ejecutada ni una ficha de dise\~no t\'ermico. En la discusi\'on operativa del mismo diagn\'ostico se describen enlaces subterr\'aneos de 220 kV Manchay--Pachac\'utec y Pachac\'utec--Progreso. El PDF separado de la propuesta definitiva COES 2023--2032 se cita en la bibliograf\'ia del plan, pero no se obtuvo desde su URL durante esta preparaci\'on (la descarga devolvi\'o un archivo vac\'io); por ello no se atribuyen a ese PDF hallazgos no inspeccionados.
+
+\textbf{MINEM, Anuario Estad\'istico de Electricidad 2024.} El texto extra\'ido contiene 139 filas con la palabra ``Subterr\'aneo''; el recuento es de menciones de texto, no de 139 activos \emph{\'unicos}. El Excel preserva las 139 filas crudas con localizador, y presenta adem\'as una selecci\'on normalizada por c\'odigo. Entre los ejemplos verificables est\'an L-2005/L-2006 Chavarr\'ia--Barsi (1,00 km, 220 kV, 335 MVA, Cu 1200 mm\textsuperscript{2}); L-2114 y L-2115 Mirador--Malvinas (cada uno 4,08 km, 220 kV, Cu 1200 mm\textsuperscript{2}); L-613 Santa Rosa Antigua--Tacna (2,95 km, 60 kV, 62 MVA, Cu 400 mm\textsuperscript{2}); L-621/L-622 Chavarr\'ia--Mirones (1,89 km, 60 kV, 56 MVA, Cu 500 mm\textsuperscript{2}); L-6349 Huarangal--Comas (7,84 km, 60 kV, capacidad no consignada, Cu 1200 mm\textsuperscript{2}); y L-6556 Chavarr\'ia--UNI (5,00 km, 60 kV, 67 MVA, Cu 500 mm\textsuperscript{2}). Son registros de inventario y contexto peruano. No proporcionan profundidad, arreglo, secci\'on de zanja, geometr\'ia de ductos ni propiedades del suelo, de modo que no son por s\'i mismos casos de simulaci\'on.
+
+\textbf{Arias Velasquez et al. (2023).} El art\'iculo estudia el dise\~no de circuitos subterr\'aneos de media tensi\'on y la influencia t\'ermica; es una fuente cercana para criterios de dise\~no, pero no debe confundirse con el inventario de una l\'inea espec\'ifica del SEIN. Atoccsa et al. (2024) es otra contribuci\'on de autores peruanos sobre cable de 220 kV y backfill optimizado; se conserva como caso bibliogr\'afico/de dise\~no, no como evidencia de que esa geometr\'ia corresponda a una instalaci\'on peruana en operaci\'on.
+
+\chapter*{Modelo de datos, procedencia y preprocesamiento}
+\addcontentsline{toc}{chapter}{Modelo de datos, procedencia y preprocesamiento}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{p{2.8cm}p{5.1cm}p{5.8cm}}
+\toprule
+\textbf{Grupo de entrada} & \textbf{Campos que se deben conservar} & \textbf{Uso y controles} \\
+\midrule
+Geometr\'ia del cable & Tipo de conductor, radios/di\'ametros, espesores, secuencia de capas & Convertir unidades a SI sin perder valor original; comprobar radios crecientes \\
+Geometr\'ia de instalaci\'on & Coordenadas, arreglo plano/tr\'ebol, n\'umero de cables, profundidad, ductos, zanja, backfill y dominio & No inferir formaci\'on ni profundidad si no se publican \\
+Suelo y entorno & Capas/estratos, clasificaci\'on, $k$, resistividad, humedad, densidad, temperatura, frontera superficial & Distinguir propiedades publicadas, extra\'idas de tabla, escenarios inferidos y supuestos \\
+Operaci\'on y fuente & Tensi\'on, corriente, resistencia, p\'erdidas, factor de carga & Tensi\'on y capacidad de inventario no equivalen a fuente volum\'etrica del caso PINN \\
+Referencia y resultados & Campo FEM/anal\'itico, $T_{\max}$, ampacidad, malla y criterios de convergencia & Separar resultado publicado de predicci\'on PINN; declarar error de interpolaci\'on \\
+\bottomrule
+\end{longtable}
+
+El preprocesamiento previsto conserva el valor transcrito, unidad original y valor normalizado; documenta p\'agina/tabla y nombre del archivo; asigna un estado \texttt{publicado}, \texttt{extraido}, \texttt{inferido}, \texttt{supuesto} o \texttt{faltante}; y registra cada transformaci\'on, adaptaci\'on e inconsistencia. Los estados heredados del cat\'alogo tambi\'en se reportan: 20 de las 21 definiciones activas llevan al menos un grupo marcado como \texttt{supuesto}; aunque todas pasan actualmente el cargador, eso no equivale a una auditor\'ia de procedencia por campo.
+
+El CSV previo presenta diferencias tipogr\'aficas en algunos DOI respecto de la bibliograf\'ia, por lo que el DOI y el t\'itulo se cotejan con \texttt{Plan/referencias\_plan\_tesis.bib}; por ejemplo, Atoccsa et al. (2024) aparece como \texttt{10.3390/en17051023} en la bibliograf\'ia de control. Los duplicados del MINEM se mantienen como registros separados cuando el c\'odigo de circuito o longitud distingue segmentos, y se vinculan mediante una clave normalizada en Excel; no se suman como una sola instalaci\'on sin soporte documental.
+
+\section*{L\'imites de uso}
+\begin{itemize}
+  \item El reporte previo proporciona valores detallados de literatura y benchmarks; los inventarios COES/MINEM aportan prueba de contexto peruano, pero no las propiedades t\'ermicas y geom\'etricas necesarias para una PINN f\'isica completa.
+  \item El COES 2022 definitivo se localiz\'o por cita bibliogr\'afica; no se pudo inspeccionar el PDF separado en esta ejecuci\'on. El proyecto Chavarr\'ia--San Mart\'in est\'a apoyado por la menci\'on del diagn\'ostico COES local, no por una lectura directa del archivo de 2022.
+  \item Los casos JSON incompletos se incluir\'an en el paquete como candidatos no ejecutables. La versi\'on actual del cargador rechaza datos requeridos marcados como faltantes; no se altera el esquema para simularlos.
+\end{itemize}
+
+\chapter*{Referencias principales}
+\addcontentsline{toc}{chapter}{Referencias principales}
+Al-Dulaimi, A. A., et al. (2024). Adaptive FEM-BPNN model for predicting underground cable temperature considering varied soil composition. \textit{Engineering Science and Technology, an International Journal, 51}, 101658. https://doi.org/10.1016/j.jestch.2024.101658\\
+Arias Velasquez, R. M., Gonzales-Condori, E. G., \& Velarde Loayza, P. E. (2023). Enhancing medium voltage underground circuit design: Assessing limitations, thermal influence, and accurate modelling. \textit{Results in Engineering, 20}, 101552. https://doi.org/10.1016/j.rineng.2023.101552\\
+Atoccsa, B. A., et al. (2024). Optimization of ampacity in high-voltage underground cables with thermal backfill using dynamic PSO and adaptive strategies. \textit{Energies, 17}(5), 1023. https://doi.org/10.3390/en17051023\\
+CIGRE Working Group B1.56. (2022). \textit{Power cable rating examples for calculation tool verification} (Technical Brochure 880).\\
+CIGRE Working Group B1.87. (2025). \textit{Finite element analysis for cable rating calculations} (Technical Brochure 963).\\
+COES. (2023). \textit{Informe de diagn\'ostico de las condiciones operativas del SEIN, periodo 2025--2034} (Informe COES/DP-01-2023).\\
+Ministerio de Energ\'ia y Minas. (2025). \textit{Anuario Estad\'istico de Electricidad 2024}. Tabla de l\'ineas de transmisi\'on; fuente local en \texttt{Plan/datos\_fuente/descargas/minem\_anuario\_2024.pdf} y texto extra\'ido.
+\end{document}

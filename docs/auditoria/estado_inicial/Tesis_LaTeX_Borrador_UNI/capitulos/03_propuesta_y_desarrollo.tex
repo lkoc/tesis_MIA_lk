@@ -1,0 +1,199 @@
+\chapter{PROPUESTA Y DESARROLLO DE LA SOLUCIÓN}
+\label{ch:propuesta-desarrollo}
+
+Este capítulo presenta el artefacto que responde al problema y organiza la evidencia necesaria para juzgarlo. La arquitectura lógica y el modelo físico pueden definirse con la información del plan. En cambio, la construcción ejecutada, los resultados, la discusión y el impacto requieren completar el trabajo experimental y se identifican de forma explícita.
+
+\section{PRESENTACIÓN DE LA PROPUESTA DE SOLUCIÓN}
+\label{sec:presentacion-propuesta}
+
+\subsection{PROPÓSITO Y ALCANCE DEL ARTEFACTO}
+
+La solución propuesta es un modelo y prototipo computacional 2D basado en una PINN. Su propósito es representar la conductividad térmica espacialmente variable del arreglo de cables--entorno térmico, aproximar el campo $T(x,y)$ y calcular $\Tmax$ e $\Imax$ dentro de un dominio verificado.
+
+El artefacto no se reduce a una red entrenada. Incluye la especificación física de los casos, la representación de materiales y fuentes, el solucionador, los procedimientos de verificación, el módulo de experimentación y los registros de trazabilidad. Esta definición permite distinguir el producto tecnológico de una ejecución particular \parencite[342--350]{gregor2013}.
+
+La propuesta no busca reemplazar la IEC 60287 ni FEM. Las normas aportan una línea base de ingeniería y FEM aporta referencias de campo cuando existe convergencia documentada. La PINN es el método investigado y debe justificar su utilidad mediante evidencia independiente \parencites{iec60287}[3--4,93--99]{cigre2025}.
+
+\subsection{ENTRADAS, PROCESO Y SALIDAS}
+
+Las entradas mínimas comprenden la geometría 2D, la disposición de cables, los dominios materiales, $\kx$, las fuentes térmicas, las condiciones de contorno e interfaz y el límite térmico. Cada caso también incluye la referencia de comparación y los metadatos de ejecución.
+
+El proceso transforma esa especificación en puntos de colocación y términos de pérdida. La red aproxima la temperatura; la diferenciación automática evalúa la PDE; y el optimizador actualiza sus parámetros. La aceptación requiere comparar el resultado con referencias y comprobar el balance físico.
+
+Las salidas comprenden $T(x,y)$, $\Tmax$, el punto caliente, $\Imax$, los residuos, el balance de energía, los errores frente a referencia y los metadatos necesarios para reproducir la ejecución. Estas salidas se consolidan en expedientes por caso y no deben presentarse sin su contexto.
+
+\subsection{ARQUITECTURA LÓGICA}
+
+La Figura~\ref{fig:arquitectura-artefacto} organiza los seis componentes del artefacto. La evaluación aparece antes de la experimentación final porque cada incremento debe superar pruebas básicas antes de producir evidencia para la tesis.
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  comp/.style={draw,rounded corners=3pt,align=center,text width=3.6cm,minimum height=1.25cm,font=\small},
+  arr/.style={-{Stealth[length=2.8mm]},thick}]
+\node[comp,fill=lightblue] (spec) {1. Especificación\\geometría, materiales, carga y contornos};
+\node[comp,fill=lightblue,right=0.9cm of spec] (phys) {2. Representación física\\PDE, fuentes, interfaces y $\kx$};
+\node[comp,fill=green!12,right=0.9cm of phys] (solver) {3. Solucionador PINN\\aproximación y entrenamiento};
+\node[comp,fill=orange!12,below=1.0cm of solver] (eval) {4. Verificación\\referencias, residuos, balance y robustez};
+\node[comp,fill=orange!12,left=0.9cm of eval] (exp) {5. Experimentación\\escenarios y ampacidad};
+\node[comp,fill=lightgray,left=0.9cm of exp] (report) {6. Trazabilidad\\datos, versiones, resultados e informes};
+\draw[arr] (spec)--(phys);
+\draw[arr] (phys)--(solver);
+\draw[arr] (solver)--(eval);
+\draw[arr] (eval)--(exp);
+\draw[arr] (exp)--(report);
+\draw[arr,dashed] (eval.north) to[bend left=25] (phys.south);
+\draw[arr,dashed] (report.north) to[bend left=25] (spec.south);
+\end{tikzpicture}}
+\caption{Arquitectura lógica del artefacto propuesto. Fuente: Elaboración propia.}
+\label{fig:arquitectura-artefacto}
+\end{figure}
+
+Los componentes separan principios de diseño e implementación. La especificación y la física determinan lo que el artefacto debe resolver. El solucionador implementa esa definición. La verificación decide si el incremento puede usarse en los escenarios, mientras la trazabilidad conserva la evidencia y retroalimenta la especificación.
+
+\section{DESARROLLO DE LA PROPUESTA DE SOLUCIÓN}
+\label{sec:desarrollo-solucion}
+
+\subsection{ESPECIFICACIÓN TRAZABLE}
+
+La especificación debe vincular cada requisito con una fuente, una prueba y un criterio de aceptación. La Tabla~\ref{tab:requisitos-base} contiene los requisitos iniciales que se derivan del problema y del modelo teórico.
+
+\begin{table}[htbp]
+\centering
+\caption{Requisitos iniciales del artefacto. Fuente: Elaboración propia a partir del plan de tesis.}
+\label{tab:requisitos-base}
+\begin{tabularx}{\textwidth}{L{1.2cm}Y Y L{2.6cm}}
+\toprule
+\textbf{ID} & \textbf{Requisito} & \textbf{Evidencia prevista} & \textbf{Criterio} \\
+\midrule
+RF-01 & Representar dominios 2D multicapa y materiales del entorno mediante $\kx$. & Visualización de geometría y mapa de conductividad. & Coincidencia con el caso. \\
+RF-02 & Incorporar fuentes térmicas y la PDE estacionaria. & Residuo de ecuación y balance global. & Regla de la Tabla~\ref{tab:criterios-evaluacion}. \\
+RF-03 & Aplicar condiciones de contorno e interfaz. & Pruebas de temperatura y flujo normal. & Tolerancia documentada. \\
+RF-04 & Estimar $T(x,y)$, $\Tmax$ y punto caliente. & Comparación con referencia independiente. & Error dentro del dominio. \\
+RF-05 & Calcular $\Imax$ respecto de $T_{\mathrm{lim}}$. & Historial de búsqueda y margen térmico final. & Convergencia reproducible. \\
+RNF-01 & Registrar versiones, semillas, parámetros y resultados. & Manifiesto y bitácora por ejecución. & Ejecución reconstruible. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\pendiente{Completar y aprobar la matriz requisito--fuente--prueba. Registrar el estado real de cada requisito, los criterios finales y los cambios producidos durante los ciclos DSR.}
+
+\subsection{REPRESENTACIÓN COMPUTACIONAL DEL MODELO FÍSICO}
+
+La implementación debe conservar la ecuación estacionaria de la Fórmula~\ref{for:calor-estacionario} y las condiciones de la Fórmula~\ref{for:interfaces}. Los materiales se representan mediante regiones o mapas de $\kx$. Las pérdidas se expresan mediante $Q(x,y)$ y se actualizan cuando el cálculo de ampacidad modifica la corriente.
+
+Cada caso debe separar datos físicos, datos numéricos y metadatos. Los datos físicos comprenden geometría, materiales, fuentes y contornos. Los datos numéricos incluyen muestreo, arquitectura y tolerancias. Los metadatos registran versión, semilla, hardware, tiempo y huellas de archivos.
+
+La representación homogénea se construye como un par del escenario heterogéneo. Ambas configuraciones conservan geometría, pérdidas, contornos y configuración numérica aceptada. Solo cambia la propiedad térmica que define el contraste. Este control permite atribuir la diferencia observada a la representación del entorno.
+
+\pendiente{Documentar el esquema de archivos y unidades realmente implementado; las reglas de discretización de geometrías e interfaces; la construcción de $Q(x,y)$; y el procedimiento empleado para generar cada par homogéneo--heterogéneo.}
+
+\subsection{IMPLEMENTACIÓN Y ENTRENAMIENTO DE LA PINN}
+
+La red $T_\theta(x,y)$ recibe coordenadas y, según la arquitectura elegida, propiedades del caso. La diferenciación automática calcula los términos de la PDE. La función de pérdida sigue la estructura de la Fórmula~\ref{for:perdida-pinn}; sin embargo, la arquitectura, el muestreo, los pesos y la secuencia de optimización deben definirse mediante el desarrollo y el piloto.
+
+El entrenamiento debe separar ajustes exploratorios y evaluación final. Las reglas de aceptación se fijan antes de ejecutar la batería final. Los casos usados para ajustar hiperparámetros no deben presentarse como evidencia independiente sin declarar ese uso.
+
+\pendiente{Construir o consolidar la versión del artefacto que se presentará en la tesis. Informar biblioteca, versión, arquitectura, activaciones, normalización, muestreo, optimizadores, tasas de aprendizaje, pesos de pérdida, épocas, criterios de parada, semillas, hardware y tiempo. Incluir pseudocódigo y vínculo con el repositorio versionado.}
+
+\subsection{VERIFICACIÓN DEL ARTEFACTO}
+
+La verificación debe avanzar desde casos simples hacia configuraciones multicapa. Primero se comprueban fuentes, contornos e interfaces mediante soluciones analíticas o manufacturadas. Luego se usa una referencia FEM con estudio de convergencia. Finalmente se comparan casos publicados que proporcionen datos suficientes \parencites{cigre2022}[93--99]{cigre2025}.
+
+La Tabla~\ref{tab:plan-verificacion} define el contenido mínimo del expediente. La aceptación no depende de una sola métrica, porque un error puntual pequeño puede coexistir con residuos o balances inadecuados.
+
+\begin{table}[htbp]
+\centering
+\caption{Plan mínimo de verificación del artefacto. Fuente: Elaboración propia.}
+\label{tab:plan-verificacion}
+\begin{tabularx}{\textwidth}{L{2.8cm}Y Y}
+\toprule
+\textbf{Nivel} & \textbf{Propósito} & \textbf{Evidencia requerida} \\
+\midrule
+Analítico/manufacturado & Comprobar PDE, fuentes y contornos en geometrías simples. & Campo de referencia, errores, residuos y orden de convergencia cuando corresponda. \\
+Interfaz multimaterial & Comprobar continuidad de temperatura y flujo. & Perfiles a ambos lados de la interfaz y balance. \\
+FEM convergente & Comparar el campo en una geometría representativa. & Estudio de malla, $\Tmax$, NRMSE, error máximo y balance. \\
+Publicado & Comprobar coherencia con una configuración documentada. & Reconstrucción de supuestos, diferencias y límites de comparabilidad. \\
+Robustez & Evaluar sensibilidad a inicialización y muestreo. & Distribución entre semillas y casos fallidos. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\pendiente{Ejecutar la batería definitiva, adjuntar referencias independientes, demostrar la convergencia FEM, informar todas las semillas y clasificar el artefacto como aceptado, aceptado con restricciones o rechazado para cada dominio.}
+
+\subsection{ESCENARIOS DE HETEROGENEIDAD}
+
+La evaluación térmica usa un catálogo de escenarios base, estratificados, localizados, mejorados, secos y multimateriales. En cada par se controlan la geometría, las fuentes, los contornos y la configuración numérica. Los atributos de heterogeneidad son contraste $C_k$, patrón, extensión $f_h$ y proximidad normalizada $d_h/D$.
+
+Los barridos no constituyen por sí mismos un diseño factorial estadístico. Su función es cubrir condiciones físicas y observar sensibilidad dentro del dominio. Los niveles finales deben justificarse con valores bibliográficos, casos publicados o supuestos técnicos declarados.
+
+\pendiente{Fijar y ejecutar el catálogo definitivo. Para cada escenario, registrar mapa $\kx$, valores y fuentes, $C_k$, patrón, $f_h$, $d_h/D$, controles, resultado térmico, punto caliente, estado de aceptación y archivos de evidencia.}
+
+\subsection{CÁLCULO Y COMPARACIÓN DE AMPACIDAD}
+
+La ampacidad se obtiene mediante la búsqueda definida en la Fórmula~\ref{for:ampacidad}. En cada paso se actualizan las pérdidas dependientes de corriente y se resuelve el campo hasta cumplir las tolerancias térmica y energética. El resultado debe acompañarse del historial de búsqueda y del margen respecto de $T_{\mathrm{lim}}$.
+
+Las comparaciones se realizan entre el escenario heterogéneo verificado y representaciones homogéneas equivalentes, conservadoras u optimistas. La diferencia porcentual se calcula con la Fórmula~\ref{for:metricas}. Una discrepancia debe interpretarse junto con el mapa térmico y los supuestos del par.
+
+\pendiente{Implementar o cerrar el módulo de búsqueda de $\Imax$, documentar el modelo de pérdidas eléctricas, definir tolerancias, verificar monotonicidad y convergencia, y ejecutar todos los pares homogéneo--heterogéneo aceptados.}
+
+\subsection{TRAZABILIDAD Y REPRODUCIBILIDAD}
+
+Cada ejecución debe generar un manifiesto con datos, versión del código, configuración, semilla, hardware, tiempo y resultados. Los archivos se organizan por caso y fase DSR. La tesis debe vincular cada tabla y figura con los registros que la produjeron.
+
+La reproducción requiere un entorno documentado, instrucciones de ejecución y una selección mínima de casos. Los resultados no reproducibles deben informarse como limitación y no excluirse sin justificación.
+
+\pendiente{Depurar el repositorio de entrega; fijar una versión o etiqueta; preparar el archivo de dependencias; documentar comandos, estructura de datos y semillas; y verificar la reproducción desde un entorno limpio.}
+
+\section{ANÁLISIS DE LOS DATOS Y RESULTADOS}
+\label{sec:analisis-resultados}
+
+Esta sección debe presentar los resultados en la misma secuencia que los objetivos: especificación, verificación, evaluación térmica y comparación de ampacidad. Cada bloque debe anunciar la evidencia, mostrarla mediante tablas o figuras y explicar lo que puede concluirse dentro del dominio.
+
+\pendiente{Incorporar los resultados reales. No sustituir esta marca por resultados esperados. El análisis debe incluir casos fallidos y restricciones, además de los casos aceptados.}
+
+\subsection{RESULTADOS DE LA ESPECIFICACIÓN}
+
+El análisis debe informar la cobertura de requisitos, los cambios de diseño y la relación requisito--prueba. También debe explicar qué decisiones se mantuvieron, modificaron o descartaron durante los ciclos DSR.
+
+\pendiente{Insertar la matriz final de requisitos, el porcentaje de cobertura, las decisiones de diseño y el estado del OE1.}
+
+\subsection{RESULTADOS DE VERIFICACIÓN}
+
+El análisis debe comparar $T(x,y)$ y $\Tmax$ con cada referencia. Las figuras deben usar escalas comparables y mostrar error espacial cuando corresponda. Las tablas deben registrar residuos, balance, semillas, convergencia y estado de aceptación.
+
+\pendiente{Insertar campos térmicos, perfiles, mapas de error, estudio de convergencia FEM, métricas agregadas y variación entre semillas. Concluir el estado del OE2 sin ocultar casos que no convergieron.}
+
+\subsection{RESULTADOS DE HETEROGENEIDAD TÉRMICA}
+
+Los escenarios deben ordenarse por contraste, patrón, extensión y proximidad. El análisis debe separar el efecto sobre el campo, $\Tmax$ y la ubicación del punto caliente. Una diferencia solo se considera interpretable cuando el caso satisface los criterios de verificación.
+
+\pendiente{Insertar la matriz de escenarios, mapas de $\kx$ y $T(x,y)$, $\Delta\Tmax$, desplazamiento del punto caliente, sensibilidad física y estado del OE3.}
+
+\subsection{RESULTADOS DE AMPACIDAD}
+
+La comparación debe conservar los pares y reportar $I_{\mathrm{het}}$, $I_{\mathrm{hom}}$, $\Delta I$ y margen térmico. Los resultados deben clasificarse como reducción, aumento, diferencia no relevante o fuera del dominio.
+
+\pendiente{Insertar las curvas temperatura--corriente, la convergencia de la búsqueda, la tabla comparativa de ampacidad, los casos de mayor discrepancia y el estado del OE4.}
+
+\section{DISCUSIÓN E INTERPRETACIÓN DE LOS RESULTADOS}
+\label{sec:discusion}
+
+La discusión debe iniciar con una síntesis de los hallazgos y responder el problema general. Luego debe comparar los resultados con las referencias de cables, heterogeneidad térmica y PINN. Las coincidencias y discrepancias deben interpretarse mediante los supuestos físicos y numéricos, no mediante adjetivos.
+
+La discusión también debe evaluar la contribución DSR. Esto exige distinguir el prototipo situado de los requisitos, procedimientos, límites y principios de diseño que puedan transferirse. Los resultados de desempeño computacional deben separarse de la exactitud y de la utilidad de ingeniería.
+
+\pendiente{Redactar la discusión después de cerrar los resultados. Contrastar, al menos, con \textcite{khumalo2025}, \textcite{kim2025}, \textcite{cigre2025}, \textcite{xing2023} y \textcite{pan2025}; explicar limitaciones, resultados inesperados, amenazas a la validez y alcance de generalización.}
+
+\section{ESTIMACIÓN DEL IMPACTO DE LA SOLUCIÓN}
+\label{sec:impacto}
+
+El impacto debe estimarse dentro del alcance profesionalizante. El impacto técnico corresponde a la capacidad de representar heterogeneidades y detectar cuándo una equivalencia homogénea altera $\Tmax$ o $\Imax$. El impacto metodológico corresponde al procedimiento reproducible de especificación y verificación. El impacto operativo potencial se limita a la información que el artefacto pueda aportar para revisar decisiones térmicas.
+
+La estimación no debe presentarse como ahorro económico, mejora de confiabilidad ni aumento de capacidad real sin evidencia independiente. El plan excluye CAPEX, OPEX y retorno de inversión. Por tanto, cualquier impacto cuantitativo debe derivarse de los escenarios aceptados y conservar sus límites.
+
+\pendiente{Cuantificar el impacto con los resultados finales: cobertura del dominio, magnitud de discrepancias térmicas y de ampacidad, recursos de reproducción y condiciones de uso. Formular beneficios y riesgos sin extrapolar a instalaciones no validadas.}
+
+En síntesis, la propuesta ya dispone de propósito, entradas, salidas, arquitectura, modelo físico y protocolo de evidencia. La construcción, la verificación, los resultados y su interpretación permanecen abiertos. Solo después de cerrar esas actividades podrá redactarse el Capítulo~\ref{ch:conclusiones}.
+

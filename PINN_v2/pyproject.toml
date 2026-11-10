@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pinn-v2"
+version = "0.1.0"
+description = "Explicit multi-material 2D heat conduction for buried cables: PINN families and FEniCSx reference"
+requires-python = ">=3.10"
+dependencies = ["numpy", "scipy"]
+
+[project.optional-dependencies]
+torch = ["torch"]
+dev = ["pytest"]
+optimization = ["optuna>=4,<5", "matplotlib>=3.8,<4"]
+deepxde = ["deepxde>=1.14,<2"]
+reporting = ["openpyxl>=3.1,<4"]
+
+[tool.setuptools.packages.find]
+include = ["pinn_v2*"]
+
+[tool.setuptools.package-data]
+"pinn_v2.cases" = ["data/*.json", "v2/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = ["slow: long integration tests", "fem: requires FEniCSx through WSL"]

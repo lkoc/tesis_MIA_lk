@@ -1,0 +1,247 @@
+{
+  "schema": "pinn-v3-case-1",
+  "id": "kim_2024_thermal_original",
+  "family": "cable",
+  "legacy_kind": "cable",
+  "domain": {
+    "bounds": [
+      -45.5,
+      45.5,
+      -45.5,
+      0.0
+    ]
+  },
+  "temperature": {
+    "reference_C": 15.2,
+    "scale_K": 50.0
+  },
+  "provenance": {
+    "citation": "Kim et al. 2024 geometry/material data; boundary_profiles.csv; IEC 60287 source at 1026 A and 70.6 C"
+  },
+  "conductors": {
+    "centers": [
+      [
+        -0.4,
+        -1.6
+      ],
+      [
+        0.0,
+        -1.6
+      ],
+      [
+        0.4,
+        -1.6
+      ],
+      [
+        -0.4,
+        -1.2
+      ],
+      [
+        0.0,
+        -1.2
+      ],
+      [
+        0.4,
+        -1.2
+      ]
+    ],
+    "radius_m": 0.11,
+    "layers": [
+      {
+        "inner_radius_m": 0.0,
+        "outer_radius_m": 0.0212,
+        "k_W_mK": 400.0
+      },
+      {
+        "inner_radius_m": 0.0212,
+        "outer_radius_m": 0.0232,
+        "k_W_mK": 0.2857
+      },
+      {
+        "inner_radius_m": 0.0232,
+        "outer_radius_m": 0.0402,
+        "k_W_mK": 0.2857
+      },
+      {
+        "inner_radius_m": 0.0402,
+        "outer_radius_m": 0.0415,
+        "k_W_mK": 0.2857
+      },
+      {
+        "inner_radius_m": 0.0415,
+        "outer_radius_m": 0.0425,
+        "k_W_mK": 0.167
+      },
+      {
+        "inner_radius_m": 0.0425,
+        "outer_radius_m": 0.045,
+        "k_W_mK": 237.0
+      },
+      {
+        "inner_radius_m": 0.045,
+        "outer_radius_m": 0.05,
+        "k_W_mK": 0.2857
+      },
+      {
+        "inner_radius_m": 0.05,
+        "outer_radius_m": 0.1,
+        "k_W_mK": 2.15
+      },
+      {
+        "inner_radius_m": 0.1,
+        "outer_radius_m": 0.11,
+        "k_W_mK": 0.2857
+      }
+    ]
+  },
+  "electrical": {
+    "current_A": 1026.0,
+    "R20_ohm_m": 1.51e-05,
+    "alpha_1_K": 0.00393,
+    "power_W_m": 15.8954076
+  },
+  "material": {
+    "k_base_W_mK": 1.55,
+    "conductivity": {
+      "type": "layers",
+      "axis": "y",
+      "interfaces": [
+        -1.76,
+        -0.56
+      ],
+      "values": [
+        1.517,
+        1.351,
+        1.804
+      ],
+      "smoothing": 0.0
+    },
+    "patch": {
+      "center": [
+        0.0,
+        -1.4
+      ],
+      "size": [
+        1.3,
+        0.9
+      ],
+      "k_W_mK": 2.094,
+      "edge_smoothing_m": 0.1
+    }
+  },
+  "source": {
+    "power_per_cable_W_m": 27.97
+  },
+  "title": "Kim et al. 2024 - thermal original",
+  "definition": {
+    "boundary_conditions": {
+      "top": {
+        "type": "robin",
+        "T_inf": {
+          "value": 27.2,
+          "unit": "degC"
+        },
+        "h": {
+          "value": 7.371,
+          "unit": "W/(m2 K)"
+        }
+      },
+      "bottom": {
+        "type": "dirichlet",
+        "temperature": {
+          "value": 15.2,
+          "unit": "degC"
+        }
+      },
+      "left": {
+        "type": "dirichlet_profile",
+        "depth_m": [
+          0.0,
+          0.5,
+          1.0,
+          1.4,
+          2.0,
+          3.0,
+          3.6,
+          45.5
+        ],
+        "temperature_C": [
+          26.1,
+          23.68,
+          21.46,
+          19.89,
+          17.95,
+          15.82,
+          15.2,
+          15.2
+        ]
+      },
+      "right": {
+        "type": "dirichlet_profile",
+        "depth_m": [
+          0.0,
+          0.5,
+          1.0,
+          1.4,
+          2.0,
+          3.0,
+          3.6,
+          45.5
+        ],
+        "temperature_C": [
+          26.1,
+          23.68,
+          21.46,
+          19.89,
+          17.95,
+          15.82,
+          15.2,
+          15.2
+        ]
+      }
+    },
+    "contact": [],
+    "provenance": [
+      {
+        "id": "kim2024_case_data",
+        "citation": "examples/kim_2024_154kv_bedding/data/kim_thermal_pde_case.json and associated cable/material data"
+      },
+      {
+        "id": "kim2024_boundary_data",
+        "citation": "examples/kim_2024_154kv_bedding/data/boundary_profiles.csv and boundary_conditions.csv"
+      }
+    ],
+    "data_status": {
+      "geometry": {
+        "status": "extraido",
+        "source": "kim2024_case_data",
+        "note": "Six cable centers, domain bounds, radius and nine cable layers are preserved from the original case data."
+      },
+      "materials": {
+        "status": "extraido",
+        "source": "kim2024_case_data",
+        "note": "Cable layers, soil strata and the local conductivity patch are preserved from the original case data."
+      },
+      "source": {
+        "status": "extraido",
+        "source": "kim2024_case_data",
+        "note": "The fixed thermal source is 27.97 W/m per cable; it is not recomputed from the separate 20 C DC resistance."
+      },
+      "boundary_conditions": {
+        "status": "extraido",
+        "source": "kim2024_boundary_data",
+        "note": "Top Robin condition, bottom temperature, and left/right depth profiles are preserved from the original boundary data."
+      }
+    },
+    "inconsistencies": [
+      {
+        "field": "source_power_W_m",
+        "values": {
+          "dc_power_W_m": 15.8954076,
+          "fixed_power_W_m": 27.97
+        },
+        "resolution": "Preserve the recorded fixed thermal source per cable; do not substitute the separate I^2 R20 DC value."
+      }
+    ]
+  }
+}

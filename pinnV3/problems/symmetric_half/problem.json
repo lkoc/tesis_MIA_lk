@@ -1,0 +1,230 @@
+{
+  "schema": "pinn-v3-problem-1",
+  "id": "symmetric_half",
+  "title": "Half domain with symmetry Neumann side",
+  "family": "cable",
+  "domain": {
+    "shape": "rectangle",
+    "bounds": [
+      0.0,
+      4.0,
+      -4.0,
+      0.0
+    ]
+  },
+  "temperature_scale_K": 1.0,
+  "boundaries": {
+    "bottom": {
+      "type": "dirichlet",
+      "value": 15.0
+    },
+    "top": {
+      "type": "robin",
+      "h_W_m2K": 15.0,
+      "T_inf_C": 20.0
+    },
+    "left": {
+      "type": "neumann",
+      "q_n_W_m2": 0.0
+    },
+    "right": {
+      "type": "dirichlet",
+      "value": 15.0
+    }
+  },
+  "reference": {},
+  "metadata": {
+    "source": {
+      "citation": "Synthetic concentric verification",
+      "physics_version": "explicit-heat-2d-v1"
+    },
+    "original_domain": {
+      "bounds": [
+        0.0,
+        4.0,
+        -4.0,
+        0.0
+      ]
+    },
+    "original_definition": {
+      "boundary_conditions": {
+        "top": {
+          "type": "robin",
+          "h": {
+            "value": 15.0,
+            "unit": "W/(m2 K)"
+          },
+          "T_inf": {
+            "value": 20.0,
+            "unit": "degC"
+          }
+        },
+        "bottom": {
+          "type": "dirichlet",
+          "temperature": {
+            "value": 15.0,
+            "unit": "degC"
+          }
+        },
+        "left": {
+          "type": "neumann",
+          "heat_flux_out": {
+            "value": 0.0,
+            "unit": "W/m2"
+          }
+        },
+        "right": {
+          "type": "dirichlet",
+          "temperature": {
+            "value": 15.0,
+            "unit": "degC"
+          }
+        }
+      },
+      "contact": [],
+      "provenance": [
+        {
+          "id": "pinn_v3_verification",
+          "citation": "pinn_v3 verification builders (inherited coaxial case with chosen boundary data)"
+        }
+      ],
+      "data_status": {
+        "geometry": {
+          "status": "supuesto",
+          "source": "pinn_v3_verification",
+          "note": "Inherited coaxial layers; geometry and boundary data chosen for the symmetry cross-check"
+        },
+        "materials": {
+          "status": "supuesto",
+          "source": "pinn_v3_verification",
+          "note": "Inherited coaxial layers; geometry and boundary data chosen for the symmetry cross-check"
+        },
+        "source": {
+          "status": "supuesto",
+          "source": "pinn_v3_verification",
+          "note": "Inherited coaxial layers; geometry and boundary data chosen for the symmetry cross-check"
+        },
+        "boundary_conditions": {
+          "status": "supuesto",
+          "source": "pinn_v3_verification",
+          "note": "Inherited coaxial layers; geometry and boundary data chosen for the symmetry cross-check"
+        }
+      },
+      "inconsistencies": []
+    },
+    "electrical": {
+      "current_A": 270.0,
+      "R20_ohm_m": 0.000193,
+      "alpha_1_K": 0.00393,
+      "power_W_m": 14.069700000000001
+    },
+    "conductors": {
+      "centers": [
+        [
+          0.5,
+          -1.5
+        ]
+      ],
+      "radius_m": 0.015,
+      "layers": [
+        {
+          "inner_radius_m": 0.0,
+          "outer_radius_m": 0.0055,
+          "k_W_mK": 400.0
+        },
+        {
+          "inner_radius_m": 0.0055,
+          "outer_radius_m": 0.012,
+          "k_W_mK": 0.286
+        },
+        {
+          "inner_radius_m": 0.012,
+          "outer_radius_m": 0.013,
+          "k_W_mK": 380.0
+        },
+        {
+          "inner_radius_m": 0.013,
+          "outer_radius_m": 0.015,
+          "k_W_mK": 0.45
+        }
+      ],
+      "pair": null
+    }
+  },
+  "regions": [
+    {
+      "id": "background",
+      "shape": {
+        "type": "rectangle",
+        "bounds": [
+          0.0,
+          4.0,
+          -4.0,
+          0.0
+        ]
+      },
+      "conductivity": 1.0,
+      "source": 0.0,
+      "priority": 0
+    },
+    {
+      "id": "cable_0_layer_0",
+      "shape": {
+        "type": "disk",
+        "center": [
+          0.5,
+          -1.5
+        ],
+        "radius_m": 0.0055
+      },
+      "conductivity": 400.0,
+      "source": 148050.40018644894,
+      "priority": 1
+    },
+    {
+      "id": "cable_0_layer_1",
+      "shape": {
+        "type": "annulus",
+        "center": [
+          0.5,
+          -1.5
+        ],
+        "inner_radius_m": 0.0055,
+        "outer_radius_m": 0.012
+      },
+      "conductivity": 0.286,
+      "source": 0.0,
+      "priority": 2
+    },
+    {
+      "id": "cable_0_layer_2",
+      "shape": {
+        "type": "annulus",
+        "center": [
+          0.5,
+          -1.5
+        ],
+        "inner_radius_m": 0.012,
+        "outer_radius_m": 0.013
+      },
+      "conductivity": 380.0,
+      "source": 0.0,
+      "priority": 3
+    },
+    {
+      "id": "cable_0_layer_3",
+      "shape": {
+        "type": "annulus",
+        "center": [
+          0.5,
+          -1.5
+        ],
+        "inner_radius_m": 0.013,
+        "outer_radius_m": 0.015
+      },
+      "conductivity": 0.45,
+      "source": 0.0,
+      "priority": 4
+    }
+  ]
+}

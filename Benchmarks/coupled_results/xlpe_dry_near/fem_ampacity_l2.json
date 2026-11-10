@@ -1,0 +1,370 @@
+{
+  "case": {
+    "id": "xlpe_dry_near",
+    "kind": "cable",
+    "bounds": [
+      -4.0,
+      4.0,
+      -4.0,
+      0.0
+    ],
+    "T0": 20.0,
+    "scale": 50.0,
+    "cables": [
+      [
+        0.0,
+        -0.7
+      ]
+    ],
+    "radius": 0.015,
+    "layers": [
+      [
+        0,
+        0.0055,
+        400
+      ],
+      [
+        0.0055,
+        0.012,
+        0.286
+      ],
+      [
+        0.012,
+        0.013,
+        380
+      ],
+      [
+        0.013,
+        0.015,
+        0.45
+      ]
+    ],
+    "power": 14.069700000000001,
+    "current": 270.0,
+    "R20": 0.000193,
+    "alpha": 0.00393,
+    "k": 1.0,
+    "patch": [
+      0,
+      -0.7,
+      0.5,
+      0.5,
+      0.5,
+      0.08
+    ],
+    "bands": [],
+    "pair": "xlpe_single",
+    "source": "examples/xlpe_single_cable/data",
+    "adaptation": "Dominio controlado 8 x 4 m; Dirichlet 20 C; p\u00e9rdidas DC a 20 C; flujo circular uniforme. Kim usa nueve capas de la ficha corregida de 2025."
+  },
+  "case_sha256": "ea238e227dd9d6fdc8a780e59051941ca7af47b410e5adda156ed511789b2218",
+  "method": "FEniCSx",
+  "coupled": true,
+  "ampacity": true,
+  "loss_model": {
+    "type": "dc_linear_temperature",
+    "reference_temperature_C": 20.0,
+    "temperature_tolerance_K": 1e-05,
+    "temperature_limit_C": 90.0,
+    "max_iterations": 500,
+    "law": "P_j = I_j^2 * R20_j * (1 + alpha_j * (T_conductor_j - 20))",
+    "coupling": "individual conductor temperature; same law in PINN and FEniCSx",
+    "excluded_losses": [
+      "dielectric",
+      "screen",
+      "sheath",
+      "skin_effect",
+      "proximity_effect"
+    ]
+  },
+  "current_A": 418.27526092529297,
+  "powers_W_m": [
+    43.055230197270255
+  ],
+  "resistance_ohm_m": [
+    0.00024609430181112143
+  ],
+  "electrical_residual_pct": 1.0677475139033922e-11,
+  "conductor_C": [
+    90.00000238783335
+  ],
+  "Tmax_C": 90.00000238783335,
+  "balance_pct": 0.26436507308003243,
+  "net_flux_W_m": 0.11373391012839126,
+  "source_W_m": 0.0,
+  "throughput_W_m": 86.04306824900435,
+  "level": 2,
+  "degree": 2,
+  "ndofs": 11517,
+  "response_K_m_W": [
+    [
+      1.6258187929102463
+    ]
+  ],
+  "trace": {
+    "bisection": [
+      {
+        "iteration": 0,
+        "current_A": 270.0,
+        "Tmax_C": 45.13430368685602,
+        "stable": true
+      },
+      {
+        "iteration": 1,
+        "current_A": 405.0,
+        "Tmax_C": 84.51841870758226,
+        "stable": true
+      },
+      {
+        "iteration": 2,
+        "current_A": 472.5,
+        "Tmax_C": 116.66787848909789,
+        "stable": true
+      },
+      {
+        "iteration": 3,
+        "current_A": 438.75,
+        "Tmax_C": 99.20622096676597,
+        "stable": true
+      },
+      {
+        "iteration": 4,
+        "current_A": 421.875,
+        "Tmax_C": 91.5503037888418,
+        "stable": true
+      },
+      {
+        "iteration": 5,
+        "current_A": 413.4375,
+        "Tmax_C": 87.96015970358711,
+        "stable": true
+      },
+      {
+        "iteration": 6,
+        "current_A": 417.65625,
+        "Tmax_C": 89.73622732275369,
+        "stable": true
+      },
+      {
+        "iteration": 7,
+        "current_A": 419.765625,
+        "Tmax_C": 90.6384559069038,
+        "stable": true
+      },
+      {
+        "iteration": 8,
+        "current_A": 418.7109375,
+        "Tmax_C": 90.18614660257268,
+        "stable": true
+      },
+      {
+        "iteration": 9,
+        "current_A": 418.18359375,
+        "Tmax_C": 89.96088912734226,
+        "stable": true
+      },
+      {
+        "iteration": 10,
+        "current_A": 418.447265625,
+        "Tmax_C": 90.07344329173087,
+        "stable": true
+      },
+      {
+        "iteration": 11,
+        "current_A": 418.3154296875,
+        "Tmax_C": 90.01714758054949,
+        "stable": true
+      },
+      {
+        "iteration": 12,
+        "current_A": 418.24951171875,
+        "Tmax_C": 89.98901369848731,
+        "stable": true
+      },
+      {
+        "iteration": 13,
+        "current_A": 418.282470703125,
+        "Tmax_C": 90.00307947543033,
+        "stable": true
+      },
+      {
+        "iteration": 14,
+        "current_A": 418.2659912109375,
+        "Tmax_C": 89.99604629596473,
+        "stable": true
+      },
+      {
+        "iteration": 15,
+        "current_A": 418.27423095703125,
+        "Tmax_C": 89.9995628129455,
+        "stable": true
+      },
+      {
+        "iteration": 16,
+        "current_A": 418.2783508300781,
+        "Tmax_C": 90.00132112599947,
+        "stable": true
+      },
+      {
+        "iteration": 17,
+        "current_A": 418.2762908935547,
+        "Tmax_C": 90.00044196492544,
+        "stable": true
+      },
+      {
+        "iteration": 18,
+        "current_A": 418.27526092529297,
+        "Tmax_C": 90.00000238779872,
+        "stable": true
+      }
+    ],
+    "spectral_radius": 0.21574779025916488,
+    "iterations": 12,
+    "history": [
+      {
+        "iteration": 0,
+        "conductor_C": [
+          74.89765655449487
+        ],
+        "powers_W_m": [
+          33.76615942310953
+        ],
+        "temperature_change_K": 54.89765655449487
+      },
+      {
+        "iteration": 1,
+        "conductor_C": [
+          86.7417046465337
+        ],
+        "powers_W_m": [
+          41.05113370418409
+        ],
+        "temperature_change_K": 11.844048092038832
+      },
+      {
+        "iteration": 2,
+        "conductor_C": [
+          89.29703185011437
+        ],
+        "powers_W_m": [
+          42.622850807420775
+        ],
+        "temperature_change_K": 2.55532720358066
+      },
+      {
+        "iteration": 3,
+        "conductor_C": [
+          89.84833804767601
+        ],
+        "powers_W_m": [
+          42.96194529935662
+        ],
+        "temperature_change_K": 0.5513061975616438
+      },
+      {
+        "iteration": 4,
+        "conductor_C": [
+          89.96728114155611
+        ],
+        "powers_W_m": [
+          43.03510418668083
+        ],
+        "temperature_change_K": 0.11894309388010527
+      },
+      {
+        "iteration": 5,
+        "conductor_C": [
+          89.99294285122734
+        ],
+        "powers_W_m": [
+          43.050888054958854
+        ],
+        "temperature_change_K": 0.025661709671226163
+      },
+      {
+        "iteration": 6,
+        "conductor_C": [
+          89.99847930838318
+        ],
+        "powers_W_m": [
+          43.054293389661574
+        ],
+        "temperature_change_K": 0.00553645715584139
+      },
+      {
+        "iteration": 7,
+        "conductor_C": [
+          89.99967378678042
+        ],
+        "powers_W_m": [
+          43.05502808309878
+        ],
+        "temperature_change_K": 0.0011944783972381856
+      },
+      {
+        "iteration": 8,
+        "conductor_C": [
+          89.99993149285513
+        ],
+        "powers_W_m": [
+          43.05518659158437
+        ],
+        "temperature_change_K": 0.0002577060747057658
+      },
+      {
+        "iteration": 9,
+        "conductor_C": [
+          89.99998709237128
+        ],
+        "powers_W_m": [
+          43.05522078943988
+        ],
+        "temperature_change_K": 5.559951615907721e-05
+      },
+      {
+        "iteration": 10,
+        "conductor_C": [
+          89.99999908784405
+        ],
+        "powers_W_m": [
+          43.05522816755164
+        ],
+        "temperature_change_K": 1.1995472760872872e-05
+      },
+      {
+        "iteration": 11,
+        "conductor_C": [
+          90.00000167584079
+        ],
+        "powers_W_m": [
+          43.05522975936295
+        ],
+        "temperature_change_K": 2.5879967466835296e-06
+      }
+    ],
+    "iteration_closed_form_difference_W_m": 4.3790730330783845e-07
+  },
+  "linear_solves_for_both_modes": 3,
+  "elapsed_s": 6.149263770000061,
+  "dolfinx": "0.10.0",
+  "gmsh": "4.15.2",
+  "python": "3.12.13 | packaged by conda-forge | (main, Mar  5 2026, 16:50:00) [GCC 14.3.0]",
+  "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "completed_utc": "2026-09-10T18:03:12.008697+00:00",
+  "source_sha256": {
+    "Benchmarks/fem_coupled.py": "0f0b4e55af8d9ed04a0c0a4b87aa9cf828bb8f5ccbd69a498236584aad90888a",
+    "Benchmarks/fem.py": "be6f9375b025c2ace4a6982aff505bf5f2741f7974b0412596c108df7524f51d",
+    "Benchmarks/cases.py": "602ae0972312f0b96d442593a61cbf3e41eec877b1d579f8b7a21415453c5ead",
+    "Benchmarks/expressions.py": "b59d46dfb4094c4e79f491384c7baef6641fb4753cd87fcb8a588f72164596e6",
+    "Benchmarks/electrothermal.py": "4027a8b004e5d202f871281372e09ed92b7cd52245b2ccc2eab66e3f8b30a1f7",
+    "Benchmarks/electrical_model.json": "032fd4d752b1e7b9653edfa3a308b8c5dec75fa36af5ebb19e9ece282d71569b"
+  },
+  "boundary_diagnostics": [
+    {
+      "boundary": "cable0",
+      "prescribed_heat_into_soil_W_m": 43.055230197270255,
+      "computed_heat_into_soil_W_m": 42.96466716943788,
+      "relative_power_error_pct": 0.21034152510027715
+    }
+  ]
+}

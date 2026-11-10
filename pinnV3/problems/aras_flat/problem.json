@@ -1,0 +1,290 @@
+{
+  "schema": "pinn-v3-problem-1",
+  "id": "aras_flat",
+  "title": "aras_flat",
+  "family": "cable",
+  "domain": {
+    "shape": "rectangle",
+    "bounds": [
+      -4.0,
+      4.0,
+      -4.0,
+      0.0
+    ]
+  },
+  "temperature_scale_K": 50.0,
+  "boundaries": {
+    "bottom": {
+      "type": "dirichlet",
+      "value": 20.0
+    },
+    "top": {
+      "type": "dirichlet",
+      "value": 20.0
+    },
+    "left": {
+      "type": "dirichlet",
+      "value": 20.0
+    },
+    "right": {
+      "type": "dirichlet",
+      "value": 20.0
+    }
+  },
+  "reference": {},
+  "metadata": {
+    "source": {
+      "citation": "examples/aras_2005_154kv_flat/data",
+      "adaptation": "Dominio controlado 8 x 4 m; Dirichlet 20 C; pérdidas DC a 20 C; flujo circular uniforme. Kim usa nueve capas de la ficha corregida de 2025."
+    },
+    "original_domain": {
+      "bounds": [
+        -4.0,
+        4.0,
+        -4.0,
+        0.0
+      ]
+    },
+    "original_definition": {},
+    "electrical": {
+      "power_W_m": 18.60471,
+      "current_A": 1110.0,
+      "R20_ohm_m": 1.51e-05,
+      "alpha_1_K": 0.00393
+    },
+    "conductors": {
+      "centers": [
+        [
+          -0.33,
+          -1.2
+        ],
+        [
+          0.0,
+          -1.2
+        ],
+        [
+          0.33,
+          -1.2
+        ]
+      ],
+      "radius_m": 0.05335,
+      "layers": [
+        {
+          "inner_radius_m": 0,
+          "outer_radius_m": 0.01885,
+          "k_W_mK": 400
+        },
+        {
+          "inner_radius_m": 0.01885,
+          "outer_radius_m": 0.04085,
+          "k_W_mK": 0.2857
+        },
+        {
+          "inner_radius_m": 0.04085,
+          "outer_radius_m": 0.04935,
+          "k_W_mK": 384.6
+        },
+        {
+          "inner_radius_m": 0.04935,
+          "outer_radius_m": 0.05335,
+          "k_W_mK": 0.45
+        }
+      ],
+      "pair": null
+    }
+  },
+  "regions": [
+    {
+      "id": "background",
+      "shape": {
+        "type": "rectangle",
+        "bounds": [
+          -4.0,
+          4.0,
+          -4.0,
+          0.0
+        ]
+      },
+      "conductivity": 1.0,
+      "source": 0.0,
+      "priority": 0
+    },
+    {
+      "id": "cable_0_layer_0",
+      "shape": {
+        "type": "disk",
+        "center": [
+          -0.33,
+          -1.2
+        ],
+        "radius_m": 0.01885
+      },
+      "conductivity": 400,
+      "source": 16666.72705100981,
+      "priority": 1
+    },
+    {
+      "id": "cable_0_layer_1",
+      "shape": {
+        "type": "annulus",
+        "center": [
+          -0.33,
+          -1.2
+        ],
+        "inner_radius_m": 0.01885,
+        "outer_radius_m": 0.04085
+      },
+      "conductivity": 0.2857,
+      "source": 0.0,
+      "priority": 2
+    },
+    {
+      "id": "cable_0_layer_2",
+      "shape": {
+        "type": "annulus",
+        "center": [
+          -0.33,
+          -1.2
+        ],
+        "inner_radius_m": 0.04085,
+        "outer_radius_m": 0.04935
+      },
+      "conductivity": 384.6,
+      "source": 0.0,
+      "priority": 3
+    },
+    {
+      "id": "cable_0_layer_3",
+      "shape": {
+        "type": "annulus",
+        "center": [
+          -0.33,
+          -1.2
+        ],
+        "inner_radius_m": 0.04935,
+        "outer_radius_m": 0.05335
+      },
+      "conductivity": 0.45,
+      "source": 0.0,
+      "priority": 4
+    },
+    {
+      "id": "cable_1_layer_0",
+      "shape": {
+        "type": "disk",
+        "center": [
+          0.0,
+          -1.2
+        ],
+        "radius_m": 0.01885
+      },
+      "conductivity": 400,
+      "source": 16666.72705100981,
+      "priority": 5
+    },
+    {
+      "id": "cable_1_layer_1",
+      "shape": {
+        "type": "annulus",
+        "center": [
+          0.0,
+          -1.2
+        ],
+        "inner_radius_m": 0.01885,
+        "outer_radius_m": 0.04085
+      },
+      "conductivity": 0.2857,
+      "source": 0.0,
+      "priority": 6
+    },
+    {
+      "id": "cable_1_layer_2",
+      "shape": {
+        "type": "annulus",
+        "center": [
+          0.0,
+          -1.2
+        ],
+        "inner_radius_m": 0.04085,
+        "outer_radius_m": 0.04935
+      },
+      "conductivity": 384.6,
+      "source": 0.0,
+      "priority": 7
+    },
+    {
+      "id": "cable_1_layer_3",
+      "shape": {
+        "type": "annulus",
+        "center": [
+          0.0,
+          -1.2
+        ],
+        "inner_radius_m": 0.04935,
+        "outer_radius_m": 0.05335
+      },
+      "conductivity": 0.45,
+      "source": 0.0,
+      "priority": 8
+    },
+    {
+      "id": "cable_2_layer_0",
+      "shape": {
+        "type": "disk",
+        "center": [
+          0.33,
+          -1.2
+        ],
+        "radius_m": 0.01885
+      },
+      "conductivity": 400,
+      "source": 16666.72705100981,
+      "priority": 9
+    },
+    {
+      "id": "cable_2_layer_1",
+      "shape": {
+        "type": "annulus",
+        "center": [
+          0.33,
+          -1.2
+        ],
+        "inner_radius_m": 0.01885,
+        "outer_radius_m": 0.04085
+      },
+      "conductivity": 0.2857,
+      "source": 0.0,
+      "priority": 10
+    },
+    {
+      "id": "cable_2_layer_2",
+      "shape": {
+        "type": "annulus",
+        "center": [
+          0.33,
+          -1.2
+        ],
+        "inner_radius_m": 0.04085,
+        "outer_radius_m": 0.04935
+      },
+      "conductivity": 384.6,
+      "source": 0.0,
+      "priority": 11
+    },
+    {
+      "id": "cable_2_layer_3",
+      "shape": {
+        "type": "annulus",
+        "center": [
+          0.33,
+          -1.2
+        ],
+        "inner_radius_m": 0.04935,
+        "outer_radius_m": 0.05335
+      },
+      "conductivity": 0.45,
+      "source": 0.0,
+      "priority": 12
+    }
+  ]
+}

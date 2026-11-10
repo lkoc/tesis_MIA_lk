@@ -1,0 +1,56 @@
+# ============================================================
+# Solver configuration (ML hyperparameters only)
+# Physical problem data is defined in CSV files under data/
+#
+# PREFERRED: add solver_params.csv to your data/ directory.
+# That file uses the same param/value layout as domain.csv and
+# keeps ALL configuration (physical + solver) in one place.
+# This YAML is kept as a reference template and for --config overrides.
+# ============================================================
+
+device: "auto"           # "cpu", "cuda", or "auto"
+seed: 42
+dtype: "float32"         # "float32" or "float64"
+
+model:
+  width: 128
+  depth: 6
+  activation: "tanh"     # tanh, relu, gelu, swish
+  fourier_features: false
+  fourier_scale: 1.0
+  fourier_mapping_size: 64
+
+sampling:
+  n_interior: 8000
+  n_interface: 500
+  n_boundary: 400
+  oversample: 5
+
+normalization:
+  normalize_coords: true
+
+training:
+  lr: 1.0e-3
+  adam_steps: 20000
+  lbfgs_steps: 5000
+  lbfgs_history: 50
+  use_compile: false
+  print_every: 200       # log cada N pasos Adam
+  save_every: 0          # 0 = no guardar checkpoints intermedios
+  checkpoint_dir: "checkpoints/"
+  resample_every: 0      # 0 = fixed; >0 = re-sample every N Adam steps
+
+loss_weights:
+  pde: 1.0
+  bc_dirichlet: 10.0
+  bc_neumann: 1.0
+  bc_robin: 10.0
+  interface_T: 10.0
+  interface_flux: 10.0
+  ic: 10.0
+
+time:
+  n_time: 200
+
+logging:
+  log_dir: "runs/"       # directorio para train.log

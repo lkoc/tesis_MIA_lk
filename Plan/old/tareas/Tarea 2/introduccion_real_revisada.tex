@@ -1,0 +1,77 @@
+% !TeX program = xelatex
+% !BIB program = biber
+% Compilación recomendada:
+% latexmk -xelatex -cd "Plan/Tarea 2/introduccion_real_revisada.tex"
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{fontspec}
+\usepackage{microtype}
+\usepackage{amsmath}
+\usepackage{csquotes}
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage{caption}
+\usepackage[hidelinks]{hyperref}
+\usepackage{bookmark}
+\usepackage[backend=biber,style=apa,sortcites=true,sorting=nyt,maxcitenames=2,maxbibnames=20]{biblatex}
+\DeclareLanguageMapping{spanish}{spanish-apa}
+\DeclareFieldFormat{postnote}{#1}
+\DeclareDelimFormat{postnotedelim}{\addcolon}
+\providecommand{\BLTXAPAifInParensTF}[3]{#3}
+
+\IfFileExists{../referencias_plan_tesis.bib}{%
+  \addbibresource{../referencias_plan_tesis.bib}%
+}{%
+  \addbibresource{Plan/referencias_plan_tesis.bib}%
+}
+
+\setmainfont{Latin Modern Roman}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.65em}
+\setlength{\bibitemsep}{0.65\baselineskip}
+
+\newcommand{\Tmax}{T_{\max}}
+\newcommand{\Imax}{I_{\max}}
+\newcommand{\kx}{k(x,y)}
+
+\begin{document}
+
+\begin{center}
+{\Large \textbf{Introducción revisada del plan de tesis}}\\[0.25em]
+{\normalsize Luis Enrique Koc Góngora}\\
+{\normalsize Herbert Antonio Meléndez García}\\
+{\normalsize Grupo G91}\\[0.25em]
+{\large Versión independiente para la Tarea 2}
+\end{center}
+
+\section*{Introducción}
+
+Un cable eléctrico es un sistema multicapa que conduce corriente y disipa calor hacia su entorno. Ese calor proviene, principalmente, de las pérdidas por efecto Joule. La ampacidad se define como la máxima corriente que el cable puede conducir sin superar sus límites térmicos \(\Imax\) \parencites[752--756]{neher1957}[3--5]{enescu2020}. Por tanto, la ampacidad no depende solo del diseño del cable, sino también del medio que recibe y evacúa el calor generado.
+
+En instalaciones enterradas, ese medio incluye el arreglo de cables, los rellenos de mejora térmica, la zanja y el suelo nativo \parencites[3--6]{enescu2021}{ieee442}[1,10]{kim2025}. Sin embargo, el terreno real rara vez se comporta como un medio homogéneo. La humedad, los estratos, los rellenos y las interfaces entre materiales forman un entorno térmico heterogéneo. En consecuencia, cambian la disipación del calor y la temperatura máxima del conductor \(\Tmax\) \parencites[4--6]{enescu2021}[1,6--7]{khumalo2025}[1--3]{aldulaimi2024}.
+
+Esta condición produce una dificultad técnica para el cálculo de la ampacidad. El uso de valores equivalentes o promediados para los parámetros térmicos del entorno del cable simplifican el modelo, pero pueden ocultar variaciones relevantes en el campo de temperaturas \(T(x,y)\). En cambio, una representación más detallada del terreno exige métodos numéricos con mayor costo de preparación, cálculo y repetición de escenarios \parencites[41--42,93--99]{cigre2025}[1--3,12]{aldulaimi2024}.
+
+La conducción de calor se describe mediante una ecuación diferencial en derivadas parciales (PDE). Su solución representa el campo de temperatura \(T(x,y)\). Cuando el entorno térmico es heterogéneo, el modelo debe representar la variación espacial de la conductividad térmica \(\kx\) \parencites[3--4]{enescu2021}[3]{xing2023}. Esta PDE conecta el sistema físico con el cálculo de la temperatura máxima \(\Tmax\) y la ampacidad \(\Imax\).
+
+\textcite[752--760]{neher1957} establecieron el método clásico para estimar temperatura y ampacidad mediante analogías térmicas con las leyes de Kirchhoff. Las normas IEC 60287 e IEC 60853 formalizan este método como referencia central para el diseño de las instalaciones de cables eléctricos enterrados \parencites{iec60287}{iec60853}. No obstante, este enfoque representa el entorno mediante propiedades homogéneas o equivalentes. Por ello, su uso en terrenos heterogéneos requiere evaluar cuánto cambian \(\Tmax\) e \(\Imax\) cuando \(\kx\) varía en el entorno de los cables.
+
+Los métodos numéricos, como elementos finitos (FEM), diferencias finitas (FDM) y volúmenes finitos (FVM), permiten resolver campos térmicos con mayor detalle \parencites[4--6]{enescu2021}[3--4,93--99]{cigre2025}{patankar1980numerical}[1--3,12]{aldulaimi2024}[1--4]{oclon2015}[1--3]{atoccsa2024}. Sin embargo, su aplicación requiere preparar modelos, definir dominios, generar mallas o discretizaciones y recalcular cada configuración. Esta carga aumenta cuando se comparan escenarios con distintos rellenos, estratos o condiciones térmicas del suelo.
+
+La brecha que aborda el estudio se ubica entre el entorno térmico real, usualmente heterogéneo, y su representación simplificada en el cálculo de la ampacidad. No solamente se requiere disponer de otro algoritmo, sino contar con una forma verificable de representar \(\kx\), estimar \(T(x,y)\) y observar el efecto de la heterogeneidad sobre \(\Tmax\) e \(\Imax\).
+
+Para cerrar esta brecha, el estudio propone un artefacto computacional abierto y verificable basado en una red neuronal informada por física (PINN). En una PINN, la ecuación diferencial, las condiciones de frontera y las condiciones de interfaz se incorporan en la función de pérdida. Así, la red aproxima el campo térmico y, al mismo tiempo, penaliza el incumplimiento de la física del problema \parencite[686--690]{raissi2019}.
+
+Las PINN son pertinentes para este estudio porque producen una representación continua del campo de temperatura y usan puntos de colocación sin requerir una malla para cada caso evaluado como los métodos FEM \parencites[686--690]{raissi2019}[3--4]{xing2023}{cuomo2022}. Además, han sido aplicadas en problemas de conducción térmica 2D y 3D, reconstrucción de temperatura y problemas inversos relacionados con campos térmicos \parencites[1--3]{xing2023}[1,5]{pan2025}[1--2]{liu2026}{billah2023}{chen2024}.
+
+Sin embargo, el uso de PINN en cables enterrados no debe asumirse como una mejora automática. La convergencia, los pesos de pérdida, las condiciones de interfaz y el costo de entrenamiento pueden condicionar su desempeño \parencites[1--2,14--17]{lawal2022}[2--6]{ren2025}. Por tanto, el artefacto debe evaluarse con criterios explícitos y con referencias que permitan juzgar su utilidad dentro del dominio definido.
+
+El estudio se organiza bajo el paradigma de la ciencia del diseño (DSR), de acuerdo con la secuencia metodológica de \textcite[55--56]{peffers2007}. Esta elección es adecuada porque la investigación construye y evalúa un artefacto para estudiar el sistema cable--instalación--entorno térmico. La evaluación considerará casos analíticos, referencias FEM y escenarios documentados, en línea con los criterios de construcción y evaluación de artefactos propuestos por \textcite[342--344]{gregor2013}.
+
+En resumen, la investigación parte de un problema físico concreto: la ampacidad de cables enterrados depende de un entorno térmico que puede ser heterogéneo. A partir de esa condición, el estudio propone evaluar un artefacto PINN capaz de aproximar \(T(x,y)\), representar \(\kx\) y estimar \(\Tmax\) e \(\Imax\). 
+
+En las  secciones siguiente se desarrolla primero la problemática, luego el problema de investigación, los objetivos, el marco teórico y la metodología de evaluación.
+
+\printbibliography[title={Referencias}]
+
+\end{document}

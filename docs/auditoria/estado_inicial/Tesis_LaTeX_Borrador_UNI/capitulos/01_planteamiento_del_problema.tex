@@ -1,0 +1,201 @@
+\chapter{PLANTEAMIENTO DEL PROBLEMA}
+\label{ch:planteamiento}
+
+Este capítulo delimita la dificultad práctica que origina el estudio y la convierte en un problema abordable mediante una solución tecnológica. Además, establece los objetivos y el diseño metodológico que conectan la heterogeneidad térmica con la construcción y evaluación del artefacto PINN.
+
+\section{DIAGNÓSTICO}
+\label{sec:diagnostico}
+
+Las redes eléctricas deben atender el crecimiento de la demanda e integrar centrales de generación ubicadas en distintos puntos del sistema. En el Perú, la producción eléctrica aumentó de \SI{35908}{\giga\watt\hour} en 2010 a \SI{65109}{\giga\watt\hour} en 2025. Durante el mismo período, la máxima demanda del SEIN pasó de \SI{4579}{\mega\watt} a \SI{7942}{\mega\watt} \parencites[sec.~10.4]{minem2025anuario2024}[cuadro~4]{minem2025indicadoresDiciembre}{coesMaximaDemanda}.
+
+La composición de la generación también cambió. La participación conjunta de las fuentes solar y eólica alcanzó 9,5\,\pct{} de la producción nacional en 2025. La expansión de estas fuentes requiere redes colectoras, conexiones y capacidad de transporte entre nuevos puntos del SEIN \parencites{coes2023diagnostico2025_2034}{iea2025transmissiongrid}.
+
+Los cables enterrados intervienen en redes colectoras y en enlaces donde existen restricciones de espacio, servidumbre, seguridad o integración urbana \parencite{cigre2023overheadLines}. En estas instalaciones, la capacidad no depende solo de la sección del conductor. También depende del camino térmico formado por las capas del cable, el lecho de asiento, el suelo de relleno y el suelo nativo \parencites{enescu2020}{enescu2021}.
+
+Los métodos normativos relacionan pérdidas, resistencias térmicas y temperatura para calcular la corriente admisible \parencites{neher1957}{iec60287}{iec60853}. Sin embargo, suelen representar el entorno mediante propiedades equivalentes. La humedad, el secado, los estratos y los materiales de relleno pueden generar regiones con distinta conductividad y alterar el camino local del calor \parencites[4--6]{enescu2021}[1--3]{aldulaimi2024}.
+
+La evidencia publicada muestra que las propiedades térmicas del entorno pueden cambiar de forma material la capacidad calculada. La Tabla~\ref{tab:diagnostico-casos} reúne cuatro casos utilizados en el plan para sustentar el diagnóstico. Las configuraciones no son directamente comparables entre sí, pero todas muestran la sensibilidad térmica del cable al terreno o al material de relleno.
+
+\begin{table}[htbp]
+\centering
+\caption{Casos publicados que relacionan las propiedades térmicas del entorno con la ampacidad o la temperatura. Fuente: Elaboración propia a partir de las referencias indicadas.}
+\label{tab:diagnostico-casos}
+\begin{tabularx}{\textwidth}{L{2.6cm}L{3.2cm}Y Y}
+\toprule
+\textbf{Fuente} & \textbf{Configuración} & \textbf{Contraste estudiado} & \textbf{Resultado reportado} \\
+\midrule
+\textcite[5--6]{khumalo2025} & Cable tripolar XLPE de media tensión & Resistividad de \SI{0.6}{\kelvin\metre\per\watt} frente a \SI{3.7}{\kelvin\metre\per\watt} & La ampacidad disminuyó de \SI{518}{\ampere} a \SI{224}{\ampere}. \\
+\textcite[7--8]{ariasVelasquez2023} & Tres cables unipolares XLPE de \SI{33}{\kilo\volt} & Suelo uniforme de \SI{1.5}{\kelvin\metre\per\watt} frente al valor reportado de \SI{4.9}{\kelvin\metre\per\watt} & La ampacidad calculada cambió de \SI{563}{\ampere} a \SI{350}{\ampere}. \\
+\textcite[15--16]{atoccsa2024} & Tres cables XLPE de \SI{220}{\kilo\volt} & Resistividad de \SI{2.5}{\kelvin\metre\per\watt} frente a \SI{3.0}{\kelvin\metre\per\watt} & La ampacidad disminuyó de \SI{1157}{\ampere} a \SI{1064}{\ampere}. \\
+\textcite[12--16]{kim2025} & Banco de seis cables XLPE de \SI{154}{\kilo\volt} & PAC de mayor conductividad frente a arena natural & A igual corriente, la temperatura máxima disminuyó aproximadamente de \SI{78}{\celsius} a \SI{71}{\celsius}. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+El diagnóstico identifica una tensión de ingeniería. Una propiedad homogénea facilita el cálculo, pero puede perder la ubicación y el efecto de regiones térmicas desfavorables. Un modelo detallado puede conservar esa información, aunque requiere una formulación, una implementación y una verificación específicas. Por tanto, se necesita una solución reproducible que cuantifique el efecto de la heterogeneidad sin atribuir superioridad automática a un método.
+
+\section{IDENTIFICACIÓN Y DESCRIPCIÓN DEL PROBLEMA DE ESTUDIO}
+\label{sec:identificacion-problema}
+
+\subsection{OBJETO DE ESTUDIO Y UNIDAD DE ANÁLISIS}
+
+El objeto de estudio es el arreglo de cables--entorno térmico en instalaciones subterráneas. Está formado por los cables multicapa, su disposición, el lecho de asiento, el suelo de relleno, el suelo nativo, las fuentes de calor y las condiciones de frontera \parencites[3--6]{enescu2021}{ieee442}[1,10]{kim2025}.
+
+La unidad de análisis es una sección transversal bidimensional parametrizada. Esta representación permite estudiar disposiciones planas o en trébol y conservar la ubicación relativa de los materiales. El interés no recae en una marca específica de cable, sino en configuraciones documentadas y reproducibles.
+
+El artefacto PINN es la unidad de intervención tecnológica. Por tanto, no debe confundirse con el objeto físico. El artefacto recibe una especificación del caso, aproxima el campo $T(x,y)$ y produce indicadores térmicos y operativos que se comparan con referencias independientes.
+
+\subsection{PROBLEMA REAL, SUBYACENTE Y TÉCNICO}
+
+El problema real se manifiesta cuando una estimación que representa de forma insuficiente el entorno sustenta decisiones de ampacidad. Si la temperatura se subestima, el cable puede operar por encima del límite térmico adoptado. Si se sobreestima, puede restringirse capacidad utilizable.
+
+El problema subyacente es un vacío de conocimiento. No se ha establecido de forma reproducible cómo el contraste, el patrón, la extensión y la proximidad de las heterogeneidades de $\kx$ modifican $T(x,y)$, $\Tmax$ y $\Imax$ frente a una representación homogénea equivalente. Un promedio simple no resuelve esta cuestión porque la geometría y las interfaces alteran el flujo local \parencites[4--6]{enescu2021}[3--4,93--99]{cigre2025}.
+
+El problema técnico consiste en diseñar y evaluar una formulación computacional integrada que represente $\kx$, aproxime $T(x,y)$ y cuantifique su efecto sobre $\Tmax$ e $\Imax$. La solución debe documentar exactitud, consistencia física, robustez y reproducibilidad mediante referencias analíticas, manufacturadas, FEM y publicadas \parencites[3--4,93--99]{cigre2025}[686--690]{raissi2019}.
+
+\subsection{JUSTIFICACIÓN}
+
+La justificación práctica consiste en reducir la incertidumbre asociada con decisiones inseguras o excesivamente conservadoras. El análisis permitirá identificar configuraciones donde una propiedad homogénea puede ocultar una restricción térmica local. Esta posibilidad concuerda con los cambios de capacidad asociados con humedad y resistividad reportados por \textcite[1,6--9]{khumalo2025}.
+
+La justificación tecnológica corresponde a la construcción de un artefacto que combine conocimiento físico y aprendizaje automático. La PINN incorpora la PDE dentro de su función de pérdida y puede aproximar un campo continuo sin depender exclusivamente de pares etiquetados para todos los puntos del dominio \parencites[686--690]{raissi2019}[1--3,12]{aldulaimi2024}.
+
+La justificación metodológica se apoya en la ciencia del diseño. DSR vincula el problema práctico con la especificación, construcción, demostración y evaluación del artefacto \parencite[55--56]{peffers2007}. La contribución comprende el prototipo situado y los requisitos, procedimientos y principios que puedan transferirse a problemas térmicos 2D multimateriales \parencite[342--350]{gregor2013}.
+
+La justificación académica reside en conectar el dimensionamiento térmico de cables enterrados con el aprendizaje informado por física. Los resultados de PINN en conducción de calor controlada muestran viabilidad, pero no eliminan la necesidad de evaluar geometrías multicapa, interfaces y pérdidas internas \parencites[1--3,17]{xing2023}[1,3,16]{pan2025}[2--6]{ren2025}.
+
+\subsection{ALCANCES Y LIMITACIONES}
+
+El alcance temático comprende la conducción de calor estacionaria en secciones bidimensionales de cables XLPE enterrados. Se considera la heterogeneidad del suelo nativo, el lecho de asiento y el suelo de relleno. El análisis calcula el campo térmico, la temperatura máxima y la ampacidad dentro de las configuraciones evaluadas.
+
+El alcance metodológico comprende el diseño y evaluación de un artefacto PINN mediante DSR. La verificación usa soluciones analíticas o manufacturadas, referencias FEM convergentes y casos publicados. No se realizan mediciones directas ni validación experimental de campo.
+
+El estudio no modela de forma acoplada el envejecimiento dieléctrico, la migración de humedad, la convección subterránea ni la interacción electromagnética completa. Las pérdidas eléctricas se representan como fuentes térmicas compatibles con los casos seleccionados. Tampoco se incluye una evaluación de CAPEX, OPEX o retorno de inversión.
+
+Los resultados no podrán generalizarse fuera de las geometrías, materiales, fuentes, contornos y rangos verificados. Cualquier comparación de recursos computacionales deberá informar hardware, tolerancias, semillas e inicializaciones.
+
+\section{FORMULACIÓN DEL PROBLEMA}
+\label{sec:formulacion-problema}
+
+\subsection{PROBLEMA GENERAL}
+
+¿Cómo diseñar y evaluar un artefacto computacional basado en una red neuronal informada por física que represente la conductividad térmica espacialmente variable del arreglo de cables--entorno térmico, estime $T(x,y)$, $\Tmax$ e $\Imax$, y permita cuantificar de forma verificable las diferencias frente a representaciones homogéneas?
+
+\subsection{PROBLEMAS ESPECÍFICOS}
+
+\begin{enumerate}[label=PE\arabic*.]
+  \item ¿Qué entradas físicas, requisitos funcionales y criterios de calidad debe incluir una especificación trazable del arreglo de cables--entorno térmico?
+  \item ¿Cómo construir y verificar el artefacto mediante soluciones analíticas o manufacturadas, referencias FEM convergentes y casos publicados?
+  \item ¿Cómo cambian $T(x,y)$, $\Tmax$ y la ubicación del punto caliente cuando varían el contraste, patrón, extensión y proximidad de las heterogeneidades?
+  \item ¿Qué condiciones producen la mayor discrepancia de $\Imax$ entre la representación 2D heterogénea y las representaciones homogéneas pareadas?
+\end{enumerate}
+
+\section{OBJETIVOS}
+\label{sec:objetivos}
+
+\subsection{OBJETIVO GENERAL}
+
+Diseñar y evaluar un artefacto computacional basado en una red neuronal informada por física (PINN) que represente el arreglo de cables--entorno térmico, estime $T(x,y)$, $\Tmax$ e $\Imax$, cuantifique el efecto de la heterogeneidad térmica espacial y documente su exactitud, consistencia física, robustez y reproducibilidad.
+
+\subsection{OBJETIVOS ESPECÍFICOS}
+
+\begin{enumerate}[label=OE\arabic*.]
+  \item Elaborar una especificación trazable de las entradas físicas, los requisitos funcionales y los criterios de calidad del artefacto, incluidos los dominios multicapa, las fuentes térmicas, las condiciones de contorno, las interfaces y $\kx$.
+  \item Construir y verificar el artefacto con soluciones analíticas o manufacturadas, referencias FEM convergentes y casos publicados, y clasificar su aceptación según exactitud, consistencia física y robustez.
+  \item Aplicar el artefacto verificado a escenarios controlados de contraste, patrón, extensión y proximidad de heterogeneidades, y consolidar la evidencia sobre $T(x,y)$, $\Tmax$ y el punto caliente.
+  \item Comparar la ampacidad de representaciones heterogéneas 2D y homogéneas pareadas, e identificar las condiciones que generan mayor discrepancia.
+\end{enumerate}
+
+La tesis profesionalizante no plantea una contrastación estadística de hipótesis. Las proposiciones formuladas durante el plan se conservan como criterios previos de calidad, utilidad y efecto físico en la metodología y en el Capítulo~\ref{ch:propuesta-desarrollo}. Esta adaptación evita presentar como demostrado un resultado que todavía debe evaluarse.
+
+\section{METODOLOGÍA}
+\label{sec:metodologia}
+
+\subsection{ENFOQUE Y NATURALEZA DE LA INVESTIGACIÓN}
+
+La investigación adopta un enfoque cuantitativo porque calcula y compara temperaturas, errores, residuos, tiempos y variaciones de ampacidad. Es aplicada y tecnológica porque construye un artefacto para estudiar un problema de ingeniería. La evidencia procede de casos analíticos, manufacturados, bibliográficos y computacionales, no de una campaña de medición en campo.
+
+El diseño metodológico sigue la ciencia del diseño. Esta elección permite evaluar tanto el efecto físico de $\kx$ como la utilidad y calidad del artefacto. La secuencia adapta las actividades propuestas por \textcite[55--56]{peffers2007} y los criterios de contribución descritos por \textcite[342--351]{gregor2013}.
+
+\subsection{ADAPTACIÓN DE LA CIENCIA DEL DISEÑO}
+
+El proceso comprende seis actividades relacionadas. La evaluación es formativa, por lo que un incremento que no satisface los criterios retorna a diseño y desarrollo \parencites[55--56]{peffers2007}[198--203]{delport2024}.
+
+\begin{enumerate}[label=\textbf{A\arabic*.}]
+  \item \textbf{Identificar y motivar:} delimitar el arreglo de cables--entorno térmico y la brecha entre $k_{eq}$ y $\kx$.
+  \item \textbf{Definir objetivos de solución:} convertir la brecha en requisitos, productos y criterios evaluables.
+  \item \textbf{Diseñar y desarrollar:} especificar la arquitectura, implementar incrementos y registrar decisiones y versiones.
+  \item \textbf{Demostrar:} ejecutar referencias, casos publicados y escenarios heterogéneos representativos.
+  \item \textbf{Evaluar:} comparar los resultados con referencias y criterios, y decidir refinamiento o aceptación.
+  \item \textbf{Comunicar:} documentar el artefacto, la evidencia, los límites, el protocolo de reproducción y los principios derivados.
+\end{enumerate}
+
+\subsection{CASOS, FUENTES E INSTRUMENTOS}
+
+Los casos se seleccionan por pertinencia técnica y capacidad de verificación. Se consideran soluciones analíticas, soluciones manufacturadas, referencias FEM convergentes, configuraciones publicadas y escenarios parametrizados. Cada caso registra geometría, disposición, materiales, carga, contornos, referencia, versión del artefacto y criterio de aceptación.
+
+Los instrumentos de registro y evaluación son la matriz de extracción bibliográfica, la especificación de requisitos, el catálogo de casos, la bitácora DSR, los archivos parametrizados, las pruebas, la matriz de resultados y el protocolo de reproducción. Cada resultado debe conservar fuente, unidad, supuesto, semilla, versión del código, configuración de entrenamiento y huella de salida.
+
+\subsection{MÉTRICAS Y CRITERIOS DE EVALUACIÓN}
+
+La evaluación combina exactitud, consistencia física, utilidad y reproducibilidad. Para temperatura se consideran el error de $\Tmax$, MAE o RMSE espacial, error máximo, residuos y balance de energía. Para ampacidad se registran $\Imax$, diferencia porcentual y margen térmico \parencite[93--99]{cigre2025}.
+
+Las dos métricas básicas de reporte se definen en la Fórmula~\ref{for:metricas}. Su función es mantener una comparación común entre referencias y escenarios.
+
+\begin{formula}[htbp]
+\centering
+\begin{equation}
+\label{for:metricas}
+\begin{aligned}
+e_{T_{\max}}(\pct)&=100\frac{\left|T_{\max}^{\mathrm{PINN}}-T_{\max}^{\mathrm{ref}}\right|}{\left|T_{\max}^{\mathrm{ref}}\right|},\\
+\Delta I(\pct)&=100\frac{I_{\mathrm{het}}-I_{\mathrm{hom}}}{I_{\mathrm{hom}}}.
+\end{aligned}
+\end{equation}
+\caption{Métricas básicas de evaluación térmica y de ampacidad.}
+\end{formula}
+
+La primera expresión mide la diferencia relativa de temperatura máxima frente a una referencia. La segunda mide el cambio de ampacidad entre el escenario heterogéneo y su par homogéneo. No constituyen por sí mismas evidencia de validez; deben interpretarse con residuos, balance, convergencia y límites del caso.
+
+\begin{table}[htbp]
+\centering
+\caption{Criterios iniciales de evaluación del artefacto. Fuente: Elaboración propia a partir del plan de tesis.}
+\label{tab:criterios-evaluacion}
+\begin{tabularx}{\textwidth}{L{3.0cm}Y L{3.2cm}}
+\toprule
+\textbf{Criterio} & \textbf{Evidencia} & \textbf{Regla inicial} \\
+\midrule
+Verificación numérica & Concordancia de $\Tmax$ y del campo térmico con una referencia independiente. & $e_{T_{\max}}\leq5\,\pct$ y NRMSE $\leq5\,\pct$. \\
+Consistencia física & Residuos de PDE, contornos, interfaces y balance de energía. & Desequilibrio global $\leq2\,\pct$. \\
+Utilidad & Representación de $\kx$, estimación de $\Tmax$ y $\Imax$, y comparación pareada. & Requisitos críticos cubiertos. \\
+Reproducibilidad & Reconstrucción desde datos, versión, configuración y semilla. & Casos aceptados reproducibles. \\
+Contribución DSR & Requisitos, arquitectura, límites y principios de diseño. & Síntesis transferible al dominio delimitado. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Los umbrales son reglas iniciales del proyecto y no valores universales para PINN. Cualquier ajuste debe justificarse antes de la evaluación final, de modo que los criterios no cambien después de observar resultados favorables.
+
+\subsection{ETAPAS DE INTERVENCIÓN}
+
+\begin{table}[htbp]
+\centering
+\caption{Etapas, productos y puertas de decisión. Fuente: Elaboración propia a partir del plan de tesis.}
+\label{tab:etapas-intervencion}
+\begin{tabularx}{\textwidth}{C{0.9cm}L{3.2cm}Y L{3.0cm}}
+\toprule
+\textbf{Fase} & \textbf{Actividad} & \textbf{Producto} & \textbf{Puerta} \\
+\midrule
+1 & Revisión y especificación & Especificación trazable y matriz requisito--prueba. & Aprobación de alcance. \\
+2 & Diseño lógico y prototipo & Arquitectura, modelo físico, código versionado y pruebas básicas. & Verificación básica. \\
+3 & Construcción, verificación y piloto & Artefacto y expediente de aceptación. & Aceptación, restricción o rechazo. \\
+4 & Demostración térmica & Expediente de escenarios y clasificación de efectos. & Cobertura de evidencia. \\
+5 & Comparación de ampacidad & Expediente comparativo y casos críticos. & Validez operativa. \\
+6 & Síntesis DSR & Protocolo reproducible, límites y principios de diseño. & Evaluación final. \\
+7 & Comunicación & Tesis, repositorio y producto académico. & Revisión académica. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\pendiente{Cerrar la metodología ejecutada después del piloto: especificar casos definitivos, niveles de contraste, extensión y proximidad; arquitectura e hiperparámetros; número de semillas; hardware; versiones de software; referencia FEM; reglas finales de convergencia; y cualquier ajuste previo a los criterios de aceptación.}
+
+En síntesis, el capítulo establece el problema, los objetivos y el protocolo que debe producir evidencia. El marco teórico del Capítulo~\ref{ch:marco-teorico} desarrolla las bases físicas, normativas, numéricas y metodológicas necesarias para interpretar esa evidencia.
+

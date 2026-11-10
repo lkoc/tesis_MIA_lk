@@ -1,0 +1,83 @@
+{
+  "schema": "pinn-v3-problem-1",
+  "id": "mms_smooth_2d",
+  "title": "mms_smooth_2d",
+  "family": "mms",
+  "domain": {
+    "shape": "rectangle",
+    "bounds": [
+      0.0,
+      1.0,
+      0.0,
+      1.0
+    ]
+  },
+  "temperature_scale_K": 30.0,
+  "boundaries": {
+    "bottom": {
+      "type": "dirichlet",
+      "value": {
+        "expression": "20 + 30*sin(pi*x)*sin(pi*y)"
+      }
+    },
+    "top": {
+      "type": "dirichlet",
+      "value": {
+        "expression": "20 + 30*sin(pi*x)*sin(pi*y)"
+      }
+    },
+    "left": {
+      "type": "dirichlet",
+      "value": {
+        "expression": "20 + 30*sin(pi*x)*sin(pi*y)"
+      }
+    },
+    "right": {
+      "type": "dirichlet",
+      "value": {
+        "expression": "20 + 30*sin(pi*x)*sin(pi*y)"
+      }
+    }
+  },
+  "reference": {
+    "exact": {
+      "expression": "20 + 30*sin(pi*x)*sin(pi*y)"
+    }
+  },
+  "metadata": {
+    "source": {
+      "citation": "Elaboración propia: extensión de la batería manufacturada del Plan",
+      "adaptation": "k=1+0.4 sin(2 pi x) cos(2 pi y); rango 0.6 a 1.4 W/(m K); T*=20+30 sin(pi x) sin(pi y)"
+    },
+    "original_domain": {
+      "bounds": [
+        0.0,
+        1.0,
+        0.0,
+        1.0
+      ]
+    },
+    "original_definition": {}
+  },
+  "regions": [
+    {
+      "id": "domain",
+      "shape": {
+        "type": "rectangle",
+        "bounds": [
+          0.0,
+          1.0,
+          0.0,
+          1.0
+        ]
+      },
+      "conductivity": {
+        "expression": "1+0.4*sin(2*pi*x)*cos(2*pi*y)"
+      },
+      "source": {
+        "expression": "2*pi**2*(1+0.4*sin(2*pi*x)*cos(2*pi*y))*(30*sin(pi*x)*sin(pi*y))-30*pi*(0.8*pi*cos(2*pi*x)*cos(2*pi*y)*cos(pi*x)*sin(pi*y)-0.8*pi*sin(2*pi*x)*sin(2*pi*y)*sin(pi*x)*cos(pi*y))"
+      },
+      "priority": 0
+    }
+  ]
+}

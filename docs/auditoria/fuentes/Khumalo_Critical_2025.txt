@@ -1,0 +1,1519 @@
+Research Article
+A Critical Assessment of Cable Rating Methods Under Soil Drying
+Out Conditions
+Ntombifuthi Q. Khumalo,1 Raj M. Naidoo,1 Nsilulu T. Mbungu,2,3
+and Ramesh C. Bansal
+1,4
+1Department of Electrical, Electronics and Computer Engineering, University of Pretoria, Pretoria, South Africa
+2Research Institute of Sciences and Engineering (RISE), University of Sharjah, Sharjah, UAE
+3Department of Electrical Engineering, Tshwane University of Technology, Pretoria, South Africa
+4Department of Electrical Engineering, University of Sharjah, Sharjah, UAE
+Correspondence should be addressed to Ramesh C. Bansal; rcbansal@ieee.org
+Received 5 September 2024; Revised 2 June 2025; Accepted 29 August 2025
+Academic Editor: Jesus E. Valdez-Resendiz
+Copyright © 2025 Ntombifuthi Q. Khumalo et al. International Transactions on Electrical Energy Systems published by John
+Wiley & Sons Ltd. Tis is an open access article under the terms of the Creative Commons Attribution License, which permits use,
+distribution and reproduction in any medium, provided the original work is properly cited.
+Te design of underground cable systems must account for the risk of soil drying out due to heat dissipation, which can degrade cable
+performance and lead to environmental concerns. Tis study investigates a cost-efective cable rating methodology tailored to South
+African conditions, where native soils are used instead of engineered backfll. Using the IEC 60287 standard, an Excel-based
+calculation tool is developed to assess the efects of key installation parameters, including soil thermal resistivity, ambient soil
+temperature and cable laying depth. Soil samples from Sandton, South Africa, revealed thermal resistivity ranging from 0.596 K·m/W,
+at 14.5% moisture, to 3.72 K·m/W, at 0% moisture, resulting in current ratings from 518.34 A to 224.21 A. Worst-case con-
+ditions—high resistivity, increased depth, 1150 mm and elevated soil temperature, 28°C—reduced ampacity by over 45%. Te
+fndings underscore the need to incorporate site-specifc soil data and worst-case assumptions into cable rating designs to prevent
+thermal degradation. Te developed method ofers a practical, locally optimised alternative for utilities in semiarid regions.
+Keywords: cable ampacity rating; electrical cable; power cable; soil drying out; soil thermal resistivity; South African conditions
+1. Introduction
+Te novel generation power system requires diverse energy
+resources to support the reliability and security of the electric
+grid [1]. Te electrical power cables, underground and
+overlines, suitably sustain the integration of diverse energy
+resources, which must handle the volatility of the current
+fow in the system. For the underground cable, the soil and
+environmental conditions play a major role on the efcient
+operation of the power cables. Terefore, there exists sub-
+stantial research on the current rating of buried power cables
+and methods used to eliminate soil drying out due to the
+installed power cables [2]. Te most common and efective
+method is to use engineered backfll material with low
+thermal resistivity to backfll the cable trenches in which the
+cables are buried [3, 4]. Te engineered backfll material has
+been found to be expensive; hence, the use of South African
+native soil is being investigated, including all soil properties,
+such as thermal resistivity, composition, compaction and
+moisture content. Another reliable solution is the forced
+cooling method. Tis solution can be used provided there is
+sufcient cooling resource. Te typical forced cooling sys-
+tems include irrigation systems, separate pipe cooling,
+concrete racks cooling and forced air cooling [5–7]. Te
+problem with the forced cooling method is the amount of
+water required to implement this solution. Te scarcity of
+water in South Africa makes this solution not viable for
+South African use.
+Some designs of cables use superconductors [8, 9]. Tese
+kinds of conductors use niobium or niobium-tin, which, at
+Wiley
+International Transactions on Electrical Energy Systems
+Volume 2025, Article ID 5946564, 12 pages
+https://doi.org/10.1155/etep/5946564
+\ntemperatures within a few degrees of absolute zero, lose
+virtually all electrical resistivity [8]. Cooling with liquid
+helium is necessary to achieve these low temperatures [6].
+Tese technologies have not matured enough and are very
+expensive. Such technologies are mostly considered for very
+long extra high voltage (EHV) cables, and thus, these
+technologies cannot be considered for medium voltage
+(MV) or low voltage (LV) applications. Furthermore, these
+technologies cannot be considered for South Africa due to
+the capital cost to procure these technologies.
+Te use of innovative technologies is the future of
+electrical networks [10]. Innovative technologies use fbre
+optic cable solutions to perform online monitoring and
+diagnostic analysis of the electrical infrastructure, thereby
+assisting utilities in planning their maintenance proactively
+[11]. Te fbre optic cables can either be embedded in the
+diferent layers of the cable, during its manufacturing
+process, or they can be installed next to the power cable in
+the same trench [3]. Te fbre optic cable will then be
+connected to an online monitoring system, e.g., distributed
+temperature sensing (DTS), conductor temperature moni-
+toring technologies and dynamic current rating (DCR)
+technologies [12]. It is, however, not feasible to install these
+technologies in all MV and LV cable installations due to the
+cost of these technologies. Te use of native soil for opti-
+mised cable systems design, which limits soil drying out, was
+investigated due to the cost of most of the technologies
+available. In [13], a modifed algorithm strategy to deal with
+underground cables that can minimise material costs for
+high voltage (HV) networks is presented.
+Besides, the majority of transmission and distribution
+networks in South Africa are overhead networks. Te need
+to construct and install underground cable systems has
+increased due to the large-scale urban developments in
+South Africa over the past 50 years [14]. Tus, South African
+utilities must be equipped to design, install, operate and
+maintain these underground cable systems. Furthermore,
+the cable rating and design calculation methods [15] used for
+installing these cable systems need to be considered. Tus,
+this paper describes the procedure to be followed for
+optimised underground power cable systems designs for the
+consideration of soil drying out and dryer installation
+condition environments where the South African native soil
+will be used to backfll the cable tranches.
+Soil drying out is a result of a moisture migration process
+which begins when a temperature gradient is imposed across
+the soil [16–18]. Tis temperature gradient will cause a water
+vapour pressure gradient to develop, resulting in moisture
+migrating away from the heat source. In this scenario, the
+heat source would be the buried cable. Te moisture mi-
+gration will eventually cause local drying of the soil near the
+cable [17, 19]. Tus, the original cable rating calculations
+[15], which would have been performed before the in-
+stallation of the cable, would not be valid anymore since the
+resistivity of the soil would have changed.
+Based on the assumptions made to perform the cable
+rating calculations, the calculated results for cable system
+designs may lead to the underutilisation of the installed
+expensive cable system infrastructures during operation by
+the power utilities. IEC 60287 specifes the constants and
+variables to be used for cable rating calculations [20–22].
+Tis is mostly based on diferent temperature levels. Te
+cable-specifc constants and variables are dependent on the
+construction,
+materials
+and
+method
+used
+for
+the
+manufacturing of the cable [23, 24]. However, the onsite
+dependent constants and variables (for the cable installation
+conditions) may be unknown at the initial design phase for
+fnal cable rating calculations.
+Tis paper describes the procedure to be followed for
+a suitable current rating method that prevents soil drying out
+by using the IEC 60287 calculation method on South African
+native soil [25]. A contrast has been observed with the
+existing techniques regarding the native soil and local cli-
+mate, which have been underexplored in several prior works.
+Terefore, a procedural guideline for the utilities is pre-
+sented. Tis includes choosing or sizing the required cable
+based on load requirements and available manufacturer’s
+data sheets, performing soil thermal resistivity tests on the
+selected cable route, determining cable laying depth
+depending on the chosen cable route, and performing soil
+ambient temperature measurement and cable laying depth.
+Ten, the cable current rating calculations will be performed
+to verify if the selected cable size will be sufcient for the
+load; otherwise, a bigger cable size might need to be chosen.
+Te contribution of the research study can be listed as
+follows:
+• A developed cable rating calculation tool that con-
+siders three worst-case scenarios. Tis study assesses
+by
+considering
+three
+important
+aspects
+of
+un-
+derground cable deployment, including soil resistivity,
+ambient temperature and laying depth. Te assessment
+is made under real-world environmental conditions in
+Sandton, South Africa.
+• A cable current rating procedure has been developed.
+Tis procedure provides utilities with a simplifed
+guideline for performing cable rating calculations on
+underground cables in order to prevent soil drying.
+• Implementing the developed procedure and cable
+rating calculation tool will prevent soil from drying out
+during cable installation, avoiding costly engineered
+backfll.
+Te remaining part of this research study can be sum-
+marised as follows: Section 2 details the calculation method
+based on IEC 60287. Section 3 presents diferent design
+parameters of cables based on the South African climate.
+Section 4 assesses the factors afecting T4. Sections 5 presents
+diferent results and discussion. Finally, Section 6 concludes
+the research work and proposes future research.
+2. System Methodology
+IEC 60287 was used to perform cable rating calculations on
+three diferent cable manufacturers’ data sheets. Te design
+parameters of the cable used were as follows: 185 mm2, 3
+cores, copper conductors, cross-linked polyethylene (XLPE)
+insulated and steel wire armoured; the cable has water
+2
+International Transactions on Electrical Energy Systems
+ itees, 2025, 1, Downloaded from https://onlinelibrary.wiley.com/doi/10.1155/etep/5946564 by South African Medical Research, Wiley Online Library on [15/01/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+\nblocking tape and has polyethene outer sheath. Figure 1
+shows a typical cross-section of a 3-core cable. Te functions
+of the diferent layers of the cable are as follows:
+• Annealed stranded copper conductor to carry current,
+• Semiconductive conductor screen to provide a smooth
+and radial electric feld within the insulation,
+• XLPE insulation layer for insulation purposes,
+• Semiconductive core screen smoothens and contains
+the electric feld in the insulation of the cable,
+• Water blocking semiconductive tape to contain elec-
+tric feld and to block water from travelling longitu-
+dinally in the cable and water ingress should be there
+along the cable,
+• Copper-screened tape to perform secondary earthing
+of the cable once installed,
+• Filler: to fll up the gaps between the three cores of the
+cable and assist in creating a round cable,
+• Binding tape to bind the three cores of the cable and
+fller together,
+• PVC bedding is a cushioning layer for the armouring,
+thereby preventing the sharp edges of the armouring
+from puncturing the XLPE,
+• Galvanised steel wire armouring provides a path for
+the fow of charging current and fault current. It also
+provides mechanical protection of the cable,
+• Binding tape binds all the layers of the cable, including
+the armouring,
+• UV-stabilised PVC sheath jacket for covering the
+cable, and it provides additional mechanical protection
+to the cable.
+Te cable current rating calculations were performed
+based on the diferent layers, as stated above. An Excel
+calculating tool based on IEC 60287 is developed and used to
+assess the cable rating.
+Te South African native soil was to be used to backfll
+the cable trenches. Focus was directed onto the assumptions
+made for the calculations of T4. Te maximum allowed cable
+conductor temperature was 70°C. Te ideal installation
+conditions considered were as follows:
+• Directly buried 850 mm underground,
+• Soil thermal resistivity was 1.2 K·m/W, and
+• Soil ambient temperature was 25°C.
+Te calculated cable rating in accordance with IEC 60287
+for the ideal cable installation conditions, as stated above, is
+shown in Table 1.
+Equation (1) was used to calculate the current rating
+values in Table 1. Te parameters and values for constants
+for Equation (1) were obtained in IEC 60287.
+I 
+Δθ −Wd 0.5T1 + n T2 + T3 + T4
+ 􏼁
+􏼂
+􏼃
+RT1 + nR 1 + λ1
+ 􏼁T2 + nR 1 + λ1 + λ2
+ 􏼁T3 + T4
+ 􏼁
+􏼢
+􏼣
+0.5
+,
+(1)
+where I, R, ∆θ, Wd and n are the current fowing in one
+conductor (A), alternating current resistance per unit length
+of the conductor at maximum operating temperature (Ω/m),
+conductor temperature rise above the ambient temperature
+(°K), dielectric loss per unit length for the insulation sur-
+rounding the conductor (W/m) and number of load-
+carrying conductors in the cable (conductors of equal size
+and carrying the same load); λ1 and λ2 are, respectively, the
+ratio of losses in the metal sheath to total losses in all
+conductors in that cable and in armouring total losses in all
+conductors in that cable; T1, T2, T3 and T4 are, respectively,
+thermal resistance per unit length (°K·m/W) between one
+conductor and the sheath, of the bedding between sheath
+and armour, of the external serving of the cable and between
+the cable surface and the surrounding medium.
+Figure 2 shows all the diferent thermal resistances on the
+various layers of the cable. T1, T2 and T3 depend on the cable
+design and raw material used to manufacture the cable, and
+they can be calculated using the applicable equations given
+in IEC 60287. However, T4 is dependent on the onsite in-
+stallation conditions, which may be unknown at the initial
+design phase for fnal cable rating calculations.
+Te onsite installation conditions include the cable
+burial depth, the type of soil used to backfll the cable trench,
+the moisture content of the soil, the number of cable circuits
+in the trench and the space between the diferent cable
+circuits. For this research, the cable will be directly buried
+850 mm underground, the cable trench will be backflled
+with native soil and there will only be one cable circuit in the
+trench.
+Diferent cable designs and installations have been
+considered in IEC 60287; the various designs, as stated in
+IEC 6287, include the following:
+1. Te diferent insulation materials: Tis could be
+paper-insulated lead-covered cable (PILC), XLPE and
+oil-flled cable.
+2. Te design of cable: whether single core or three cores.
+For this research, only the equations for XLPE and three
+core cables will be considered. Tis is due to the fact that
+Eskom has standardised XLPE cables for MV applications.
+Te equations specifed below are based on 60,287 [15].
+Equation (2) is used to determine the conductor tem-
+perature rise above the ambient temperature of any cable
+and any design.
+Δθ 
+I2R + 1
+2
+􏼒􏼓Wd
+􏼒
+􏼓T1 + I2R 1 + T1
+ 􏼁+ Wd
+􏽨
+􏽩nT2
++ I2R 1 + T1 + T2
+ 􏼁+ Wd
+􏽨
+􏽩n T3 + T4
+ 􏼁.
+(2)
+3. South African Climate
+South Africa has been going through a desertifcation
+process over the past few years. Tus, South Africa can be
+considered as a semidessert country, where the majority of
+the country gets rainfall between October and March, with
+an average annual rainfall of 650 mm. Te cable current
+International Transactions on Electrical Energy Systems
+3
+ itees, 2025, 1, Downloaded from https://onlinelibrary.wiley.com/doi/10.1155/etep/5946564 by South African Medical Research, Wiley Online Library on [15/01/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+\nratings were performed for diferent installation conditions,
+taking into consideration soil thermal resistivity, soil am-
+bient temperature and the cable laying depth.
+3.1. Cable Rating in a Nonideal Cable Installation
+Environment
+3.1.1. Current Rating Based on the Change in Soil Termal
+Resistivity. Te use of native soil to backfll cable trenches
+will require that thermal resistivity tests be performed. For
+this research, soil samples were taken from a known location
+in South Africa (Sandton), where an electrical cable was
+going to be installed. Te soil thermal resistivity measure-
+ments were performed on the South African native soil at
+diferent moisture content, which in turn resulted in dif-
+ferent soil thermal resistivity. Table 2 presents the soil
+thermal resistivity in the function of soil moisture. Te cable
+current rating calculations, as shown in Table 3, were then
+performed for the measured soil thermal resistivity de-
+scribed in Table 2.
+Te developed Excel calculating tool was used to cal-
+culate the cable rating; only the soil thermal resistivity was
+changed, and the calculated current rating was recorded in
+Table 3. Table 3 shows the cable rating calculation results
+based on diferent soil thermal resistivity. Te soil thermal
+resistivity test results, as stated in Table 2, were used to
+recalculate the current rating of the three diferent cables. It
+is shown in Table 2 that the higher the soil moisture content,
+the lower the thermal resistivity of the soil. Te best current
+rating results were obtained when the soil thermal resistivity
+was 0.596 K·m/W, and moisture content was 14.5%.
+Te worst soil thermal resistivity at 0% moisture content
+should be used for cable current rating to eliminate soil
+drying out due to the installed power cables.
+3.1.2. Cable Current Rating Based on Diferent Soil Ambient
+Temperature. Te South African average soil ambient
+temperature at about 850 mm below ground is about 25°C.
+Te average soil ambient temperature is expected to increase
+due to global warming and other factors, such as installed
+services underground. Te more services installed un-
+derground, the greater will be the soil ambient temperature,
+and the more difcult it will be to dissipate heat. Te ideal
+soil ambient temperature at about 850 mm below ground is
+about 25°C. Tus, cable current rating was performed for
+diferent soil ambient temperatures (Table 4), assuming that
+the soil ambient temperature will be increasing over the next
+few years. Te developed Excel calculating tool was used to
+calculate the cable rating; only the soil ambient temperature
+was changed, and the calculated current rating is recorded in
+Table 4. Te best current rating results were obtained when
+the soil ambient temperature was 24°C.
+Te worst soil ambient temperature in Table 4 (28°C)
+illustrates that the higher the soil ambient temperature, the
+worse the cable current rating is. Terefore, it is recom-
+mended that the soil ambient temperature at cable laying
+depth should be measured and used in the cable current
+rating calculations.
+3.1.3. Cable Current Rating Based on Diferent Cable Laying
+Depths. Te onsite installation conditions difer per project
+site. Tere could be site conditions that would require that
+the cable trench be dug deeper or shallower than the ideal
+installation depth. Te shallow cable trench could pose an
+environmental hazard or a safety risk. Te environmental
+hazard could be due to soil erosion, which could, in turn,
+expose the cable to the public. Te safety of human beings
+and animals could be compromised once the cable is ex-
+posed to the public. Tus, power cables are predominately
+buried deeper than the ideal conditions to ensure the safety
+of the public and animals. Another installation scenario that
+1
+2
+3
+7
+5
+6
+9
+10
+11
+12
+8
+4
+1 Annealed stranded copper conductor
+2 Semiconductive conductor screen
+4 Semiconductive core screen
+5 Semiconductive water blocking tape
+6 Copper screened tape
+7 Filler
+8 Binding tape
+9 FR PVC bedding
+10 Galvanized steel wire armouring
+11 Binding tape
+12 UV stabilized PVC sheath
+3 XLEP Insulation
+Figure 1: Typical cross-sectional drawing for MV XLPE.
+Table 1: Cable current rating in ideal cable installation condition.
+Cable manufacturer’s data
+sheet used
+Calculated current rating
+Cable A
+382.371 A
+Cable B
+382.869 A
+Cable C
+381.143 A
+4
+International Transactions on Electrical Energy Systems
+ itees, 2025, 1, Downloaded from https://onlinelibrary.wiley.com/doi/10.1155/etep/5946564 by South African Medical Research, Wiley Online Library on [15/01/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+\ncould result in deeper cable trenches could be other services
+being installed in the same servitudes.
+With all these scenarios, the standard depth for the cable
+trench will not be met; this, in turn, will afect the cable
+rating of cables which will be installed in those trenches;
+hence, cable rating due to diferent cable trench/laying
+depths was investigated (Table 5). Te following cable trench
+depths were considered for the purpose of this research: 750,
+850, 950, 1000 and 1150 mm.
+Te developed Excel calculating tool was used to cal-
+culate the cable rating; only the cable laying depth was
+changed, and the calculated current rating is recorded in
+Table 5. Te best current rating results were obtained when
+the cable laying depth was 750 mm.
+Due to the uncertainty of the cable laying depth, it is
+recommended that the utilities perform the cable current
+rating calculations again to verify the initial calculation once
+the cable laying depth has been confrmed and verifed.
+3.1.4. Current Rating Based on Worst-Case Installation.
+Te probability of the three worst-case scenarios happening
+at the same time and location was taken into consideration,
+where the soil moisture content was 0% with soil thermal
+resistivity of 3.72 °K·m/W, the soil ambient temperature was
+28°C and the cable laying depth was 1150 mm. Table 6 shows
+the cable current rating where the three nonideal conditions
+were taken into consideration.
+Te developed Excel calculating tool was used to cal-
+culate the cable rating. Te soil thermal resistivity, the cable
+laying depth and the soil ambient temperature listed in
+Table 6 were used to perform the cable current rating cal-
+culations. Te current rating reduced from 382.37 A to
+208.70 A (for Cable A); this resulted in a reduction of about
+45.4% of the calculated current rating with ideal conditions.
+4. Factors Affecting T4
+Te relationship between T4 and the nonideal installation
+conditions was investigated. Te behaviour of T4 was
+analysed for diferent installation conditions; this includes
+the change in soil thermal resistivity, the change in soil
+ambient temperature and the change in cable burial depth.
+4.1. T4 Based on the Change in Soil Termal Resistivity.
+Te following results were observed when the soil thermal
+resistivity was changed: the permissible temperature rise of
+the
+conductor
+above
+soil
+ambient
+temperature
+(∆θ)
+remained the same, and the current rating of the cable and
+T4 reduced when the soil thermal resistivity was increased, as
+shown in Tables 7, 8, and 9.
+Figure 3 is a graphical representation of the results stated
+in Table 7 above. It is shown in Figure 3 that the current
+rating of the cable is inversely proportional to T4, and in-
+versely proportional to the increase in soil ambient tem-
+perature; however, there is no mathematical efect between
+the changes in soil thermal resistivity and the temperature
+rise of the cable [1].
+4.2. T4 Based on a Change in Soil Ambient Temperature.
+Te permissible temperature rise of the conductor above soil
+ambient temperature (∆θ) and the current rating reduced for
+an increase in soil ambient temperature while T4 remained
+the same.
+Conductor
+Insulation
+Bedding
+Serving
+Soil
+Δθ
+Temperature diference
+T1
+T1
+T2
+T3
+T4
+Conductor
+heating
+Dielectric
+heating
+Sheath
+heating
+Amour
+heating
+Cable
+surface
+I2R
+λ1I2R
+λ2I2R
+Wd
+Figure 2: Single core cable showing all the diferent thermal resistivity on the various layers of the cable.
+Table 2: Measured soil thermal resistivity at diferent moisture
+content.
+Soil moisture content (%)
+Soil thermal resistivity
+(K·m/W)
+14.5
+0.596
+0
+3.720
+2
+2.341
+5
+1.646
+International Transactions on Electrical Energy Systems
+5
+ itees, 2025, 1, Downloaded from https://onlinelibrary.wiley.com/doi/10.1155/etep/5946564 by South African Medical Research, Wiley Online Library on [15/01/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+\nFigure 3 is a graphical representation of the results stated
+in Table 8. It is shown in Figure 4 that the current rating of
+the cable and temperature rise is inversely proportional to
+the increase in soil ambient temperature; however, there is
+no mathematical efect between the value of T4 and the
+increase in soil ambient temperature [15].
+Table 3: Calculated cable current rating at diferent soil thermal resistivity.
+Cable manufacturer
+Cable A
+Cable B
+Cable C
+Average
+I (at 14.5% & 0.596 K·m/W)
+518.746 A
+519.540 A
+516.723 A
+518.34 A
+I (imported soil & 1.2 K·m/W)
+382.371 A
+382.869 A
+381.143 A
+382.13 A
+I (at 5% & 1.646 K·m/W)
+330.663 A
+331.070 A
+329.667 A
+330.47 A
+I (at 2% & 2.341 K·m/W)
+280.169 A
+280.495 A
+279.372 A
+280.01 A
+I (at 0% & 3.72 K·m/W)
+224.330 A
+224.582 A
+223.730 A
+224.21 A
+Table 4: Current rating based on the change in soil ambient temperature.
+Cable manufacturer
+24°C
+25°C
+26°C
+27°C
+28°C
+Cable A
+386.597 A
+382.371 A
+378.099 A
+373.777 A
+369.405 A
+Cable B
+387.100 A
+382.869 A
+378.590 A
+374.263 A
+369.886 A
+Cable C
+385.355 A
+381.143 A
+376.884 A
+372.577 A
+368.219 A
+Table 5: Cable current rating based on diferent cable laying depth.
+Cable manufacturer (mm)
+Cable A
+Cable B
+Cable C
+750
+382.321 A
+388.833 A
+387.031 A
+850
+382.371 A
+382.869 A
+381.143 A
+950
+377.308 A
+377.793 A
+376.132 A
+1000
+375.040 A
+375.520 A
+373.888 A
+1150
+369.062 A
+369.527 A
+367.967 A
+Table 6: Current rating based on worst installation condition.
+Installation
+condition
+Value
+Cable A Cable B Cable C
+Worst installation condition (Iworst)
+Soil thermal
+resistivity
+3.72 K·m/W
+208.70
+A
+208.93
+A
+208.19
+A
+Cable laying depth
+1150 mm
+Soil temperature
+28°C
+Ideal installation condition (Iideal)
+Soil thermal
+resistivity
+1.2 K·m/W
+382.37
+A
+382.87
+A
+381.14
+A
+Cable laying depth
+850 mm
+Soil temperature
+25°C
+Irating  Iworst/Iideal
+Average:
+45.40%
+45.42%
+45.43%
+45.38%
+Table 7: T4 when the soil thermal resistivity is changed.
+Cable A
+Soil thermal resistivity
+(K·m/W)
+∆Ω (°C)
+I (A)
+T4 (K·m/W)
+0.6
+45
+517.3085
+0.356034930
+0.8
+45
+457.8175
+0.474713241
+1.0
+45
+415.0372
+0.593391550
+1.2
+45
+382.3714
+0.712069870
+1.4
+45
+356.3748
+0.830748172
+1.6
+45
+335.0487
+0.949426482
+1.8
+45
+317.1435
+1.068104790
+2.0
+45
+301.8327
+1.186783102
+2.2
+45
+288.5448
+1.305461413
+2.4
+45
+276.8702
+1.068104790
+2.6
+45
+266.5070
+1.186783102
+Table 8: T4 when the soil ambient temperature is increased.
+Cable A
+Ambient temperature (°C)
+∆θ (°C)
+I (A)
+T4 (K·m/W)
+23.0
+47.0
+390.777
+0.71207
+23.5
+46.5
+388.692
+0.71207
+24.0
+46.0
+386.597
+0.71207
+24.5
+45.5
+384.490
+0.71207
+25.0
+45.0
+382.371
+0.71207
+25.5
+44.5
+380.241
+0.71207
+26.0
+44.0
+378.099
+0.71207
+26.5
+43.5
+375.944
+0.71207
+27.0
+43.0
+373.777
+0.71207
+27.5
+42.5
+371.597
+0.71207
+28.0
+42.0
+369.405
+0.71207
+Table 9: Relationship between the change in cable laying depth, T4,
+temperature rise and current rating.
+Cable A
+Cable
+laying depth (m)
+∆θ
+I (A)
+T4 (K·m/W)
+0.650
+45
+395.47736
+0.660756803
+0.70
+45
+391.72211
+0.674936407
+0.75
+45
+388.32101
+0.688134063
+0.80
+45
+385.21871
+0.700477184
+0.85
+45
+382.37148
+0.712069861
+0.90
+45
+379.74422
+0.722998235
+0.95
+45
+377.308343
+0.733334400
+1.00
+45
+375.04030
+0.74313930
+1.05
+45
+372.92052
+0.75246495
+1.10
+45
+370.93251
+0.76135604
+1.15
+45
+369.06230
+0.76985130
+6
+International Transactions on Electrical Energy Systems
+ itees, 2025, 1, Downloaded from https://onlinelibrary.wiley.com/doi/10.1155/etep/5946564 by South African Medical Research, Wiley Online Library on [15/01/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+\n4.2.1. T4 Based on a Change in Cable Laying Depth. Te
+current rating of the cable was reduced for an increase in
+cable laying depth, as shown in Table 5; the value of T4
+increased while the soil ambient temperature remained
+unchanged when the cable laying depth was increased, as
+detailed in Table 9.
+Figure 5 is a graphical representation of the results stated
+in Table 9. It is shown in Figure 5 that the current rating of
+the cable and T4 are inversely proportional to the increase in
+cable laying depth. At the same time, T4 is directly pro-
+portional to the increase in cable laying depth.
+5. Representation of Results
+5.1. Results Based on Increased Soil Termal Resistivity.
+Te thermal resistivity of the South African native soil is
+expected to increase due to global warming and de-
+sertifcation. Te desertifcation phase will result in the
+migration of the moisture content in the soil; this, in turn,
+will result in higher soil thermal resistivity. Te higher the
+soil’s thermal resistivity, the more difcult it will be for the
+soil to dissipate heat around the cable. An increase in the
+conductor temperature will increase the surface temperature
+of the cable; consequently, the soil closest to the cable will
+solidify depending on the surface temperature of the cable.
+Tus, the need to perform soil thermal resistivity mea-
+surements before installing power cables is justifed. Te soil
+thermal resistivity measurement performed on the soil
+sample taken from the Sandton area (in South Africa)
+proved the impact of change in moisture content in the soil.
+Te measured soil thermal resistivity increased from
+0.596 K·m/W when the soil moisture content was 14.5% to
+3.720 K·m/W when the soil moisture content was 0%. Te
+calculated average current rating due to the two diferent soil
+thermal resistivity was 518.34 A and 224.21 A, respectively.
+5.2. Results Based on Soil Ambient Temperature. Global
+warming will further infuence the increase of soil ambient
+temperature. Te average ambient temperature in South
+Africa has been increasing by an average of 0.9°C [26] per
+year for the past few years due to global warming; this
+equates to an average increase of approximately 9°C every
+10 years. Tis could result in a fraction of an increase in soil
+ambient temperature. Tis, in turn, will have a negative
+impact on the ampacity of buried cables.
+Tables 4 and 8 show that the current rating calculations
+reduce by an average of 4.27 A (1.12%) for a 1°C increase in
+soil ambient temperature.
+5.3. Results Based on the Change in Cable Laying Depth.
+Te onsite installation conditions difer per project site.
+Tere could be site conditions that would require that the
+cable trench be dug deeper or shallower than the ideal cable
+laying depth of 850 mm. Tese changes in cable laying depth
+have a great impact on the cable ampacity rating. Te deeper
+the cable is laid, the worse the cable ampacity rating.
+5.4.FactorsAfectingT4. Te behaviour of T4 under diferent
+installation conditions was analysed: this included the
+change in soil thermal resistivity, the change in soil ambient
+0.6
+0.8
+1
+1.2
+1.4
+1.6
+1.8
+2
+2.2
+2.4
+2.6
+Cable current rating (A)
+Soil thermal resistivity (K·m/W)
+I (A)
+t4 (K·m/W)
+0
+100
+200
+300
+400
+500
+600
+0
+0.2
+0.4
+0.6
+0.8
+1
+1.2
+1.4
+1.6
+1.8
+Value for t4 (K·m/W)
+Figure 3: T4 and the cable current rating when the soil thermal resistivity is changed.
+23 23.5 24 24.5 25 25.5 26 26.5 27 27.5 28
+Temperature rise Δθ (°C)
+Soil ambient temperature (°C)
+Temp (°C)
+Δθ (°C)
+t4 (K·m/W)
+0
+5
+10
+15
+20
+25
+30
+35
+40
+45
+50
+0
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6
+0.7
+0.8
+Value for t4 (K·m/W)
+Figure 4: T4 when the soil ambient temperature is increased.
+International Transactions on Electrical Energy Systems
+7
+ itees, 2025, 1, Downloaded from https://onlinelibrary.wiley.com/doi/10.1155/etep/5946564 by South African Medical Research, Wiley Online Library on [15/01/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+\ntemperature and the change in cable laying depth. It was
+found that there is no mathematical relationship between the
+change in the soil ambient temperature and T4, nor does
+a mathematical relationship exist between the cable laying
+depth and the temperature rise of the cable. Tis proves that
+the thermal resistivity of the soil increases the deeper trench.
+Terefore, the thermal resistivity of soil tends to increase
+with burial depth due to reduced moisture content and
+increased compaction in deeper soil layers, which impedes
+heat dissipation from buried cables [17, 19]. Tis relation-
+ship was validated in this study, where cable ampacity de-
+creased, and thermal resistance, T4, increased with greater
+laying depth. Tis may be attributed to increased soil
+compaction and reduced moisture retention at depths
+around 1000 mm, which can elevate thermal resistivity and
+hinder efective heat dissipation from buried cable.
+5.5. Procedure to Be Followed for Cable Current Rating.
+Figure 6 shows a procedure that utilities can use to perform
+current cable rating calculations. Te procedure aims to
+assist the utilities and Eskom in performing cable current
+rating calculations that will eliminate soil drying out due to
+installed cables.
+0.65
+0.70
+0.75
+0.80
+0.85
+0.90
+0.95
+1.00
+1.05
+1.10
+1.15
+Cable current rating (A)
+Cable laying depth (m)
+I (A)
+t4 (K·m/W)
+355
+360
+365
+370
+375
+380
+385
+390
+395
+400
+0.6
+0.62
+0.64
+0.66
+0.68
+0.7
+0.72
+0.74
+0.76
+0.78
+Termal resistivity t4 (K·m/W)
+Figure 5: T4 when cable laying depth is changed.
+Start
+Select a project
+Determine load current
+Load current 
+determined?
+Get manufacturer’s cable 
+data sheet 
+Data sheets
+obtained?
+Select cable size
+Cable size 
+selected? 
+Get cable dimensional 
+data from the data sheet
+Perform soil thermal 
+resistivity at 0% and 5%
+moisture content 
+Get samples for soil
+Obtain soil thermal 
+resistivity information
+Determine the cable
+route parameters
+Select another cable
+route
+Determine if there are other services
+on the selected cable route
+Obtain cable route information
+Cable route
+obtained?
+Are there other
+services?
+Cable route 
+selected?
+Soil thermal resistivity
+measured and values
+captured?
+Determine cable laying
+depth
+Cable route
+obtained?
+Temperature 
+measured?
+Measure soil ambient
+temperature at cable laying depth
+Capture the following information
+into the cable rating tool:
+1. Cable dimensional data
+2. Soil thermal resistivity
+3. Cable laying depth, and
+4. Soil ambient temperature
+Check cable rating data
+from the cable rating tool
+Is the current 
+rating from the 
+data sheet?
+Select the cable in
+accordance with the selected
+cable data sheet
+End
+Go to start
+Select a bigger cable 
+data sheet
+Yes
+No
+No
+Yes
+No
+Yes
+No
+Yes
+Yes
+No
+Yes
+No
+No
+No
+Yes
+Yes
+Yes
+No
+No
+Yes
+Figure 6: Procedure to be followed for cable rating calculations when using the cable rating tool.
+8
+International Transactions on Electrical Energy Systems
+ itees, 2025, 1, Downloaded from https://onlinelibrary.wiley.com/doi/10.1155/etep/5946564 by South African Medical Research, Wiley Online Library on [15/01/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+\n5.6. Discussion. In this paper, it was shown that three major
+installation conditions/parameters are to be considered
+when performing current rating calculations for a single
+circuit of buried cables; these parameters are the soil thermal
+resistivity, including the soil moisture content, the cable
+laying depth and the soil ambient temperature. Tese three
+parameters are unfortunately not fxed as they can change
+depending on the environment and installation condition.
+It was shown in this paper that the best current rating for
+buried cables is achieved when the soil is moist. Te more
+humid the soil, the less is the soil thermal resistivity, and the
+more current can be transmitted through a cable; thus, the
+current rating is directly proportional to the percentage of
+moisture content of the soil where the cable will be installed.
+South Africa has been going through a desertifcation phase
+due to global warming. Tis means that the design engineers
+will have to be more conservative when designing and
+selecting cable sizes for projects.
+Te average ambient temperature has been increasing
+over the years; this is directly proportional to the soil am-
+bient temperature to which power cables are installed.
+Utilities have standard designs for cable trenches for
+diferent types of cable installations. However, it is not al-
+ways possible to comply with the required installation
+depths due to onsite conditions. Some installations would
+require deeper cable trenches compared to the standard
+design of cable trenches. Derating of the cable will then have
+to be considered for these kinds of installations. Tis paper
+has shown that the deeper the cable laying depth, the less the
+current rating. Te best results were achieved when the cable
+was laid in a shallow cable trench. Tis, however, cannot be
+permitted as these cables would be alive, carrying current in
+the range of hundreds of amps and the range of thousands of
+volts; this is a safety hazard to the public and the
+environment.
+Te cable rating results deteriorated signifcantly when
+all three nonideal parameters—soil thermal resistivity of
+3.72 K·m/W, cable laying depth of 1150 mm and soil am-
+bient temperature of 28°C—were simultaneously consid-
+ered. Under these worst-case conditions, the calculated
+current rating for Cable A dropped to 208.70 A, compared to
+382.37 A under ideal conditions (1.2 K·m/W thermal re-
+sistivity, 850 mm depth and 25°C soil temperature), resulting
+in an average ampacity reduction of approximately 45.4%.
+Tis reduction is primarily due to the infuence these pa-
+rameters have on the thermal resistance to the surrounding
+environment (denoted as T4 in the IEC 60287 standard).
+According to the ampacity formulation, in Equation (1), the
+allowable current I is inversely related to the square root of
+the total thermal resistance, which includes T4. In this
+circumstance, T4, the thermal resistance between the cable
+surface and surrounding soil increases signifcantly with
+higher soil thermal resistivity, greater burial depth and in-
+creased ambient temperature.
+For example, T4 increases from 0.712 K·m/W, at ideal
+1.2 K·m/W soil resistivity, to over 1.186 K·m/W at 3.72 K·m/
+W soil resistivity, as presented in Table 7. Tis increase in T4
+directly raises the denominator of the ampacity formula,
+reducing the current rating. Moreover, while ∆θ was held
+constant at 45°C in all simulations to isolate the impact of T4,
+the compounded efect of reduced heat dissipation (from
+poor thermal conductivity), increased soil temperature and
+deeper burial, which typically corresponds to denser, less
+porous soil layers. Tis amplifes the thermal bottleneck
+around the cable. Terefore, the study confrms that worst-
+case environmental conditions must be assumed during the
+design phase to avoid dangerously overestimating cable
+ampacity. Tis also justifes the recommendation to use the
+lowest practical soil moisture condition, considering 0%
+moisture content, equating to the highest resistivity, for
+sizing underground cables in semiarid regions such as South
+Africa, as well as the incorporation of real-time monitoring
+for instant DTS systems in critical installations. Besides, it
+should be noted that the manufacturers’ data sheets shown
+in Figure 1 were used to perform the calculated results, as
+shown in Table 10.
+It was found that the current rating of the cable is in-
+versely proportional to T4, inversely proportional to the
+increase in soil ambient temperature; however, it was found
+that there is no mathematical relationship between the
+changes in cable laying depth and the temperature rise of the
+cable. Te temperature rise of the cable due to increased
+cable depth can only be verifed by measuring the ambient
+temperature at the cable laying depth. However, the prob-
+ability of an increase in temperature rise is high when the
+cable laying depth is increased. Tis, however, proves that
+the thermal resistivity of the soil increases the deeper trench,
+depending on moisture content, moisture content, soil
+composition and layering and soil composition and layering.
+Tis may be attributed to the compacted and denser nature
+of deeper soil layers, which are often less porous and retain
+less moisture—factors that collectively reduce the soil’s
+ability to dissipate heat away from the buried cable.
+Te fow diagram of the procedure, as shown in Figure 6,
+is aimed at assisting the utilities in performing the cable
+rating calculations. Te tool can further be used to verify the
+work done by consultants (where applicable).
+Te use of DTS to monitor the surface temperature of the
+cable outer sheath against the allowed maximum surface
+temperature of the cable outer sheath would reduce the
+probability of soil drying out due to the high surface tem-
+perature of the cable outer sheath. Tis is because the DTS
+will allow the utilities to proactively perform the necessary
+switching to reduce the load on the afected cable networks.
+Although there are available technologies [3, 12, 27, 28]
+that can improve cable ampacity rating, procuring the rel-
+evant technologies is difcult in poor countries due to a lack
+of funds. In such countries, it is prudent to use the native soil
+to backfll the cable tranches to minimise the capital cost for
+the installation of underground cable systems.
+Te current rating calculations proved that the drier the
+soil, the worse the current rating of the installed cable
+[6, 29–32]. Terefore, designers must consider the worst-
+case scenario when performing current ratings for buried
+International Transactions on Electrical Energy Systems
+9
+ itees, 2025, 1, Downloaded from https://onlinelibrary.wiley.com/doi/10.1155/etep/5946564 by South African Medical Research, Wiley Online Library on [15/01/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+\ncables to prevent soil from drying out in the near future.
+Tese scenarios include soil thermal resistivity, soil moisture
+content, cable laying depth and soil ambient temperature.
+6. Conclusion
+Tis study has demonstrated that soil conditions, particu-
+larly thermal resistivity, ambient temperature and cable
+laying depth, signifcantly infuence underground cable
+ampacity. Te experimental data collected from native South
+African soil, specifcally from Sandton, revealed a wide range
+of soil thermal resistivity values, from 0.596 K·m/W at 14.5%
+moisture to 3.72 K·m/W at 0% moisture, with corresponding
+current ratings decreasing from 518.34 A to 224.21 A. It was
+shown that soil drying out drastically reduces cable per-
+formance, and therefore, worst-case soil thermal resistivity
+should be considered in the design to avoid long-term
+degradation. In this study, the limitations of fndings are
+based on measurements taken from a single soil type within
+a specifc South African locality. Soil composition, moisture
+retention, compaction and ambient temperature vary sig-
+nifcantly across regions and climates. Terefore, the ap-
+plicability of the proposed cable rating methodology and
+Excel-based calculation tool may be limited in areas with
+difering soil textures, e.g., sandy, clay, or loamy soils, dif-
+ferent seasonal rainfall patterns, or cooler climates.
+Furthermore, this work assumes constant environmental
+parameters during operation, which are practically variable.
+Besides, transient conditions, such as heavy rainfall, drought
+or anthropogenic heat sources, e.g., nearby buried in-
+frastructure, could alter soil properties over time. Terefore,
+future research should explore soil thermal dynamics over
+longer periods, assess various native soils from diferent
+geographical zones and consider the efects of climate
+change. It would also be valuable to integrate economic
+assessments and real-time monitoring systems for adaptive
+cable management strategies under uncertain and evolving
+environmental conditions.
+Nomenclature
+Parameters and Constants
+DCR
+Dynamic current rating
+DTS
+Distributed temperature sensing
+EHV
+Extra high voltage
+FR
+Flame retardant
+HV
+High voltage
+IEC
+International Electrotechnical Commission
+LV
+Low voltage
+MV
+Medium voltage
+PE
+Polyethylene
+PILC
+Paper-insulated lead-covered cable
+PVC
+Polyvinyl chloride
+UV
+Ultraviolet
+XLPE Cross-linked polyethylene
+Data Availability Statement
+Data will be made available on suitable request.
+Conflicts of Interest
+Te authors declare no conficts of interest.
+Author Contributions
+Ntombifuthi Q. Khumalo wrote the manuscript and all
+authors reviewed and edited the manuscript.
+Table 10: Lists of material constants used to perform the calculations.
+Symbol
+Description
+Units
+Constant value
+α20 Arm
+Temperature coefcient of electrical resistivity for steel armour at 20°C per Kelvin
+/K
+0.0045
+α20 Cu
+Temperature coefcient of electrical resistivity for copper conductor at 20°C per
+Kelvin
+/K
+0.00393
+α20 Cu tap
+Temperature coefcient of electrical resistivity for metallic tape (copper tape) at
+20°C per Kelvin
+/K
+0.004
+ε
+Relative permittivity of insulation
+—
+2.5
+f
+System frequency
+Hz
+50
+kp
+Proximity efect factor
+—
+1
+ks
+Skin efect factor
+—
+1
+ρarmou
+Termal resistivity of the armouring (Steel)
+K·m/W
+0.000000138
+ρCu tape
+Termal resistivity of copper tape at 20°C
+K·m/W
+0.000000214
+ρi
+Termal resistivity of insulation material (XLPE)
+K·m/W
+3.5
+ρfillers
+Termal resistivity of fllers
+K·m/W
+6
+ρsheath
+Termal resistivity of cable outer sheath material (PE)
+K·m/W
+3.5
+ρsc
+Termal resistivity of semiconductive layer
+K·m/W
+2.5
+ρwater b/tt
+Termal resistivity of water blocking tape
+K·m/W
+2.5
+π
+Pi
+—
+3.1415926536
+tan δ
+Insulation loss factor
+—
+0.004
+λ1″
+Eddy current losses (this value is zero for 3 core cables)
+—
+0.00
+10
+International Transactions on Electrical Energy Systems
+ itees, 2025, 1, Downloaded from https://onlinelibrary.wiley.com/doi/10.1155/etep/5946564 by South African Medical Research, Wiley Online Library on [15/01/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+\nFunding
+No funding was received for this research.
+Acknowledgements
+Te authors would like to thank their universities for the
+support provided.
+References
+[1] N. T. Mbungu, M. W. Siti, R. C. Bansal, et al., “A Dynamic
+Coordination of Microgrids,” Applied Energy 377, no. Part D
+(January
+2025):
+124486–18,
+https://doi.org/10.1016/
+j.apenergy.2024.124486.
+[2] S. Li, B. Cao, J. Li, Y. Cui, Y. Kang, and G. Wu, “Review of
+Condition Monitoring and Defect Inspection Methods for
+Composited Cable Terminals,” High Voltage 8, no. 3 (2023):
+431–444, https://doi.org/10.1049/hve2.12318.
+[3] D. Williams, “Natural and Forced-Cooling of HV Un-
+derground Cables: UK Practice,” in IEE Proceedings A
+(Physical Science, Measurement and Instrumentation, Man-
+agement and Education, Reviews), 129, no. 3 (1982), 137–161,
+https://doi.org/10.1049/ip-a-1.1982.0023.
+[4] A. M. Othman, “Optimal Capacitor Placement by Enhanced
+Bacterial Foraging Optimization (EBFO) With Accurate
+Termal Re-Rating of Critical Cables,” Electric Power Systems
+Research
+140
+(2016):
+671–680,
+https://doi.org/10.1016/
+j.epsr.2016.05.004.
+[5] P. C. Michael, L. Bromberg, A. J. Dietz, K. J. Cragin, and
+C. Gold, “Design and Test of a Prototype 20 KA HTS DC
+Power Transmission Cable,” IEEE Transactions on Applied
+Superconductivity 25, no. 3 (2015): 1–5, https://doi.org/
+10.1109/tasc.2014.2373824.
+[6] G. J. Anders, Rating of Electric Power Cables: Ampacity
+Computations for Transmission, Distribution, and Industrial
+Applications (IEEE Press, 1997).
+[7] A. V. Gavrilin, J. R. Miller, F. Schauer, and S. W. Van Sciver,
+“Comparative Analysis of Design Options for Current Leads
+for Wendelstein 7-x Magnet System,” IEEE Transactions on
+Appiled Superconductivity 12, no.1 (2002):1301–1304, https://
+doi.org/10.1109/tasc.2002.1018641.
+[8] N.
+Banno,
+“Low-Temperature
+Superconductors:
+Nb3sn,
+nb3al, and NBTI, Superconductivity” (2023), 100047.
+[9] J. A. Waynert, D. E. Daney, and F. C. Prenger, “Termal
+Analysis of the Apt Power Coupler and Similarities to Super-
+Conducting Magnet Current Leads,” IEEE Transactions on
+Appiled Superconductivity 9, no. 2 (1999): 881–884, https://
+doi.org/10.1109/77.783437.
+[10] N. T. Mbungu, R. C. Bansal, R. M. Naidoo, et al., “Perfor-
+mance Analysis of Diferent Control Models for Smart
+Demand–Supply Energy Management System,” Journal of
+Energy Storage 90 (2024): 111809, https://doi.org/10.1016/
+j.est.2024.111809.
+[11] Y. Ghorbani, S. E. Zhang, G. T. Nwaila, et al., “Dry
+Laboratories–Mapping the Required Instrumentation and
+Infrastructure for Online Monitoring, Analysis, and Char-
+acterization in the Mineral Industry,” Minerals Engineering
+191
+(2023):
+107971,
+https://doi.org/10.1016/
+j.mineng.2022.107971.
+[12] G. Meshchanov, I. Peshkov, and G. Svalov, “Te Results of
+Work Carried Out in the USSR on Creation of Super-
+conducting and Cryoresistive Cables for Electric Power
+Lines,” IEEE Transactions on Magnetics 19, no. 3 (1983):
+662–667, https://doi.org/10.1109/tmag.1983.1062466.
+[13] P. Ocło´n, M. Rerak, R. V. Rao, et al., “Multiobjective Opti-
+mization of Underground Power Cable Systems,” Energy 215
+(2021): 119089, https://doi.org/10.1016/j.energy.2020.119089.
+[14] Z. Xu, M. Nthontho, and S. Chowdhury, “Rural Electrifcation
+Implementation Strategies through Microgrid Approach in
+South African Context,” International Journal of Electrical
+Power & Energy Systems 82 (2016): 452–465, https://doi.org/
+10.1016/j.ijepes.2016.03.037.
+[15] Electric Cables—Calculation of the Current Rating—Part 1-1:
+Current Rating Equations (100%Load Factor) and Calculation
+of
+Losses—General
+(2017),
+https://store.sabs.co.za/
+catalogsearch/result/?q=sans+60287-1-1.
+[16] C. Zhang and E. Liu, “Experimental Study on Moisture and
+Heat Migration and Deformation Properties of Unsaturated
+Soil Column Under a Temperature Gradient during Rainfall
+Infltration,” PLoS One 18, no. 6 (2023): e0286973, https://
+doi.org/10.1371/journal.pone.0286973.
+[17] G. Anders and H. Radhakrishna, “Power Cable Termal
+Analysis With Consideration of Heat and Moisture Transfer
+in the Soil,” IEEE Transactions on Power Delivery 3, no. 4
+(1988): 1280–1288, https://doi.org/10.1109/61.193921.
+[18] H. M. Maghrabie, M. M. Abdeltwab, and M. H. M. Tawfk,
+“Ground-source Heat Pumps (GSHPS): Materials, Models,
+Applications, and Sustainability,” Energy and Buildings 299
+(2023): 113560, https://doi.org/10.1016/j.enbuild.2023.113560.
+[19] IEEE Guide for Soil Termal Resistivity Measurements (IEEE Std,
+2017), https://standards.ieee.org/standard/442-1981.html.
+[20] F. Aras, C. Oysu, and G. Yilmaz, “An Assessment of the Methods
+for Calculating Ampacity of Underground Power Cables,”
+Electric Power Components and Systems 33, no. 12 (2005):
+1385–1402, https://doi.org/10.1080/15325000590964425.
+[21] A. M. E. Safa, “Cable Rating Calculations Considering Soil
+Dry-Out Phenomenon: Limitations of Current Practice and
+Recent Developments,” Electric Power Systems Research 120
+(March 2015): 279–287.
+[22] G. Petrovi´c, M. Cvetkovi´c, T. Garma, and T. Kili´c, “An
+Approach to Termal Modeling of Power Cables Installed in
+Ducts,” Electric Power Systems Research 214 (2023): 108916,
+https://doi.org/10.1016/j.epsr.2022.108916.
+[23] W. van Westering and H. Hellendoorn, “Low Voltage Power
+Grid Congestion Reduction Using a Community Battery:
+Design Principles, Control and Experimental Validation,”
+International Journal of Electrical Power & Energy Systems 114
+(2020): 105349, https://doi.org/10.1016/j.ijepes.2019.06.007.
+[24] S. Bottler, T. Blenk, and C. Weindl, “An Approach for De-
+termining Load-Dependent Monetary Assessment Factors for
+PILC and XLPE Cables Within a Load Flow Simulation,” in
+Global Energy Conference (GEC) (2022), 58–64, https://
+doi.org/10.1109/gec55014.2022.9986564.
+[25] N. Q. Khumalo, “Optimized Cable Systems Design Which
+Limits Soil Drying Out,” Dissertation (University of Pretoria,
+2021), https://repository.up.ac.za/handle/2263/82576.
+[26] P. Lewin, J. Teed, A. Davies, and S. Larsen, “Method for
+Rating Power Cables Buried in Surface Troughs,” IEE Pro-
+ceedings-Generation, Transmission and Distribution 146, no. 4
+(1999): 360–364, https://doi.org/10.1049/ip-gtd:19990360.
+[27] C. H. Lee, J. J. Kwon, J. H. Byoun, et al., “Medium Voltage
+Optical Fiber Composite Power Cable System for Smart
+Grid,” in 22nd International Conference and Exhibition on
+Electricity Distribution (CIRED) (Stockholm, Sweden: IET,
+2013), 1–4.
+International Transactions on Electrical Energy Systems
+11
+ itees, 2025, 1, Downloaded from https://onlinelibrary.wiley.com/doi/10.1155/etep/5946564 by South African Medical Research, Wiley Online Library on [15/01/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+\n[28] O. E. Gouda, A. Z. El Dein, and G. M. Amer, “Te Efect of the
+Artifcial Backfll Materials on the Ampacity of the Un-
+derground
+Cables,”
+in
+7th
+IEEE
+International
+Multi-
+Conference on Systems, Signals and Devices (Amman, Jordan,
+2010), 1–6, https://doi.org/10.1109/ssd.2010.5585551.
+[29] K. Malmedal, C. Bates, and D. Cain, “On the Use of the Law of
+Times in Calculating Soil Termal Stability and Underground
+Cable Ampacity,” in IEEE/IAS 51st Industrial & Commercial
+Power Systems Technical Conference (I&CPS) (Calgary,
+Canada,
+2015),
+1–7,
+https://doi.org/10.1109/
+icps.2015.7266429.
+[30] E. C. R. Bascom, N. Patel, and D. Parmar, “Termal Envi-
+ronment Design Considerations for Ampacity of Buried
+Power Cables,” in IEEE PES Transmission and Distribution
+Conference and Exposition (Chicago, IL, 2014), 1–5.
+[31] J. Walker and B. le Roux, “Importance of Stabilized Backfll in
+Underground Cable Systems,” in VXth International Sym-
+posium on High Voltage Engineering (Ljubljana, Slovenia:
+University of Ljubljana, 2007), 1–3.
+[32] J. Ruan, C. Liu, K. Tang, D. Huang, Z. Zheng, and C. Liao, “A
+Novel Approach to Estimate Temperature of Conductor in
+Cable Joint,” in IEEE International Magnetics Conference
+(INTERMAG) (Beijing, China, 2015), 1, https://doi.org/
+10.1109/intmag.2015.7157382.
+12
+International Transactions on Electrical Energy Systems
+ itees, 2025, 1, Downloaded from https://onlinelibrary.wiley.com/doi/10.1155/etep/5946564 by South African Medical Research, Wiley Online Library on [15/01/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License

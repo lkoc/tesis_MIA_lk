@@ -1,0 +1,450 @@
+{
+  "metadata": {
+    "case": {
+      "id": "xlpe_single",
+      "kind": "cable",
+      "bounds": [
+        -4.0,
+        4.0,
+        -4.0,
+        0.0
+      ],
+      "T0": 20.0,
+      "scale": 50.0,
+      "cables": [
+        [
+          0.0,
+          -0.7
+        ]
+      ],
+      "radius": 0.015,
+      "layers": [
+        [
+          0,
+          0.0055,
+          400
+        ],
+        [
+          0.0055,
+          0.012,
+          0.286
+        ],
+        [
+          0.012,
+          0.013,
+          380
+        ],
+        [
+          0.013,
+          0.015,
+          0.45
+        ]
+      ],
+      "power": 14.069700000000001,
+      "current": 270.0,
+      "R20": 0.000193,
+      "alpha": 0.00393,
+      "k": 1.0,
+      "patch": null,
+      "bands": [],
+      "pair": null,
+      "source": "examples/xlpe_single_cable/data",
+      "adaptation": "Dominio controlado 8 x 4 m; Dirichlet 20 C; p\u00e9rdidas DC a 20 C; flujo circular uniforme. Kim usa nueve capas de la ficha corregida de 2025."
+    },
+    "case_sha256": "7a83b103dfc9aa951dffbc1979bfab71602cba4367b53ef38ff2599262654f5b",
+    "seed": 23,
+    "torch": "2.9.0+xpu",
+    "python": "3.12.9 (tags/v3.12.9:fdb8142, Feb  4 2025, 15:27:58) [MSC v.1942 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26100-SP0",
+    "device": "cpu",
+    "dtype": "float64",
+    "threads": 1,
+    "width": 16,
+    "depth": 3,
+    "parameters": 616,
+    "adam": 1200,
+    "lbfgs_max_iter": 1600,
+    "lbfgs_closure_calls": 2073,
+    "n_interior": 1523,
+    "training_seconds": 89.66211139998632,
+    "final_loss": 9.660421848171724e-06,
+    "training_parts": {
+      "pde": 1.6853331543341143e-07,
+      "bc": 5.447038458703287e-07,
+      "flux": 3.1018938036372633e-14,
+      "interface": 0.0,
+      "energy": 4.90165203558896e-12,
+      "electrical": 1.1769234149107944e-14,
+      "temperature_limit": 0.0
+    },
+    "fem_labels_used": 0,
+    "variant": "multipole",
+    "coupled": true,
+    "ampacity": false,
+    "temperature_limit_C": 90.0,
+    "loss_model": {
+      "type": "dc_linear_temperature",
+      "reference_temperature_C": 20.0,
+      "temperature_tolerance_K": 1e-05,
+      "temperature_limit_C": 90.0,
+      "max_iterations": 500,
+      "law": "P_j = I_j^2 * R20_j * (1 + alpha_j * (T_conductor_j - 20))",
+      "coupling": "individual conductor temperature; same law in PINN and FEniCSx",
+      "excluded_losses": [
+        "dielectric",
+        "screen",
+        "sheath",
+        "skin_effect",
+        "proximity_effect"
+      ]
+    },
+    "configuration": {
+      "cases": [
+        "xlpe_single"
+      ],
+      "seeds": [
+        23
+      ],
+      "adam": 1200,
+      "lbfgs": 1600,
+      "width": 16,
+      "depth": 3,
+      "n": 768,
+      "threads": 1,
+      "lr": 0.001,
+      "pde_weight": 25.0,
+      "bc_weight": 10.0,
+      "flux_weight": 10.0,
+      "energy_weight": 10.0,
+      "electrical_weight": 100.0,
+      "limit_weight": 100.0,
+      "evaluate_only": false,
+      "coupled": true,
+      "ampacity": false,
+      "temperature_limit": 90.0,
+      "variant": "multipole"
+    },
+    "source_sha256": {
+      "Benchmarks\\pinn.py": "471caee8bf0c6502ef3faea75d48d52d61e36eeb10d6bbbdde74a57d7b07ecb5",
+      "Benchmarks\\cases.py": "602ae0972312f0b96d442593a61cbf3e41eec877b1d579f8b7a21415453c5ead",
+      "Benchmarks\\expressions.py": "b59d46dfb4094c4e79f491384c7baef6641fb4753cd87fcb8a588f72164596e6",
+      "Benchmarks\\electrothermal.py": "4027a8b004e5d202f871281372e09ed92b7cd52245b2ccc2eab66e3f8b30a1f7",
+      "Benchmarks\\electrical_model.json": "032fd4d752b1e7b9653edfa3a308b8c5dec75fa36af5ebb19e9ece282d71569b",
+      "pinn_cables\\pinn\\pde.py": "eaf35d49d2c043ea300b6087fc06eb7c5d9563041855b8f3dc24001e05f53a40"
+    }
+  },
+  "history": [
+    {
+      "phase": "Adam",
+      "step": 0,
+      "loss": 8.664883366206686,
+      "pde": 0.003310674924933705,
+      "bc": 0.5295457178692959,
+      "flux": 0.002067053118818705,
+      "interface": 0.0,
+      "energy": 0.28267469651074556,
+      "electrical": 0.004392418180947412,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "Adam",
+      "step": 200,
+      "loss": 0.004374054719772427,
+      "pde": 6.60182571084889e-05,
+      "bc": 0.0002713228717941863,
+      "flux": 6.512434880215568e-11,
+      "interface": 0.0,
+      "energy": 1.6825654385522516e-07,
+      "electrical": 8.686357436301354e-08,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "Adam",
+      "step": 400,
+      "loss": 0.0015778543151630093,
+      "pde": 2.946171437972735e-05,
+      "bc": 8.411056694773822e-05,
+      "flux": 8.275334812451389e-13,
+      "interface": 0.0,
+      "energy": 2.03236488431927e-08,
+      "electrical": 2.5414286764301814e-11,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "Adam",
+      "step": 600,
+      "loss": 0.0008717538369032937,
+      "pde": 2.212700204913852e-05,
+      "bc": 3.185540705200645e-05,
+      "flux": 1.0440627831837791e-12,
+      "interface": 0.0,
+      "energy": 2.2905247632307187e-09,
+      "electrical": 1.7994665059108393e-11,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "Adam",
+      "step": 800,
+      "loss": 0.0005945622374533216,
+      "pde": 1.6923943276870005e-05,
+      "bc": 1.714631036809716e-05,
+      "flux": 1.3034371495010464e-12,
+      "interface": 0.0,
+      "energy": 1.9961585985076271e-13,
+      "electrical": 5.368200698796429e-12,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "Adam",
+      "step": 1000,
+      "loss": 0.0004426711529459191,
+      "pde": 1.2913173071701776e-05,
+      "bc": 1.1983756177258651e-05,
+      "flux": 1.605841685467754e-12,
+      "interface": 0.0,
+      "energy": 4.098023011572576e-10,
+      "electrical": 1.502993597988978e-12,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 100,
+      "loss": 4.044953752483046e-05,
+      "pde": 1.0045745387243631e-06,
+      "bc": 1.496514465662828e-06,
+      "flux": 2.764411575170743e-08,
+      "interface": 0.0,
+      "energy": 3.460898540610261e-09,
+      "electrical": 5.897925716991878e-10,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 200,
+      "loss": 9.680417077336759e-06,
+      "pde": 1.6881067842227098e-07,
+      "bc": 5.460089102563202e-07,
+      "flux": 2.959657790905755e-14,
+      "interface": 0.0,
+      "energy": 6.045920511876097e-12,
+      "electrical": 2.5904588482490523e-15,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 300,
+      "loss": 9.679350072283756e-06,
+      "pde": 1.6880174181113023e-07,
+      "bc": 5.459247394147154e-07,
+      "flux": 2.0835422914907063e-14,
+      "interface": 0.0,
+      "energy": 5.852162155193257e-12,
+      "electrical": 4.028825648674121e-15,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 400,
+      "loss": 9.678265924240738e-06,
+      "pde": 1.6878046031013742e-07,
+      "bc": 5.458708842636966e-07,
+      "flux": 1.0284844475055781e-13,
+      "interface": 0.0,
+      "energy": 4.2516629936126165e-12,
+      "electrical": 2.0287359537678562e-14,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 500,
+      "loss": 9.677195341830211e-06,
+      "pde": 1.687670625748255e-07,
+      "bc": 5.45797020741379e-07,
+      "flux": 5.185608608882051e-14,
+      "interface": 0.0,
+      "energy": 4.658594018045872e-12,
+      "electrical": 1.4655447443375914e-14,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 600,
+      "loss": 9.676128130192336e-06,
+      "pde": 1.6875341664651963e-07,
+      "bc": 5.457241844972386e-07,
+      "flux": 2.907386356978216e-14,
+      "interface": 0.0,
+      "energy": 4.943722343320272e-12,
+      "electrical": 1.1410948906109499e-14,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 700,
+      "loss": 9.675062711604166e-06,
+      "pde": 1.687394552602023e-07,
+      "bc": 5.456523716346359e-07,
+      "flux": 1.923286722027846e-14,
+      "interface": 0.0,
+      "energy": 5.1479064321214156e-12,
+      "electrical": 9.423597556686738e-15,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 800,
+      "loss": 9.673998358050007e-06,
+      "pde": 1.6872521617533565e-07,
+      "bc": 5.4558140852638e-07,
+      "flux": 1.520978964847499e-14,
+      "interface": 0.0,
+      "energy": 5.289949153706281e-12,
+      "electrical": 8.168133833611908e-15,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 900,
+      "loss": 9.672934718215782e-06,
+      "pde": 1.6871078724853482e-07,
+      "bc": 5.455110274694136e-07,
+      "flux": 1.3738472000115075e-14,
+      "interface": 0.0,
+      "energy": 5.388937423461973e-12,
+      "electrical": 7.355493195815088e-15,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 1000,
+      "loss": 9.671852990734779e-06,
+      "pde": 1.6870326126648707e-07,
+      "bc": 5.454198393070297e-07,
+      "flux": 1.4264099286558404e-13,
+      "interface": 0.0,
+      "energy": 7.162999992958135e-12,
+      "electrical": 9.59244738585611e-17,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 1100,
+      "loss": 9.670784877587843e-06,
+      "pde": 1.686863410800134e-07,
+      "bc": 5.453558866095001e-07,
+      "flux": 7.95451634946962e-14,
+      "interface": 0.0,
+      "energy": 6.659752184182118e-12,
+      "electrical": 9.151903171003445e-16,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 1200,
+      "loss": 9.669720082781566e-06,
+      "pde": 1.6867003416827856e-07,
+      "bc": 5.452905359668078e-07,
+      "flux": 4.825683930368092e-14,
+      "interface": 0.0,
+      "energy": 6.318971295184658e-12,
+      "electrical": 1.9662517847175985e-15,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 1300,
+      "loss": 9.668657084475985e-06,
+      "pde": 1.686542088484568e-07,
+      "bc": 5.452240317540608e-07,
+      "flux": 3.245025565677961e-14,
+      "interface": 0.0,
+      "energy": 6.092920888079356e-12,
+      "electrical": 2.9201251989641365e-15,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 1400,
+      "loss": 9.667595143446014e-06,
+      "pde": 1.6863868629319352e-07,
+      "bc": 5.451567986826205e-07,
+      "flux": 2.429821812104587e-14,
+      "interface": 0.0,
+      "energy": 5.9387563839623335e-12,
+      "electrical": 3.687439483502233e-15,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 1500,
+      "loss": 9.666533915161432e-06,
+      "pde": 1.6862338018941014e-07,
+      "bc": 5.45089044509846e-07,
+      "flux": 1.9989666189367927e-14,
+      "interface": 0.0,
+      "energy": 5.8338642508115906e-12,
+      "electrical": 4.267885482180732e-15,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 1600,
+      "loss": 9.665454592652241e-06,
+      "pde": 1.6860023341954141e-07,
+      "bc": 5.45040318070165e-07,
+      "flux": 1.0162427141162754e-13,
+      "interface": 0.0,
+      "energy": 4.256554979362647e-12,
+      "electrical": 1.9946695475256742e-14,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 1700,
+      "loss": 9.664388911586315e-06,
+      "pde": 1.6858751419200065e-07,
+      "bc": 5.449652510620751e-07,
+      "flux": 5.1282634450958896e-14,
+      "interface": 0.0,
+      "energy": 4.657427125100825e-12,
+      "electrical": 1.4590679495013953e-14,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 1800,
+      "loss": 9.663326553237339e-06,
+      "pde": 1.6857413739531182e-07,
+      "bc": 5.448922296291998e-07,
+      "flux": 2.8771118302161085e-14,
+      "interface": 0.0,
+      "energy": 4.9395709571528875e-12,
+      "electrical": 1.1386417897201854e-14,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 1900,
+      "loss": 9.66226596689927e-06,
+      "pde": 1.6856035911498356e-07,
+      "bc": 5.448204441360341e-07,
+      "flux": 1.9050877797592824e-14,
+      "interface": 0.0,
+      "energy": 5.141637903984858e-12,
+      "electrical": 9.407765209242698e-15,
+      "temperature_limit": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 2000,
+      "loss": 9.661206434556557e-06,
+      "pde": 1.685462714015493e-07,
+      "bc": 5.447495860809337e-07,
+      "flux": 1.508137468893767e-14,
+      "interface": 0.0,
+      "energy": 5.282232599458745e-12,
+      "electrical": 8.155687448611966e-15,
+      "temperature_limit": 0.0
+    }
+  ]
+}

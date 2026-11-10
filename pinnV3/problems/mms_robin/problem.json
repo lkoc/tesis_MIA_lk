@@ -1,0 +1,81 @@
+{
+  "schema": "pinn-v3-problem-1",
+  "id": "mms_robin",
+  "title": "mms_robin",
+  "family": "mms",
+  "domain": {
+    "shape": "rectangle",
+    "bounds": [
+      0.0,
+      1.0,
+      0.0,
+      1.0
+    ]
+  },
+  "temperature_scale_K": 30.0,
+  "boundaries": {
+    "bottom": {
+      "type": "dirichlet",
+      "value": {
+        "expression": "20 + 30*x*(1-x)*(1+y)"
+      }
+    },
+    "top": {
+      "type": "robin",
+      "h_W_m2K": 10.0,
+      "T_inf_C": {
+        "expression": "20 + 63*x*(1-x)"
+      }
+    },
+    "left": {
+      "type": "dirichlet",
+      "value": {
+        "expression": "20 + 30*x*(1-x)*(1+y)"
+      }
+    },
+    "right": {
+      "type": "dirichlet",
+      "value": {
+        "expression": "20 + 30*x*(1-x)*(1+y)"
+      }
+    }
+  },
+  "reference": {
+    "exact": {
+      "expression": "20 + 30*x*(1-x)*(1+y)"
+    }
+  },
+  "metadata": {
+    "source": {
+      "citation": "Plan/envío_rev1/04_Datos_objeto_estudio; MMS-2D-01/02; Robin de elaboración propia"
+    },
+    "original_domain": {
+      "bounds": [
+        0.0,
+        1.0,
+        0.0,
+        1.0
+      ]
+    },
+    "original_definition": {}
+  },
+  "regions": [
+    {
+      "id": "domain",
+      "shape": {
+        "type": "rectangle",
+        "bounds": [
+          0.0,
+          1.0,
+          0.0,
+          1.0
+        ]
+      },
+      "conductivity": 1.0,
+      "source": {
+        "expression": "60*(1+y)"
+      },
+      "priority": 0
+    }
+  ]
+}

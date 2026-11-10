@@ -1,0 +1,83 @@
+{
+  "schema": "pinn-v3-problem-1",
+  "id": "two_layer_slab",
+  "title": "Example: slab with variable conductivity and a disk heat source",
+  "domain": {
+    "shape": "rectangle",
+    "bounds": [
+      0.0,
+      2.0,
+      0.0,
+      1.0
+    ]
+  },
+  "temperature_scale_K": 80.0,
+  "regions": [
+    {
+      "id": "soil",
+      "shape": {
+        "type": "rectangle",
+        "bounds": [
+          0.0,
+          2.0,
+          0.0,
+          1.0
+        ]
+      },
+      "conductivity": 1.0,
+      "priority": 0
+    },
+    {
+      "id": "slab",
+      "shape": {
+        "type": "rectangle",
+        "bounds": [
+          0.0,
+          2.0,
+          0.4,
+          0.6
+        ]
+      },
+      "conductivity": {
+        "expression": "2 + sin(pi*x)"
+      },
+      "priority": 1
+    },
+    {
+      "id": "conductor",
+      "shape": {
+        "type": "disk",
+        "center": [
+          1.0,
+          0.8
+        ],
+        "radius_m": 0.1
+      },
+      "conductivity": 380.0,
+      "source": 10000.0,
+      "priority": 2
+    }
+  ],
+  "boundaries": {
+    "bottom": {
+      "type": "dirichlet",
+      "value": 20.0
+    },
+    "top": {
+      "type": "robin",
+      "h_W_m2K": 10.0,
+      "T_inf_C": 20.0
+    },
+    "left": {
+      "type": "neumann",
+      "q_n_W_m2": 0.0
+    },
+    "right": {
+      "type": "dirichlet",
+      "value": {
+        "expression": "20 + 5*y"
+      }
+    }
+  },
+  "reference": {}
+}

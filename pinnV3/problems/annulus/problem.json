@@ -1,0 +1,74 @@
+{
+  "schema": "pinn-v3-problem-1",
+  "id": "annulus",
+  "title": "annulus",
+  "family": "annulus",
+  "domain": {
+    "shape": "annulus",
+    "center": [
+      0.0,
+      0.0
+    ],
+    "inner_radius_m": 0.06,
+    "outer_radius_m": 20.0,
+    "bounds": [
+      -20.0,
+      20.0,
+      -20.0,
+      20.0
+    ]
+  },
+  "temperature_scale_K": 29.585722305155578,
+  "boundaries": {
+    "inner": {
+      "type": "neumann",
+      "q_n_W_m2": -106.1032953945969
+    },
+    "outer": {
+      "type": "dirichlet",
+      "value": 20.0
+    }
+  },
+  "reference": {
+    "exact": {
+      "expression": "20.0 + 5.092958178940651*log(20.0/sqrt(x*x+y*y))"
+    }
+  },
+  "metadata": {
+    "source": {
+      "citation": "CIGRE TB 963, pp. 52–55; potencia exacta 40 W/m"
+    },
+    "original_domain": {
+      "inner_radius_m": 0.06,
+      "outer_radius_m": 20.0
+    },
+    "original_definition": {},
+    "original_boundary": {
+      "inner": {
+        "type": "neumann",
+        "q_n_W_m2": -106.1032953945969
+      },
+      "outer": {
+        "type": "dirichlet",
+        "value": 20.0
+      }
+    }
+  },
+  "regions": [
+    {
+      "id": "annulus",
+      "shape": {
+        "type": "annulus",
+        "center": [
+          0.0,
+          0.0
+        ],
+        "inner_radius_m": 0.06,
+        "outer_radius_m": 20.0
+      },
+      "conductivity": 1.25,
+      "source": 0.0,
+      "priority": 0
+    }
+  ]
+}

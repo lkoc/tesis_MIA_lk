@@ -1,0 +1,82 @@
+{
+  "schema": "pinn-v3-problem-1",
+  "id": "mms_variable",
+  "title": "mms_variable",
+  "family": "mms",
+  "domain": {
+    "shape": "rectangle",
+    "bounds": [
+      0.0,
+      1.0,
+      0.0,
+      1.0
+    ]
+  },
+  "temperature_scale_K": 30.0,
+  "boundaries": {
+    "bottom": {
+      "type": "dirichlet",
+      "value": {
+        "expression": "20 + 30*sin(pi*x)*sin(pi*y)"
+      }
+    },
+    "top": {
+      "type": "dirichlet",
+      "value": {
+        "expression": "20 + 30*sin(pi*x)*sin(pi*y)"
+      }
+    },
+    "left": {
+      "type": "dirichlet",
+      "value": {
+        "expression": "20 + 30*sin(pi*x)*sin(pi*y)"
+      }
+    },
+    "right": {
+      "type": "dirichlet",
+      "value": {
+        "expression": "20 + 30*sin(pi*x)*sin(pi*y)"
+      }
+    }
+  },
+  "reference": {
+    "exact": {
+      "expression": "20 + 30*sin(pi*x)*sin(pi*y)"
+    }
+  },
+  "metadata": {
+    "source": {
+      "citation": "Plan/envío_rev1/04_Datos_objeto_estudio; MMS-2D-01/02; Robin de elaboración propia"
+    },
+    "original_domain": {
+      "bounds": [
+        0.0,
+        1.0,
+        0.0,
+        1.0
+      ]
+    },
+    "original_definition": {}
+  },
+  "regions": [
+    {
+      "id": "domain",
+      "shape": {
+        "type": "rectangle",
+        "bounds": [
+          0.0,
+          1.0,
+          0.0,
+          1.0
+        ]
+      },
+      "conductivity": {
+        "expression": "1+x"
+      },
+      "source": {
+        "expression": "2*pi**2*(1+x)*(30*sin(pi*x)*sin(pi*y))-30*pi*cos(pi*x)*sin(pi*y)"
+      },
+      "priority": 0
+    }
+  ]
+}

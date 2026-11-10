@@ -1,0 +1,108 @@
+{
+  "schema": "pinn-v3-case-1",
+  "id": "coaxial_bc_dirichlet",
+  "family": "cable",
+  "legacy_kind": "cable",
+  "domain": {
+    "bounds": [
+      -0.15,
+      0.15,
+      -0.15,
+      0.15
+    ],
+    "outer_radius_m": 0.15
+  },
+  "temperature": {
+    "reference_C": 20.0,
+    "scale_K": 30.0
+  },
+  "conductors": {
+    "centers": [
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "radius_m": 0.015,
+    "layers": [
+      {
+        "inner_radius_m": 0.0,
+        "outer_radius_m": 0.0055,
+        "k_W_mK": 400.0
+      },
+      {
+        "inner_radius_m": 0.0055,
+        "outer_radius_m": 0.012,
+        "k_W_mK": 0.286
+      },
+      {
+        "inner_radius_m": 0.012,
+        "outer_radius_m": 0.013,
+        "k_W_mK": 380.0
+      },
+      {
+        "inner_radius_m": 0.013,
+        "outer_radius_m": 0.015,
+        "k_W_mK": 0.45
+      }
+    ],
+    "pair": null
+  },
+  "electrical": {
+    "current_A": 270.0,
+    "R20_ohm_m": 0.000193,
+    "alpha_1_K": 0.00393,
+    "power_W_m": 14.069700000000001
+  },
+  "material": {
+    "k_base_W_mK": 1.0,
+    "patch": null,
+    "bands": []
+  },
+  "provenance": {
+    "citation": "Synthetic concentric verification",
+    "physics_version": "explicit-heat-2d-v1"
+  },
+  "title": "Concentric cable, explicit Dirichlet outer boundary",
+  "definition": {
+    "boundary_conditions": {
+      "outer": {
+        "type": "dirichlet",
+        "temperature": {
+          "value": 20.0,
+          "unit": "degC"
+        }
+      }
+    },
+    "contact": [],
+    "provenance": [
+      {
+        "id": "pinn_v3_verification",
+        "citation": "pinn_v3 verification builders (inherited coaxial case with chosen boundary data)"
+      }
+    ],
+    "data_status": {
+      "geometry": {
+        "status": "supuesto",
+        "source": "pinn_v3_verification",
+        "note": "Inherited coaxial case; explicit Dirichlet equal to the legacy value"
+      },
+      "materials": {
+        "status": "supuesto",
+        "source": "pinn_v3_verification",
+        "note": "Inherited coaxial case; explicit Dirichlet equal to the legacy value"
+      },
+      "source": {
+        "status": "supuesto",
+        "source": "pinn_v3_verification",
+        "note": "Inherited coaxial case; explicit Dirichlet equal to the legacy value"
+      },
+      "boundary_conditions": {
+        "status": "supuesto",
+        "source": "pinn_v3_verification",
+        "note": "Inherited coaxial case; explicit Dirichlet equal to the legacy value"
+      }
+    },
+    "inconsistencies": []
+  }
+}

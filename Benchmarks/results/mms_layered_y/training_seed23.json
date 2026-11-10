@@ -1,0 +1,235 @@
+{
+  "metadata": {
+    "case": {
+      "id": "mms_layered_y",
+      "kind": "mms_interface",
+      "bounds": [
+        0.0,
+        1.0,
+        0.0,
+        1.0
+      ],
+      "T0": 20.0,
+      "scale": 30.0,
+      "conductivity": {
+        "type": "layers",
+        "axis": "y",
+        "interfaces": [
+          0.5
+        ],
+        "values": [
+          0.5,
+          2.0
+        ],
+        "smoothing": 0.0
+      },
+      "interface": {
+        "axis": "y",
+        "position": 0.5
+      },
+      "exact_expression": "20 + where(y <= 0.5, 20*y, 10*(1+(y-0.5)/2))*sin(pi*x)",
+      "source_expression": "manufactured",
+      "source": "Elaboraci\u00f3n propia: prueba del formato para estratos discontinuos horizontales",
+      "adaptation": "Dos materiales sin suavizado; continuidad exacta de temperatura y flujo; la fuente se deriva por regi\u00f3n"
+    },
+    "case_sha256": "1f3b7fecb6c674da4fe7ea82be2c6b51601f1c31f43d8e0d5ef29ebc194f094c",
+    "seed": 23,
+    "torch": "2.9.0+xpu",
+    "python": "3.12.9 (tags/v3.12.9:fdb8142, Feb  4 2025, 15:27:58) [MSC v.1942 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26100-SP0",
+    "device": "cpu",
+    "dtype": "float64",
+    "threads": 1,
+    "width": 32,
+    "depth": 3,
+    "parameters": 4482,
+    "adam": 1200,
+    "lbfgs_max_iter": 800,
+    "lbfgs_closure_calls": 835,
+    "n_interior": 768,
+    "training_seconds": 161.1165597000072,
+    "final_loss": 1.0006859417058498e-05,
+    "training_parts": {
+      "pde": 7.378737880035455e-06,
+      "bc": 1.911989963198089e-07,
+      "flux": 0.0,
+      "interface": 7.16131573824955e-08,
+      "energy": 0.0
+    },
+    "fem_labels_used": 0,
+    "variant": "enriched",
+    "configuration": {
+      "cases": [
+        "mms_smooth_2d",
+        "mms_high_contrast",
+        "mms_layered_y"
+      ],
+      "seeds": [
+        11,
+        23,
+        37
+      ],
+      "adam": 1200,
+      "lbfgs": 800,
+      "width": 32,
+      "depth": 3,
+      "n": 768,
+      "threads": 1,
+      "lr": 0.001,
+      "pde_weight": null,
+      "bc_weight": 10.0,
+      "flux_weight": 10.0,
+      "energy_weight": 10.0,
+      "evaluate_only": false,
+      "variant": "enriched"
+    },
+    "source_sha256": {
+      "Benchmarks\\pinn.py": "cb2c0a960ada5d0811908a8901f77c595d2f624030a161edb8465a922479efb8",
+      "Benchmarks\\cases.py": "4a19d4e55a8f3246372fd15d6a1fb26d5553c84cea69130fbe752c2f8c7e931e",
+      "Benchmarks\\expressions.py": "0edbce64bc5d70ab19593f03a2717a0cb68aeacdba62c0f4b8c6654e5316fb55",
+      "pinn_cables\\pinn\\pde.py": "eaf35d49d2c043ea300b6087fc06eb7c5d9563041855b8f3dc24001e05f53a40"
+    }
+  },
+  "history": [
+    {
+      "phase": "Adam",
+      "step": 0,
+      "loss": 6.818521547778095,
+      "pde": 4.72301673328369,
+      "bc": 0.1901749606145439,
+      "flux": 0.0,
+      "interface": 0.01937552083489659,
+      "energy": 0.0
+    },
+    {
+      "phase": "Adam",
+      "step": 200,
+      "loss": 0.15124159922842825,
+      "pde": 0.045933449339863625,
+      "bc": 0.009404034232280985,
+      "flux": 0.0,
+      "interface": 0.0011267807565754758,
+      "energy": 0.0
+    },
+    {
+      "phase": "Adam",
+      "step": 400,
+      "loss": 0.018514757221088442,
+      "pde": 0.004469796998852459,
+      "bc": 0.0010542420840533384,
+      "flux": 0.0,
+      "interface": 0.0003502539381702599,
+      "energy": 0.0
+    },
+    {
+      "phase": "Adam",
+      "step": 600,
+      "loss": 0.004885768876976559,
+      "pde": 0.0019768439427016696,
+      "bc": 0.00022693850933903125,
+      "flux": 0.0,
+      "interface": 6.395398408845764e-05,
+      "energy": 0.0
+    },
+    {
+      "phase": "Adam",
+      "step": 800,
+      "loss": 0.0018385943590664424,
+      "pde": 0.0009804352951845072,
+      "bc": 6.845197697176493e-05,
+      "flux": 0.0,
+      "interface": 1.736392941642858e-05,
+      "energy": 0.0
+    },
+    {
+      "phase": "Adam",
+      "step": 1000,
+      "loss": 0.0010888343012438583,
+      "pde": 0.0006659387957597959,
+      "bc": 3.566458735073902e-05,
+      "flux": 0.0,
+      "interface": 6.6249631976672285e-06,
+      "energy": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 100,
+      "loss": 0.00017310343077745648,
+      "pde": 0.00011575202408973632,
+      "bc": 5.2155678150426256e-06,
+      "flux": 0.0,
+      "interface": 5.1957285372939e-07,
+      "energy": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 200,
+      "loss": 5.288206440893659e-05,
+      "pde": 3.6827604491850806e-05,
+      "bc": 1.142979413034694e-06,
+      "flux": 0.0,
+      "interface": 4.624665786738848e-07,
+      "energy": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 300,
+      "loss": 3.0240863719612323e-05,
+      "pde": 2.229584276079893e-05,
+      "bc": 4.752516952124763e-07,
+      "flux": 0.0,
+      "interface": 3.192504006688626e-07,
+      "energy": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 400,
+      "loss": 2.1259650243884335e-05,
+      "pde": 1.4332242985498326e-05,
+      "bc": 4.918192724275506e-07,
+      "flux": 0.0,
+      "interface": 2.0092145341105054e-07,
+      "energy": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 500,
+      "loss": 1.729997363282591e-05,
+      "pde": 1.2187618668698442e-05,
+      "bc": 3.526526018220328e-07,
+      "flux": 0.0,
+      "interface": 1.5858289459071432e-07,
+      "energy": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 600,
+      "loss": 1.3753272372363454e-05,
+      "pde": 9.067699549205558e-06,
+      "bc": 3.417889193410902e-07,
+      "flux": 0.0,
+      "interface": 1.2676836297469942e-07,
+      "energy": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 700,
+      "loss": 1.1781824745594755e-05,
+      "pde": 8.12263088454871e-06,
+      "bc": 2.7235386830294443e-07,
+      "flux": 0.0,
+      "interface": 9.356551780166009e-08,
+      "energy": 0.0
+    },
+    {
+      "phase": "LBFGS",
+      "step": 800,
+      "loss": 1.0482653532569204e-05,
+      "pde": 7.6050042440894e-06,
+      "bc": 2.1515834791978917e-07,
+      "flux": 0.0,
+      "interface": 7.260658092819123e-08,
+      "energy": 0.0
+    }
+  ]
+}

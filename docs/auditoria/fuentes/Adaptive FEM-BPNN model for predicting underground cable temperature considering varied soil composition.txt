@@ -1,0 +1,1360 @@
+Engineering Science and Technology, an International Journal 51 (2024) 101658
+Available online 8 March 2024
+2215-0986/© 2024 THE AUTHORS. Published by Elsevier BV on behalf of Karabuk University. This is an open access article under the CC BY-NC-ND license
+(http://creativecommons.org/licenses/by-nc-nd/4.0/).
+Adaptive FEM-BPNN model for predicting underground cable temperature
+considering varied soil composition
+Abdullah Ahmed Al-Dulaimi a,*, Muhammet Tahir Guneser a, Alaa Ali Hameed b,
+Fausto Pedro García M´arquez c, Osama E. Gouda d
+a Department of Electrical and Electronics Engineering, Karabuk University, Karabuk 78050, Turkey
+b Department of Computer Engineering, Istinye University, Istanbul 34396, Turkey
+c Ingenium Research Group, University of Castilla-La Mancha, 13071 Ciudad Real, Spain
+d Department of Electrical Power Engineering, Faculty of Engineering, Cairo University, 12613 Giza, Egypt
+A R T I C L E I N F O
+Keywords:
+Backpropagation neural networks
+Cable ampacity
+Finite element method
+Thermal fields
+Underground power cables
+A B S T R A C T
+In underground cables of power systems, the maximum temperature of the cable is a crucial factor in determining
+its capacity. According to standards, the permissible operating temperature for the XLPE cable conductor under
+steady-state conditions is 90 ◦C – a limit that should not be exceeded. Exceeding this temperature may lead to a
+thermal breakdown in the cable insulation, thereby resulting in interruption of the electrical power supply. Many
+factors affect the cable temperature, particularly through the processes of heat dissipation and diffusion from the
+cable into its surroundings. These factors include soil types and compositions, cable installation configuration,
+and thermo physical properties; therefore, accurate analysis of these factors is crucial for cable loading. In this
+study, the finite element method (FEM) is employed to predict the cable temperature considering different soil
+compositions and to present a new approach for the thermal analysis of an underground cable system. The novel
+approach considers various environmental conditions including single-layer and multi-layer soil types, homo-
+geneous and non-homogeneous soil compositions, two configuration types – flat and trefoil – as well as two types
+of backfill materials, specifically sand-cement mixture backfill (SCMB) and fluidized thermal backfill (FTB), and
+dry zones to offer deeper insight into a thermal analysis. Given that the FEM requires the construction of a
+complex geometric model within an optimal operating condition to obtain results with high accuracy—a process
+that can often be complex as well as not adaptable because it depends on constant mathematical calcu-
+lation—This paper presents a novel approach FEM-BPNN that uses an adaptive Backpropagation neural networks
+(BPNN) model as its mainstay. The proposed BPNN model exploits historical data from FEM to refine its pre-
+dictive power, therefore, increasing its efficiency and accuracy. Furthermore, the model is subject to an opti-
+mization process, adjusting and refining its internal parameters in response to new data, with the ultimate goal of
+improving the predictive model capabilities for the temperature of underground power cables. The results
+underscored the high performance of FEM in the simulation, and it was observed that FEM yielded results closely
+aligned with those of the IEC standard. Moreover, the proposed FEM-BPNN demonstrated exceptional accuracy,
+achieving a low RMSE score of 0.008. It also exhibited impressive performance in the linear regression analysis,
+with an R2 value of 0.99. These metrics collectively signify the robustness and efficacy of the model.
+1. Introduction
+Heat transfer is an essential aspect of many engineering applications
+as it impacts the performance and safety of various devices, systems,
+main components [1–5]. In the context of underground cables, cable
+capacity is an essential parameter that determines the maximum rated
+current that a cable can safely carry without exceeding its temperature
+limits [6–9]. In a non-optimal environment, the temperature of the cable
+* Corresponding author.
+E-mail address: 2038171016@ogrenci.karabuk.edu.tr (A.A. Al-Dulaimi).
+URL: https://scholar.google.com/citations?user=7qRez00AAAAJ&hl=en (A.A. Al-Dulaimi), https://scholar.google.com/citations?user=JwOsqFgAAAAJ&hl=en
+(M.T. Guneser), https://scholar.google.com/citations?user=2v87lDkAAAAJ&hl=en (A.A. Hameed), https://blog.uclm.es/faustopedrogarcia/ (F.P.G. M´arquez),
+https://scholar.google.com.eg/citations?user=rMLc2mQAAAAJ&hl=en (O.E. Gouda).
+Contents lists available at ScienceDirect
+Engineering Science and Technology,
+an International Journal
+journal homepage: www.elsevier.com/locate/jestch
+https://doi.org/10.1016/j.jestch.2024.101658
+Received 1 September 2023; Received in revised form 14 February 2024; Accepted 19 February 2024
+\nEngineering Science and Technology, an International Journal 51 (2024) 101658
+2
+core can exceed its designed operating thresholds, leading to insulation
+degradation, cable damage, and even electrical fires. On the other hand,
+heat transfer analysis focuses on the flow of thermal energy due to
+temperature differences of the cable materials. Finite element method
+(FEM) can be used to simulate heat transfer in underground cables and
+predict the temperatures of the cable elements and its surrounding
+environment. This information can be useful in estimating the temper-
+ature rise of the cable and its effect on the cable capacity.
+Effective heat transfer management is crucial for ensuring the safe
+and efficient operation of underground cables. The problem statement in
+heat transfer for underground cables is multifaceted, necessitating a
+systematic and scientific approach to address the various issues. The
+main challenge is to develop a robust and accurate method for calcu-
+lating the temperature around underground cables, taking into consid-
+eration the complex interplay between various factors such as soil types
+and compositions, cable installation configuration, and thermo physical
+properties. The methods of temperature calculation are essential for
+engineers and can be utilities to predict and monitor cable temperatures,
+ensuring that cables operate within their thermal limits and prevent
+overheating incidents. Furthermore, the impact of cable geometry
+models and cable configurations, such as flat and trefoil arrangements,
+on heat dissipation and heat diffusion from the cable core to the surface
+ground must be investigated. This requires examining the influence of
+cable spacing, depth, and installation methods on heat transfer man-
+agement and understanding the trade-offs between various cable con-
+figurations and their thermal performance. Another aspect of the
+problem statement involves analyzing the effects of homogenous and
+non-homogenous soil on heat dissipation and diffusion [10–13]. This
+includes understanding how variations in soil composition, moisture
+content, and density can influence heat transfer and cable performance.
+Additionally, the potential variations in soil properties due to dry zone
+formed-induced effects need to be considered, as they may significantly
+impact the thermal performance of underground cables.
+Many research papers have been published on the topic of thermal
+performance of underground cables. Karahan et al. [14] investigated the
+effects of electrical parameters on cable core temperature, which in turn
+affects cable ampacity. The authors employed the FEM to calculate
+temperature distribution, utilizing an electric-thermal combined model
+that incorporated environmental factors and cable properties. The study
+revealed that factors like soil thermal resistivity and weather conditions
+play a role in affecting the current carrying capacity of power cables.
+Furthermore, the electric-thermal combined model proves effective in
+accurately
+determining
+both
+temperature
+distribution
+and
+cable
+ampacity. Al-Saud et al. [15] proposed a new algorithm for perturbed
+finite-element analysis to calculate thermal field sensitivities and ca-
+pacity of underground power cables subject to variations in the cable
+thermal circuit parameters. The proposed methodology was validated
+through laboratory experiments and applied to various practical cable
+systems. Hwang and Jiang [16] proposed electromagnetic FEM for a
+thermal analysis of underground power cables directly buried in banks
+and PVC ducts. Liang [17] presented the challenge of accurately
+computing permissible conductor currents in underground power cable
+systems, which are often operated at maximum capacity. The author
+employed the streamline-upwind/petrov-galerkin (SUPG) and FEM for
+steady-state thermal analysis and verified it with a full-size experimental
+setup. The study concluded that the SUPG method offered better
+calculation accuracy than traditional analytical methods, particularly in
+accounting for convection-induced heat exchange.
+Al-Saud et al. [18] presented an optimization problem focused on
+thermal field parameters for underground power cables. Utilizing
+nonlinear programming and finite element analysis, the authors
+employed methods like generalized reduced gradient (GRG) to solve the
+complex issue. They found optimized thermal conductivities for various
+layers around the cables, achieving temperature reductions and
+ampacity improvements in different scenarios. Li et al. [19] presented a
+method for real-time assessment of underground cable ratings using
+distributed temperature sensing (DTS). Addressing the dynamic nature
+of soil thermal properties, the authors employed a combination of FEM
+and gradient-based optimization to estimate these parameters. They
+found that their approach accurately predicted cable surface tempera-
+tures and improved operational efficiency, validating their method both
+in the lab and on a 230-kV/500-MV A cable circuit. [20] investigated a
+critique of existing thermal models like IEC 60287 and Electra 143 for
+medium-voltage (MV) power cables in conduit installations, high-
+lighting their oversimplifications. The authors employed laboratory
+measurements and finite element analysis (FEA) to investigate natural
+convection and air–gap thermal resistance. The authors found that the
+Raithby and Hollands Nusselt number correlation closely matched
+measured values, advocating for real-time installation environment
+modeling for more accurate cable ratings.
+Numerous researchers have focused on the characteristics of the soil
+in which underground cables are buried, particularly in the case of non-
+homogeneous soil [10], these studies examined the non-uniform un-
+derground temperature distribution under different installation condi-
+tions and its impact on cable ampacity [21], to predict temperature
+distribution around existing underground cable systems, researchers
+conducted an experimental study on a scale model of a buried electric
+cable with different configurations and thermal properties of the mother
+soil and materials used to fill the trench [22]. In order to optimize the
+installation of buried electrical cables, the paper presented the issue of
+insufficient experimental data for electrical systems buried in non-
+homogeneous soils. The authors investigated this gap by creating a
+scale model to experimentally validate a numerical model and a
+simplified method they had previously proposed. The authors evaluated
+the thermal resistance of the soil. The authors found that the experi-
+mental data closely aligned with the numerical model [23]. The accurate
+calculation of the ampacity (maximum current-carrying capacity) of
+underground power cables is affected by soil moisture content [24]. To
+develop an improved thermal model for underground power cables,
+specifically in relation to cyclic ratings and thermal analysis, the authors
+conducted experimental work on eight different soil types. They deter-
+mined the relationship between moisture content and specific heat with
+soil temperature and identified the temperature at which the formation
+of the dry zone occurs for each soil type [25]. The effect of the dry zone
+formation on the underground power cables capacities is investigated in
+[26].
+Vollaro et al. [27] presented the limitations of the IEC 60287 stan-
+dard, which often oversimplifies the thermal resistance calculations for
+underground electrical power cables by assuming homogeneous soil.
+The authors employed a control-volume formulation of the finite-
+difference method and conducted extensive numerical simulations.
+The authors derived a semi-empirical correlating equation with a 3.6 %
+standard deviation of error, proving to be more reliable and efficient
+than the existing IEC 60287 standard. Continuing this line of research,
+Maximov et al. [21] discussed the issue of inadequate models for
+calculating underground cable ampacity due to non-uniform soil tem-
+peratures. The author employed mathematical equations and iterative
+methods to develop a more realistic model. The results validated the
+proposed model as a more general formulation than existing ones,
+suggesting room for further improvement by considering environmental
+heating factors. Ocło´n, Paweł, et al. [10] presented an in-depth analysis
+of the shortcomings of prevalent thermal models such as IEC 60287,
+which frequently oversimplify underground power cable systems by
+assuming a homogeneous soil structure with constant thermal conduc-
+tivity. To address this, the authors utilized the FEM to simulate a more
+complex, multilayered soil environment and different cable bedding
+conditions. The authors also incorporated various boundary conditions
+to enhance the realism of their simulations. The study concluded that the
+FEM simulations were in good agreement with ANSYS simulations,
+suggesting that their methodology provides a more accurate and
+comprehensive framework for assessing heat dissipation processes in
+underground power cables situated in thermal backfill and multilayered
+A.A. Al-Dulaimi et al.
+\nEngineering Science and Technology, an International Journal 51 (2024) 101658
+3
+soil.
+Several techniques have been employed to optimize and study
+various aspects of underground power cable systems. In Ref. [28], the
+authors used a radial basis function neural network (RBNN) and a ge-
+netic algorithm (GA) to optimize the laying parameters of parabolic-type
+fluidized thermal backfill (FTB) trefoil buried cables, aiming to enhance
+the overall cable performance through proper geometric design. In
+Ref. [29], the authors introduced an adaptive optimized particle swarm
+optimization (PSO) algorithm combined with a back propagation neural
+network (LFVPSO-BPNN) and further enhanced it with GA. This solution
+was used to accurately predict the temperature and maximum current
+capacity of trench-laid cables. The authors found their combined
+approach to be reliable, accurate, and computationally efficient, closely
+aligning with COMSOL multiphysics simulations. Ref. [30] utilized a
+modified jaya algorithm and the FEM to minimize the total material
+costs of an underground power cable system while ensuring the cable
+conductor temperature did not exceed 65 ◦C. In Ref. [31], the authors
+employed the FEM and the PSO method to optimize material costs for a
+400 kV cable line in a flat formation, aiming to ensure safe and reliable
+operation by keeping the cable core temperature below 90 ◦C. Finally,
+Ref. [32] discussed the complex issue of optimizing both material costs
+and electric-thermal performance in underground power cable systems
+(UPCS). The authors introduced a modified jaya algorithm (MJaya) and
+validated it against existing methods like PSO. They found that MJaya
+excelled in minimizing cable backfill costs and maximizing allowable
+electric current, outperforming PSO in these metrics.
+Based on the related works discussed, this paper presents a novel
+approach for the thermal analysis of underground power cables.
+Application is carried out on 132 kV with a geometric cross-section area
+of 749.9 mm2. The FEM is employed to calculate temperatures around
+cables, taking into account various soil types, cable installation config-
+uration, and thermo physical properties. Subsequently, BPNN is applied
+for temperature estimation and prediction. The structure of the analysis
+conducted in this study is outlined as follows:
+(i) This paper presents an analysis of the one-term transient state,
+which represents the maximum load condition. The analysis ex-
+amines this state under various environmental conditions.
+(ii) This study analyzes the impact of both homogeneous and non-
+homogeneous soils on cable heat dissipation and heat diffusion,
+with specific investigations into the influence of variations in soil
+composition and thermal properties, particularly soil thermal
+conductivity. The presence of dry zones and their effects are also
+examined. The scope of this research is extended to include the
+impact of two types of backfill materials, namely SCMB and FTB,
+on heat transfer around underground cables and how these ma-
+terials influence heat dissipation and cable performance. Addi-
+tionally, potential strategies to mitigate the challenges posed by
+variations in soil thermal properties on cable performance are
+explored.
+(iii) The study examines the effects of different geometry models for
+underground cables on heat dissipation and heat diffusion from
+the cable core to the surface ground, assessing the efficiency of
+various cable configurations such as flat and trefoil arrange-
+ments, and analyzing the influence of cable spacing, depth, and
+installation methods on heat transfer management.
+(iv) Given the complexities of the FEM, which demands the con-
+struction of a complex geometric model within a proficient
+working environment to obtain highly accurate results, this paper
+presents a novel approach. This innovative approach principally
+relies on an adaptive model powered by BPNN. The proposed
+BPNN model utilizes historical data to improve its predictions,
+enhancing its efficiency and accuracy. Moreover, the model un-
+dergoes a process of fine-tuning, where it adjusts and optimizes
+its internal parameters according to new incoming data. The
+objective of this fine-tuning process is to improve the model’s
+performance in predicting the temperature of underground
+power cables. This approach not only reduces the computational
+complexity involved in employing FEM alone but also leverages
+the power of machine learning to offer accurate and timely pre-
+dictions. This fusion of traditional simulation methods with
+contemporary machine learning techniques signifies an impor-
+tant step towards smarter and more efficient systems for moni-
+toring and managing underground power cables.
+2. Materials and methods
+2.1. Influential factors on cable performance
+This paper focuses on the various factors that affect the performance
+of underground cable systems as illustrated in Fig. 1(a). These factors
+include the surrounding environment, which can consist of either single-
+layer and multi-layer soils that are composition-dependent (homoge-
+neous and nonhomogeneous), as well as the cable geometry and
+configuration, insulation, and other features such as armor or shielding.
+The backfill material which are SCMB and FTB, cable dimensions, depth
+of burial (H), and distance between adjacent cables (S) also play a sig-
+nificant role in the thermal behavior and performance of underground
+cables. Furthermore, the temperature of the ground surface (Tsg) is an
+important factor in determining the heat transfer from an underground
+cable to the surrounding environment. Understanding these factors and
+their impact on cable performance is critical for designing and operating
+reliable and safe underground cable systems. Proper consideration of
+these factors can also help to maximize the capacity of the cable and
+minimize the risk of overheating, thereby extending the lifespan of the
+cable and reducing maintenance costs. Referring to Fig. 1(b), it can be
+observed that there are three types of temperature rating: Rated
+conductor temperature 90 ◦C, emergency rating 105 ◦C> <140 ◦C, and
+short circuit cable rating 250 ◦C. In this paper, the cable core maximum
+temperature is taken as 90 ◦C.
+2.2. Geometric modeling and volumetric heat flux calculation in cable
+conductor
+Fig. 2(a) shows the structure of the cable used as a case study; its
+rating is 132 kV. Its maximum conductor temperature in service is 90 ◦C,
+copper conductor and cross linked polyethylene (XLPE) insulation.
+Fig. 2(b) shows the internal and external thermal resistance and cable
+dimensions. Table 1 is divided into two sub-tables: (A) presents the cable
+layers and the materials used to manufacture the layers and (B) presents
+the thermal conductivity characteristics of the cable layers, soil, and
+backfill. Fig. 3 shows the environments surrounding the buried cable,
+which is single-layer homogeneous soil, multi-layer homogeneous or
+non-homogeneous soil, as well as the geometric dimensions of the sur-
+rounding environment. Homogeneous soil is uniform in its composition
+and properties throughout the entire region being considered. In the
+context of underground cable systems, this means that the soil sur-
+rounding the cables has constant properties (e.g., thermal conductivity,
+density, moisture content) throughout the entire length of the cable run.
+On the other hand, non-homogeneous soil is not uniform in its compo-
+sition or properties. Instead, it has variations in properties within the
+region being considered. In the context of underground cable systems,
+this means that the soil surrounding the cables has different properties in
+different sections of the cable run. For example, the soil may have
+different thermal conductivities or moisture contents in different sec-
+tions. This can impact the thermal behavior of the cable and must be
+taken into account when designing and operating underground cable
+systems. In both homogeneous and non-homogeneous soil conditions,
+multilayered soil consists of native soil (with a thermal conductivity of
+1 W/mK), medium soil (with a thermal conductivity of 2.28 W/mK),
+and sand clay loam (with a thermal conductivity of 1.54 W/mK).
+Additionally, two types of backfill materials, namely SCMB and FTB, are
+A.A. Al-Dulaimi et al.
+\nEngineering Science and Technology, an International Journal 51 (2024) 101658
+4
+employed. In non-homogeneous conditions, the temperature of the soil
+layers approaching the maximum allowable cable temperature results in
+the formation of dry zones around the power cables. These dry zones
+cause variations in the thermal conductivities of the soil layers sur-
+rounding the cables. The effects of these various factors on the thermal
+behavior of underground cable systems are analyzed to provide a better
+understanding of how the surrounding environment impacts the per-
+formance of buried cables [26,27].
+The volumetric heat flux is a key parameter in this analysis, as it
+quantifies the rate of heat energy transfer per unit volume in the cable
+conductor, as described by the following equation:
+qv(Tc) = Wc
+A
+(1)
+where A = πr2
+co = 749.9 mm2 is the geometric cross-section area of the
+conductor, and Wc is the cable heat losses (Joule losses) can be calcu-
+lated through the equation below:
+Wc = I2Rac
+(2)
+Fig. 1. Thermal considerations for underground cables, (a) role of surrounding environment, cable configuration, and backfill material, and (b) temperature ratings.
+Fig. 2. Cable construction details, (a) cable layers, (b) power cable cross-section and thermal resistance.
+Table 1
+Cable layers material and physical properties.
+(A)
+(B)
+Number of layers
+Elements
+Material
+Elements
+Materials
+Conductivity
+(W/mK) = (1/ρ)
+1
+Conductor
+Copper
+Conductor
+Copper
+386
+2
+Conductor screen
+Semiconductor
+Insulation
+XLPE
+0.2875
+3
+Insulation
+XLPE
+Jacket
+HDPE
+0.2875
+4
+Insulator screen
+Semiconductor
+Sheath
+Copper
+386
+5
+Swelling tape
+Semi-conductive
+Native soil
+–
+1(kwet +kdry)
+6
+Wire screen
+Copper
+Medium soil
+–
+2.28(kwet +kdry)
+7
+Swelling tape
+Semi-conductive
+Sand clay loam
+–
+2(kwet +kdry)
+8
+Radial sealing
+Aluminum
+Backfill
+SCMB
+1
+9
+Jacket
+HDPE
+Backfill
+FTB
+1.54
+A.A. Al-Dulaimi et al.
+\nEngineering Science and Technology, an International Journal 51 (2024) 101658
+5
+where Rac is AC conductor resistance (Ω/m), it is computed using the
+subsequent equation according to IEC 60287-1-2 [33]:
+Rac = Rdc
+(
+1 + γs + γp
+)
+Rdc = R20(1 + α20(T −20),
+for copper α20 = 3.93 × 10 −3
+R20 = ρ20
+A , for copper ρ20 = 1.68 × 10 −8
+(3)
+Given the temperature-dependent nature of the conductor resistance,
+which changes with temperature, Rdc (Ω/m) is the actual conductor
+resistance at temperature T. γs, γp are skin effect and proximity effect,
+respectively, according to IEC 60287-1-2 [33]:
+γs =
+x4
+s
+192 + 0.8x4
+s
+(4)
+where α20 is the temperature coefficient and T is the ambient tempera-
+ture.
+x2
+s = 8πf
+Rdc
+10−7ks,
+ksthisvalueisgivenbythestandardtable
+(5)
+γp =
+x4
+p
+192 + 0.8x4
+p
+(dc
+s
+)2
+⎡
+⎢⎢⎢⎣0.312
+(dc
+s
+)2
++
+1.18
+x4p
+192+0.8x4p + 0.27
+⎤
+⎥⎥⎥⎦
+(6)
+x2
+p = 8πf
+Rdc
+10−7kp, kp
+this value is given by the standard table
+(7)
+where dc is conductor diameter and s is the distance between the
+conductor axis xs and xp are argument of a Bessel function used to
+calculate skin effect and proximity effect.
+2.3. Adaptive FEM-BPNN architecture
+GDM =
+⎡
+⎢⎢⎢⎢⎣
+S1
+S2
+xmin
+xc
+xmax
+yc
+ymin
+r
+0
+ymax
+⎤
+⎥⎥⎥⎥⎦
+(8)
+For a rectangle S1 = 1, xmin = x1, xmax = x2, ymin = y1, ymax = y2, and
+for a circle S2 = 2, the center coordinates are (xc, yc), and the radius is r.
+This step is followed by the selection of the appropriate edge labels
+and face indices for utilization in the boundary equations. Subsequently,
+we generate a triangulated mesh, which acts as a discretized represen-
+tation of the geometric domain of the problem; in essence, this consti-
+tutes a network or grid composed of small, interconnected elements.
+Once the mesh is established, we proceed to set the thermophysical
+properties, these include thermal conductivities, mass density, and
+specific heat for the various cable layers, soil layers, and backfill
+bedding.
+The partial differential equation, known as the transient heat con-
+duction equation, can be expressed as:
+∇⋅(k∇T) + qv = ρCp
+∂T
+∂t
+(9)
+In transient conditions, where
+temperature varies
+with time
+(∂T/∂t ∕= 0), the heat conduction equation is:
+∇⋅(k∇T) = ∂
+∂x
+(
+kmaterials(T) ∂T
+∂x
+)
++ ∂
+∂y
+(
+kmaterials(T) ∂T
+∂y
+)
+(10)
+For the conductor (internal heat source):
+∂
+∂x
+(
+kcon(T) ∂T
+∂x
+)
++ ∂
+∂y
+(
+kcon(T) ∂T
+∂y
+)
+= ρc ∂T
+∂t −qv(Tc)
+(11)
+For the insulator, external layers, backfill, and soil:
+∂
+∂x
+(
+kins, ex, bf, so (T) ∂T
+∂x
+)
++ ∂
+∂y
+(
+kins, ex, bf, so (T) ∂T
+∂y
+)
+= ρc ∂T
+∂t
+(12)
+ρ is the density of the material, Cp is the specific heat capacity of the
+material, T is the temperature, and t is time. kcon, kex, k bf, kso, are the
+thermal conductivities of the conductor, external layers, backfill, and
+soil, respectively. ∇represents the gradient operator, qv is the volu-
+metric heat generation rate due to the current passing through the cable.
+This is the heat source term that you can calculate based on the current
+and other cable properties.
+Following this, we establish the boundary conditions and initial
+conditions. These correspond to the temperature at the point of contact
+with the soil surface and the initial soil temperature. Next, we designate
+the internal heat source, represented by the volumetric heat source (qv)
+per unit volume of the cable conductor. Finally, after setting all con-
+Fig. 3. The geometric model of cable burial, a) flat formation in homogeneous, b) trefoil formation in homogeneous, c) flat formation non-homogeneous, and d)
+trefoil formation in non-homogeneous.
+A.A. Al-Dulaimi et al.
+\nEngineering Science and Technology, an International Journal 51 (2024) 101658
+6
+stants and variable values, we proceed to solve the thermal model. Our
+objective is to compute the temperature vector for each element in the
+homogeneous case and account for temperature-dependent thermal
+conductivity in non-homogeneous cases.
+After calculation of the temperature vector for each element across all
+cases – including single-layer homogeneous soil, multi-layer homogeneous
+soil, and multi-layer non-homogeneous soil, the multidimensional aspects
+of cable geometry in these environments are considered. The transition
+then occurs to the feature selection algorithm [35], where the chosen
+feature is the maximum temperature. This process forms part of the
+preparation of a dataset for Training-BPNN. Each case has an input matrix
+that can be increased according to the case of the study, considering the
+thermal conductivities of soil and other parameters that affect temperature
+distribution. BPNN utilizes stochastic gradient descent to adjust weights
+and minimize error, which is the difference between the target and pre-
+dicted values. This process occurs after the initial feedforward operation
+(
+X × wij→σ(x) =
+1
+1+e−x × wjk→σ(x) =
+1
+1+e−x = p, e = t −p
+)
+,
+which
+em-
+ploys weights and biases with randomly assigned values. Upon completion
+of the training process, the model becomes pretrained and ready for vali-
+dation and testing. The learning behavior of the model can be optimized by
+upsampling a real dataset obtained from DTS or other sensors, specifically,
+for the dataset which suffers from inadequate knowledge that could pro-
+vide better prediction performance.
+Fig. 4. FEM architecture for solving heat transfer in underground cables.
+A.A. Al-Dulaimi et al.
+\nEngineering Science and Technology, an International Journal 51 (2024) 101658
+7
+3. Result and discussion
+3.1. Cables in a single-layer homogenous soil
+In this case, the underground cables are buried in a single-layer
+homogeneous soil, as depicted in Fig. 3(a) and (b). The burial configu-
+rations include both flat and trefoil, using two types of backfill materials
+– SCMB and FTB. The depth of the backfill is not constant; it varies with
+the depth of the cables. The homogeneous environment in this case is
+defined as native soil. The cables are buried at depths H ranging from 0.8
+to 1.2 m, with the distance between cables S ranging from 0.1 to 0.4 m
+for flat and from 0.008 to 0.2 m for trefoil. The surface ground tem-
+perature Tsg is varied from 20 to 50 ◦C, while the soil temperature Tsoil is
+maintained at a constant 15 ◦C. This section will discuss the effects of
+these factors on the thermal behavior and performance of the under-
+ground cable system.
+Figs. 5 and 6 depict the temperature distributions surrounding the
+underground power cable system for Flat-SCMB and Flat-FTB, respec-
+tively, in single-layer homogeneous soil. Both configurations have ca-
+bles at a depth of 80 cm and a distance of 40 cm between them. Figs. 5(a)
+and 6(a) display the maximum temperature curve on the X-axis for an
+environment width of −4 to 4 m, and the results show that the central
+conductor achieves a maximum temperature of 84.31 ◦C and 82.99 ◦C,
+respectively, due to mutual thermal effects. Figs. 5(b) and 6(b) show the
+maximum temperature curve on the Y-axis for an environment depth of
+0 to 4.7 m, and the cable simulations in the Y-axis appear as a single
+cable in temperature distribution because the cable configuration is flat.
+Figs. 5(c) and 6(c) show 2D temperature distributions for the cables and
+surrounding environment. For the Fig. 6(c) the high thermal conduc-
+tivity of the FTB material, which is typically around 1.54 W/mK, allows
+for efficient heat transfer between the cables and the surrounding soil,
+this can help to reduce the temperature rise of the cables and prevent
+overheating, which can help to ensure that the cables remain reliable
+and functional for longer periods. Furthermore, both figures show the
+direction of heat flux, which in this case would be from the cable to-
+wards the surrounding soil, since the cable temperature is higher than
+the temperature of the surrounding soil (14 ◦C). The surface ground
+temperature (20 ◦C) is between the cable and the surrounding soil
+temperature, so there would likely be a temperature gradient between
+the cable and the surface ground as well.
+Figs. 7 and 8 both show temperature distributions surrounding un-
+derground power cable systems, with Fig. 7 depicting the Trefoil-SCMB
+configuration and Fig. 8 depicting the Trefoil-FTB configuration. In the
+flat configuration, higher mutual inductance and electromagnetic fields
+between the cables can result, which may lead to increased losses and
+interference. On the other hand, in the trefoil configuration, the three
+cables are evenly spaced and placed close together in an equilateral
+triangle formation, this arrangement helps to minimize the electro-
+magnetic fields and mutual inductance between the cables while
+ensuring efficient use of space.
+In the case of Trefoil-SCMB, the cables are at a depth of 80 cm, with a
+distance of 20 cm between them. This close distance results in mutual
+thermal effects, leading to increased cable temperatures and causing
+thermal stress that can degrade the performance and lifespan of the
+cables. Fig. 7(a) shows the maximum temperature curve on the X-axis
+for an environment width of −4 to 4 m, with all three conductors
+achieving a maximum temperature of 86.10 ◦C due to mutual thermal
+effects. Fig. 7(b) shows the maximum temperature curve on the Y-axis
+for an environment depth of 0 to 4.7 m, with the cable simulation in the
+Y-axis appearing as double cables in temperature distribution because of
+the Trefoil configuration. Fig. 7(c) depicts 2D temperature distributions
+for the cables and surrounding environment, as well as the direction of
+heat flux, which would be from the cable towards the surrounding soil
+due to the cable temperature being higher than the temperature of the
+surrounding soil (14 ◦C).
+In the case of Trefoil-FTB, the cables are also at a depth of 80 cm with
+a distance of 20 cm between them. Fig. 8(a) shows the maximum tem-
+perature curve on the X-axis for an environment width of −4 to 4 m, with
+all three conductors achieving a maximum temperature of 84.64 ◦C due
+to mutual thermal effects. The observed temperature decrease in the
+three conductors can be attributed to the high thermal conductivity of
+the FTB material, which facilitated efficient heat transfer between the
+cables and the surrounding soil. This allowed for the dissipation of heat
+outside the cables, thereby reducing the temperature of the conductors.
+Fig. 8(b) shows the maximum temperature curve on the Y-axis for an
+environment depth of 0 to 4.7 m, with the cable simulation in the Y-axis
+appearing as double cables in temperature distribution due to the Trefoil
+configuration. Fig. 8(c) depicts 2D temperature distributions for the
+cables and surrounding environment, as well as the direction of heat
+flux, which would also be from the cable towards the surrounding soil
+due to the cable temperature being higher than the temperature of the
+surrounding soil (14 ◦C). However, the high thermal conductivity of the
+FTB material, which is typically around 1.54 W/mK, allows for efficient
+heat transfer between the cables and the surrounding soil.
+As observed in the figures that depicted the Y-axis temperature dis-
+tribution, there is a fluctuation in the Y-axis perspective. This fluctuation
+is due to the method used to calculate the temperature distribution on
+the Y-axis, where the maximum value was taken from every 100 values.
+As
+a
+result,
+some
+points
+include
+values
+that
+represent
+lower
+temperatures.
+3.2. Cables in a multi-layer homogeneous soil
+In this case, the soil consists of three layers: native soil, medium soil,
+and sand clay loam (As depicted in Fig. 3(c) and (d)), each of these soil
+layers contributes to the overall behavior and characteristics of the soil
+surrounding the underground cables. The properties of the soil layers,
+including thermal conductivity, moisture content, and density, influence
+the heat dissipation and thermal performance of the cables. Each layer
+has its respective conductivity, as listed in Table 1.
+Figs. 9–12 depict temperature distributions surrounding under-
+ground power cable systems in a multilayered homogeneous soil,
+comparing Flat-SCMB, Flat-FTB, Trefoil-SCMB, and Trefoil-FTB config-
+urations. All configurations have cables at an 80 cm depth, with Flat-
+SCMB and Flat-FTB having a distance of 40 cm between cables, and
+Trefoil-SCMB and Trefoil-FTB having a distance of 20 cm between
+Fig. 5. Temperature distributions for Flat-SCMB in single-layer homogeneous soil.
+A.A. Al-Dulaimi et al.
+\nEngineering Science and Technology, an International Journal 51 (2024) 101658
+8
+Fig. 6. Temperature distributions for Flat-FTB in single-layer homogeneous soil.
+Fig. 7. Temperature distributions Trefoil-SCMB in single-layer homogeneous soil.
+Fig. 8. Temperature distributions for Trefoil-FTB in single-layer homogeneous soil.
+Fig. 9. Temperature distributions for Flat-SCMB in multi-layer homogeneous soil.
+Fig. 10. Temperature distributions for Flat-FTB in multi-layer homogeneous soil.
+A.A. Al-Dulaimi et al.
+\nEngineering Science and Technology, an International Journal 51 (2024) 101658
+9
+cables. Figs. 9(a) and 10(a) show maximum temperatures of 82.58 ◦C
+and 81.22 ◦C, respectively, for the central conductor due to mutual
+thermal effects in Flat-SCMB and Flat-FTB configurations. Figs. 9(b) and
+10(b) display the maximum temperature curve on the Y-axis for an
+environment depth of 0 to 4.7 m, with the cable simulations in the Y-axis
+appearing as a single cable in temperature distribution due to the flat
+configuration. The flat configuration allows for simplified analysis and
+easier interpretation of temperature patterns and their potential impact
+on cable performance. In contrast, Trefoil-SCMB and Trefoil-FTB con-
+figurations result in maximum temperatures of 84.64 ◦C (Fig. 11a) and
+83.15 ◦C (Fig. 12a), respectively, for the three conductors. The Trefoil
+configuration helps to minimize electromagnetic fields and mutual
+inductance between the cables. For Flat-FTB (Fig. 10(c)) and Trefoil-FTB
+(Fig. 12(c)) configurations, the high thermal conductivity of the FTB
+material facilitates efficient heat transfer between cables and sur-
+rounding soil, reducing cable temperature rise and preventing over-
+heating, ensuring cable reliability and functionality for longer periods.
+In all configurations, the heat flux direction is from the cable towards the
+surrounding soil due to the cable temperature being higher than the
+surrounding soil temperature, with a likely temperature gradient be-
+tween the cable and surface ground, as shown in Figs. 9(c), 10(c), 11(c),
+and 12(c).
+3.3. Cables in a multi-layer non-homogeneous soil
+In the multi-layer soil cases, each layer consists of both dry and wet
+zones. Using the dry soil thermal conductivity kdry value might not
+provide an accurate representation of the actual soil conditions sur-
+rounding the power cables. In real-world scenarios, the soil is rarely
+completely dry, and the presence of moisture can significantly affect the
+soils thermal properties. Moisture in the soil increases its thermal con-
+ductivity because water has a higher thermal conductivity than dry soil.
+This increase in thermal conductivity can impact heat dissipation and
+temperature distribution around the power cables, ultimately affecting
+the cables performance and ampacity. By using the moist soil thermal
+conductivity kwet value, we account for real-world conditions where the
+soil contains some moisture. This approach provides a more accurate
+and relevant assessment of the cables thermal performance and its
+interaction with the surrounding soil (see Table 1).
+Dry zones can form around power cables when the temperature of
+the soil layers approaches the maximum allowable cable temperature.
+The current flowing through the cables produces heat, which is then
+transferred to the surrounding soil. In regions close to the cables, the soil
+temperature can rise significantly, resulting in the evaporation of
+moisture in the soil. As the moisture evaporates, the soil in the imme-
+diate vicinity of the cables can become drier compared to the sur-
+rounding soil. This creates areas with reduced moisture content,
+commonly known as dry zones. These dry zones lead to changes in the
+thermal conductivities of the soil layers surrounding the cables. This
+phenomenon occurs because the temperature increase affects the
+properties of the soil, including variations in thermal conductivity. In
+the case of multi-layered, non-homogeneous soil, we investigate the
+variability of thermal conductivity in both the insulator and the soil
+layers, as shown in Fig. 13. Based on these considerations, an analysis is
+performed to study the temperature distribution around the cable.
+Figs. 14–20 shows the temperature distributions surrounding the
+underground power cable system in multi-layered, non-homogeneous
+soil for Flat-SCMB, Flat-FTB, Trefoil-SCMB, and Trefoil-FTB configura-
+tions, respectively.
+Fig. 14–20(a and b) show the temperature distributions on the x-axis
+and y-axis, respectively. The central conductor achieved maximum
+temperatures of 83.65 ◦C in the Flat-SCMB configuration, 82.42 ◦C in the
+Flat-FTB configuration, 86.26 ◦C in the Trefoil-SCMB configuration, and
+84.89 ◦C in the Trefoil-FTB configuration, and the minimum tempera-
+ture achieved is 20.82 ◦C which is the upper of native soil.
+Fig. 4 presents the architecture of the adaptive FEM-BPNN, which
+comprises both the FEM and BPNN components. Within the FEM
+segment, we commence with a geometric model of the cables and their
+adjacent environment as described in the following equation:
+Figs. 14–20(c) shows the 2D temperature distributions, presenting
+isotherm regions. As observed in Fig. 3, the initial surface ground tem-
+perature is 20 ◦C, while the soil temperature is 14 ◦C. Notably, this soil
+temperature coincides with the initial temperature of the underground
+cables. Over time, the temperature difference results in the formation of
+a thermal gradient between the regions of high and low temperatures.
+This temperature variance leads to a significant change in thermal
+conductivity. As the cable’s temperature elevates from 14 ◦C to 90 ◦C,
+each layer of the non-homogenous, multi-layered soil exhibits a variance
+in thermal conductivity, dependent on its component properties, as
+illustrated in Fig. 13(a). Upon closer inspection of Figs. 9–14(c) and
+Fig. 11. Temperature distributions for Trefoil-SCMB in multi-layer homogeneous soil.
+Fig. 12. Temperature distributions for Trefoil-FTB in multi-layer homogeneous soil.
+A.A. Al-Dulaimi et al.
+\nEngineering Science and Technology, an International Journal 51 (2024) 101658
+10
+Figs. 14–19(c), it becomes apparent that the yellow region, signifying
+approximately 60 ◦C, has migrated from the cable to its surroundings.
+Furthermore, in Figs. 11–16(c) and Figs. 16–20(c), a new region,
+denoted by a light yellow color, has formed as a result of a decrease in
+thermal conductivity.
+3.4. Adaptive FEM-BPNN model for temperature prediction
+In this section, three types of environments surrounding the cables
+were considered. The thermal behavior of these environments was
+analyzed, and data were extracted based on this analysis to be tested in
+this section. In the three environments, the cables were configured in
+both flat and trefoil formations with maximum operation load 945 A;
+this was considered during the testing of the BPNN-FEM. A dataset
+matrix, with a size of 18600 × 8, was extracted from the three envi-
+ronments, consisting of 6200 rows from each individual environment.
+The eight columns of the dataset matrix consist of surface ground tem-
+perature Tsg, distances between cables S, depth of cables H, and backfill
+conductivity kbackfill along with an environment code. This code refers
+to the thermal conductivities of soil and other parameters that affect
+Fig. 13. The effect of an increase in cable core temperature which increases soil temperature on the conductivity of (a) soil layers [10], and (b) XLPE insulation [34].
+Fig. 14. Temperature distributions for Flat-SCMB in multi-layered, non-homogeneous soil.
+Fig. 15. Temperature distributions for Flat-FTB in multi-layered, non-homogeneous soil.
+Fig. 16. Temperature distributions for Trefoil-SCMB in multi-layered, non-homogeneous soil.
+A.A. Al-Dulaimi et al.
+\nEngineering Science and Technology, an International Journal 51 (2024) 101658
+11
+Fig. 17. Temperature distributions for Trefoil-FTB in multi-layered, non-homogeneous soil.
+Fig. 18. BPNN training process for (a) single-layer homogeneous soil-Flat configuration, (b) single-layer homogeneous soil-Trefoil configuration, (c) multi-layer
+homogeneous soil-Flat configuration, (d) multi-layer homogeneous soil-Trefoil configuration, (e) multi-layer non-homogeneous soil-Flat configuration, and (f)
+multi-layer non-homogeneous soil-Trefoil configuration.
+A.A. Al-Dulaimi et al.
+\nEngineering Science and Technology, an International Journal 51 (2024) 101658
+12
+temperature distribution. The code consists of three binary numbers.
+The binary numbers for the single-layer homogenous soil environment
+are [001]T for flat and [010]T for trefoil, for the multi-layer homogeneous
+soil environment with flat and trefoil are [011]T and [100]T, and those for
+the multi-layer non-homogeneous soil environment with flat and trefoil
+are [101]T and [110]T. This code will increment the number of hidden
+neurons from 4 to 7.
+In the preprocessing stage of BPNN-FEM, the dataset matrix is
+divided into inputs and outputs. The inputs include columns one
+through seven of the data matrices, whereas the outputs include the final
+column, comprising solely of maximum temperature distribution values.
+A subset, accounting for 75 % of the dataset matrix, is selected at
+random for the training process and 25 % for the testing process. These
+fractions are determined by multiplying the total number of rows in the
+data matrix by the prescribed percentage (0.75) and (0.25). A distinct
+permutation of row indices is generated to circumvent bias and ensure a
+randomized selection. Subsequent preprocessing involves the construc-
+tion of a neural network model with seven hidden neurons, with a
+maximum iteration limit set at 5000. The activation functions for both
+the hidden and output layers are designated as sigmoid functions.
+Fig. 18 illustrates the training process results of the FEM-BPNN
+model for various configurations. Fig. 18(a) presents the performance
+for the single-layer homogeneous soil-flat configuration. Similarly,
+Fig. 18(b) and (c) display the performance of the model for the single-
+layer homogeneous soil-Trefoil and the multi-layer homogeneous soil-
+Flat configurations respectively. The learning behavior of the model is
+also demonstrated for the multi-layer homogeneous soil-Trefoil config-
+uration in Fig. 18(d), for the multi-layer non-homogeneous soil-Flat
+configuration in Fig. 18(e), and for the multi-layer non-homogeneous
+soil-Trefoil configuration in Fig. 18(f). In all these scenarios, the model
+achieved a near-perfect or perfect linear regression coefficient of
+determination R2 and maintained a low Root Mean Square Error
+(RMSE), ranging from 0.004 to 0.008. These results collectively confirm
+that the FEM-BPNN model adapts well to different environments and
+temperatures while ensuring its convergence. This adaptability and
+performance are indicative of an ideal model fit, with predictions
+aligning perfectly with the actual data. Furthermore, the learning
+behavior of the model is depicted through the alterations in weights for
+both hidden and output neurons, which essentially steer the learning
+process. The diversity in the weights of the hidden layer indicates that
+the model operates with high accuracy and can process more data
+without weight conflicts.
+The testing results corroborate the outcomes from the training and
+validation, demonstrating the effectiveness of the model during both the
+training and testing process. This is further evidenced by the RMSE
+values in the testing process: 0.005 for Fig. 19(a), 0.006 for Fig. 19(b),
+0.004 for Fig. 19(c), 0.005 for Fig. 19(d), 0.005 for Fig. 19(e), and 0.008
+for Fig. 19(f), as shown in Supplementary Table 1.
+This research on FEM-BPNN for underground cable temperature
+prediction shows promise due to its novel approach (combining FEM
+accuracy with BPNN adaptability), improved accuracy (high R-squared,
+low RMSE), and ability to handle complex scenarios (different envi-
+ronments, non-homogeneous soils). This has the potential to optimize
+cable design and enhance power system operation.
+3.5. Results comparison
+Table 2 presents the results of conductor temperatures Tc for various
+underground power cable environments, configurations, backfill mate-
+rials, and burial dimensions. It compares the temperatures for single-
+layer and multi-layer homogeneous soil, as well as flat and trefoil con-
+figurations, and two types of backfill materials: SCMB and FTB. The
+burial dimensions are represented by the distance between adjacent
+cables S and cable laying depth H. In the single-layer homogeneous soil,
+the highest Tc is observed for Trefoil-SCMB (86.10 ◦C), while the lowest
+is for Flat-FTB (82.99 ◦C). In multi-layer homogeneous soil, the highest
+Tc is seen in Trefoil-SCMB (84.64 ◦C), and the lowest in Flat-FTB (81.22
+◦C). Overall, the FTB material high thermal conductivity (1.54 W/mK)
+significantly contributes to heat dissipation in underground power cable
+systems, reducing cable temperature and extending their lifespan. This
+efficient heat transfer prevents overheating, which can cause thermal
+stress and degrade cable performance. The FTB configuration out-
+performs the SCMB configuration in heat dissipation and cable over-
+heating prevention. In multi-layer homogeneous soil, consider factors
+like multilayered soil, FTB layer thermal conductivity, and potential dry
+zones for efficient underground power cable systems. Cable arrange-
+ment and soil thermal properties influence temperature distribution and
+performance. Flat configuration may offer better performance by the
+Fig. 18. (continued).
+A.A. Al-Dulaimi et al.
+\nEngineering Science and Technology, an International Journal 51 (2024) 101658
+13
+ease of heat resulting from cable losses into the surrounding soil.
+Table 3 compares the results of the study using the FEM with the
+Nexans and IEC [36] Standard-based values for cable, soil, electrical,
+and usage characteristics, considering a Iload, max of 945 A and a Tsg of 20
+◦C. It presents two configurations, Flat and Trefoil, along with their
+respective soil conductivity values, burial dimensions, and Tc. The
+Nexans IEC Standard-based values indicate a Tc of 90 ◦C for both con-
+figurations, with a soil conductivity of 1.17 W/mK in the dry zone and
+burial dimensions of S = 20 and H = 100 cm. In contrast, the FEM results
+show lower conductor temperatures of 86.19 ◦C and 86.10 ◦C for the Flat
+and Trefoil configurations, respectively, with a soil conductivity of 1 W/
+mK and burial dimensions of S = 20 and H = 80 cm. This suggests that
+the FEM analysis in the study provides more efficient thermal perfor-
+mance in both configurations compared to the Nexans IEC Standard-
+based values. The last column in Table 2 shows the comparison be-
+tween the results obtained in a single-layer and multi-layer homoge-
+neous soil, respectively. The total conductor temperatures Tc we
+obtained are 480, which depend on the different case values for surface
+ground temperatures Tsg, distances between cables S, and the depth of
+the cables H. In this study, the multilayer soil achieved low conductor
+temperatures, which depend on the high conductivities of the soil layers.
+However, in real-world situations, multi-layered soil is considered
+complex due to its varying properties and characteristics, which can
+significantly impact the performance of underground power cable
+systems.
+Table 4 compares the temperature results for two different cases:
+multi-layer homogeneous soil and multi-layer non-homogeneous soil.
+For both cases, the temperature results are provided for Flat-SCMB and
+Flat-FTB configurations with the spacing S of 40 cm and burial depth H
+of 80 cm, similarly, the temperatures for Trefoil-SCMB and Trefoil-FTB
+with the spacing S of 20 cm and burial depth H of 80 cm, the temper-
+atures for the central cable and the left and right cables are given for the
+conductor, insulator, sheath, and jacket. By comparing the temperature
+results of these two cases, it becomes clear that the rapid decrease in
+thermal conductivity of the soil layers influences the temperature
+gradient, taking this decrease into account results in more realistic
+outcomes.
+To demonstrate the extensibility of our proposed approaches, we
+incorporated all environments. Fig. 20 presents an overall analysis of the
+training and testing results of the BPNN-FEM that encompasses all
+Fig. 19. BPNN testing process for (a) single-layer homogeneous soil-Flat configuration, (b) single-layer homogeneous soil-Trefoil configuration, (c) multi-layer
+homogeneous soil-Flat configuration, (d) multi-layer homogeneous soil-Trefoil configuration, (e) multi-layer non-homogeneous soil-Flat configuration, and (f)
+multi-layer non-homogeneous soil-Trefoil configuration.
+A.A. Al-Dulaimi et al.
+\nEngineering Science and Technology, an International Journal 51 (2024) 101658
+14
+environments. In Fig. 20(a), the training results are noteworthy,
+achieving an impressive linear regression R2 value of 0.99, paired with a
+low RMSE of 0.008. This demonstrates the BPNN-FEM high performance
+and accuracy during the training process. On the other hand, Fig. 20(b)
+Indicates the BPNN-FEM testing efficacy, it achieved a low RMSE of
+0.008, further validating the robustness of the BPNN-FEM in effectively
+generalizing its learned patterns to unseen data. Finally, these findings
+confirm the uniform high performance of BPNN-FEM in various envi-
+ronments, consistently observed throughout both the training and
+testing process.
+4. Conclusion
+This study provided a novel approach for predicting underground
+cable temperature using an adaptive FEM-BPNN Model considering
+various soil compositions. An application using the proposed model and
+comprehensive thermal analysis for a 132 KV underground cable power
+system have been carried out. The analysis considered various factors
+Fig. 20. Presents the results of the BPNN-FEM analysis, which encompasses all environments, (a) pertains to the training process, while part (b) illustrates the
+testing process.
+Table 2
+Conductor temperature under different conditions at Iload, max = 945 A and 20 ◦C Tsg.
+Environments
+Configurations
+Backfill materials
+Burial dimensions
+Conductor temperature Tc
+Overall results obtained
+Single-layer homogeneous soil
+Flat
+SCMB
+S = 40, H = 80 cm
+84.31 ◦C
+FTB
+S = 40, H = 80 cm
+82.99 ◦C
+Trefoil
+SCMB
+S = 20, H = 80 cm
+86.10 ◦C
+FTB
+S = 20, H = 80 cm
+84.64 ◦C
+Multi-layer homogeneous soil
+Flat
+SCMB
+S = 40, H = 80 cm
+82.58 ◦C
+FTB
+S = 40, H = 80 cm
+81.22 ◦C
+Trefoil
+SCMB
+S = 20, H = 80 cm
+84.64 ◦C
+FTB
+S = 20, H = 80 cm
+83.15 ◦C
+Table 3
+Comparing study results with Nexans IEC Standard-based for cable, soil, elec-
+trical, and usage characteristics atIload, max = 945 A and 20 ◦C Tsg.
+Methods
+Configurations
+Soil
+Conductivity
+(w/mk)=
+(1/ρ)
+Burial
+dimensions
+Conductor
+temperature
+Tc
+IEC Nexans
+[35]
+Flat
+1.17dry zone
+S = 20, H =
+100 cm
+90 ◦C
+Trefoil
+1.17dry zone
+S = 20, H =
+100 cm
+90 ◦C
+FEM in this paper
+Flat
+1
+S = 20, H =
+80 cm
+86.19 ◦C
+Trefoil
+1
+S = 20, H =
+80 cm
+86.10 ◦C
+A.A. Al-Dulaimi et al.
+\nEngineering Science and Technology, an International Journal 51 (2024) 101658
+15
+that affect the performance of the cable system, such as soil types and
+compositions, cable installation configuration, and thermophysical
+properties. Given their significant impact, a precise examination of these
+elements was essential. Soil types could be either single-layer or multi-
+layer,
+and
+their
+compositions
+could
+be
+homogeneous
+or
+non-
+homogeneous. cable installation configuration pertained to the depth
+of the cable burial and the distances between cables. Thermophysical
+properties involved variables such as thermal conductivities. The study
+goes more in-depth and includes the formation of dry zones and their
+effect on heat distribution around cables.
+The results from the study clearly illustrated the impact of various
+factors on the thermal performance of underground power cables. In
+single-layer homogeneous soil, the highest conductor temperature Tc
+recorded was 86.10 ◦C for the Trefoil-SCMB configuration, while the
+lowest was 82.99 ◦C for the Flat-FTB configuration. In contrast, in multi-
+layer homogeneous soil, the highest Tc was 84.64 ◦C in the Trefoil-SCMB
+configuration, and the lowest was 81.22 ◦C in the Flat-FTB configura-
+tion. Moreover, the study conducted a comparison between multi-layer
+homogeneous and non-homogeneous soils. The findings underscored
+the significance of considering variable thermal conductivities. A
+notable decrease in thermal conductivity in non-homogeneous soil
+layers influenced the temperature gradient, leading to an increase in
+conductor temperature.
+Furthermore, the study presented a novel approach based on FEM,
+referred to as BPNN-FEM. This model leverages historical FEM data to
+enhance its predictive power, thereby increasing efficiency and accu-
+racy. Notably, the BPNN-FEM model is adaptable and refines its internal
+parameters in response to new data. BPNN achieved an impressive R2
+value of 0.99 and a low RMSE of 0.008 during both training and testing
+processes.
+The findings from this analysis significantly contribute to under-
+standing and improving the performance and reliability of underground
+cable power systems. Another key point to note is that in real-world
+situations, multi-layered soil is complex, with various properties that
+can significantly impact the performance of these systems. Therefore, for
+a more accurate assessment, it is essential to consider the changing
+characteristics of soil layers and their potential effects on cable
+performance.
+CRediT authorship contribution statement
+Abdullah Ahmed Al-Dulaimi: Writing – original draft, Writing –
+review & editing, Methodology. Muhammet Tahir Guneser: Concep-
+tualization, Methodology, Supervision. Alaa Ali Hameed: Methodol-
+ogy, Supervision. Fausto Pedro García M´arquez: Formal analysis.
+Osama E. Gouda: Formal analysis, Resources.
+Declaration of competing interest
+The authors declare that they have no known competing financial
+interests or personal relationships that could have appeared to influence
+the work reported in this paper.
+Funding
+This research has received no specific grant from any funding agency
+in the public, commercial, or not-for-profit sectors.
+Appendix A. Supplementary data
+The supplementary information presents the results of maximum temperature calculations for load currents Iload ranging from {805 A:945 A}. This
+analysis includes the first two scenarios: cables in a single-layer homogeneous soil and cables in a multi-layer homogeneous soil. Additionally,
+Supplementary Fig. 5 displays temperature calculation results based FEM for all considered cases, these are subsequently preprocessed to extract the
+maximum values, which are then used as targets for the BPNN. Furthermore, Supplementary Fig. 6 offers a detailed view of Fig. 18 from the main
+Table 4
+Comparison of temperature results for different cases in multi-layer soil.
+Cases
+Configurations
+Backfill materials
+Burial dimensions
+Temperatures ◦C
+Multi-layer homogeneous soil
+Flat
+SCMB
+S = 40, H = 80 cm
+Layers
+Central cable
+L&R cables
+Conductor
+Insulator
+SheathJacket
+82.57
+63.726
+61.56363.724
+81.326
+61.38
+60.24361.378
+Flat
+FTB
+Conductor
+Insulator
+SheathJacket
+81.213
+61.183
+58.85561.181
+79.92
+58.741
+57.49658.739
+Trefoil
+SCMB
+S = 20, H = 80 cm
+Conductor
+Insulator
+SheathJacket
+84.634
+67.6
+65.55167.598
+83.919
+66.21
+64.98564.985
+Trefoil
+FTB
+Conductor
+Insulator
+SheathJacket
+83.144
+64.8
+62.5564.798
+82.543
+63.614
+62.2762.27
+Multi-layers non-homogeneous soil
+Flat
+SCMB
+S = 40, H = 80 cm
+Layers
+Central cable
+L&R cables
+Conductor
+Insulator
+SheathJacket
+83.643
+68.159
+66.1268.157
+81.804
+64.797
+63.63264.795
+Flat
+FTB
+Conductor
+Insulator
+SheathJacket
+82.415
+65.926
+63.73365.924
+80.521
+62.455
+61.17462.453
+Trefoil
+SCMB
+S = 20, H = 80 cm
+Conductor
+Insulator
+SheathJacket
+86.248
+69.799
+67.88969.798
+85.713
+68.712
+67.567.5
+Trefoil
+FTB
+Conductor
+Insulator
+SheathJacket
+84.883
+67.153
+65.05867.151
+84.446
+66.242
+64.91264.912
+A.A. Al-Dulaimi et al.
+\nEngineering Science and Technology, an International Journal 51 (2024) 101658
+16
+paper, focusing on a sub-range for Fig. 6(a)–(f) within the range of {1:500} and for Fig. 6(g) within the range of {1:600}. Finally, we provide
+specifications of the cable used in our study in Supplementary Fig. 7. Supplementary Table 1 presents the RMSE results of the testing process for each
+case using the BPNN-FEM. The final row of the table provides the RMSE results for the testing process, which is based on training with the complete
+dataset from all cases.
+Supplementary data to this article can be found online at https://doi.org/10.1016/j.jestch.2024.101658.
+References
+[1] A. Hajatzadeh Pordanjani, S. Aghakhani, M. Afrand, B. Mahmoudi, O. Mahian,
+S. Wongwises, An updated review on application of nanofluids in heat exchangers
+for saving energy, Energy Convers. Manag. 198 (2019) 111886.
+[2] X. Li, G. Shu, H. Tian, Integrating off-design performance in designing CO2 power
+cycle systems for engine waste heat recovery, Energy Convers. Manag. 201 (2019)
+112146.
+[3] F. Salmon, D. Lacanette, M. Duquesne, A. Godin, 3D fluid–structure simulation of
+innovative composites for the design and thermal management of electronic
+devices, Energy Convers. Manag. 280 (2023) 116824.
+[4] S. Zhang, Y. Yan, Thermal performance of latent heat energy storage system with/
+without enhancement under solar fluctuation for Organic Rankine power cycle,
+Energy Convers. Manag. 270 (2022) 116276.
+[5] L.A. de Araujo Passos, P. van den Engel, S. Baldi, B. De Schutter, Dynamic
+optimization for minimal HVAC demand with latent heat storage, heat recovery,
+natural ventilation, and solar shadings, Energy Convers. Manag. 276 (2023)
+116573.
+[6] G. Gela, J.J. Dai, Calculation of thermal fields of underground cables using the
+boundary element method, IEEE Trans. Power Deliv. 3 (4) (1988) 1341–1347.
+[7] A. Hiranandani, Calculation of conductor temperatures and ampacities of cable
+systems using a generalized finite difference model, IEEE Trans. Power Deliv. 6 (1)
+(1991) 15–24.
+[8] T.A. Haskew, R.F. Carwile, An algorithm for steady-state thermal analysis of
+electrical cables with radiation by reduced Newton-Raphson techniques, 9 (1994)
+526–533.
+[9] G.J. Anders, M. Chaaban, N. Bedard, R.W.D. Ganton, New approach to ampacity
+evaluation of cables in ducts using finite element technique, IEEE Trans. Power
+Deliv. 2 (4) (1987) 969–975.
+[10] P. Ocło´n, P. Cisek, M. Pilarczyk, D. Taler, Numerical simulation of heat dissipation
+processes in underground power cable system situated in thermal backfill and
+buried in a multilayered soil, Energy Convers. Manage. 95 (2015) 352–370.
+[11] E. Kroener, A. Vallati, M. Bittelli, Numerical simulation of coupled heat, liquid
+water and water vapor in soils for heat dissipation of underground electrical power
+cables, Appl. Therm. Eng. 70 (1) (2014) 510–523.
+[12] F. Salata, F. Nardecchia, F. Gugliermetti, A. de Lieto Vollaro, How thermal
+conductivity of excavation materials affects the behavior of underground power
+cables, Appl. Therm. Eng. 100 (2016) 528–537.
+[13] M.A. Hanna, A.Y. Chikhani, M.M.A. Salama, Thermal analysis of power cables in
+multi-layered soil. I. Theoretical model, IEEE Trans. Power Delivery 8 (3) (1993)
+761–771.
+[14] M. Karahan, O. Kalenderli, V. Vikhrenko, Coupled electrical and thermal analysis
+of power cables using finite element method, Heat Transfer-Engineering
+Applications (2011) 205.
+[15] M.S. Al-Saud, M.A. El-Kady, R.D. Findlay, A new approach to underground cable
+performance assessment, Electr. Power Syst. Res. 78 (2008) 907–918.
+[16] C.C. Hwang, Y.H. Jiang, Extensions to the finite element method for thermal
+analysis of underground cable systems, Electr. Power Syst. Res. 64 (2) (2003)
+159–164.
+[17] Y. Liang, Steady-state thermal analysis of power cable systems in ducts using
+streamline-upwind/Petrov-Galerkin finite element method, IEEE Trans. Dielectr.
+Electr. Insul. 19 (2012) 283–290.
+[18] M.S. Al-Saud, M.A. El-Kady, R.D. Findlay, A novel finite-element optimization
+algorithm with applications to power cable thermal circuit design, in: 2007 IEEE
+Power Engineering Society General Meeting, IEEE, June 2007, pp. 1-8.
+[19] H.J. Li, K.C. Tan, Q. Su, Assessment of underground cable ratings based on
+distributed temperature sensing, IEEE Trans. Power Delivery 21 (4) (2006)
+1763–1769.
+[20] M.Z. Degefa, M. Lehtonen, R.J. Millar, Comparison of air-gap thermal models for
+MV power cables inside unfilled conduit, IEEE Trans. Power Delivery 27 (3) (2012)
+1662–1669.
+[21] S. Maximov, V. Venegas, J.L. Guardado, E.L. Moreno, R. L´opez, Analysis of
+underground cable ampacity considering non-uniform soil temperature
+distributions, Electr. Power Syst. Res. 132 (2016) 22–29.
+[22] R. de Lieto Vollaro, L. Fontana, A. Vallati, Experimental study of thermal field
+deriving from an underground electrical power cable buried in non-homogeneous
+soils, Appl. Therm. Eng. 62 (2) (2014) 390–397.
+[23] F. Salata, F. Nardecchia, A. de Lieto Vollaro, F. Gugliermetti, Underground electric
+cables: a correct evaluation of the soil thermal resistance, Appl. Therm. Eng. 78
+(2015) 268–277.
+[24] H. Lu, F. De Leon, D.N. Soni, W. Wang, Two-zone geological soil moisture
+migration model for cable thermal rating, IEEE Trans. Power Delivery 33 (6)
+(2018) 3196–3204.
+[25] O.E.S. Gouda, G.F.A. Osman, W.A. Salem, S.H. Arafa, Cyclic loading of
+underground cables including the variations of backfill soil thermal resistivity and
+specific heat with temperature variation, IEEE Trans. Power Delivery 33 (6) (2018)
+3122–3129.
+[26] O.E. Gouda, A.Z. El Dein, G.M. Amer, Effect of the formation of the dry zone
+around underground power cables on their ratings, IEEE Trans. Power Delivery 26
+(2) (2010) 972–978.
+[27] R. De Lieto Vollaro, L. Fontana, A. Vallati, Thermal analysis of underground
+electrical power cables buried in non-homogeneous soils, Appl. Therm. Eng. 31
+(2011) 772–778.
+[28] C.Z. Fu, W.R. Si, L. Quan, J. Yang, Numerical study of heat transfer in trefoil buried
+cable with fluidized thermal backfill and laying parameter optimization, Math.
+Probl. Eng. (2019).
+[29] C.Z. Fu, W.R. Si, K.K. Fang, J. Yang, Heat transfer simulation and temperature
+rapid prediction for trench laying cable, Math. Probl. Eng. (2021) 1–18.
+[30] P. Ocło´n, P. Cisek, M. Rerak, D. Taler, R.V. Rao, A. Vallati, M. Pilarczyk, Thermal
+performance optimization of the underground power cable system by using a
+modified Jaya algorithm, Int. J. Therm. Sci. 123 (2018) 162–180.
+[31] P. Ocło´n, The effect of soil thermal conductivity and cable ampacity on the thermal
+performance and material costs of underground transmission line, Energy 231
+(2021) 120803.
+[32] P. Ocło´n, M. Rerak, R.V. Rao, P. Cisek, A. Vallati, D. Jakubek, B. Rozegnał,
+Multiobjective optimization of underground power cable systems, Energy 215
+(2021) 119089.
+[33] C. International, E. Commission, INTERNATIONALE INTERNATIONAL
+STANDARD, (2006).
+[34] X. Qi, S. Boggs, Thermal and mechanical properties of EPR and XLPE cable
+compounds, IEEE Electr. Insul. Mag. 22 (3) (2006) 19–24.
+[35] Nexans, HV XLPE insulated XKDCuT, XKDAlT HV XLPE insulated XKDCuT,
+XKDAlT, Nexans. (2021) 7–8. https://www.nexans.ch/en/.
+A.A. Al-Dulaimi et al.

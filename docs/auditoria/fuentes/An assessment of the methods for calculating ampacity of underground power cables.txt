@@ -1,0 +1,638 @@
+This article was downloaded by: [Umeå University Library]
+On: 29 September 2013, At: 12:51
+Publisher: Taylor & Francis
+Informa Ltd Registered in England and Wales Registered Number: 1072954 Registered office: Mortimer House,
+37-41 Mortimer Street, London W1T 3JH, UK
+Electric Power Components and Systems
+Publication details, including instructions for authors and subscription information:
+http://www.tandfonline.com/loi/uemp20
+An Assessment of the Methods for Calculating Ampacity
+of Underground Power Cables
+Faruk Aras a , Cüneyt Oysu b & Güneş Yilmaz c
+a Kocaeli University, Technical Education Faculty, Department of Electrical Education,
+Kocaeli, Turkey
+b Kocaeli University, Engineering Faculty, Mechatronics Engineering, Kocaeli, Turkey
+c Uludağ University, Engineering Faculty, Electronics Engineering, Bursa, Turkey
+Published online: 23 Feb 2007.
+To cite this article: Faruk Aras , Cüneyt Oysu & Güneş Yilmaz (2005) An Assessment of the Methods for Calculating Ampacity
+of Underground Power Cables, Electric Power Components and Systems, 33:12, 1385-1402, DOI: 10.1080/15325000590964425
+To link to this article:  http://dx.doi.org/10.1080/15325000590964425
+PLEASE SCROLL DOWN FOR ARTICLE
+Taylor & Francis makes every effort to ensure the accuracy of all the information (the “Content”) contained
+in the publications on our platform. However, Taylor & Francis, our agents, and our licensors make no
+representations or warranties whatsoever as to the accuracy, completeness, or suitability for any purpose of the
+Content. Any opinions and views expressed in this publication are the opinions and views of the authors, and
+are not the views of or endorsed by Taylor & Francis. The accuracy of the Content should not be relied upon and
+should be independently verified with primary sources of information. Taylor and Francis shall not be liable for
+any losses, actions, claims, proceedings, demands, costs, expenses, damages, and other liabilities whatsoever
+or howsoever caused arising directly or indirectly in connection with, in relation to or arising out of the use of
+the Content.
+This article may be used for research, teaching, and private study purposes. Any substantial or systematic
+reproduction, redistribution, reselling, loan, sub-licensing, systematic supply, or distribution in any
+form to anyone is expressly forbidden. Terms & Conditions of access and use can be found at http://
+www.tandfonline.com/page/terms-and-conditions
+\nEMP 33(12) #64353
+[EIC ID No. 6817]
+Electric Power Components and Systems, 33:1385–1402, 2005
+Copyright © Taylor & Francis Inc.
+ISSN: 1532-5008 print/1532-5016 online
+DOI: 10.1080/15325000590964425
+An Assessment of the Methods for Calculating
+Ampacity of Underground Power Cables
+FARUK ARAS
+Kocaeli University
+Technical Education Faculty
+Department of Electrical Education
+Kocaeli, Turkey
+CÜNEYT OYSU
+Kocaeli University
+Engineering Faculty
+Mechatronics Engineering
+Kocaeli, Turkey
+GÜNE¸S YILMAZ
+Uluda˘g University
+Engineering Faculty
+Electronics Engineering
+Bursa, Turkey
+Endurance of an insulation material to high temperatures determines the maximum
+current-carrying capacity (ampacity) of an underground power cable. Cable ampacity
+is calculated conventionally using the installation conditions and maximum steady-
+state operation temperature according to IEC-60287 standard. In this article, ﬁnite
+element method results are compared with IEC-60287. A further veriﬁcation has
+also been made with experiments. In this work, ampacity analyzes of 154 kV high
+voltage XLPE underground power cable are made using ANSYS 5.61 ﬁnite element
+analysis software. An experimental set-up is developed to measure conductor and
+surface temperature of the cable in underground conditions. The results of experiments
+and numerical calculations are compared to the IEC-60287 standard. Additionally,
+the thermal regions of three cables in ﬂat installation are investigated to show the
+versatility of the ﬁnite element method. The effects of insulation thickness and external
+thermal source on ampacity are also analyzed using the ﬁnite element method.
+Keywords
+ampacity, ﬁnite element, thermal rating, underground power cables
+Manuscript received in ﬁnal form on 17 March 2005.
+Address correspondence to Dr. Faruk Aras, Kocaeli University, Dept. of Electrical Education,
+Anitpark, Izmit, Kocaeli, TR-41100, Turkey. E-mail: arasfa@kou.edu.tr
+1385
+Downloaded by [Umeå University Library] at 12:51 29 September 2013 
+\n1386
+F. Aras et al.
+Introduction
+Underground power cables are more expensive to install and maintain than overhead lines.
+The greater cost of underground installation reﬂects the high cost of materials, equipment,
+labor, and time necessary to manufacture and install the cable. The large capital cost
+investment makes it necessary to use their full capacity. On the other hand, conductor
+temperature of a power cable limits its ampacity (i.e., maximum allowable temperature
+for XLPE insulated cables is 90◦C). Also, the operating temperature adversely affects the
+useful working life of a cable. Excessive conductor temperature may irreversibly damage
+the cable insulation and jacket.
+A successful model was proposed for calculating ampacity of underground cable by
+Neher-McGrath in 1957 [1]. The Neher-McGrath Model has been widely accepted for
+over 40 years. Today, the greater majority of utilities and cable manufacturers have been
+using the IEC-60287 standard [2]. This method employs a lot of simpliﬁcations and has
+its limitations. Thus, it is not reliable for the analysis of complex conﬁgurations.
+The ﬁnite element method (FEM) is more powerful and precise in terms of geomet-
+rical modeling complexity. The ﬁnite element method solves problems that are described
+by partial differential equations, using numerical techniques. A domain to be analyzed is
+represented as an assembly of ﬁnite elements. Approximating functions in ﬁnite elements
+are deﬁned in terms of nodal values of a physical ﬁeld. A continuous physical problem
+is transformed into a discretized ﬁnite element problem with unknown nodal values. For
+linear problems, developed system of linear algebraic equations are solved numerically.
+Values inside ﬁnite elements can be obtained using nodal solutions.
+Although the idea of dividing a continuum into small ﬁnite pieces had been ﬁrst
+suggested by Courant in 1943 [3], the development of the ﬁnite element method coin-
+cided with major advances in computers technology and programming languages. Under
+operation circumstances, the measurement of the conductor temperature of the HV un-
+derground cable is very difﬁcult. Thus, the usual conditions of installation and operation
+can be simulated in laboratory environment. A heating test bed according to IEC62067,
+which is an extension of IEC60840 for higher voltages, is set up to measure temperature
+distribution. The cable loaded with various currents can be investigated. Consequently,
+the thermal rating of the cable can be determined.
+Ampacity analysis of cables with FEM has been studied by many researchers [4–7].
+Lately, an IEC technical report, namely IEC TR 62095 [8], has been published for
+current ratings calculation using the ﬁnite element method when IEC 60287 [2] can-
+not be applied. Nahman and Tanaskovic [9] have measured and modeled thermal re-
+gions outside the cable using FEM. Even if they used linear triangular elements in the
+FEM analysis, their results were in good agreement with their measurements. If they
+had used quadratic quadrilateral elements in their method, improved results could be
+obtained.
+In this project, current rating calculations for power cables in steady-state conditions
+were performed using IEC 60287, ﬁnite element method and experiments. The models
+developed for the ﬁnite element analysis were veriﬁed with IEC 60287 and experiments.
+A numerically efﬁcient ﬁnite element model is obtained with sensitivity analysis. Since
+the domain under the cable is not an isotherm, the control volume to be analyzed is very
+effective in the degree of accuracy of the analysis. Fundamental terms and boundary
+conditions in the FEM analysis were clearly identiﬁed in the results section, which can
+help engineers to develop their models for ratings calculations.
+Downloaded by [Umeå University Library] at 12:51 29 September 2013 
+\nAn Assessment of the Methods for Ampacity
+1387
+Ampacity Calculation
+The ampacity calculation of a power cable using IEC 60287 formulation can be written
+in the following form:
+I =
+
+θc −θa −θd
+(T1 + (1 + λ1)(T3 + T4))Rac
+(1)
+where
+θc
+maximum operating conductor temperature ◦K
+θa
+ambient temperature ◦K
+θd
+temperature rise due to dielectric loss ◦K
+λ1
+sheath loss factor
+Rac
+AC resistance of conductor at temperature θc
+T1, T3, T4 thermal resistances of insulation, covering and soil (◦Km/W), respectively.
+The external thermal resistance T4, depends on the diameter of the cable, the depth of
+laying, the thermal characteristics of the soil, mode of installation and on temperature
+rise generated by neighboring cables.
+Finite Element Method
+A basic equation of heat transfer for an isotropic body with temperature dependent heat
+transfer has the following form:
+−
+∂qx
+∂x + ∂qy
+∂y
+
++ Q = ρc∂θ
+∂t
+(2)
+where qx and qy are components of heat ﬂow through the unit area; Q is the inner heat
+generation rate; q is density; c is thermal heat capacity; θ is temperature, and t is time.
+Fourier’s law describes the heat ﬂow equations as
+qx = −k ∂θ
+∂x ,
+qy = −k ∂θ
+∂y
+(3)
+Here k denotes the thermal coefﬁcient of the material. Substitution of the above relations
+gives
+∂
+∂x
+
+k ∂θ
+∂x
+
++ ∂
+∂y
+
+k ∂θ
+∂y
+
++ Q = ρc∂θ
+∂t
+(4)
+Then the variation of the temperature and temperature gradients inside an element can
+be expressed in terms of nodal temperatures using shape functions Ni as
+{θ} = [N]{θe}
+(5)
+Downloaded by [Umeå University Library] at 12:51 29 September 2013 
+\n1388
+F. Aras et al.
+Differentiation of the temperature ﬁeld gives
+∂θ
+∂x
+
+=
+∂N
+∂x
+
+{θe}
+(6)
+where θe are the nodal temperatures for the eth element. N represents the quadratic shape
+functions for 8-node quadrilateral elements (serendipity elements)
+While shape functions are expressed through the local coordinates ξ, η, the matrix
+contains derivatives in respect to the global coordinates x, y. Derivatives can be easily
+converted from one coordinate system to the other by means of the chain rule of partial
+differentiation:
+
+
+∂Ni
+∂ξ
+∂Ni
+∂η
+
+=
+
+
+∂x
+∂ξ
+∂x
+∂η
+∂y
+∂ξ
+∂y
+∂η
+
+
+(7)
+Using Galerkin method, we can rewrite Eq. (4) in the following form:
+ =
+ 
+
+
+1
+2{θn}T k
+∂2[N]T
+∂x2
+∂2[N]
+∂x2
++ ∂2[N]T
+∂y2
+∂2[N]
+∂y2
+
+{θn}−
+{θn}T [N]T q
+
+dxdy
+(8)
+Equations are rearranged to give stiffness matrix of [K] and force vector of {f } as
+[K] =
+  ∂2[N]T
+∂x2
+∂2[N]
+∂x2
++ ∂2[N]T
+∂y2
+∂2[N]
+∂y2
+
+kdxdy
+(9)
+{f } =
+ 
+[N]T qdxdy
+(10)
+FEM equations are found by minimization of functional  in terms of nodal temperatures.
+ ∂
+∂θn
+
+= 0
+and
+[K]{θn} = {f }
+(11)
+Stiffness matrix [K] and force vector {f } integrals are calculated on each element numer-
+ically (using Gaussian quadrature), and then total stiffness matrix is set up by summation
+of each equation system. The total equation system is then solved for each node.
+Numerical and Experimental Work
+154 kV underground cable in single installation is analyzed using FEM and IEC-60287.
+These results are used for determining the insulation thickness representing the soil’s
+thermal resistance in a thermal rating experiment. Further further loading cycles are then
+applied to the test cable, and the values obtained from a full heating of a cycle is compared
+with FEM and IEC 60287 results. The effects of insulation thickness on current ratings
+Downloaded by [Umeå University Library] at 12:51 29 September 2013 
+\nAn Assessment of the Methods for Ampacity
+1389
+were also analyzed using both methods. Another current rating calculation deﬁned in
+IEC 60287, three cables in ﬂat formation, were also analyzed and compared with FEM
+analysis. A further application of this problem in the case of a heat pipe installed parallel
+to the cable was studied as well.
+154 kV Single Underground Cable Analysis with FEM and IEC
+The ampacity of the underground cable, whose sectional view is illustrated in Figure 1,
+is analyzed using the ﬁnite element method. Under the operation conditions, the amount
+of heat generated from the cable should be calculated to determine ampacity. Since the
+limiting operation temperature of XLPE cables is 90◦C, the heat generated from the
+charged cable should be transferred to the environment to reside under this temperature.
+That’s why the correct calculation of heat transfer from the cable affects the ampacity
+analysis directly. The soil temperature is 20◦C for northern Turkey. 1.2 m is the depth
+the underground cables are normally buried under. However, the temperature and thermal
+properties of soil depend on various parameters like the moisture content, the seasonal
+variations and cable depth. These were reported by Brakelmann [10]. In steady-state oper-
+ation conditions, moisture around the cable can be ignored since the heat generation from
+the cable dry out the moisture nearby. IEC-60287 standard assumes that the properties
+of soil and boundary conditions for the calculations are constant. Using these conditions,
+and assuming the soil is homogenous, heat transfer and ampacity are calculated both by
+IEC-60287 and the ﬁnite element method. The boundary conditions for FEM analysis is
+shown in Figure 2.
+The steady-state calculation of the heat transfer gives general operating ampere ca-
+pacity. For shorter times, this current can be exceeded under cable manufacturer’s limiting
+values. In this analysis, transient effects are not considered, thus time is not a parameter.
+Since the heat transfer coefﬁcients of XLPE and the semi-conductor material are
+very close to each other, they are assumed to be same and are considered as a single
+layer. The effects of coating layers and very thin metallic screens are omitted as their
+thermal resistivities are very small and have very little effect on the results. Generalized
+Figure 1. Sectional view of the cable.
+Downloaded by [Umeå University Library] at 12:51 29 September 2013 
+\n1390
+F. Aras et al.
+Figure 2. The layout position of the 154 kV cable is given above.
+layer dimensions of a 154 kV underground cable and the dielectric losses generated on
+XLPE are as follows:
+DConductor = 37.7 mm
+DXLPE+Semi Conductor = 81.7 mm
+DScreen = 98.7 mm
+DCover = 106.7 mm
+hdepth = 1200 mm
+qdielectric = 3.57 W/m
+ksoil = 1.2 W/Km
+kXLPE = 0.2857 W/Km
+kscreen = 384.6 W/Km
+For the underground cables, the earth surface can be assumed as isotherm as described
+in IEC 62095. The domain under the cable is earth, which is an inﬁnite medium. The
+soil temperature also increases gradually as it gets deeper underneath the earth’s surface.
+However, the soil temperature below 5 meters converges to a certain value and does not
+ﬂuctuate seasonally [10]. That’s why earth underneath the cable can also be taken as
+isotherm at a certain depth. This effective control volume can be found using sensitivity
+analysis. Various control volume sizes are analyzed, and heat transfer rates for the half of
+the region are shown in Figure 3. At the depth of approximately 10 meters, heat transfer
+rate converges to a value within the 1% range. Heat dissipation increases by 0.6% if the
+region to be discretized is increased from 5m to 10 m in depth. Thus, a control volume
+of 10 m depth and 18 m width is taken for all other cases as well.
+The insulation thickness of a cable affects the permissible maximum current and heat
+transfer from the cable. Higher insulation thickness also blocks the heat generated in the
+conductor. Various insulation thicknesses for a 154 kV underground cable are analyzed
+Downloaded by [Umeå University Library] at 12:51 29 September 2013 
+\nAn Assessment of the Methods for Ampacity
+1391
+Figure 3. Sensitivity analysis between the control volume depth and heat dissipation.
+in this example. For each cable, the heat ﬂux is applied on the conductor found by an
+iterative approach. The heat ﬂux is increased gradually until a maximum temperature
+of 90◦C on the conductor is achieved. For the cable with 22 mm XLPE insulation, the
+thermal ﬂux generated on the conductor surface is found to be 0.585 W/m2.
+Since the model is symmetrical about y-axis, only half of the domain is modeled. As
+a general rule of ﬁnite element method, element shapes are kept close to an aspect ratio of
+unity. Heat generation by dielectric losses is applied on the XLPE domain. 1074 elements
+are found to be dense enough for the ﬁnal calculation. FEM analyzes with different mesh
+densities, such as the number of elements 557, 690, 1074, and 1486, have shown that
+the total heat transfer on the conductor converges to a certain value by increasing mesh
+density. This sensitivity analysis regarding mesh density is necessary for evaluating the
+correctness of the FEM analysis as described in IEC TR 62095. The mesh chosen after
+the sensitivity analysis are shown in Figures 4 and 5.
+Figure 6 show that the ampacity for the cable has a difference of around 1% be-
+tween the FEM and IEC 60287 models. The results also illustrated that the reduction in
+the insulation thickness by 22% (from 22 to 17 mm) has an effect of 2.9% increase in
+the ampacity. Since the heat transfer mechanism is conduction, and this is directly pro-
+portional to the contacting surface area, reduction in the diameter reduce both thermal
+barrier and contacting surface.
+Thermal Rating of 154 kV XLPE Power Cable
+The experiment conditions are devised to comply with IEC-62067, which is an extension
+of IEC-60840 for higher voltages section 12.4.7 on power cable systems [11, 12]. Thermal
+rating standards involve a series of heating cycles by conductor current and cooling cycles
+with natural cooling. In a heating cycle range from approximately 310 K to 380 K,
+conductor and shield temperatures measured on experiments can be compared to the
+FEM and IEC-60287 results to observe the performance of the both methods.
+For this purpose, a 15 m of 154 kV XLPE power cable is used in the experiments.
+A heating system is devised using thermocouples and thermal insulators for the temper-
+ature measurements on the conductor and shield of the cable. Thermal resistance of the
+soil is represented with a paper layer which has a thermal conductivity of 0.475 W/Km.
+Downloaded by [Umeå University Library] at 12:51 29 September 2013 
+\n1392
+F. Aras et al.
+Figure 4. FEM mesh around the cable.
+Figure 5. The mesh modeling both the cable and the surrounding soil with 1074 elements.
+Downloaded by [Umeå University Library] at 12:51 29 September 2013 
+\nAn Assessment of the Methods for Ampacity
+1393
+Figure 6. The ampacities for different insulation thickness by both FEM and IEC 60287 model.
+The thickness of the paper layer wrapped on the cable is found by a trial and error
+technique. In steady-state conditions at 363 K conductor temperature, the shield tem-
+perature was measured and compared to the analytical values while the paper thickness
+increased gradually. As the same values of conductor and shield temperatures are ob-
+tained from both analytical calculations and experiments, the wrapped paper thickness
+gives the thermal resistance of the soil. Three thermocouples are used to measure con-
+ductor temperature. One is located at the center and two others are located at a distance
+of one meter from the ends. A precise temperature measurement is achieved by drilling
+the cables till 3 mm in conductors, as shown in Figure 7. The space at the tip of the
+thermocouple and the conductor is ﬁlled with a highly conductive material.
+Figure 7. Experimental layout.
+Downloaded by [Umeå University Library] at 12:51 29 September 2013 
+\n1394
+F. Aras et al.
+Table 1
+Experimental results
+Cycle 10
+Cycle 11
+T-conductor (◦K)
+T-shield (◦K)
+T-conductor (◦K)
+T-shield (◦K)
+319
+298
+327
+304
+321
+300
+330
+307
+335
+313
+339
+316
+351
+322
+355
+324
+369
+330
+365
+329
+381
+337
+375
+332
+382
+338
+377
+333
+382
+338.5
+377
+333
+377
+333
+Four thermocouples are positioned evenly in length on the outer surface of the
+cable. All of the thermocouples are connected to a temperature recorder (Siemens-
+Kompensograph C1015).
+Both ends of the cable are connected to secondary probes of the voltage transformer.
+Then the cable is placed as the secondary winding of a heating transformer. The cable
+is gradually heated up in steps and awaited in each step until the difference between
+each conductor thermocouples are less than 1◦K. Each experimental cycle took at least
+8 hours to reach maximum temperature. Twenty experiments are performed consequently.
+The experimental results in 10th and 11th cycles, when stable periodic conditions were
+achieved, are given in Table 1.
+The results from two cycles construct a continuous path, even if the recorded con-
+ductor temperatures are different in each experiment. The heat dissipation from the cable
+is calculated from the measured conductor and shield temperatures.
+While the experimental setup was calibrated with analytical calculations at 363 K,
+the heating experiments ranged from 320 K to 383 K. Consequently the comparison
+of the FEM and IEC-60287 with experiments gives an indication about both methods’
+performances. The currents necessary to generate the heat versus conductor temperature
+are plotted on Figure 8. There is a difference between the FEM and experiment results
+at lower temperatures. Since the speed of the heating is too high at the beginning of the
+experiment, the converged temperature values have not been reached. However on the
+rest of the graph, experimental results are very close to FEM results.
+At the beginning of the experiment, the current was increased so much that cal-
+culations under steady-state conditions would not be expected to conform. The heating
+process after 340◦K became more stable and the ratio changed linearly. FEM and IEC-
+60287 analysis were performed using homogenous and isotropic material properties.
+Nonhomogenous effects in cable layers, like the screen and ﬁlling materials, deteriorate
+the analysis conditions. Therefore, small differences between the results are very obvious.
+Analysis of 154 kV Three Cables in Flat Installation Using FEM
+In the analysis of three cables in ﬂat installation, the distances between the cables are
+considered to be twice the cable’s diameter, as given in IEC-60287. Thermal and geo-
+Downloaded by [Umeå University Library] at 12:51 29 September 2013 
+\nAn Assessment of the Methods for Ampacity
+1395
+Figure 8. Conductor temperature while current increases.
+metrical properties of the cable are as given in single cable layout analysis with 22 mm
+XLPE insulation. The cable installation is shown in Figure 9. The earth is assumed to
+be homogenous and isotropic for the FEM analysis.
+The heat generation boundary conditions are applied at each conductor and increased
+gradually until the center conductor temperature reaches 90◦C. The heat transfer is
+44.4 W/m while the conductor temperature at the center is 90◦C and at the sides are
+85.08◦C. Besides the thermal boundary conditions applied on the cable, the dielectric
+losses are also estimated (wd = 3.57 W/m) and applied as a thermal source over the
+XLPE.
+Figure 9. 154 kV cable installed in ﬂat conﬁguration.
+Downloaded by [Umeå University Library] at 12:51 29 September 2013 
+\n1396
+F. Aras et al.
+Figure 10. FEM model and boundary conditions.
+Cable layout in Figure 9 shows that the domain to be considered is symmetrical
+in y-axis. Utilization of symmetrical boundary conditions as shown in Figure 10 on the
+analysis saves modeling and computation time signiﬁcantly, especially in large problems.
+Symmetric boundary condition can be used by assuming the heat transfer on the symmetry
+lines are adiabatic. The mesh around the three cable installations are shown in Figures 11
+and 12.
+Thermal contours of the region nearby the cables are given in Figures 13 and 14.
+These ﬁgures illustrate that the heat transfer from the cable at the center is lower than the
+others. Thus, the ampacity analysis should be made for the center cable, as it is the most
+critical one. IEC-60287 also considers the center cable as the signiﬁcant cable on its cal-
+culations. In the IEC calculations, the ampacity is 2.4% less than the numerical analysis.
+Heat transfer from the cables and the ampacity values estimated using two methods
+are given below.
+Heat transfer (IEC-60287)
+QAN = 42.35 W/m
+Heat transfer (ﬁnite element method)
+QFEM = 44.4 W/m
+Ampacity (analytical)
+IAN = 1296 A
+Ampacity (ﬁnite element method)
+IFEM = 1327 A
+Downloaded by [Umeå University Library] at 12:51 29 September 2013 
+\nAn Assessment of the Methods for Ampacity
+1397
+Figure 11. FEM model with 948 elements and 3001 nodes.
+Figure 12. Mapped mesh around the cables.
+Downloaded by [Umeå University Library] at 12:51 29 September 2013 
+\n1398
+F. Aras et al.
+Figure 13. Temperature distribution between the cable and surrounding.
+Analysis of 154 kV Cable by a Heat Source
+In many cases, cable routes cross other cables or steam pipes. Due to the thermal in-
+terference in the crossing region, the cable ampacities can be decreased noticeably [13].
+Analytical methods give poor results because of the geometrical complexity. However,
+FEM can easily analyze this kind of problem. In this numerical analysis, a heat pipe with
+insulation buried 600 mm below the surface is considered as shown in Figure 15. The
+steam temperature is normally higher than 100◦C, and under steady-state conditions, the
+temperature on the surface of insulation is assumed to be a 60◦C isotherm. Cable and
+pipe crossing at an angle involves a three-dimensional analysis. However, the worst case
+occurs when they are run in parallel in a trench. That’s why the cable properties and
+installation dimensions are as given in the three cables installation case previously. The
+heat generation on the conductor is again estimated by increasing the heat generation
+Figure 14. Temperature distribution around the cable.
+Downloaded by [Umeå University Library] at 12:51 29 September 2013 
+\nAn Assessment of the Methods for Ampacity
+1399
+Figure 15. Cables parallel to steam pipe with boundary conditions.
+gradually, until 90◦C conductor temperature is reached. The mesh for FEM analysis is
+given in Figure 16.
+When three cables are installed parallel to a heat pipe at 60 cm distance, the ampacity
+of the cable becomes 1236 A. Three cable installations without steam pipes have an
+ampacity of 1327 A, and a derating factor is necessary for application of crossing heat
+sources. For this case, the derating factor is 0.92. When the same boundary conditions
+given in the Finite Element Method section is applied to the case with steam pipe, a
+temperature rise of 9.4◦C on the conductor is observed. Figure 17 shows the temperature
+distribution after the FEM analysis.
+Ampacity of 154 kV cable with 22 mm XLPE insulation under different conditions
+are calculated by FEM as:
+FEM (A)
+Analytical (A)
+% difference
+Single cable
+1657
+1635
+1.3
+Three cables
+1327
+1296
+2.4
+Three cables and heat source
+1236
+1130
+9.4
+Downloaded by [Umeå University Library] at 12:51 29 September 2013 
+\n1400
+F. Aras et al.
+Figure 16. FEM mesh with 1215 elements.
+Figure 17. Temperature distribution around the cables and steam pipe.
+Downloaded by [Umeå University Library] at 12:51 29 September 2013 
+\nAn Assessment of the Methods for Ampacity
+1401
+Conclusions
+The analytical modeling of heat transfer mechanism by IEC-60287 works well in simple
+cable installations. However, simplifying assumptions and empirical correlation to obtain
+the analytical method can be signiﬁcant in complex installations like crossing cable
+ducts, cables on trays, cables near buildings, cable splices, etc., thus making the solution
+become impossible. Today’s computer technology gives ﬁnite element method a capability
+to solve any of these cases with very complex geometrical conﬁguration. It can solve
+complex installations in any environment and subjected to any type of load condition
+together with transient analysis efﬁciently. When the cable surrounding is composed of
+various materials with different thermal resistivities, IEC-60287 formulation fails to get
+an acceptable result.
+The numerical solutions for the underground cables showed that the ﬁnite element
+method gives a solution in any domain free from any geometrical complexities. Conse-
+quently, an improved calculation of ampacity saves the investment and operation expenses
+considerably. Currently, used power cables can be operated with higher capacity. In three
+cable installation analysis using FEM, the temperature distribution inside and around the
+cable is also determined, which is not possible using the analytical approximations. This
+is useful when the temperature ﬁeld and speciﬁc isotherms around the cable are to be
+found out. The difference in the ampacity analysis using FEM and analytic solution of
+single cable increases in the three cable layout case.
+Cables installed near the other heat sources have to be treated carefully. FEM results
+showed that the ampacity should be decreased by 8%. Derating factors of 0.92 found
+empirically could be used in crossing cable cases. However, FEM gives almost exact
+solutions to these kinds of problems. The mutual heating of the cables are more accurately
+handled in FEM.
+In this study, FEM and IEC methods are assessed for some common problems. The
+boundary conditions and control volume determined are similar for a wide range of
+problems. Models for the problems with more geometric complexity can be developed
+using the similar approach given in this publication. Additionally the various soil thermal
+properties depending on the moisture content can be easily analyzed by FEM.
+References
+1. J. H. Neher and M. H. McGrath, “The calculation of the temperature rise and load capability
+of cable systems,” AIEE Trans., vol. 76, pp. 752–772, 1957.
+2. IEC Publication 60287, Calculation of the Continuous Current Ratings of Cables, 1982.
+3. R. Courant, “Variational methods for the solution of problems of equilibrium and vibration,”
+Bulletin of American Mathematical Society, vol. 49, pp. 1–43, 1943.
+4. G. J. Anders, Rating of Electric Power Cables, New York: McGraw Hill, pp. 295–311, 1997.
+5. C. C. Hwang, J. J. Chang, and H. Y. Chen, “Calculation of ampacities for cables in trays using
+ﬁnite elements,” Electric Power Systems Research, vol. 54, pp. 75–81, 2000.
+6. M. Chaban and J. Leduc, “Using the ﬁnite element method for complex cable ampacity cal-
+culations: A more accurate and much more ﬂexible alternative to the conventional analytical
+methods,” Proc. of the 5th Int. Conf. on Insulated Power Cables, Paris, France, p. A6.3, 20–24
+June 1999.
+7. R. C. Kemp, K. W. Barber, G. D. Barnewall, M. Jansen, M. Muxworthy, R. Piechota, and
+Y. Soetopo, “A ﬁnite element computer program for the thermal analysis, design and monitoring
+of underground and aerial high and medium voltage insulated cable systems,” Proc. of the 5th
+Int. Conf. on Insulated Power Cables, Paris, France, p. A6.5, 20–24 June 1999.
+Downloaded by [Umeå University Library] at 12:51 29 September 2013 
+\n1402
+F. Aras et al.
+8. IEC Technical report TR-62095, Electric Cables—Calculations for Current Ratings—Finite
+Element Method, 2003.
+9. J. Nahman and M. Tanaskovic, “Determination of the current carrying capacity of cables using
+the ﬁnite element method,” Electric Power Systems Research, vol. 61, pp. 109–117, 2002.
+10. H. Brakelmann, “Physical principles and calculation methods of moisture and heat transfer in
+cable trenches,” Report No. AK 411.0.3 K, Universitat Duisburg, September 1993.
+11. IEC Publication 62067, Power Cables with Extruded Insulation and their Accessories for Rated
+Voltage above 150 kV up to 500 kV—Test Methods and Requirements, 2001.
+12. IEC Publication 60840, Power Cables with Extruded Insulation and their Accessories for Rated
+Voltage above 30 kV up to 150 kV—Test Methods and Requirements, 2004.
+13. G. Anders and H. Brakelmann, “Cable crossing—Derating consideration,” IEEE Trans. Power
+Delivery, vol. 14, pp. 709–720, July 1999.
+Downloaded by [Umeå University Library] at 12:51 29 September 2013 

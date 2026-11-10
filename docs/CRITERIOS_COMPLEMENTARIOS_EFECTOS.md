@@ -1,0 +1,9 @@
+# Interpretación de efectos y localización del máximo
+
+Fijado durante B, antes de comenzar D, como desarrollo de la condición del plan «variabilidad menor que el efecto relevante». No modifica entrenamiento, selección ni puertas de aceptación A–D.
+
+Para cada par de escenarios se publican la diferencia FEM de Tmax, el cambio de esa diferencia entre las últimas mallas, las tres diferencias PINN pareadas y su rango. Un efecto se califica como resuelto por esta campaña solo cuando las seis ejecuciones del par están aceptadas, las tres diferencias conservan el signo FEM, su rango es menor que el módulo del efecto FEM y el cambio de malla del efecto es menor que ese módulo. Son controles empíricos de resolución: tres semillas y una diferencia de mallas no producen un intervalo estadístico ni una cota matemática de error.
+
+La ubicación del punto caliente se informa sobre la nube común independiente, restringida a conductores. También se conserva la máxima FEM sobre sus grados de libertad. El máximo muestreado PINN no certifica la ubicación del máximo continuo; la elevada conductividad del núcleo puede producir temperaturas casi iguales sobre posiciones distintas. No se adjudica exactitud milimétrica de localización sin una búsqueda y refinamiento propios. Esta limitación se mantiene en las conclusiones de OE3.
+
+Incidencias de implementación antes de B: el muestreo cercano de un estrato que no contiene el cable necesitó ampliar su alcance; se comprobó que no cambia las veinte nubes de control de A (`sampling_fix_audit.json`). La evaluación FEM de una celda P2 curva necesitó ampliar la búsqueda geométrica cuando faltaba un candidato del material declarado, manteniendo la comprobación inversa de celda. El control XLPE repetido conserva idénticos campo y grados de libertad (`fem_search_regression/comparison.json`). Se conservan las huellas de cada versión de fuente, sin atribuir a todas las ejecuciones un único archivo posterior.

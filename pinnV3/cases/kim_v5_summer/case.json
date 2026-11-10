@@ -1,0 +1,241 @@
+{
+  "schema": "pinn-v3-case-1",
+  "id": "kim_v5_summer",
+  "family": "cable",
+  "legacy_kind": "cable",
+  "domain": {
+    "bounds": [
+      -4.0,
+      4.0,
+      -4.0,
+      0.0
+    ]
+  },
+  "temperature": {
+    "reference_C": 15.2,
+    "scale_K": 50.0
+  },
+  "conductors": {
+    "centers": [
+      [
+        -0.4,
+        -1.6
+      ],
+      [
+        0.0,
+        -1.6
+      ],
+      [
+        0.4,
+        -1.6
+      ],
+      [
+        -0.4,
+        -1.2
+      ],
+      [
+        0.0,
+        -1.2
+      ],
+      [
+        0.4,
+        -1.2
+      ]
+    ],
+    "radius_m": 0.11,
+    "layers": [
+      {
+        "inner_radius_m": 0,
+        "outer_radius_m": 0.0212,
+        "k_W_mK": 400
+      },
+      {
+        "inner_radius_m": 0.0212,
+        "outer_radius_m": 0.0232,
+        "k_W_mK": 0.2857
+      },
+      {
+        "inner_radius_m": 0.0232,
+        "outer_radius_m": 0.0402,
+        "k_W_mK": 0.2857
+      },
+      {
+        "inner_radius_m": 0.0402,
+        "outer_radius_m": 0.0415,
+        "k_W_mK": 0.2857
+      },
+      {
+        "inner_radius_m": 0.0415,
+        "outer_radius_m": 0.0425,
+        "k_W_mK": 0.167
+      },
+      {
+        "inner_radius_m": 0.0425,
+        "outer_radius_m": 0.045,
+        "k_W_mK": 237
+      },
+      {
+        "inner_radius_m": 0.045,
+        "outer_radius_m": 0.05,
+        "k_W_mK": 0.2857
+      },
+      {
+        "inner_radius_m": 0.05,
+        "outer_radius_m": 0.1,
+        "k_W_mK": 2.15
+      },
+      {
+        "inner_radius_m": 0.1,
+        "outer_radius_m": 0.11,
+        "k_W_mK": 0.2857
+      }
+    ],
+    "pair": null
+  },
+  "electrical": {
+    "power_W_m": 15.895407599999999,
+    "current_A": 1026.0,
+    "R20_ohm_m": 1.51e-05,
+    "alpha_1_K": 0.00393
+  },
+  "material": {
+    "k_base_W_mK": 1.365,
+    "patch": {
+      "center": [
+        0.0,
+        -1.4
+      ],
+      "size": [
+        1.3,
+        0.9
+      ],
+      "k_W_mK": 2.094,
+      "edge_smoothing_m": 0.1
+    },
+    "bands": [
+      [
+        -0.56,
+        1.804,
+        1.351
+      ],
+      [
+        -1.76,
+        1.351,
+        1.517
+      ]
+    ]
+  },
+  "provenance": {
+    "citation": "Kim et al. 2025 (Geothermics 125:103151); 9-layer cable data of the corrected 2025 datasheet",
+    "adaptation": "Controlled 8 x 4 m domain (the paper domain is far larger); DC losses at 20 C; uniform circular source per conductor. Layer 8 is CLSM-RS10 (k=2.15) and layer 9 the PE casing (k=0.2857)."
+  },
+  "title": "Kim 2025, six cables in PAC bedding, summer: Robin top, Dirichlet sides and bottom",
+  "definition": {
+    "boundary_conditions": {
+      "top": {
+        "type": "robin",
+        "h": {
+          "value": 14.605,
+          "unit": "W/(m2 K)"
+        },
+        "T_inf": {
+          "value": 27.2,
+          "unit": "degC"
+        }
+      },
+      "bottom": {
+        "type": "dirichlet",
+        "temperature": {
+          "value": 15.2,
+          "unit": "degC"
+        }
+      },
+      "left": {
+        "type": "dirichlet",
+        "temperature": {
+          "value": 15.2,
+          "unit": "degC"
+        }
+      },
+      "right": {
+        "type": "dirichlet",
+        "temperature": {
+          "value": 15.2,
+          "unit": "degC"
+        }
+      }
+    },
+    "contact": [],
+    "provenance": [
+      {
+        "id": "kim2025",
+        "citation": "Kim et al., Geothermics 125:103151 (2025)",
+        "doi": "10.1016/j.geothermics.2024.103151"
+      },
+      {
+        "id": "kim_example_csv",
+        "citation": "examples/kim_2024_154kv_bedding/data (boundary_conditions.csv and cable csv files of this repository)"
+      },
+      {
+        "id": "legacy_kim_layered",
+        "citation": "Benchmarks/cases/kim_layered.json (inherited controlled-domain adaptation)"
+      }
+    ],
+    "data_status": {
+      "geometry": {
+        "status": "supuesto",
+        "source": "legacy_kim_layered",
+        "note": "Cable positions and radii follow the paper layout; the 8 x 4 m domain is a controlled reduction of the paper domain"
+      },
+      "materials": {
+        "status": "publicado",
+        "source": "kim2025",
+        "note": "Layers 1-7 from the datasheet; layer 8 CLSM-RS10 k=2.15; layer 9 PE casing k=0.2857; soil strata and PAC patch k from the example csv"
+      },
+      "source": {
+        "status": "supuesto",
+        "source": "legacy_kim_layered",
+        "note": "1026 A, Cu 1200 mm2 (published); losses are DC at 20 C with alpha=0.00393 1/K for copper (user decision B8)"
+      },
+      "boundary_conditions": {
+        "status": "extraido",
+        "source": "kim_example_csv",
+        "note": "Top Robin T_air 27.2 C and Dirichlet 15.2 C on the other sides from the example csv; h=14.605 from the published formula h=7.371+6.43*v^0.75 with v=1.17 m/s"
+      }
+    },
+    "inconsistencies": [
+      {
+        "field": "alpha",
+        "values": {
+          "paper": 0.0393,
+          "used": 0.00393
+        },
+        "resolution": "Copper conductor: 0.00393 1/K (user decision B8); 0.0393 is not used"
+      },
+      {
+        "field": "top.h",
+        "values": {
+          "csv": 7.371,
+          "formula_summer": 14.605,
+          "formula_winter": 15.289
+        },
+        "resolution": "csv keeps only the no-wind term; the published formula with v=1.17 m/s is used for summer"
+      },
+      {
+        "field": "current_and_conductor",
+        "values": {
+          "readme": "865 A, 1000 mm2 Al",
+          "paper": "1026 A, 1200 mm2 Cu"
+        },
+        "resolution": "Paper values used"
+      },
+      {
+        "field": "winter.T_air",
+        "values": {
+          "winter_air_temperature": "not found in the repository sources"
+        },
+        "resolution": "No winter case is defined; it is not invented"
+      }
+    ]
+  }
+}

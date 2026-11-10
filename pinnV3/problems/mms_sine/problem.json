@@ -1,0 +1,65 @@
+{
+  "schema": "pinn-v3-problem-1",
+  "id": "mms_sine",
+  "title": "Manufactured sine field on a unit square",
+  "domain": {
+    "shape": "rectangle",
+    "bounds": [
+      0.0,
+      1.0,
+      0.0,
+      1.0
+    ]
+  },
+  "temperature_scale_K": 30.0,
+  "regions": [
+    {
+      "id": "domain",
+      "shape": {
+        "type": "rectangle",
+        "bounds": [
+          0.0,
+          1.0,
+          0.0,
+          1.0
+        ]
+      },
+      "conductivity": 1.0,
+      "source": {
+        "expression": "60*pi**2*sin(pi*x)*sin(pi*y)"
+      },
+      "priority": 0
+    }
+  ],
+  "boundaries": {
+    "bottom": {
+      "type": "dirichlet",
+      "value": {
+        "expression": "20 + 30*sin(pi*x)*sin(pi*y)"
+      }
+    },
+    "top": {
+      "type": "dirichlet",
+      "value": {
+        "expression": "20 + 30*sin(pi*x)*sin(pi*y)"
+      }
+    },
+    "left": {
+      "type": "dirichlet",
+      "value": {
+        "expression": "20 + 30*sin(pi*x)*sin(pi*y)"
+      }
+    },
+    "right": {
+      "type": "dirichlet",
+      "value": {
+        "expression": "20 + 30*sin(pi*x)*sin(pi*y)"
+      }
+    }
+  },
+  "reference": {
+    "exact": {
+      "expression": "20 + 30*sin(pi*x)*sin(pi*y)"
+    }
+  }
+}

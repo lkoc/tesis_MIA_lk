@@ -1,0 +1,238 @@
+{
+  "metadata": {
+    "case": {
+      "id": "aras_flat",
+      "kind": "cable",
+      "bounds": [
+        -4.0,
+        4.0,
+        -4.0,
+        0.0
+      ],
+      "T0": 20.0,
+      "scale": 50.0,
+      "cables": [
+        [
+          -0.33,
+          -1.2
+        ],
+        [
+          0.0,
+          -1.2
+        ],
+        [
+          0.33,
+          -1.2
+        ]
+      ],
+      "radius": 0.05335,
+      "layers": [
+        [
+          0,
+          0.01885,
+          400
+        ],
+        [
+          0.01885,
+          0.04085,
+          0.2857
+        ],
+        [
+          0.04085,
+          0.04935,
+          384.6
+        ],
+        [
+          0.04935,
+          0.05335,
+          0.45
+        ]
+      ],
+      "power": 18.60471,
+      "current": 1110.0,
+      "R20": 1.51e-05,
+      "alpha": 0.00393,
+      "k": 1.0,
+      "patch": null,
+      "bands": [],
+      "pair": null,
+      "source": "examples/aras_2005_154kv_flat/data",
+      "adaptation": "Dominio controlado 8 x 4 m; Dirichlet 20 C; p\u00e9rdidas DC a 20 C; flujo circular uniforme. Kim usa nueve capas de la ficha corregida de 2025."
+    },
+    "case_sha256": "be7390f489c453486036dacced8639c0da46024b2054c7464c91f028603e3006",
+    "seed": 37,
+    "torch": "2.9.0+xpu",
+    "python": "3.12.9 (tags/v3.12.9:fdb8142, Feb  4 2025, 15:27:58) [MSC v.1942 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26100-SP0",
+    "device": "cpu",
+    "dtype": "float64",
+    "threads": 1,
+    "width": 32,
+    "depth": 3,
+    "parameters": 2262,
+    "adam": 1200,
+    "lbfgs_max_iter": 1600,
+    "lbfgs_closure_calls": 1772,
+    "n_interior": 1532,
+    "training_seconds": 91.27373329999682,
+    "final_loss": 5.497037651871231e-05,
+    "training_parts": {
+      "pde": 8.872354922946844e-07,
+      "bc": 9.596304810136813e-07,
+      "flux": 2.3189293122082943e-06,
+      "interface": 0.0,
+      "energy": 1.444458991278888e-10,
+      "electrical": 2.446820134168029e-11,
+      "temperature_limit": 0.0
+    },
+    "fem_labels_used": 0,
+    "variant": "multipole",
+    "coupled": true,
+    "ampacity": false,
+    "temperature_limit_C": 90.0,
+    "loss_model": {
+      "type": "dc_linear_temperature",
+      "reference_temperature_C": 20.0,
+      "temperature_tolerance_K": 1e-05,
+      "temperature_limit_C": 90.0,
+      "max_iterations": 500,
+      "law": "P_j = I_j^2 * R20_j * (1 + alpha_j * (T_conductor_j - 20))",
+      "coupling": "individual conductor temperature; same law in PINN and FEniCSx",
+      "excluded_losses": [
+        "dielectric",
+        "screen",
+        "sheath",
+        "skin_effect",
+        "proximity_effect"
+      ]
+    },
+    "configuration": {
+      "cases": [
+        "aras_flat"
+      ],
+      "seeds": [
+        37
+      ],
+      "adam": 1200,
+      "lbfgs": 1600,
+      "width": 32,
+      "depth": 3,
+      "n": 768,
+      "threads": 1,
+      "lr": 0.001,
+      "pde_weight": 25.0,
+      "bc_weight": 10.0,
+      "flux_weight": 10.0,
+      "energy_weight": 10.0,
+      "evaluate_only": false,
+      "coupled": true,
+      "ampacity": false,
+      "temperature_limit": 90.0,
+      "variant": "multipole"
+    },
+    "source_sha256": {
+      "Benchmarks\\pinn.py": "e14a94529b8da1d89e9680fc39e1716e342da7b1afb63311bae791b0e01fca11",
+      "Benchmarks\\cases.py": "275f22c1e683fb5308ab5e87bdf0b77ec09499bdacaa8f21110fd26beea488bf",
+      "Benchmarks\\expressions.py": "b59d46dfb4094c4e79f491384c7baef6641fb4753cd87fcb8a588f72164596e6",
+      "Benchmarks\\electrothermal.py": "4027a8b004e5d202f871281372e09ed92b7cd52245b2ccc2eab66e3f8b30a1f7",
+      "Benchmarks\\electrical_model.json": "032fd4d752b1e7b9653edfa3a308b8c5dec75fa36af5ebb19e9ece282d71569b",
+      "pinn_cables\\pinn\\pde.py": "eaf35d49d2c043ea300b6087fc06eb7c5d9563041855b8f3dc24001e05f53a40"
+    }
+  },
+  "Tmax_C": 54.44945306084851,
+  "conductor_C": [
+    51.906780559905094,
+    54.44945306084851,
+    51.90077871826168
+  ],
+  "net_flux_W_m": -0.0022593121778875513,
+  "source_W_m": 0.0,
+  "throughput_W_m": 126.01725462690673,
+  "balance_pct": 0.0035857187725229995,
+  "pde_rmse_W_m3": 0.06877834336660077,
+  "boundary_diagnostics": [
+    {
+      "boundary": "bottom",
+      "net_outward_heat_W_m": 16.217434048245845,
+      "temperature_rmse_K": 0.029414552709738775,
+      "temperature_max_error_K": 0.0471450650018852
+    },
+    {
+      "boundary": "top",
+      "net_outward_heat_W_m": 41.19144338326051,
+      "temperature_rmse_K": 0.01706472569121355,
+      "temperature_max_error_K": 0.06112863722427164
+    },
+    {
+      "boundary": "left",
+      "net_outward_heat_W_m": 2.7929855911296535,
+      "temperature_rmse_K": 0.02110612385007649,
+      "temperature_max_error_K": 0.057296633341515246
+    },
+    {
+      "boundary": "right",
+      "net_outward_heat_W_m": 2.7958401078883983,
+      "temperature_rmse_K": 0.028270088914371085,
+      "temperature_max_error_K": 0.061836709421672964
+    },
+    {
+      "boundary": "cable0",
+      "net_outward_heat_W_m": -20.93818944067216,
+      "prescribed_heat_into_soil_W_m": 20.93816157865163,
+      "computed_heat_into_soil_W_m": 20.93818944067216,
+      "relative_power_error_pct": 0.00013306813220204106,
+      "flux_rmse_W_m2": 0.0333412337293632,
+      "flux_max_error_W_m2": 0.05544604258332697
+    },
+    {
+      "boundary": "cable1",
+      "net_outward_heat_W_m": -21.124104166862054,
+      "prescribed_heat_into_soil_W_m": 21.12409967834715,
+      "computed_heat_into_soil_W_m": 21.124104166862054,
+      "relative_power_error_pct": 2.1248313397670415e-05,
+      "flux_rmse_W_m2": 0.07014641025025027,
+      "flux_max_error_W_m2": 0.10209298645185072
+    },
+    {
+      "boundary": "cable2",
+      "net_outward_heat_W_m": -20.937668835168072,
+      "prescribed_heat_into_soil_W_m": 20.937682539652357,
+      "computed_heat_into_soil_W_m": 20.937668835168072,
+      "relative_power_error_pct": 6.545368265165052e-05,
+      "flux_rmse_W_m2": 0.03333525789099196,
+      "flux_max_error_W_m2": 0.05553457401394013
+    }
+  ],
+  "current_A": 1110.0,
+  "powers_W_m": [
+    20.93816157865163,
+    21.12409967834715,
+    20.937682539652357
+  ],
+  "resistance_ohm_m": [
+    1.6993881648122416e-05,
+    1.714479318103007e-05,
+    1.699349284932421e-05
+  ],
+  "electrical_residual_pct": 0.002678949459357115,
+  "rmse_fem_K": 0.012147655649773888,
+  "nrmse_fem_pct": 0.035264818739317284,
+  "max_error_fem_K": 0.05892897678753428,
+  "Tmax_fem_C": 54.44695332073345,
+  "error_Tmax_K": 0.0024997401150628207,
+  "error_Tmax_rise_pct": 0.0072567814395307914,
+  "thermal_criteria_pass": true,
+  "evaluation": {
+    "completed_utc": "2026-09-10T18:16:10.982271+00:00",
+    "source_sha256": {
+      "Benchmarks\\pinn.py": "471caee8bf0c6502ef3faea75d48d52d61e36eeb10d6bbbdde74a57d7b07ecb5",
+      "Benchmarks\\cases.py": "602ae0972312f0b96d442593a61cbf3e41eec877b1d579f8b7a21415453c5ead",
+      "Benchmarks\\expressions.py": "b59d46dfb4094c4e79f491384c7baef6641fb4753cd87fcb8a588f72164596e6",
+      "Benchmarks\\electrothermal.py": "4027a8b004e5d202f871281372e09ed92b7cd52245b2ccc2eab66e3f8b30a1f7",
+      "Benchmarks\\electrical_model.json": "032fd4d752b1e7b9653edfa3a308b8c5dec75fa36af5ebb19e9ece282d71569b",
+      "pinn_cables\\pinn\\pde.py": "eaf35d49d2c043ea300b6087fc06eb7c5d9563041855b8f3dc24001e05f53a40"
+    },
+    "fem_reference": "C:\\usr\\ths_mia_fiis\\tesis_MIA_lk\\Benchmarks\\coupled_results\\aras_flat\\fem_l2.npz",
+    "fem_json_sha256": "2bba0eb3d4d69d7e8b4eae7f772b9c24102f9bf7c8b1009c3a33828104acb9c3"
+  }
+}

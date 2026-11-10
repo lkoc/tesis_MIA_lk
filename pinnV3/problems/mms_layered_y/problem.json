@@ -1,0 +1,98 @@
+{
+  "schema": "pinn-v3-problem-1",
+  "id": "mms_layered_y",
+  "title": "mms_layered_y",
+  "family": "mms",
+  "domain": {
+    "shape": "rectangle",
+    "bounds": [
+      0.0,
+      1.0,
+      0.0,
+      1.0
+    ]
+  },
+  "temperature_scale_K": 30.0,
+  "boundaries": {
+    "bottom": {
+      "type": "dirichlet",
+      "value": {
+        "expression": "20 + where(y <= 0.5, 20*y, 10*(1+(y-0.5)/2))*sin(pi*x)"
+      }
+    },
+    "top": {
+      "type": "dirichlet",
+      "value": {
+        "expression": "20 + where(y <= 0.5, 20*y, 10*(1+(y-0.5)/2))*sin(pi*x)"
+      }
+    },
+    "left": {
+      "type": "dirichlet",
+      "value": {
+        "expression": "20 + where(y <= 0.5, 20*y, 10*(1+(y-0.5)/2))*sin(pi*x)"
+      }
+    },
+    "right": {
+      "type": "dirichlet",
+      "value": {
+        "expression": "20 + where(y <= 0.5, 20*y, 10*(1+(y-0.5)/2))*sin(pi*x)"
+      }
+    }
+  },
+  "reference": {
+    "exact": {
+      "expression": "20 + where(y <= 0.5, 20*y, 10*(1+(y-0.5)/2))*sin(pi*x)"
+    }
+  },
+  "metadata": {
+    "source": {
+      "citation": "Elaboración propia: prueba del formato para estratos discontinuos horizontales",
+      "adaptation": "Dos materiales sin suavizado; continuidad exacta de temperatura y flujo; la fuente se deriva por región"
+    },
+    "original_domain": {
+      "bounds": [
+        0.0,
+        1.0,
+        0.0,
+        1.0
+      ],
+      "interface": {
+        "axis": "y",
+        "position": 0.5
+      }
+    },
+    "original_definition": {}
+  },
+  "regions": [
+    {
+      "id": "domain",
+      "shape": {
+        "type": "rectangle",
+        "bounds": [
+          0.0,
+          1.0,
+          0.0,
+          1.0
+        ]
+      },
+      "conductivity": {
+        "expression": "where(x<=0.5,0.5,2)"
+      },
+      "source": {
+        "expression": "pi**2*where(x<=0.5,0.5,2)*(20+where(x<=0.5,20*x,10*(1+(x-0.5)/2))*sin(pi*y))"
+      },
+      "priority": 0
+    }
+  ],
+  "interfaces": [
+    {
+      "id": "material_interface",
+      "position": 0.5,
+      "axis": "x",
+      "regions": [
+        "domain",
+        "domain"
+      ]
+    }
+  ]
+}
