@@ -1,0 +1,1662 @@
+CAPÍTULO 1. PLANTEAMIENTO DEL PROBLEMA
+1.1 INTRODUCCIÓN
+En el Perú, entre 2010 y 2025, la máxima demanda del Sistema Eléctrico Interconectado
+Nacional (SEIN) aumentó de 4579 MW a 7942 MW. En el mismo período, la participación
+conjunta de la generación solar y eólica pasó de un valor cercano a cero a 9,5 %. Estos
+cambios aumentan la exigencia de transportar energía y aprovechar la capacidad disponible
+de la red (Ministerio de Energía y Minas, 2025; Ministerio de Energía y Minas, 2026b; COES,
+2026b; International Energy Agency, 2025).
+Los cables enterrados se usan en redes colectoras internas de las plantas solares y eólicas;
+así como, en tramos donde el espacio, la servidumbre, la seguridad o la integración urbana
+dificultan construir líneas aéreas (Van Dyke, 2023). Su capacidad de transporte depende,
+además de las características propias del cable1, de la evacuación del calor generado por
+la corriente hacia el lecho de asiento, el suelo de relleno y el suelo nativo en el entorno
+del cable. La ampacidad Imáx es la corriente que el cable puede transportar de manera
+sostenida, bajo las condiciones de instalación especificadas, sin que la temperatura máxima
+del conductor Tmáx supere el límite térmico admisible Tlim (International Electrotechnical
+Commission, 2023:cláusulas 4–5; Enescu et al., 2020:3–5).
+Por tanto, el objeto de estudio es el arreglo de cables–entorno térmico, conformado por
+los cables, su disposición y los materiales circundantes que determinan conjuntamente la
+transferencia de calor (Enescu et al., 2020:1–3; CIGRÉ Working Group B1.87, 2025:41–42).
+Este entorno es heterogéneo cuando su conductividad térmica 2 k(x, y) varía espacialmente
+por la humedad, los estratos de suelos, los distintos suelos de relleno o las interfaces entre
+materiales. Esa variación cambia el campo de temperatura T(x, y), del cual se obtiene la
+temperatura máxima del conductor Tmáx y, mediante el límite térmico, la ampacidad Imáx
+(Enescu et al., 2021:3–4; Khumalo et al., 2025:1,6–7; Xing et al., 2023:3).
+Para estimar la ampacidad suele usarse una representación homogénea equivalente, que
+sustituye esa distribución espacial por una propiedad única. La simplificación puede ocultar
+zonas de baja disipación y conducir a una estimación insegura o conservadora. Una descripción detallada mediante el método de elementos finitos (FEM) u otro método de campo evita
+ese problema, pero requiere construir, mallar y verificar cada escenario (CIGRÉ Working
+Group B1.87, 2025:41–42,93–99; Al-Dulaimi et al., 2024:1–3,12).
+1La estructura del conductor y de las capas concéntricas del cable se describe en la Sección 3.1.1.1 y se
+representa en la Figura 3.2.
+2Debe notarse que algunas fuentes caracterizan el suelo mediante su resistividad térmica ρth, que es la
+inversa de la conductividad, ρth = 1/k. La conductividad térmica k se expresa en W/(m K); la resistividad térmica
+ρth se expresa en K m/W. Por tanto, una mayor resistividad equivale a una menor conductividad.
+
+Por ello, la investigación propone un artefacto basado en una red neuronal informada por
+física (PINN), que incorpora la ecuación de conducción de calor y sus condiciones de frontera
+e interfaz para aproximar T(x, y) (Raissi et al., 2019). El artefacto integrará la representación
+de k(x, y), la estimación de Tmáx e Imáx y los procedimientos de verificación. La Sección 1.2
+separa el problema real, el subyacente y el técnico que motivan esta propuesta.
+La investigación sigue el paradigma de la ciencia del diseño (DSR) y adapta la secuencia
+de Peffers et al. (2007:54–56): identificación y motivación del problema, definición de los
+objetivos de solución, diseño y desarrollo, demostración, evaluación y comunicación. En este
+estudio, la evaluación corresponde a la verificación del artefacto; no se realizará validación
+experimental en campo. Esta adaptación conecta los tres niveles del problema con la
+construcción y verificación de la solución propuesta.
+El primer capítulo desarrolla el diagnóstico, identifica el problema con sus antecedentes
+bibliográficos, lo formula y delimita su justificación y sus alcances. El segundo convierte esa
+formulación en objetivos, hipótesis y dimensiones operativas. El tercero reúne las bases
+teóricas y la definición de términos. El cuarto presenta la metodología DSR y la estrategia
+de verificación. El quinto administra el plan: cronograma, presupuesto y financiamiento. Las
+referencias documentan las fuentes. El Anexo ANEXO 1 presenta la matriz de consistencia
+y el Anexo ANEXO 2, el protocolo preliminar de juicio de expertos.
+1.1.1 PROBLEMÁTICA
+Las redes eléctricas deben atender una demanda siempre creciente e integrar nuevas centrales de generación, especialmente renovables, ubicadas en distintos puntos del sistema.
+En América Latina y el Caribe, la generación eléctrica creció 5,5 % en 2024 y las fuentes
+renovables aportaron 69 %. De esta participación, 45 % correspondieron a centrales hidroeléctricas convencionales y 19 % a generación eólica y solar (Organización Latinoamericana
+de Energía, 2025).
+En el Perú, entre 2010 y 2025, la producción eléctrica nacional pasó de 35 908 GW h a
+65 109 GW h. El aumento acumulado fue 81 % y la tasa media anual, 4 %. En el mismo
+período, la máxima demanda del SEIN subió de 4579 MW a 7942 MW: 73 % acumulado y 3,7 %
+anualizado. Entre 2023 y 2025, la producción aumentó 4,9 % y la máxima demanda, 4,4 %
+(Ministerio de Energía y Minas, 2025:sec. 10.4; Ministerio de Energía y Minas, 2026b:cuadro 4;
+COES, 2026b).
+La longitud acumulada de las líneas de 500 y 220 kV del SEIN aumentó de 8266 km en
+2010 a 17 179 km en 2025, equivalente a un 108 % de crecimiento. La Figura 1.1 compara
+este inventario con la máxima demanda. Desde 2020, el inventario reportado presenta un
+crecimiento relativo menor que la demanda; lo que sugiere una mayor presión sobre las
+redes eléctricas (COES, 2026a; COES, 2026b).
+
+20 000
+8,000 Máxima demanda
+7,500 Variación anual de la longitud acumulada 17 500 (MW) (km)
+7,000 kV SEIN
+15 000 220 del 6,500
+y
+500 6,000
+12 500 de demanda
+5,500
+10 000 Líneas Máxima 5,000
+4,500
+7 500
+2010 2011 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021 2022 2023 2024 2025
+Año
+Figura 1.1: Evolución de la máxima demanda del SEIN y de la longitud acumulada de líneas
+troncales de 500 y 220 kV, 2010–2025. Fuente: Elaboración propia con datos de las estadísticas
+anuales y del reporte de máxima demanda del COES (COES, 2026a; COES, 2026b).
+La exigencia sobre la red también cambia con la composición y ubicación de la generación.
+En 2025, las fuentes renovables aportaron aproximadamente 63 % de la producción nacional,
+donde 52 % correspondieron a centrales hidroeléctricas convencionales y 11 % a recursos no
+convencionales. Como muestra la Figura 1.2, la participación eólica y solar aumentó de un
+valor cercano a cero en 2010 a 9,5 % en 2025. Entre 2023 y 2025 creció 4,2 puntos (Ministerio
+de Energía y Minas, 2025:sec. 10.4; Ministerio de Energía y Minas, 2026b:cuadro 4). Esta
+generación requiere redes colectoras, conexiones y capacidad de transporte entre nuevos
+puntos del SEIN (COES, 2023; International Energy Agency, 2025).
+Los cables enterrados forman parte de las redes colectoras internas de las plantas eólicas
+y solares3. Entre 2023 y 2025 se conectaron al SEIN siete centrales de al menos 80 MW
+—cuatro eólicas y tres solares—, con aproximadamente 1250 MW en conjunto (Osinergmin,
+2024; Ministerio de Energía y Minas, 2024; Ministerio de Energía y Minas, 2026a). La Central
+Eólica Punta Lomitas muestra la escala de esta infraestructura: sus 57 aerogeneradores,
+50 del proyecto original de 260 MW y 7 de la expansión de 36,4 MW, se conectan a circuitos
+colectores de 33 kV. Los 15 circuitos del proyecto original suman unos 75 km de trazado
+según la tabla de parámetros de los circuitos de 33 kV (COES, 2021), y la expansión agrega
+dos circuitos más (COES, 2022a). En conjunto, los 17 circuitos suman unos 85 km de trazado
+y aproximadamente 255 km de cable de 33 kV con tres conductores por circuito. La energía
+se evacúa al SEIN por una línea de transmisión de 60 km (ENGIE Energía Perú, 2023).
+El uso de cables enterrados no se limita a la generación renovable. También aparece
+3XLPE corresponde a cross-linked polyethylene o polietileno reticulado, un material aislante termoestable empleado en cables de potencia (Thue, 1999:9–10; International Electrotechnical Commission, 2014). La estructura
+multicapa de estos cables se describe en la Sección 3.1.1.1 y se muestra en la Figura 3.2.
+
+Participación solar + eólica
+(%) 10 Variación interanual
+2.5
+8 nacional 2 (%)
+6 1.5 generación interanual
+la 1
+en 4 0.5 Variación
+0 Participación
+0 −0.5
+2010 2012 2014 2016 2018 2020 2022 2024 2025
+Año
+Figura 1.2: Participación conjunta de la generación solar y eólica en la producción eléctrica nacional
+del Perú y variación interanual, 2010–2025. Fuente: Elaboración propia con datos del Ministerio de
+Energía y Minas (Ministerio de Energía y Minas, 2025:sec. 10.4; Ministerio de Energía y Minas,
+2026b:cuadro 4). Notas: las barras expresan diferencias en puntos porcentuales, no tasas relativas;
+el valor de 2025 corresponde a cifras preliminares.
+cuando el espacio, la servidumbre, la seguridad, los cruces o la integración urbana dificultan
+construir líneas aéreas (Van Dyke, 2023). En Lima, la reconfiguración Chavarría–Santa Rosa–
+Carapongo incluye un circuito subterráneo de 220 kV (COES, 2022b:13). En Huancayo, el
+proyecto Palián contempla aproximadamente 10 km de trazados subterráneos con cables de
+60 kV (COES, 2022b:168; ProInversión, 2026:3,55–56).
+En conjunto, estos casos muestran que el sistema eléctrico peruano incorpora cables enterrados tanto en redes colectoras de generación como en enlaces de transmisión. La extensión
+y función de esta infraestructura hacen relevante estimar adecuadamente su ampacidad
+para sustentar decisiones de diseño y operación térmica, evitar restricciones innecesarias
+de capacidad y contribuir a la operación confiable de los activos conectados.
+El dimensionamiento y la operación de los cables requieren estimar su ampacidad: la
+corriente máxima que pueden transportar sin superar su temperatura admisible (International
+Electrotechnical Commission, 2023). Este límite depende del cable y de la disipación de
+calor a través del lecho de asiento, el suelo de relleno y el suelo nativo (Fariz et al., 2026;
+Möbius et al., 2025). Por tanto, el análisis debe considerar el arreglo y su entorno enterrado
+como un sistema.
+Los métodos clásicos y las normas aportan la base de cálculo, pero simplifican el entorno
+mediante resistencias térmicas equivalentes y propiedades homogéneas (Neher & McGrath,
+1957:752–760; International Electrotechnical Commission, 2023; International Electrotechnical Commission, 2002). Esta representación puede perder detalle cuando la humedad, los
+
+estratos, el lecho de asiento, el suelo de relleno o las zonas secas cambian la conductividad
+térmica alrededor del cable (Enescu et al., 2021:4–6; Al-Dulaimi et al., 2024:1–3). Por ello,
+instalaciones con cables y corriente iguales pueden alcanzar temperaturas distintas si cambia
+el entorno térmico.
+El impacto de las características térmicas del entorno sobre la ampacidad está documentado
+por varios autores. En Sandton, Sudáfrica, Khumalo et al. (2025:5–6, tabs. 2–3) analizaron un
+cable tripolar XLPE de media tensión en configuración 1 × 3 × 185 mm2, con conductores de
+cobre y entierro directo en suelo nativo. El aumento de la resistividad térmica de 0,6 K m/W
+a 3,7 K m/W redujo la ampacidad de 518 A a 224 A.
+En una planta fotovoltaica ubicada en el sur del Perú, Arias Velasquez et al. (2023:7–8)
+estudiaron tres cables unipolares XLPE de aluminio de 630 mm2, en disposición trébol y a
+33 kV. Obtuvieron 563 A para un suelo uniforme de 1,5 K m/W, frente a 350 A con la resistividad
+reportada para el sitio, de 4,9 K m/W. El segundo cálculo usa además la temperatura del
+terreno del sitio, de modo que la diferencia no se debe solo a la resistividad.
+En un caso simulado sin ubicación geográfica reportada, Atoccsa et al. (2024:15–16) analizaron tres cables unipolares XLPE de 220 kV y 2000 mm2, dispuestos horizontalmente dentro
+de un suelo de relleno con mejora térmica. Estimaron que elevar la resistividad del suelo de
+2,5 K m/W a 3,0 K m/W redujo la ampacidad de 1157 A a 1064 A.
+Por último, Kim et al. (2025:12–16) modelaron en Corea del Sur un banco de seis cables
+XLPE de 154 kV, con conductores de cobre de 1200 mm2, y compararon el uso de hormigón
+de agregado precolocado (PAC, k = 2,1 W/(m K)) con arena natural (k = 1,4 W/(m K)). El
+PAC elevó la ampacidad de aproximadamente 941 A a 988 A y, a igual corriente, redujo la
+temperatura máxima de 78 ◦C a 71 ◦C. La Figura 1.3 reúne los cuatro casos.
+En conjunto, los casos muestran que las propiedades térmicas del suelo nativo y de los
+suelos de relleno modifican la ampacidad y el margen térmico disponible, y que además
+pueden cambiar durante la vida útil. Por ello, la estimación de ampacidad requiere supuestos
+documentados, datos del sitio y modelos que puedan verificarse y actualizarse (Fariz et al.,
+2026; Möbius et al., 2025).
+La dificultad metodológica consiste en elegir una representación adecuada del entorno. El
+modelo homogéneo sustituye la distribución espacial por una conductividad única o promedio,
+denotada keq. Es útil como referencia, pero puede ocultar zonas locales de baja disipación.
+FEM representa la geometría y las propiedades espaciales, aunque requiere construir, mallar
+y verificar cada escenario (CIGRÉ Working Group B1.87, 2025:3–4,93–99; Al-Dulaimi et al.,
+2024:1–3). La literatura revisada no ofrece, para el dominio delimitado, una evaluación
+reproducible que separe los efectos del contraste, el patrón, la extensión y la proximidad
+sobre T(x, y), Tmáx e Imáx.
+
+ρth = 0,6 ρth = 1,5 ρth = 2,5 ρth = 0,48
+k = 1,7; 518 A k = 0,7; 563 A k = 0,4; 1157 A k = 2,1; 988 A
+ρth = 3,0
+ρth = 3,7 ρth = 4,9 k = 0,3; 1064 A∗ ρth = 0,73
+1,200 k = 0,3; 224 A k = 0,2; 350 A −8 % Imáx k = 1,4; 941 A†
+−57 % Imáx −38 % Imáx −5 % Imáx
+(A) 1,000
+Ampacidad 600
+Khumalo et al. Arias Velásquez et al. Atoccsa et al. Kim et al.
+MT; 1 × 3 × 185 mm2 33 kV; 3 × 630 mm2 220 kV; 3 × 2000 mm2 154 kV; 6 × 1200 mm2
+Cu; tripolar Al; unipolares Cu; unipolares Cu; unipolares
+entierro directo trébol plana 2 filas planas
+Figura 1.3: Cambio de ampacidad entre dos valores de resistividad térmica en cuatro instalaciones
+diferentes. Nota: la conductividad térmica es la inversa de la resistividad, k = 1/ρth; en las etiquetas,
+ρth se expresa en K m/W y k en W/(m K). ∗Aproximación local de sensibilidad. †Valor leído
+aproximadamente de la Figura 15 de la fuente, para septiembre y una temperatura del terreno de
+21 ◦C. Fuente: Elaboración propia con datos de Khumalo et al. (2025:5–6, tabs. 2–3), Arias Velasquez
+et al. (2023:7–8), Atoccsa et al. (2024:15–16) y Kim et al. (2025:4,12–13, fig. 15).
+La Figura 1.4 ordena la cadena que conecta la presión de red con el riesgo de decisión.
+La incertidumbre no proviene solo del terreno, sino también de cómo se representa en el
+cálculo. Por ello, el estudio separará el efecto físico de la heterogeneidad del error numérico
+del artefacto. El primero se evaluará mediante escenarios controlados; el segundo, mediante
+referencias analíticas, manufacturadas, FEM y casos publicados (Enescu et al., 2021:4–6;
+CIGRÉ Working Group B1.87, 2025:3–4,93–99).
+Si el modelo subestima la temperatura, puede admitir una corriente excesiva y acelerar el
+envejecimiento del cable (Khumalo et al., 2025:1–2,9). Si la sobreestima, puede restringir
+capacidad disponible y favorecer el sobredimensionamiento (Enescu et al., 2021:4–6; Khumalo et al., 2025:1–2,9). La consecuencia depende tanto de la representación física como
+de la exactitud del cálculo.
+En resumen, la expansión y transformación del SEIN aumentan la exposición a instalaciones
+enterradas cuya capacidad depende de condiciones térmicas difíciles de observar. Una
+representación insuficiente puede producir decisiones inseguras o conservadoras. La brecha
+consiste en determinar, dentro del dominio 2D estacionario, cuándo y cuánto cambian T(x, y),
+Tmáx e Imáx por el contraste, el patrón, la extensión y la proximidad de la heterogeneidad.
+Esta brecha conduce al planteamiento formal del problema y a la evaluación del artefacto
+PINN.
+
+Tramos con cables Entorno térmico
+Efecto no
+enterrados enterrado
+cuantificado sobre
+restricciones de espacio, k(x, y) variable: humedad,
+T (x, y), ∆Tmáx y ∆Imáx servidumbre y seguridad estratos, secado, suelo de relleno
+Representación
+Presión de red Riesgo de decisión
+homogénea
+SEIN, demanda, renovables subestimar: envejecimiento
+k = keq y resistencias continuidad y capacidad sobreestimar: capacidad ociosa
+térmicas equivalentes
+Figura 1.4: Relación entre presión de red, uso de cables enterrados, entorno térmico heterogéneo,
+simplificación homogénea y riesgo de decisión. Fuente: Elaboración propia.
+1.2 IDENTIFICACIÓN Y DESCRIPCIÓN DEL PROBLEMA DE ESTUDIO
+El problema real se manifiesta cuando una estimación térmica que no representa adecuadamente el entorno enterrado sustenta decisiones de ampacidad. Si la temperatura
+se subestima, el cable puede operar por encima de su límite térmico; si se sobreestima,
+puede restringirse capacidad utilizable. La tesis no resolverá por sí sola la planificación ni
+la operación de la red, pero producirá evidencia para reducir esta incertidumbre dentro del
+dominio estudiado.
+El problema subyacente es un vacío de conocimiento: no se ha establecido de forma reproducible cómo el contraste, el patrón, la extensión y la proximidad de las heterogeneidades
+de k(x, y) modifican el campo T(x, y), Tmáx y Imáx frente a una representación homogénea
+equivalente, ni bajo qué condiciones esas diferencias son relevantes. Un promedio simple
+no responde necesariamente esta cuestión porque la geometría, las interfaces y las discontinuidades del suelo interactúan en la conducción del calor (Enescu et al., 2021:4–6; CIGRÉ
+Working Group B1.87, 2025:3–4,93–99).
+El problema técnico de investigación consiste en diseñar y evaluar una formulación computacional integrada, reproducible y verificada que represente explícitamente k(x, y), aproxime T(x, y) y permita cuantificar su efecto sobre Tmáx e Imáx. El artefacto PINN deberá
+documentar exactitud, consistencia física y robustez mediante referencias analíticas, manufacturadas, FEM y casos publicados, sin asumir que supera a los métodos normativos o
+numéricos existentes (International Electrotechnical Commission, 2023; International Electrotechnical Commission, 2002; CIGRÉ Working Group B1.87, 2025:3–4,93–99; Raissi et al.,
+2019:686–690).
+El objeto de estudio es el arreglo de cables–entorno térmico en instalaciones subterráneas.
+Es un objeto físico tangible formado por los cables multicapa y su disposición, el lecho
+de asiento, el suelo de relleno y el suelo nativo; su respuesta está determinada por las
+condiciones térmicas de operación (Enescu et al., 2021:3–6; Institute of Electrical and
+
+Electronics Engineers, 2017; Kim et al., 2025:1,10). La unidad de análisis será una sección
+transversal 2D de este objeto con cables de tipo XLPE, suelo nativo, suelo de relleno y,
+cuando corresponda, suelo de relleno con propiedades térmicas mejoradas.
+El interés no recae en una marca específica de cable. En cambio, se centra en configuraciones
+representativas y reproducibles del objeto, tanto en disposición plana como en trébol. El
+artefacto PINN 2D será el producto tecnológico diseñado y evaluado para representarlo
+computacionalmente; por tanto, no se confundirá con el objeto físico de estudio.
+1.2.1 ANTECEDENTES BIBLIOGRÁFICOS
+La Tabla 1.1 ordena los antecedentes de la fuente más antigua a la más reciente; los
+apartados siguientes los agrupan por tema y también siguen ese orden dentro de cada tema,
+salvo las revisiones, que se citan junto con el trabajo al que se refieren. Ocho de las 23
+fuentes son anteriores a 2021 y se conservan por ser clásicos (Neher & McGrath, 1957),
+normas de la Comisión Electrotécnica Internacional (International Electrotechnical Commission, IEC)
+(International Electrotechnical Commission, 2002), fundamentos metodológicos (Peffers et
+al., 2007; Gregor & Hevner, 2013), el enfoque PINN original (Raissi et al., 2019) o estudios y
+revisiones que siguen siendo referencia del tema (Aras et al., 2005; Ocłoń et al., 2015; Enescu
+et al., 2020). Las 15 restantes son de 2021 o posteriores. La tabla no incluye las estadísticas,
+los planes de transmisión, las normas de producto ni los documentos de proyectos citados
+en la problemática, porque describen el contexto y no aportan un método o resultado sobre
+el problema térmico.
+Tabla 1.1: Evolución cronológica de los antecedentes, de la fuente más antigua a la más reciente. Fuente:
+Elaboración propia a partir de las referencias citadas.
+Año Fuente Aporte al problema Naturaleza
+1957 Neher y McGrath (1957) Formulación clásica de pérdidas, resistencias térmicas Clásico
+y elevación de temperatura.
+2002 International Electro- Corriente cíclica y de emergencia: ciclos de carga y Norma
+technical Commission secado parcial.
+(2002)
+2005 Aras et al. (2005) Comparación de enfoques analíticos y numéricos para Estudio de refecables enterrados; FEM representa fuentes cercanas. rencia
+2007 Peffers et al. (2007) Seis actividades de la ciencia del diseño. Método
+2013 Gregor y Hevner (2013) Artefacto situado y contribuciones abstractas; evalua- Método
+ción por validez, utilidad, calidad y eficacia.
+2015 Ocłoń et al. (2015) Optimización del lecho de asiento: una región de alta Estudio técnico
+conductividad mejora la disipación.
+2019 Raissi et al. (2019) Enfoque PINN para problemas directos e inversos. Fundamento
+PINN
+2020 Enescu et al. (2020) Revisión de la evaluación térmica y del rating; métodos Revisión
+analíticos, circuitales y de campo.
+
+Año Fuente Aporte al problema Naturaleza
+2021 Enescu et al. (2021) Revisión de conceptos y métodos de rating térmico Revisión
+dinámico; influencia del suelo y del secado.
+2022 Lawal et al. (2022) Revisión sistemática de PINN: ventajas y dificultades Revisión
+de entrenamiento.
+2023 Xing et al. (2023) PINN para conducción de calor anisótropa estacionaria Estudio técnico
+3D.
+2023 International Electro- Ecuaciones de corriente admisible y pérdidas en Norma
+technical Commission régimen permanente.
+(2023)
+2023 Arias Velasquez et al. Circuitos de media tensión en una planta fotovoltaica Estudio técnico
+(2023) del sur del Perú; la resistividad del sitio reduce la
+ampacidad.
+2024 Al-Dulaimi et al. (2024) Modelo híbrido FEM y red neuronal para predecir Estudio técnico
+la temperatura del cable en suelos de composición
+variable.
+2024 Atoccsa et al. (2024) Optimización de ampacidad con relleno térmico en Estudio técnico
+cables de alta tensión.
+2024 Delport et al. (2024) Ciclos de evaluación durante el desarrollo; criterios de Método
+abstracción, originalidad, justificación y beneficio.
+2025 Khumalo et al. (2025) Relación entre humedad, resistividad, profundidad y Estudio técnico
+temperatura del suelo.
+2025 Möbius et al. (2025) Efecto de los cambios estacionales y climáticos sobre Revisión
+la ampacidad de los cables.
+2025 Kim et al. (2025) Reducción de temperatura con un material de relleno Estudio técnico
+de mayor conductividad.
+2025 Pan et al. (2025) Reconstrucción de un campo térmico 2D y de sus Estudio técnico
+condiciones de borde con datos limitados.
+2025 Ren et al. (2025) Revisión de la evolución metodológica de las PINN y Revisión
+de sus dificultades de entrenamiento.
+2025 CIGRÉ Working Group Casos heterogéneos y verificación de las herramientas Recomendación
+B1.87 (2025) de rating por elementos finitos. técnica
+2026 Fariz et al. (2026) Mapeo sistemático de los estudios de rating térmico Revisión
+dinámico de cables enterrados.
+1.2.1.1 MODELOS TÉRMICOS Y AMPACIDAD
+Neher y McGrath (1957:752–772) establecieron una formulación clásica para relacionar
+pérdidas, resistencias térmicas y elevación de temperatura. Por tanto, su trabajo es una
+base histórica de los métodos de rating.
+La IEC 60853, de 2002, amplía el tratamiento a ciclos de carga y secado parcial (International
+Electrotechnical Commission, 2002:cláusulas 2–4). Aras et al. (2005:1387–1400) compararon
+enfoques analíticos y numéricos para cables enterrados; sus resultados muestran que FEM
+representa fuentes cercanas y distribuciones de temperatura mediante geometría explícita.
+
+Las revisiones de Enescu y colaboradores ordenan los métodos analíticos, circuitales y de
+campo (Enescu et al., 2020:4,11,17). Además, señalan que la conductividad del suelo, las
+capas y el secado son factores dominantes. La revisión sobre capacidad térmica dinámica
+añade una relación directa para el estudio: la resistividad térmica del suelo influye en la
+ampacidad, y un valor mayor la reduce (Enescu et al., 2021:3–6).
+La IEC 60287, en su edición de 2023, formaliza ecuaciones de corriente admisible y pérdidas
+para régimen permanente (International Electrotechnical Commission, 2023:cláusulas 4–5).
+Además, las recomendaciones del Consejo Internacional de Grandes Redes Eléctricas
+(CIGRÉ) de 2025 documentan casos heterogéneos y exigen verificación antes de confiar en
+una herramienta de rating (CIGRÉ Working Group B1.87, 2025:3–4,41–42,93–99). Por ello,
+la verificación será un criterio central del estudio.
+Las revisiones recientes extienden este marco al régimen dinámico. Möbius et al. (2025)
+reúnen los efectos de los cambios estacionales y climáticos sobre la ampacidad, y Fariz
+et al. (2026) mapean los estudios de rating térmico dinámico de cables enterrados. Ambas
+muestran que las propiedades del suelo cambian durante la vida útil de la instalación.
+Estos métodos son referencias necesarias para comparación. Sin embargo, no sustituyen
+una solución de campo cuando la topología térmica no cumple sus supuestos (International
+Electrotechnical Commission, 2023; International Electrotechnical Commission, 2002; CIGRÉ
+Working Group B1.87, 2025:3–4,93–99).
+1.2.1.2 HETEROGENEIDAD, SUELO NATIVO Y SUELO DE RELLENO
+Los trabajos de optimización del lecho de asiento y del suelo de relleno muestran que una
+región de alta conductividad puede mejorar la disipación (Ocłoń et al., 2015:1–3; Atoccsa
+et al., 2024:1–4). Sin embargo, se apoyan principalmente en FEM y optimización externa.
+En el Perú, Arias Velasquez et al. (2023:7–8) mostraron que la resistividad del terreno de
+una planta fotovoltaica redujo la ampacidad calculada de sus circuitos de media tensión.
+Al-Dulaimi et al. (2024:1–3,12) combinaron FEM con una red neuronal para predecir la
+temperatura del cable en suelos de composición variable; sin embargo, su entrenamiento
+depende de pares generados por FEM.
+Khumalo et al. (2025:1,6–9) aportan evidencia sobre humedad, resistividad, profundidad
+y temperatura ambiente del suelo. Por su parte, Kim et al. (2025:1,10,16) cuantifican la
+reducción de temperatura lograda con un suelo de relleno más conductor. En conjunto,
+ambos trabajos muestran que k no es una constante secundaria. Por tanto, debe tratarse
+como variable de diseño e incertidumbre. El aporte previsto de este estudio es distinto,
+porque busca trasladar la física a una PINN y evaluar reglas sobre contraste, posición y
+extensión de regiones heterogéneas.
+
+1.2.1.3 INTELIGENCIA ARTIFICIAL INFORMADA POR LA FÍSICA
+Raissi et al. (2019:686–690) consolidaron el enfoque PINN para problemas directos e inversos al combinar datos y residuos de ecuaciones diferenciales. Las revisiones posteriores
+confirman su expansión, pero también identifican entrenamiento lento, competencia entre términos de pérdida, dificultad multiescala y necesidad de estrategias adaptativas o
+descomposición de dominios (Lawal et al., 2022:1–2,14–17; Ren et al., 2025:2–6).
+En conducción de calor, Xing et al. (2023:1,3,17) demostraron una PINN para un problema
+anisotrópico estacionario 3D y reportaron, en uno de sus ejemplos, error relativo de 0,23 %.
+Pan et al. (2025:1,3,16) reconstruyeron un campo térmico 2D y condiciones de borde con
+datos limitados, con error absoluto inferior a 1 ◦C en el dominio de validación declarado.
+Estos resultados prueban viabilidad en problemas térmicos controlados, pero no eliminan la
+necesidad de evaluar interfaces, pérdidas internas y geometrías de cables.
+1.2.1.4 ANTECEDENTES METODOLÓGICOS DSR
+Peffers et al. (2007:54–56) proponen seis actividades: identificar y motivar el problema, definir
+objetivos de solución, diseñar y desarrollar, demostrar, evaluar y comunicar. La secuencia
+no es rígida y permite iterar cuando la evidencia de evaluación no alcanza los objetivos.
+Gregor y Hevner (2013:342–350) distinguen el artefacto situado de las contribuciones más
+abstractas, tales como métodos y principios de diseño. También proponen evaluar validez,
+utilidad, calidad y eficacia, y comunicar con claridad el problema, el artefacto y la evidencia.
+Delport et al. (2024:198–203) complementan esta visión con ciclos continuos de evaluación
+durante el desarrollo y con los principios de abstracción, originalidad, justificación y beneficio.
+1.2.1.5 UBICACIÓN DEL PROYECTO
+El proyecto se ubica en la intersección de tres líneas de trabajo: el cálculo térmico y la
+ampacidad de cables enterrados, las redes neuronales informadas por física y la ciencia del
+diseño de artefactos. Se desarrollará como tesis profesionalizante del programa de Maestría
+en Inteligencia Artificial de la Unidad de Posgrado de la Facultad de Ingeniería Industrial y
+de Sistemas de la Universidad Nacional de Ingeniería.
+Respecto de la primera línea, no reemplaza las normas ni la referencia FEM: usará la IEC
+60287 como línea base cuando el caso sea comparable y FEM como referencia independiente
+del campo. Respecto de la segunda, aportará una comparación trazable de una formulación
+PINN por material, con transmisión de temperatura y de flujo en las interfaces, aplicada
+a configuraciones de cable enterrado. Respecto de la tercera, corresponde a un artefacto
+situado con principios de diseño derivados, en el sentido de Gregor y Hevner (2013:342–350).
+La brecha descrita en la Sección 1.2 delimita el aporte: la comparación específica entre esas
+
+tres líneas, y no una novedad general sobre ninguna de ellas.
+1.2.2 FORMULACIÓN DEL PROBLEMA
+La formulación se presenta a continuación y se organiza en la matriz de consistencia del
+ANEXO 1, la cual funciona como un organizador lógico del plan. Por tanto, la matriz relaciona
+problema, objetivos, hipótesis, variables, evidencia y controles, además de evitar que las
+partes del estudio queden como ideas separadas. Los problemas específicos siguen la
+lógica DSR. Por ello, delimitan entradas del problema, productos verificables y criterios de
+evaluación del artefacto.
+1.2.2.1 PROBLEMA GENERAL
+En el arreglo de cables–entorno térmico, la heterogeneidad espacial del suelo nativo, el
+lecho de asiento y el suelo de relleno puede modificar el campo de temperatura T(x, y), la
+temperatura máxima Tmáx y la ampacidad Imáx respecto de una representación homogénea
+equivalente (Enescu et al., 2021:4–6; CIGRÉ Working Group B1.87, 2025:3–4,93–99). Sin
+embargo, resulta difícil cuantificar esas diferencias de forma reproducible y establecer cuándo
+son relevantes para las decisiones de diseño y operación. Las representaciones homogéneas equivalentes son rápidas, aunque no describen de forma explícita la conductividad
+variable k(x, y); los modelos numéricos de elementos finitos (FEM) y similares sí pueden
+representarla, pero exigen construir, mallar y verificar cada escenario. En consecuencia,
+persiste la necesidad de una formulación computacional verificada y trazable que represente
+k(x, y), estime el campo de temperatura y documente la exactitud, la consistencia física y la
+robustez del análisis.
+1.2.2.2 PROBLEMAS ESPECÍFICOS
+Los problemas específicos descomponen la brecha general en cuatro necesidades relacionadas: especificar la representación física del objeto, disponer de referencias de verificación,
+evaluar escenarios heterogéneos controlados y determinar su efecto sobre la ampacidad.
+Esta articulación evita tratar cada problema de forma aislada y establece la secuencia lógica
+sintetizada en la Figura 1.5. La sistematización posterior de la evidencia y la formulación
+de principios de diseño no constituyen un problema específico adicional; corresponden a
+las actividades de evaluación, síntesis y comunicación propias de DSR, descritas en el
+Capítulo 4.
+PE1. La representación física requerida por el artefacto no está formalizada en términos de
+entradas, requisitos funcionales y criterios de calidad que ordenen el cable multicapa,
+las interfaces, las fuentes, los contornos y k(x, y) en escenarios heterogéneos.
+PE2. No se dispone de un paquete reproducible de soluciones analíticas o manufacturadas,
+
+referencias FEM con convergencia y casos publicados que permita construir y verificar
+el artefacto dentro del dominio delimitado.
+PE3. No se ha cuantificado de forma trazable cómo el contraste, el patrón, la extensión y la
+proximidad de las heterogeneidades modifican Tmáx, el campo T(x, y) y la localización
+del punto caliente.
+PE4. No se han identificado las condiciones que producen la mayor discrepancia de ampacidad entre una representación 2D heterogénea verificada y una representación
+homogénea equivalente.
+Cable multicapa, in- Soluciones analíticas,
+terfaces, fuentes, manufacturadas, FEM Contraste, patrón,
+contornos y k(x, y) y casos publicados extensión y proximidad
+PE1 PE2 PE3
+Representación fí- D1 Referencias de verifi- D2 Evaluación de escesica no formalizada cación no integradas narios no trazable
+D3
+PE4 Resultado lógico
+Discrepancias de ampa- Base para formular los
+cidad no identificadas objetivos específicos
+Representaciones homogénea y heterogénea 2D
+Figura 1.5: Articulación secuencial de los cuatro problemas específicos de la investigación. Cada
+problema recibe los elementos indicados y produce una definición o evidencia necesaria para
+abordar el siguiente. La síntesis metodológica posterior pertenece al ciclo DSR y no se formula como
+un problema específico adicional. Fuente: Elaboración propia.
+1.2.3 JUSTIFICACIÓN Y ALCANCES
+1.2.3.1 JUSTIFICACIÓN
+a) Justificación práctica.
+La justificación práctica responde al problema real: reducir la incertidumbre que puede
+conducir a decisiones inseguras o excesivamente conservadoras sobre la ampacidad. La
+investigación permitirá identificar configuraciones donde un valor homogéneo puede ocultar
+una restricción térmica local. Esta posibilidad se relaciona con los cambios de capacidad por
+humedad y resistividad reportados por Khumalo et al. (2025:1,6–9).
+
+Además, el estudio puede apoyar decisiones de diseño, verificación y operación. Esto aplica
+cuando la evacuación de energía depende de circuitos enterrados con bajo margen térmico
+(Fariz et al., 2026:14842,14851).
+b) Justificación tecnológica.
+La justificación tecnológica corresponde a la respuesta propuesta para el problema técnico.
+El artefacto combinará conocimiento físico y aprendizaje automático para producir un campo
+térmico diferenciable, ya que incorporará la PDE en la función de pérdida durante el entrenamiento (Raissi et al., 2019:686–690). Además, buscará reducir la dependencia exclusiva de
+pares etiquetados generados por FEM, la cual aparece en enfoques híbridos recientes para
+cables (Al-Dulaimi et al., 2024:1–3,12).
+Sin embargo, la propuesta no pretende reemplazar a FEM ni a las normas IEC. En cambio,
+busca establecer dentro de qué condiciones una PINN alcanza exactitud, consistencia física
+y robustez suficientes (CIGRÉ Working Group B1.87, 2025:93–99).
+c) Justificación metodológica.
+El enfoque DSR hace investigable el problema técnico al vincular la situación física con la
+construcción y evaluación del artefacto (Peffers et al., 2007:55–56). Por tanto, el estudio no se
+limita a ejecutar software, sino que aportará un procedimiento reproducible de especificación
+y verificación. También propondrá principios de diseño sobre interfaces y heterogeneidad
+del terreno. Este énfasis sigue la distinción entre artefacto situado y contribución abstracta
+de Gregor y Hevner (2013:342–350).
+d) Justificación científica y académica.
+La justificación científica responde al problema subyacente: producir conocimiento sobre
+cuándo y en qué magnitud la heterogeneidad espacial modifica la temperatura y la ampacidad
+frente a una representación homogénea equivalente. El trabajo conectará dos cuerpos de
+conocimiento: el dimensionamiento térmico de cables enterrados y el aprendizaje informado
+por física.
+Los resultados de PINN en dominios térmicos controlados ya han sido reportados (Xing et al.,
+2023:1–3,17; Pan et al., 2025:1,3,16). Sin embargo, aquí se evaluarán en una geometría
+multimaterial, donde el entrenamiento y las interfaces todavía deben verificarse (Ren et al.,
+2025:2–6).
+
+1.2.3.2 ALCANCES Y LIMITACIONES
+a) Alcances.
+El alcance temático comprende la conducción de calor en secciones bidimensionales de
+cables XLPE enterrados, considerando la heterogeneidad del suelo nativo, el lecho de
+asiento y el suelo de relleno. El análisis calculará la temperatura y la ampacidad en estas
+condiciones.
+El alcance metodológico comprende el diseño y la evaluación de un artefacto basado en una
+PINN mediante la ciencia del diseño (DSR). Sus resultados se compararán con referencias
+analíticas, soluciones obtenidas mediante el método de elementos finitos (FEM) y casos
+publicados.
+El alcance espacial considera configuraciones representativas de circuitos con cables enterrados para evacuar la energía de centrales solares y eólicas, sin limitarse a una instalación
+propietaria. El estudio se desarrollará entre julio de 2026 y junio de 2027, y la revisión
+bibliográfica tendrá como fecha de corte junio de 2026.
+El producto incluirá la arquitectura lógica, el prototipo de la PINN, los datos de los escenarios, las pruebas y el informe de evaluación. También comprenderá principios de diseño
+reproducibles que faciliten la verificación del artefacto.
+b) Limitaciones.
+El estudio será estacionario y bidimensional; no incluirá el régimen transitorio. Las pérdidas
+eléctricas se representarán como una fuente de calor por efecto Joule, I2R(T), con la
+resistencia del conductor referida a 20 ◦C y corregida según su temperatura (Neher & McGrath,
+1957:752–760; International Electrotechnical Commission, 2023:cláusulas 4–5). El modelo
+no resolverá las ecuaciones de Maxwell; los efectos piel y de proximidad solo entrarán
+mediante la resistencia en corriente alterna declarada para cada caso.
+Tampoco se modelarán envejecimiento dieléctrico, humedad acoplada, migración de humedad ni convección subterránea. En consecuencia, las propiedades del suelo nativo, del lecho
+de asiento y del suelo de relleno se tratarán como atributos físicos de cada realización de
+E3, no como VI metodológicas adicionales.
+La evaluación del artefacto se limitará a verificación y comparación documentada. Por
+verificación se entenderá la comparación con casos analíticos, soluciones manufacturadas,
+referencias FEM y casos publicados (CIGRÉ Working Group B1.56, 2022; CIGRÉ Working
+Group B1.87, 2025:3–4,93–99).
+No se realizará validación experimental de campo, debido a que requeriría instrumentación
+
+y seguimiento de una instalación real. Por tanto, los resultados no se generalizarán fuera de
+las geometrías, materiales, fuentes y contornos evaluados.
+Además, cualquier ventaja computacional se reportará junto con hardware, tolerancias,
+semillas e inicializaciones. Así se comunicará la evidencia con límites claros, como exige la
+metodología DSR (Gregor & Hevner, 2013:350–351).
+El estudio no incluirá una evaluación económica de los cables o de la instalación; por tanto,
+no estimará CAPEX, OPEX, costos de construcción ni retorno de inversión. Toda referencia a
+desempeño o recursos corresponderá exclusivamente al ámbito computacional y se reportará
+como información secundaria de ejecución y reproducibilidad.
+
+CAPÍTULO 2. OBJETIVOS DE LA INVESTIGACIÓN
+Este capítulo convierte el problema formulado en objetivos, hipótesis y dimensiones operativas. Así define qué se evaluará y mantiene la correspondencia entre la brecha, las entradas
+discretas de cada etapa, los productos intermedios, sus estados posibles y los parámetros
+de caso.
+2.1 OBJETIVO GENERAL
+Diseñar y evaluar un artefacto computacional basado en una red neuronal informada por
+física (PINN) que represente el arreglo de cables–entorno térmico, estime T(x, y), Tmáx e
+Imáx, cuantifique el efecto de la heterogeneidad térmica espacial y documente su exactitud,
+su consistencia física y su robustez. La reproducibilidad se sustenta en un repositorio público
+con el código fuente, los datos empleados y sus fuentes, de modo que cada resultado pueda
+reconstruirse.
+2.2 OBJETIVOS ESPECÍFICOS
+Los objetivos específicos siguen una secuencia de construcción y evaluación: la especificación del objeto y del artefacto sustenta su construcción y verificación; el artefacto verificado
+permite evaluar los escenarios térmicos; y el expediente de evidencia térmica permite comparar la ampacidad. La Figura 2.1 representa esta relación. Cada producto intermedio tiene
+doble papel: es la VD del bloque que lo genera y la entrada heredada de la VI del bloque
+siguiente. El procedimiento reproducible y los principios de diseño se obtendrán posteriormente mediante la síntesis DSR de la evidencia generada por estos objetivos; por ello, se
+tratan como productos metodológicos y no como un objetivo específico adicional.
+OE1. Elaborar una especificación trazable de las entradas físicas, los requisitos funcionales
+y los criterios de calidad del artefacto para representar el arreglo de cables–entorno
+térmico, incluyendo dominios multicapa, fuentes térmicas, condiciones de contorno,
+interfaces y conductividad térmica espacialmente variable k(x, y). Indicador: cobertura
+de requisitos críticos, con umbral superior al 90 % de los casos de estudio, y trazabilidad
+requisito–prueba (Anexo ANEXO 1).
+OE2. Construir y verificar el artefacto a partir de la especificación trazable y de un conjunto de
+soluciones analíticas o manufacturadas, benchmarks FEM con convergencia y casos
+publicados, clasificando su estado de aceptación según la exactitud, la consistencia
+física y la robustez entre ejecuciones. Indicador: diferencia absoluta de temperatura
+máxima frente a la referencia, |∆Tmáx|, menor que 0,1 K, y NRMSE menor que 1 %
+(Anexo ANEXO 1).
+
+OE3. Aplicar el artefacto verificado a un catálogo de escenarios controlados de contraste,
+patrón, extensión y proximidad de heterogeneidades del suelo nativo y de los suelos
+de relleno, y consolidar un expediente de evidencia con los cambios en Tmáx, el campo
+de temperatura T(x, y) y la localización del punto caliente. Indicador: |∆Tmáx| menor
+que 0,5 K, NRMSE menor que 2,5 % y posición del punto caliente frente al escenario
+homogéneo de referencia (Anexo ANEXO 1).
+OE4. Usar el expediente de evidencia térmica y un catálogo de representaciones pareadas
+para elaborar un expediente comparativo de ampacidad entre la representación 2D
+heterogénea y las representaciones homogéneas, e identificar las condiciones que
+generan mayor discrepancia. Indicador: ampacidad Imáx, cambio porcentual ∆I y margen térmico, junto con la calidad de la optimización valorada por juicio de expertos en
+escala de 1 a 10 (Anexos ANEXO 1 y ANEXO 2).
+Entrada nueva de VI2 Entrada nueva de VI3
+VI1: entrada inicial referencia analítica/ma- catálogo base, estratificapaquete básico, com- nufacturada, FEM, do, localizado, mejorado,
+pleto o trazable publicada o mixta seco o multimaterial
+OE1 OE2 OE3
+Especificar entradas, VD1 ≡VI2,h Construir y veri- VD2 ≡VI3,h Evaluar escenarequisitos y criterios ficar el artefacto rios heterogéneos
+VD3 ≡VI4,h
+Resultado
+OE4 Expediente compa-
+VD4 Comparar la ampacidad rativo y evidencia
+para la síntesis DSR
+Entrada nueva de VI4
+par homogéneo
+equivalente, conservador u optimista
+Figura 2.1: Articulación secuencial de los cuatro objetivos específicos. VI1 es la entrada inicial. En
+las etapas siguientes, cada VI es un paquete compuesto por la VD anterior —entrada heredada— y
+el objeto nuevo mostrado verticalmente: VI2 = {VD1, R2}, VI3 = {VD2, E3} y VI4 = {VD3, C4}. VD4
+completa la evidencia que después se sintetiza dentro de DSR. Fuente: Elaboración propia.
+2.3 HIPÓTESIS
+2.3.1 HIPÓTESIS GENERAL
+La incorporación explícita de la conductividad térmica espacialmente variable k(x, y) en un
+artefacto PINN 2D permitirá reproducir referencias verificadas con exactitud, consistencia
+
+física y estabilidad entre ejecuciones. Además, mostrará diferencias de temperatura máxima
+y ampacidad frente a un entorno homogéneo equivalente cuando existan regiones de baja o
+alta conductividad próximas al cable. Por tanto, el proceso deberá reportar trazabilidad y
+reproducibilidad.
+2.3.2 HIPÓTESIS ESPECÍFICAS
+Las hipótesis específicas anticipan el estado esperado de los objetos producidos por cada
+objetivo: especificación trazable aceptada, artefacto verificado dentro del dominio, expediente
+térmico concluyente y expediente comparativo de ampacidad clasificado. La Figura 2.2
+resume su encadenamiento con los principales indicadores de contraste. La reproducibilidad
+y la derivación de principios de diseño se evaluarán como criterios y productos del proceso
+DSR, no como una hipótesis específica adicional.
+HE1. Un paquete inicial completo y documentado permitirá producir una especificación
+trazable aceptada que separe PDE, contornos, interfaces, fuentes y propiedades
+térmicas, cubra más del 90 % de los requisitos críticos y vincule cada requisito con al
+menos una prueba de consistencia física o funcional.
+HE2. La especificación trazable, combinada con referencias válidas analíticas, manufacturadas, FEM convergentes o publicadas, permitirá producir un artefacto aceptado dentro
+del dominio de verificación, con un error relativo de Tmáx no mayor a 5 %, un error
+cuadrático medio normalizado (NRMSE) no mayor a 5 %, un desequilibrio energético
+no mayor a 2 % y una variabilidad entre semillas menor que el efecto térmico relevante
+definido antes de la verificación.
+HE3. El artefacto verificado, aplicado a los distintos tipos de escenario térmico y a igualdad
+de geometría, pérdidas y contornos, producirá un expediente térmico concluyente.
+Una región de baja k cercana al conductor se clasificará por el aumento de Tmáx; una
+región de alta k usada como suelo de relleno, por su reducción.
+HE4. El expediente térmico, combinado con representaciones homogéneas pareadas, producirá un expediente comparativo en el que la aproximación homogénea tenderá a
+sobreestimar Imáx cuando promedie una zona local de baja k; la discrepancia crecerá
+con el contraste, la extensión y la proximidad de esa zona al conductor.
+Los umbrales de HE2 y los de la verificación por fases son criterios de aceptación del estudio,
+no valores universales de las PINN. Se toman de la matriz de consistencia (Anexo ANEXO
+1) y se fijan antes de la verificación. En OE2, |∆Tmáx| debe quedar por debajo de 0,1 K y el
+NRMSE por debajo de 1 %. En la evaluación de escenarios de OE3, |∆Tmáx| debe quedar
+por debajo de 0,5 K y el NRMSE por debajo de 2,5 %. La incertidumbre numérica debe ser
+menor que el efecto térmico analizado, según la verificación de herramientas de ampacidad
+de CIGRÉ Working Group B1.87 (2025:93–99). Cualquier modificación posterior de estos
+criterios debe justificarse y reportar sus límites de validez, como recomiendan Gregor y
+Hevner (2013:350–351) para contribuciones DSR.
+
+Cobertura de requi- eTmáx, NRMSE, dessitos y trazabilidad equilibrio energético y ∆Tmáx, punto calienrequisito–prueba robustez entre semillas te y campo T(x, y)
+HE1 HE2 HE3
+VD1: especificación VD2: artefacto acep- VD3: expediente tértrazable aceptada tado en su dominio mico concluyente
+HE4 Contraste global
+VD4: expediente com- Exactitud, efecto térparativo clasificado mico y ampacidad
+Imáx, ∆I% y
+margen térmico
+Figura 2.2: Articulación de las cuatro hipótesis específicas y sus principales indicadores de contraste.
+La secuencia vincula la calidad del artefacto con la evidencia térmica y operativa; la reproducibilidad
+y la síntesis de principios se evalúan como parte del ciclo DSR. Fuente: Elaboración propia.
+2.4 DIMENSIONES OPERATIVAS DEL ESTUDIO
+En coherencia con DSR, la operacionalización se organiza como una secuencia de construcción del artefacto. En cada etapa se distingue: a) un paquete de entrada constituido
+por objetos discretos; b) la actividad expresada por un objetivo específico; y c) un producto
+verificable, también discreto. Este producto constituye la variable dependiente de la etapa y,
+salvo VD4, se convierte explícitamente en la entrada heredada de la variable independiente
+de la etapa siguiente. Por tanto, VI y VD tienen la misma naturaleza metodológica: son
+paquetes documentales, artefactos versionados o expedientes de evidencia, no magnitudes
+físicas continuas.
+La cadena se define como VI1 = P1, VI2 = {VD1, R2}, VI3 = {VD2, E3} y VI4 = {VD3, C4}.
+Aquí, P1 es el paquete inicial de requisitos y datos; R2, el conjunto nuevo de referencias
+de verificación; E3, el catálogo nuevo de escenarios térmicos; y C4, el catálogo nuevo de
+representaciones pareadas. En consecuencia, VD1 ≡VI2,h, VD2 ≡VI3,h y VD3 ≡VI4,h,
+donde el subíndice h indica la parte heredada de la entrada.
+Esta definición evita mezclar niveles metodológicos. La conductividad k(x, y), el contraste
+Ck, la extensión fh, la proximidad dh/D, la geometría, las pérdidas y los contornos describen
+la física de un caso; no son variables independientes de la construcción del artefacto. Del
+mismo modo, las capas, neuronas, épocas, semillas y pesos de pérdida son decisiones
+
+o metadatos del procedimiento numérico. Ambos grupos se fijan, documentan o recorren
+dentro de casos de cobertura, pero se mantienen separados de las variables del estudio.
+2.4.1 VARIABLES INDEPENDIENTES DISCRETAS (ENTRADAS)
+Se definen cuatro VI categóricas y discretas, una por etapa. VI1, paquete inicial de requisitos
+y datos, puede realizarse como paquete básico, completo o completo documentado. VI2,
+expediente de construcción y verificación, hereda VD1 y agrega un conjunto de referencias
+que puede ser analítico/manufacturado, FEM convergente, publicado o mixto. VI3, expediente
+de evaluación térmica, hereda VD2 aceptada y agrega un catálogo de escenarios que
+puede ser base homogéneo, estratificado, con inclusión localizada, con material de mejora,
+con zona seca o multimaterial. VI4, expediente de comparación de ampacidad, hereda
+VD3 concluyente y agrega pares de representación heterogénea 2D frente a homogénea
+equivalente, conservadora u optimista.
+Las realizaciones representan objetos de entrada completos. Por ejemplo, una realización de
+VI3 contiene una versión aceptada del artefacto, el escenario, su mapa k(x, y), materiales,
+contraste, extensión y ubicación. Los últimos elementos son atributos físicos controlados del
+objeto, no variables independientes adicionales. Esta regla mantiene cuatro VI lógicas, hace
+explícita la herencia entre etapas y evita multiplicar artificialmente las variables.
+2.4.2 VARIABLES DEPENDIENTES (SALIDAS)
+Las variables dependientes son objetos discretos producidos por cada objetivo. VD1 es
+la especificación trazable del artefacto, con estados incompleta, completa pendiente de
+trazabilidad o trazable aceptada. VD2 es el artefacto verificado y su expediente de aceptación,
+con estados rechazado, aceptado con restricciones o aceptado dentro del dominio. VD3 es
+el expediente de evidencia térmica, con estados inconcluso, sin efecto relevante, con efecto
+relevante no crítico o con condición crítica. VD4 es el expediente comparativo de ampacidad,
+clasificado como sin discrepancia relevante, con reducción de ampacidad, con aumento de
+ampacidad o inconcluso/fuera del dominio.
+Los errores, residuos, T(x, y), Tmáx, ∆Tmáx, Imáx, ∆I% y el margen térmico son indicadores
+contenidos en esos objetos; no son las VD por sí mismos. Esta separación permite que VD1,
+VD2 y VD3 conserven su integridad al convertirse en entradas de la etapa siguiente.
+La exactitud, la consistencia física, la robustez, la trazabilidad y la reproducibilidad son
+criterios de evaluación DSR aplicados transversalmente a esas salidas. No forman una
+quinta variable dependiente ni una quinta correspondencia problema–objetivo.
+
+2.4.3 DISEÑO DISCRETO DE CASOS Y PARÁMETROS CONTROLADOS
+La Figura 2.3 muestra el modelo entrada–proceso–salida de las dimensiones operativas y la
+Tabla 2.1 registra las variables discretas y sus estados por etapa.
+El estudio no adopta un diseño factorial de variables independientes. En su lugar, aplica
+un diseño discreto de objetos y casos: se seleccionan realizaciones de los componentes
+nuevos E3 y C4 de VI3 y VI4, siempre acompañadas por la VD heredada que corresponda.
+Dentro de cada caso se asignan niveles documentados a los parámetros físicos Ck, fh y
+dh/D. La posible combinación de esos niveles es una malla de cobertura y sensibilidad
+física, no una redefinición de los parámetros como variables independientes ni un análisis
+factorial estadístico.
+Las comparaciones térmicas y operativas serán pareadas. En cada par se conservarán la
+geometría, las pérdidas, los contornos, el dominio y la configuración numérica aceptada; solo
+cambiará el atributo físico o la representación que define el contraste del caso. Así se podrá
+interpretar la diferencia observada sin confundir el insumo de construcción del artefacto con
+la física subyacente.
+VI1 VI2 VI3 VI4
+Paquete inicial P1 {VD1, R2} {VD2, E3} {VD3, C4}
+OE1 OE2 OE3 OE4
+Especificar hereda Construir y verificarhereda Evaluar escenarioshereda Comparar
+ampacidad
+VD1 VD2 VD3
+Especifica- Artefacto verificado Expediente térmico VD4
+ción trazable Expediente
+de ampacidad
+Parámetros de caso y controles (no son VI): k(x, y), Ck, fh, dh/D, geometría, pérdidas, contornos, dominio y configuración numérica aceptada.
+Figura 2.3: Modelo entrada–proceso–salida de las dimensiones operativas. Las VI y las VD son
+objetos discretos; VD1–VD3 se heredan como componentes obligatorios de VI2–VI4. Los parámetros
+físicos y numéricos se documentan por caso, pero no se clasifican como VI ni VD. Fuente:
+Elaboración propia.
+
+Tabla 2.1: Variables discretas de entrada y salida, composición y estados por etapa de construcción del
+artefacto. Fuente: Elaboración propia.
+Etapa VI discreta: composición y Actividad VD discreta: objeto y estados Indicadores del
+realizaciones objeto
+OE1 VI1=P1. Paquete inicial de re- Elaborar la VD1. Especificación trazable. Cobertura de requiquisitos y datos. Realizaciones: especificación. Estados: incompleta; completa sitos; trazabilidad
+básico; completo; completo docu- pendiente de trazabilidad; trazable requisito–prueba;
+mentado. aceptada. consistencia de unidades y supuestos.
+OE2 VI2={VD1, R2}. Expediente de Construir y VD2. Artefacto verificado y Error de Tmáx; NRMconstrucción y verificación. R2: verificar. expediente de aceptación. SE; residuos; balance
+analítico/manufacturado; FEM Estados: rechazado; aceptado energético; robustez;
+convergente; publicado; mixto. con restricciones; aceptado en el dominio aceptado.
+dominio.
+OE3 VI3={VD2, E3}. Expediente de Evaluar escena- VD3. Expediente de evidencia T(x, y); Tmáx;
+evaluación térmica. E3: base; rios. térmica. Estados: inconcluso; sin ∆Tmáx; gradiente;
+estratificado; localizado; mejorado; efecto relevante; efecto relevante punto caliente; coberseco; multimaterial. no crítico; condición crítica. tura de escenarios.
+OE4 VI4={VD3, C4}. Expediente de Comparar ampa- VD4. Expediente comparativo Imáx; ∆I%; margen
+comparación. C4: par con homo- cidad. de ampacidad. Estados: sin térmico; casos crígénea equivalente; conservadora; discrepancia relevante; reducción; ticos; cobertura de
+optimista. aumento; inconcluso/fuera del pares.
+dominio.
+El objeto de estudio sigue siendo el arreglo de cables–entorno térmico y la unidad de análisis
+es su sección transversal 2D parametrizada. Los estados de las VD se asignarán con
+reglas fijadas antes de la evaluación final; los umbrales cuantitativos son indicadores para
+clasificar el objeto, no estados continuos de la variable. La calidad DSR se evalúa sobre
+VD1–VD4 mediante exactitud, consistencia física, robustez, trazabilidad y reproducibilidad.
+Los parámetros físicos, los controles y los metadatos se registran aparte de estas definiciones.
+
+CAPÍTULO 3. MARCO TEÓRICO
+Este capítulo reúne las bases teóricas que sostienen el problema, el artefacto y su evaluación,
+y precisa los términos que se usarán. Integra los métodos de ampacidad, la heterogeneidad
+térmica, las PINN y la ciencia del diseño para conectar el problema formulado en la sección 1.2
+con el modelo físico y la metodología. Los antecedentes bibliográficos se presentan en la
+Sección 1.2.1.
+3.1 BASES TEÓRICAS
+Las bases teóricas comprenden las bases conceptuales del problema (Sección 3.1.1) y las
+técnicas aplicadas (Sección 3.1.2).
+3.1.1 BASES CONCEPTUALES DEL PROBLEMA
+Las bases conceptuales explican el problema abstracto que sostiene el estudio: estimar un
+campo térmico en un dominio multimaterial, con fuentes, contornos e interfaces, para derivar
+una restricción operativa de corriente. Por tanto, esta sección no describe solo el cable, sino
+la relación física que convierte la heterogeneidad del entorno en cambios de Tmáx e Imáx.
+3.1.1.1 GENERACIÓN Y EVACUACIÓN DE CALOR EN CABLES
+La teoría de conducción parte de una relación simple: el calor fluye desde zonas de mayor
+temperatura hacia zonas de menor temperatura. En un medio heterogéneo, esa relación
+depende de la conductividad local, por lo que el flujo no puede explicarse solo con un
+promedio global de material (Carslaw & Jaeger, 1959; Hahn & Özışık, 2012; Kakaç et al.,
+2018).
+qcond(x, y) = −k(x, y)∇T(x, y). (3.1)
+Fórmula 3.1: Ley de Fourier para conducción en un medio heterogéneo. Fuente: Elaboración propia.
+La Fórmula 3.1 muestra por qué k(x, y) es un campo físico central del modelo. Si una región
+cercana al cable tiene baja conductividad, el flujo térmico encuentra mayor resistencia local;
+en cambio, si el suelo de relleno tiene alta conductividad, la disipación puede mejorar. Esta
+lógica fundamenta los parámetros de contraste, extensión y proximidad; ninguno de ellos se
+clasifica como variable independiente de construcción del artefacto.
+La Figura 3.1 sintetiza esa relación para facilitar la lectura del marco teórico. La cadena
+
+inicia con la distribución espacial de conductividad, pasa por el flujo de calor y termina en la
+ampacidad, pero solo produce evidencia útil si el artefacto se verifica con métricas trazables.
+Conductivi- Resultado
+Condición crítica
+dad espacial Flujo de calor Campo térmico operativo
+Tmáx
+k(x, y) qcond = −k∇T T(x, y) Imáx
+punto caliente
+Ck, fh, dh margen térmico
+Verificación DSR
+error, residuo, balance de energía, robustez y trazabilidad
+Figura 3.1: Cadena física y metodológica entre heterogeneidad térmica, campo de temperatura y
+ampacidad. Fuente: Elaboración propia.
+Las pérdidas eléctricas se transforman en calor y elevan la temperatura hasta que el calor
+generado por las pérdidas se equilibra con la disipación térmica hacia el entorno. En una
+sección 2D estacionaria, Neher y McGrath (1957:752–760) relacionan esas pérdidas con
+resistencias térmicas y elevación de temperatura; a su vez, IEC 60287 formaliza el cálculo de
+corriente admisible para condiciones de régimen (International Electrotechnical Commission,
+2023:cláusulas 4–5). La temperatura límite del aislamiento convierte este problema de campo
+en una restricción de operación.
+Una PDE describe una función desconocida mediante sus derivadas respecto de más de
+una coordenada matemática independiente. En este problema, la función desconocida es la
+temperatura y las coordenadas son las posiciones espaciales y, si el proceso es transitorio,
+el tiempo. Esta terminología matemática no corresponde a VI1–VI4 de la operacionalización
+metodológica. Por tanto, el modelo debe distinguir acumulación térmica, flujo por conducción
+y fuentes internas (Carslaw & Jaeger, 1959; Hahn & Özışık, 2012; Kakaç et al., 2018).
+En su forma dependiente del tiempo, la conducción de calor incorpora la inercia térmica del
+cable y del suelo. Para una sección 2D con propiedades espaciales, la ecuación puede escribirse como una adaptación directa de la ecuación clásica de calor en medios heterogéneos
+(Carslaw & Jaeger, 1959; Hahn & Özışık, 2012; Kakaç et al., 2018):
+∂T(x, y, t) ∂ ∂ ρ(x, y)cp(x, y) = k(x, y)∂T + k(x, y)∂T + Q(x, y, t), (3.2)
+∂t ∂x ∂x ∂y ∂y
+Fórmula 3.2: Ecuación de conducción de calor 2D transitoria. Fuente: Elaboración propia.
+En la Fórmula 3.2, ρ representa la densidad de masa y ρcp la capacidad térmica volumétrica.
+Este símbolo no debe confundirse con la resistividad térmica, que en el documento se denota
+ρth. Además, k(x, y) controla la disipación local y Q(x, y, t) agrupa las fuentes internas. En
+cambio, IEC 60853 conserva el término transitorio para tratar ciclos de carga y secado parcial
+(International Electrotechnical Commission, 2002:cláusulas 2–4).
+La forma estacionaria se obtiene cuando la acumulación térmica se anula, es decir, cuando
+
+∂T/∂t = 0. En notación vectorial, el balance queda:
+∇·(k(x, y)∇T(x, y)) + Q(x, y) = 0, (x, y) ∈Ω. (3.3)
+Fórmula 3.3: Ecuación de conducción de calor 2D estacionaria en notación vectorial. Fuente:
+Elaboración propia.
+La Fórmula 3.3 usa la misma notación que la formulación metodológica de la Fórmula 4.1:
+k(x, y) representa la conductividad espacial y Q(x, y) representa las pérdidas térmicas. Así,
+el marco teórico y la metodología comparten una única base física y simbólica.
+Si corriente, temperatura ambiente o humedad cambian con el tiempo, el almacenamiento
+de calor afecta la respuesta térmica. Por ello, este efecto también aparece en revisiones de
+DTR para cables enterrados (Enescu et al., 2021:3–6; Fariz et al., 2026:14843–14845).
+La ampacidad no es una propiedad fija del cable aislado. Cambia con temperatura ambiente, profundidad, separación, configuración, pérdidas, conductividad y humedad, variables
+destacadas en revisiones técnicas y estudios de suelo (Enescu et al., 2021:3–6; Khumalo
+et al., 2025:1,6–9). Por ello, dos cables iguales pueden tener capacidades diferentes si el
+camino térmico de sus instalaciones difiere. En la metodología, esta idea se convierte en la
+condición de búsqueda de Imáx de la Fórmula 4.4.
+La Figura 3.2, tomada de Kim et al. (2025:fig. 2), concreta la primera escala del objeto
+de estudio. En el cable, el conductor, las pantallas, el aislamiento XLPE, la cubierta y las
+capas metálicas no solo cumplen funciones eléctricas, sino que también aportan fuentes y
+resistencias térmicas. Esta estructura interna explica por qué el campo de temperatura debe
+leerse como una respuesta multicapa y no como la temperatura de un sólido homogéneo.
+Figura 3.2: Estructura multicapa de un cable XLPE usado como referencia del objeto de estudio.
+Fuente: Kim et al. (2025:fig. 2).
+La Figura 3.3, basada en Enescu et al. (2021:fig. 1), muestra la segunda escala del objeto
+
+de estudio: la instalación enterrada. Allí el cable queda acoplado al suelo de relleno, al lecho
+de asiento cuando existe y al suelo nativo. Por ello, la conductividad térmica espacialmente
+variable k(x, y) no pertenece únicamente al cable, sino al arreglo de cables–entorno térmico,
+y debe representar la posición relativa de materiales con conductividades distintas.
+Figura 3.3: Zanja y entorno térmico del cable enterrado: suelo de relleno, suelo nativo, profundidad
+de instalación y capas principales del cable. Fuente: Enescu et al. (2021:fig. 1).
+3.1.1.2 CONDUCTIVIDAD, RESISTIVIDAD Y HETEROGENEIDAD
+La conductividad térmica k expresa la facilidad para transferir calor, mientras que la resistividad térmica ρth expresa la oposición del material a esa transferencia. Para un material
+homogéneo e isotrópico son magnitudes inversas:
+1 1
+ρth = k, k = ρth . (3.4)
+Por ello, una mayor resistividad térmica equivale a una menor conductividad y a una mayor
+dificultad para evacuar calor. En suelos, ambas propiedades dependen de la composición,
+la densidad y el contenido de agua; el aumento de resistividad por secado observado por
+Khumalo et al. (2025:1,7) muestra que puede formarse una zona local que actúa como
+barrera. La literatura de cables suele reportar ρth en K m/W, mientras que la PDE de esta
+investigación usa su inversa k en W/(m K). Toda conversión entre valores publicados y
+entradas del modelo aplicará la Fórmula 3.4. El valor usado para diseño debe representar el
+estado de instalación y seguir procedimientos normalizados cuando proviene de ensayos o
+fuentes técnicas (Institute of Electrical and Electronics Engineers, 2017:secciones 4–6).
+Una propiedad promedio conserva cierta cantidad global, pero no necesariamente conserva
+la temperatura máxima ni la ubicación del punto caliente. Dos mapas con el mismo promedio
+pueden producir rutas de flujo distintas si una región aislante se ubica junto al cable o lejos
+de él. Esta es la razón física para estudiar Ck, fh y dh como dimensiones separadas.
+
+Las interfaces también son parte del problema teórico. Cuando dos materiales están en
+contacto, el modelo debe conservar temperatura y flujo normal, salvo que se declare una
+resistencia de contacto. Esta condición, formulada en la Fórmula 4.2, evita que el cambio de
+material produzca saltos no físicos en el campo térmico (Carslaw & Jaeger, 1959; Kakaç
+et al., 2018; Patankar, 1980; Xing et al., 2023:3).
+La Tabla 3.1 resume cómo estas bases se usan en otras partes del documento. Por tanto, el
+marco teórico cumple una función de enlace: explica la teoría y muestra cómo esa teoría se
+convierte en variables, fórmulas, métricas y anexos.
+Tabla 3.1: Relación entre base teórica y uso metodológico. Fuente: Elaboración propia.
+Base teórica Relación física Uso en el estudio
+Conductividad k(x, y) Son magnitudes inversas; k controla el Los datos en ρth se convierten a k antes
+y resistividad ρth flujo de calor local según la ley de Fourier. de parametrizar el paquete inicial P1, los
+escenarios E3 y las comparaciones C4
+descritos en la sección 2.4.
+Campo T(x, y) Solución de la ecuación de conducción Salida numérica del artefacto e indicador
+para una geometría, fuentes y contornos contenido en VD3 y VD4; no constituye
+dados. por sí solo una variable metodológica.
+Temperatura máxima Restricción térmica que resume la condi- Indicador de VD2–VD4 y criterio de error
+Tmáx ción crítica del conductor. en la Fórmula 4.6.
+Ampacidad Imáx Corriente máxima compatible con el límite Resultado operativo calculado con la
+térmico adoptado. condición de la Fórmula 4.4.
+Interfaces térmicas Conservan temperatura y flujo entre Requisito físico del artefacto y parte de la
+materiales. verificación de la sección 4.7.2.
+3.1.1.3 MÉTODOS DE CÁLCULO TÉRMICO
+Los circuitos térmicos son rápidos e interpretables, pero requieren equivalencias geométricas,
+por lo que las revisiones de cables los distinguen de los métodos de solución de campo
+térmico (Enescu et al., 2021:4–6). Los métodos numéricos de campo resuelven la PDE
+sobre una malla, una grilla o una partición del dominio. FEM aproxima la solución por
+elementos; FDM reemplaza derivadas por diferencias en una grilla; FVM integra balances
+sobre volúmenes de control y conserva flujos locales (Patankar, 1980; CIGRÉ Working Group
+B1.87, 2025:3–4,93–99).
+Estos métodos son útiles porque representan geometría, materiales, fuentes y contornos con
+mayor detalle que una equivalencia térmica global. Sin embargo, su credibilidad depende de
+propiedades, condiciones de borde, discretización, convergencia y verificación. Las PINN
+aproximan la solución con una red y diferenciación automática, pero trasladan parte de la
+dificultad a muestreo, ponderación de pérdidas y optimización (CIGRÉ Working Group B1.87,
+2025:3–4,93–99; Lawal et al., 2022:1–2,14–17).
+Los métodos se tratarán como complementarios. Las normas IEC aportarán la referencia
+normativa, los casos FEM aportarán la referencia numérica del campo térmico y la PINN
+
+será el artefacto investigado. Por tanto, una discrepancia no se interpretará automáticamente
+como error de IEC o superioridad de PINN. Primero se revisarán supuestos, dominio y
+evidencia.
+La Tabla 3.2 organiza esa complementariedad. Esta síntesis explica la elección metodológica,
+porque la metodología no elige un método por preferencia, sino por función: norma para
+línea base, métodos de campo para referencia, casos analíticos para verificación y PINN
+como artefacto evaluado.
+Tabla 3.2: Función de los métodos térmicos dentro del estudio. Fuente: Elaboración propia a partir de
+International Electrotechnical Commission (2023), International Electrotechnical Commission (2002), Enescu
+et al. (2021:4–6), CIGRÉ Working Group B1.87 (2025:3–4,93–99), Patankar (1980) y Raissi et al. (2019).
+Método o referencia Aporte principal Límite que justifica la evaluación
+IEC y circuitos térmi- Dan una base normativa e interpretable Requieren equivalencias térmicas y puecos para corriente admisible. den ocultar heterogeneidades locales.
+Soluciones analíticas Permiten verificar el código frente a res- Cubren geometrías y condiciones idealizao manufacturadas puestas conocidas. das.
+FEM Representa geometría, materiales y Exige malla, convergencia y repetición del
+contornos con detalle espacial. modelo para cada escenario.
+FDM Aproxima las derivadas de la PDE median- Es directo en dominios regulares, pero
+te diferencias en una grilla. pierde flexibilidad ante geometrías e
+interfaces complejas.
+FVM Integra balances de energía sobre volúme- Conserva flujos locales, pero requiere
+nes de control. tratamiento cuidadoso de interfaces y
+contornos.
+PINN Integra PDE, contornos, interfaces y datos Requiere controlar entrenamiento, pesos
+de referencia en una pérdida común. de pérdida, puntos de colocación y robustez.
+3.1.2 TÉCNICAS APLICADAS
+3.1.2.1 REDES NEURONALES INFORMADAS POR LA FÍSICA
+Una PINN, según la formulación de Raissi et al. (2019:686–690), representa una variable
+física mediante una red neuronal y usa diferenciación automática para calcular las derivadas
+que aparecen en la PDE. Los puntos de colocación permiten evaluar el residuo sin requerir
+una etiqueta de temperatura en cada punto. Si existen observaciones, pueden añadirse
+como otro término y convertir el problema en una combinación física–datos.
+La Figura 3.4 muestra esta organización en una arquitectura PINN convencional. A la
+izquierda se encuentra una red neuronal directa que recibe las coordenadas independientes
+y aproxima las variables físicas. A la derecha, las salidas de la red pasan por operadores
+de diferenciación automática para construir el residuo f de la ecuación gobernante. El
+entrenamiento reúne entonces una pérdida asociada con los datos y otra asociada con la
+física. Así, la información física no constituye una capa adicional de neuronas: actúa como
+una restricción sobre las funciones que la red puede aprender.
+
+Informada por física
+Red neuronal
+I σ σ
+x
+u ∂/∂x σ σ
+y
+Residuo
+σ σ ∂/∂y f
+v
+t
+σ σ ∂2/∂x2
+∂2/∂y2
+Pérdida de datos Pérdida física
+Ldatos Lfísica
+Pérdida total
+Ltotal
+Figura 3.4: Arquitectura general de una red neuronal informada por física: la red aproxima las
+variables de salida y la diferenciación automática permite evaluar las derivadas y el residuo de la
+ecuación gobernante; las pérdidas de datos y física se combinan durante el entrenamiento. Fuente:
+Lawal et al. (2022:fig. 1).
+En términos de arquitectura, una PINN puede usar una red neuronal directa con entradas,
+capas ocultas, funciones de activación y una o varias salidas físicas, como u y v en la
+Figura 3.4. La propuesta fundacional de Raissi et al. (2019:686–690) comparte los parámetros
+de la aproximación de la solución y del residuo físico: las derivadas no se estiman con una
+red separada, sino que se obtienen de la misma aproximación mediante diferenciación
+automática. Por ello, la diferencia central respecto de una red supervisada convencional no
+está solo en la arquitectura, sino en el entrenamiento, porque la pérdida incorpora la PDE,
+los contornos y, cuando existen, datos de referencia (Raissi et al., 2019:686–690; Lawal
+et al., 2022:1–2,14–17).
+Para el problema térmico, la red no aprende solo una relación empírica entre entradas y
+salidas. Aprende una aproximación del campo T(x, y) que debe reducir el incumplimiento
+local de la ecuación de conducción, de modo que el residuo físico se convierte en evidencia
+de consistencia del modelo (Raissi et al., 2019:686–690; Lawal et al., 2022:1–2,14–17). La
+Fórmula 3.5 se obtiene al evaluar la ecuación de calor estacionaria con T(x, y) y reordenar
+sus términos como residuo.
+
+rf(x, y) = ∇·(k(x, y)∇T(x, y)) + Q(x, y). (3.5)
+Fórmula 3.4: Residuo físico de una PINN para conducción de calor 2D estacionaria. Fuente:
+Elaboración propia.
+La Fórmula 3.5 debe interpretarse junto con contornos, interfaces y datos de referencia,
+cuando existan. Por ello, la metodología usa una función de pérdida compuesta, presentada
+en la Fórmula 4.3, y no una única métrica de ajuste. En esa pérdida, LPDE se calcula con el
+residuo en puntos de colocación, mientras que los otros términos conectan la solución con
+contornos, interfaces, datos y conservación de energía. Esta distinción se vuelve necesaria
+porque el estudio evaluará dominios multimateriales, donde la representación de interfaces
+y el balance entre términos de pérdida pueden condicionar el entrenamiento (Pan et al.,
+2025:16; Ren et al., 2025:2–6).
+La Figura 3.5 resume ese mecanismo para el problema térmico estacionario. Primero, la
+red recibe las coordenadas espaciales y los parámetros del caso; luego, produce una aproximación del campo T(x, y). Después, la diferenciación automática calcula sus gradientes
+espaciales (Raissi et al., 2019:686–690). Finalmente, la función de pérdida penaliza el incumplimiento de la ecuación de calor, los contornos, las interfaces y los datos disponibles, de
+modo que el esquema sintetiza Raissi et al. (2019:686–690), Lawal et al. (2022:1–2,14–17)
+y Pan et al. (2025:1,3,16).
+Evaluación física y de datos
+Red PINN
+Entradas Diferenciación Pérdidas evaluadas capas ocultas Pérdida total
+(x, y); k, Q automática rf = ∇· (k∇T) + Q activación L = Pj λjLj
+contornos/datos ∇T, ∇· (k∇T) rb, ri, rd T(x, y)
+Salida evaluada Optimizador
+campo de actualiza θ
+temperatura
+T(x, y)
+Tmáx, punto
+caliente, Imáx
+Figura 3.5: Esquema de funcionamiento de una PINN aplicada a conducción de calor. Fuente:
+Elaboración propia a partir de Raissi et al. (2019), Lawal et al. (2022) y Pan et al. (2025).
+Su utilidad para el estudio tiene tres razones: primero, ofrece una representación continua
+del campo; segundo, integra k(x, y); tercero, puede extenderse a identificación inversa.
+Sin embargo, sus riesgos también son claros, entre ellos el mal balance de pérdidas, las
+discontinuidades, los mínimos de optimización, la sensibilidad y la demanda computacional
+del entrenamiento (Ren et al., 2025:2–6; Pan et al., 2025:16).
+Las técnicas de descomposición de dominio de Shukla et al. (2021:1–2) aportan una ruta
+posible para tratar discontinuidades. Sin embargo, se incorporarán solo si el diseño básico
+
+demuestra que las necesita.
+3.1.2.2 CIENCIA DEL DISEÑO Y NATURALEZA DE LA CONTRIBUCIÓN
+La metodología DSR busca conocimiento prescriptivo mediante artefactos útiles y evaluados.
+En este plan, el objeto físico es el arreglo de cables–entorno térmico bajo heterogeneidad.
+El artefacto situado será el prototipo PINN usado para estudiar ese sistema. Además, la
+contribución abstracta incluirá requisitos, arquitectura, protocolo de evaluación y principios
+de diseño.
+Estas categorías son coherentes con la tipología de Gregor y Hevner (2013:343–349). La
+investigación propone y evalúa una formulación PINN para la conducción de calor en cables
+enterrados con conductividad espacialmente variable, dentro del dominio 2D estacionario y
+con las referencias definidas en el Capítulo 4.
+Los principios iniciales son: conservar explícitamente la física; representar interfaces sin
+promediar de forma inadvertida; separar verificación de validación; mantener incertidumbre
+numérica por debajo del efecto analizado; y preservar trazabilidad de cada ejecución. Estos
+principios son proposiciones de diseño sujetas a evaluación y refinamiento, no conclusiones
+anticipadas.
+En síntesis, el marco teórico reduce el problema a una cadena física: k(x, y) modifica el flujo
+térmico, el flujo determina T(x, y) y Tmáx limita la corriente admisible. Esta relación no define
+las variables metodológicas. La cadena metodológica está formada por objetos discretos
+y conserva cada producto: VI1–OE1–VD1, {VD1, R2}–OE2–VD2, {VD2, E3}–OE3–VD3 y
+{VD3, C4}–OE4–VD4; después continúan la evaluación DSR y la síntesis de principios.
+Ambas cadenas sostienen la metodología del Capítulo 4.
+3.2 DEFINICIÓN DE TÉRMINOS
+Esta sección precisa los términos que se usarán con sentido técnico u operacional en
+el estudio. Se incluyen aquellos que intervienen directamente en el problema, objetivos,
+hipótesis, dimensiones operativas, métricas o alcance del artefacto. Las definiciones tomadas
+de normas, literatura técnica o metodología DSR se citan; las definiciones operacionales se
+formulan para esta investigación y se apoyan en las fuentes que sustentan su uso.
+3.2.1. Ampacidad.
+Corriente máxima que puede transportar un cable sin superar el límite térmico adoptado
+para sus materiales y condiciones de instalación. Se denotará como Imáx y se obtendrá
+al buscar la corriente que hace que Tmáx alcance Tlim (Neher & McGrath, 1957:752–760;
+Anders, 2005; International Electrotechnical Commission, 2023:cláusulas 4–5; Enescu
+et al., 2021:3–6).
+
+3.2.2. Ampacidad dinámica o DTR.
+Estimación de la capacidad de corriente considerando la evolución temporal de carga,
+temperatura ambiente, suelo y estado térmico previo del cable. Se distingue de la
+ampacidad en régimen permanente porque aprovecha la inercia térmica del sistema y
+requiere supuestos transitorios explícitos (International Electrotechnical Commission,
+2002:cláusulas 2–4; Enescu et al., 2021:3–6; Fariz et al., 2026:14843–14845).
+3.2.3. Artefacto.
+Producto diseñado para resolver un problema relevante y generar conocimiento
+evaluable. Comprende la especificación, el prototipo PINN, los escenarios de prueba,
+las métricas y los principios de diseño derivados; se distingue del objeto de estudio
+físico, que es el arreglo de cables–entorno térmico (Peffers et al., 2007:55–56; Gregor
+& Hevner, 2013:342–350).
+3.2.4. Suelo de relleno.
+Suelo colocado como relleno en la zanja alrededor del cable o sobre el lecho de
+asiento. Puede tener propiedades térmicas distintas a las del suelo nativo y modificar
+la evacuación de calor del arreglo de cables–entorno térmico (Anders, 2005; Atoccsa et
+al., 2024:1–3; Kim et al., 2025:1,10,16; Institute of Electrical and Electronics Engineers,
+2017:secciones 4–6).
+3.2.5. Lecho de asiento.
+Capa de material colocada inmediatamente debajo del cable dentro de la zanja. En el
+contexto del estudio se considera una región cercana al cable cuya conductividad,
+extensión y posición pueden afectar la temperatura máxima y el punto caliente (Ocłoń et
+al., 2015:1–4; Kim et al., 2025:1,10,16; Institute of Electrical and Electronics Engineers,
+2017:secciones 4–6).
+3.2.6. Cable eléctrico enterrado.
+Sistema multicapa instalado bajo tierra para transportar energía eléctrica. Su respuesta térmica depende de pérdidas internas, capas del cable, profundidad, configuración, suelo de relleno, suelo nativo y condiciones de frontera (Neher & McGrath,
+1957:752–760; Anders, 2005; Enescu et al., 2020:3–5; Kim et al., 2025:fig. 2).
+3.2.7. Caso de referencia o benchmark.
+Configuración con solución analítica, solución manufacturada, FEM convergente o
+resultado publicado que se usa para comparar y verificar el artefacto. Su función es
+aportar una base trazable para evaluar error, balance energético y consistencia física
+(CIGRÉ Working Group B1.56, 2022; CIGRÉ Working Group B1.87, 2025:93–99).
+3.2.8. Arreglo de cables–entorno térmico.
+Objeto de estudio físico y tangible. Comprende los cables multicapa, su disposición de
+instalación, el lecho de asiento, el suelo de relleno, el suelo nativo, las condiciones de
+frontera y las fuentes de calor que determinan el campo de temperatura y la ampacidad
+(Neher & McGrath, 1957:752–760; Anders, 2005; Enescu et al., 2020:3–5; Enescu
+et al., 2021:4–6; Kim et al., 2025:1,10,16).
+3.2.9. Campo de temperatura.
+Distribución espacial de temperatura en la sección 2D estacionaria, representada
+como T(x, y). Es la salida primaria del modelo y permite derivar Tmáx, punto caliente
+e Imáx. La notación T(x, y, t) se reserva para el caso transitorio, fuera del alcance
+principal (Carslaw & Jaeger, 1959; Hahn & Özışık, 2012; Kakaç et al., 2018; Pan et al.,
+2025:1,3,16).
+
+3.2.10. Ciencia del diseño o DSR.
+Paradigma de investigación que diseña, demuestra y evalúa artefactos para resolver
+problemas prácticos y producir conocimiento prescriptivo. Estructura las fases de
+especificación, desarrollo, demostración, evaluación y comunicación (Peffers et al.,
+2007:54–56; Gregor & Hevner, 2013:342–351; Delport et al., 2024:198–203).
+3.2.11. Condición de contorno.
+Restricción impuesta en el borde del dominio de cálculo, por ejemplo temperatura
+prescrita, flujo de calor o intercambio convectivo equivalente. Su definición afecta la
+solución térmica y debe permanecer controlada en comparaciones pareadas (Carslaw
+& Jaeger, 1959; Hahn & Özışık, 2012; Kakaç et al., 2018; Enescu et al., 2020:3–5;
+CIGRÉ Working Group B1.87, 2025:3–4,93–99).
+3.2.12. Conductividad térmica.
+Propiedad k, expresada en W/(m K), que mide la facilidad con la que un material
+conduce calor. Es la inversa de la resistividad térmica: k = 1/ρth. En el modelo se usará
+como conductividad térmica espacialmente variable k(x, y) para representar el cable,
+el suelo de relleno, el lecho de asiento y el suelo nativo con propiedades distintas
+(Carslaw & Jaeger, 1959; Kakaç et al., 2018; de Vries, 1966; Farouki, 1981; Khumalo
+et al., 2025:1,7; Institute of Electrical and Electronics Engineers, 2017:secciones 4–6).
+3.2.13. Contraste de conductividad.
+Relación o diferencia relativa entre conductividades de regiones del dominio. Se
+expresa mediante Ck y se usa para ordenar escenarios de heterogeneidad baja,
+media o alta (de Vries, 1966; Farouki, 1981; Khumalo et al., 2025:1,6–9; Kim et al.,
+2025:1,10,16).
+3.2.14. Ecuación de conducción de calor.
+Ecuación de conservación de energía que relaciona capacidad térmica, conductividad,
+gradientes de temperatura y fuentes de calor. En régimen estacionario, la derivada
+temporal se anula; en régimen transitorio, se conserva el término de acumulación
+térmica (Carslaw & Jaeger, 1959; Hahn & Özışık, 2012; Kakaç et al., 2018; Xing et al.,
+2023:1,3; Pan et al., 2025:1,3,16).
+3.2.15. Ecuación diferencial en derivadas parciales o PDE.
+Ecuación que involucra derivadas de una función respecto de varias coordenadas
+matemáticas independientes. Estas coordenadas no son las VI metodológicas del
+estudio. La PDE principal del modelo es la ecuación de conducción de calor y su
+residuo se incorpora a la pérdida de la PINN (Raissi et al., 2019:686–690; Lawal et al.,
+2022:1–2).
+3.2.16. Extensión de heterogeneidad.
+Tamaño o fracción del dominio afectado por una región con conductividad distinta
+a la base. Se representa mediante fh y se evalúa junto con contraste y proximidad
+(Enescu et al., 2021:4–6; Khumalo et al., 2025:1,6–9; Kim et al., 2025:1,10,16).
+3.2.17. FEM.
+Método de elementos finitos. Discretiza el dominio en elementos para aproximar el
+campo de temperatura en geometrías y materiales complejos. Funcionará como referencia numérica convergente del campo térmico, no como artefacto principal (Enescu
+et al., 2021:4–6; Patankar, 1980; CIGRÉ Working Group B1.87, 2025:3–4,93–99).
+
+3.2.18. Función de pérdida.
+Función objetivo minimizada durante el entrenamiento de la PINN. Combina residuos
+de PDE, contornos, interfaces, condición inicial y, si existen, datos de referencia,
+ponderados por coeficientes λj (Raissi et al., 2019:686–690; Pan et al., 2025:16;
+Lawal et al., 2022:1–2,17).
+3.2.19. Heterogeneidad térmica.
+Variación espacial de propiedades térmicas dentro del dominio. El análisis se centra en
+la conductividad térmica espacialmente variable k(x, y) del arreglo de cables–entorno
+térmico y se caracteriza por contraste, patrón, extensión y proximidad al conductor
+(de Vries, 1966; Farouki, 1981; Enescu et al., 2021:4–6; Khumalo et al., 2025:1,6–9;
+Kim et al., 2025:1,10,16).
+3.2.20. Interfaz térmica.
+Frontera interna entre materiales con propiedades térmicas distintas. Para el modelo
+se exigirá continuidad de temperatura y de flujo normal, salvo que el caso de referencia
+especifique una resistencia de contacto (Carslaw & Jaeger, 1959; Hahn & Özışık,
+2012; Kakaç et al., 2018; Patankar, 1980; Xing et al., 2023:3; CIGRÉ Working Group
+B1.87, 2025:3–4,93–99).
+3.2.21. Material PAC.
+Agregado de concreto premezclado usado como suelo de relleno con propiedades
+térmicas mejoradas. Se considera un ejemplo de suelo de relleno de mayor conductividad que puede reducir la temperatura del conductor respecto de la arena natural
+(Kim et al., 2025:1,10,16).
+3.2.22. PINN.
+Red neuronal informada por física. Aproxima una variable física mediante una red
+neuronal y penaliza el incumplimiento de la PDE y de condiciones auxiliares durante el
+entrenamiento (Raissi et al., 2019:686–690; Lawal et al., 2022:1–2,14–17; Pan et al.,
+2025:1,3,16).
+3.2.23. Polietileno reticulado o XLPE.
+Material aislante usado en cables de potencia. Su límite térmico condiciona la temperatura admisible del conductor y, por tanto, el cálculo de ampacidad (International
+Electrotechnical Commission, 2014; Enescu et al., 2020:3–5; Kim et al., 2025:fig. 2).
+3.2.24. Proximidad de heterogeneidad.
+Distancia entre una región heterogénea y el conductor o zona de mayor generación
+de calor. Se representa mediante dh y permite distinguir si una anomalía térmica está
+cerca, a distancia intermedia o lejos del cable (Khumalo et al., 2025:1,6–9; Kim et al.,
+2025:1,10,16; Ocłoń et al., 2015:1–4).
+3.2.25. Punto caliente.
+Ubicación del dominio donde el campo de temperatura alcanza el máximo relevante
+para operación o diseño. Se registrará mediante sus coordenadas (xh, yh) y se comparará entre escenarios homogéneos y heterogéneos (Khumalo et al., 2025:1,6–9;
+Kim et al., 2025:1,10,16).
+3.2.26. Punto de colocación.
+Punto del dominio o del contorno usado para evaluar la PDE, las condiciones de borde
+o las condiciones de interfaz durante el entrenamiento de una PINN. No requiere necesariamente una etiqueta de temperatura de referencia (Raissi et al., 2019:686–690;
+
+Lawal et al., 2022:1–2).
+3.2.27. Representación homogénea equivalente.
+Sustitución de un entorno heterogéneo por una propiedad térmica única o promedio.
+Se usará como referencia de comparación para cuantificar cuánto cambian Tmáx e
+Imáx al representar explícitamente la conductividad térmica espacialmente variable
+k(x, y) (de Vries, 1966; Farouki, 1981; Enescu et al., 2021:4–6; CIGRÉ Working Group
+B1.87, 2025:3–4,41–42,93–99).
+3.2.28. Residuo físico.
+Incumplimiento local de la ecuación gobernante o de una condición auxiliar al evaluar
+la aproximación del campo de temperatura T(x, y). En la PINN, los residuos forman
+términos de la función de pérdida y sirven como indicadores de consistencia física
+(Raissi et al., 2019:686–690; Lawal et al., 2022:1–2,14–17).
+3.2.29. Resistividad térmica.
+Propiedad ρth, expresada en K m/W, que mide la oposición de un material a la transferencia de calor. Es la inversa de la conductividad térmica: ρth = 1/k. En los suelos
+nativos y los suelos de relleno depende de composición, densidad y humedad, por
+lo que puede cambiar significativamente entre condición húmeda y seca. Cuando
+una fuente reporte ρth, el modelo empleará la conductividad equivalente k = 1/ρth
+(de Vries, 1966; Farouki, 1981; Khumalo et al., 2025:1,6–9; Institute of Electrical and
+Electronics Engineers, 2017:secciones 4–6).
+3.2.30. Solución manufacturada.
+Solución artificial definida de antemano para un problema de verificación numérica. A
+partir de ella se construyen fuentes o condiciones de contorno compatibles, de modo
+que el error del artefacto pueda evaluarse contra una respuesta conocida (CIGRÉ
+Working Group B1.56, 2022; CIGRÉ Working Group B1.87, 2025:93–99).
+3.2.31. Suelo nativo.
+Material natural existente alrededor de la zanja antes de incorporar el lecho de asiento
+o el suelo de relleno. Sus propiedades térmicas dependen de composición, densidad
+y humedad, y constituyen una parte central del entorno térmico del cable enterrado
+(de Vries, 1966; Farouki, 1981; Khumalo et al., 2025:1,6–9; Institute of Electrical and
+Electronics Engineers, 2017:secciones 4–6).
+3.2.32. Temperatura máxima del conductor.
+Máximo valor de temperatura en la región del conductor, denotado Tmáx. Es la variable térmica principal para verificar el cumplimiento de Tlim y calcular Imáx (Neher &
+McGrath, 1957:752–760; Anders, 2005; International Electrotechnical Commission,
+2023:cláusulas 4–5; Enescu et al., 2021:3–6).
+3.2.33. Validación.
+Evaluación de si el modelo representa con suficiencia una instalación real o el caso
+de uso declarado mediante evidencia empírica independiente. No se realizará validación experimental de campo; el término se reserva para trabajos que incluyan
+instrumentación, medición de propiedades del suelo, registro de carga y temperatura,
+y seguimiento operativo de una instalación real (CIGRÉ Working Group B1.56, 2022;
+CIGRÉ Working Group B1.87, 2025:93–99; Gregor & Hevner, 2013:350–351).
+3.2.34. Verificación.
+Evaluación de si la formulación matemática, el código y el procedimiento numérico
+
+resuelven correctamente el problema especificado. Incluye casos analíticos simples,
+soluciones manufacturadas, referencias FEM convergentes, casos publicados con
+datos comparables, balance energético, residuos, contornos e interfaces (CIGRÉ
+Working Group B1.56, 2022; CIGRÉ Working Group B1.87, 2025:3–4,93–99; Gregor
+& Hevner, 2013:350–351).
+3.2.35. Zona seca.
+Región de suelo nativo o suelo de relleno con bajo contenido de humedad y mayor
+resistividad térmica que el material en condición húmeda. Puede aparecer por condiciones ambientales o calentamiento y reducir la disipación de calor del cable (Enescu
+et al., 2021:4–6; Khumalo et al., 2025:1,6–9; Fariz et al., 2026:14851–14852).
+
+CAPÍTULO 4. METODOLOGÍA DE LA INVESTIGACIÓN
+Este capítulo explica cómo se construirá, verificará y evaluará el artefacto PINN. La ciencia
+del diseño organiza el proceso y mantiene la relación entre k(x, y), T(x, y), Tmáx, Imáx y la
+evidencia producida en cada fase.
+4.1 TIPO DE INVESTIGACIÓN
+La investigación tendrá enfoque cuantitativo porque calculará y comparará temperatura,
+errores, residuos, tiempos y variaciones de ampacidad. Además, esos registros se obtendrán
+mediante casos analíticos, manufacturados, bibliográficos y computacionales del arreglo de
+cables–entorno térmico.
+Será aplicada y tecnológica porque construirá un artefacto para estudiar un problema de
+ingeniería. Por tanto, evaluará tanto el efecto de k(x, y) como la utilidad del artefacto.
+4.2 NIVEL DE INVESTIGACIÓN
+El nivel de la investigación será explicativo y comparativo, con orientación tecnológica. Es
+explicativo porque busca establecer cómo el contraste, el patrón, la extensión y la proximidad
+de las heterogeneidades de k(x, y) modifican T(x, y), Tmáx e Imáx; es comparativo porque
+contrasta pares controlados de representación heterogénea y homogénea equivalente; y
+tiene orientación tecnológica porque incluye la construcción y la verificación del artefacto
+PINN.
+4.3 MÉTODOS DE TRABAJO
+Como maestría de especialización, el diseño metodológico se organizará como ciencia del
+diseño. Primero se especificará el problema; luego se construirá el artefacto; finalmente se
+demostrará, evaluará y comunicará.
+La metodología seguirá el paradigma DSR porque el estudio debe demostrar que el artefacto
+funciona y que su diseño produce conocimiento transferible. La estructura de identificación,
+diseño, demostración, verificación y comunicación se toma de Peffers et al. (2007:55–56);
+dentro de esa secuencia se contrastarán proposiciones sobre k(x, y), Tmáx e Imáx. Las
+métricas cuantitativas serán evidencia del ciclo DSR, de acuerdo con el énfasis de Gregor y
+Hevner (2013:349–351) en utilidad, calidad, eficacia y comunicación de la contribución.
+
+Por esta razón, la metodología distingue objeto físico, entradas, configuración, producto,
+evidencia y controles, en lugar de tratar las dimensiones operativas como pares estadísticos
+aislados (Peffers et al., 2007:55–56; Gregor & Hevner, 2013:342–344).
+4.3.1 ADAPTACIÓN DE LA CIENCIA DEL DISEÑO
+El Procedimiento 4.1 resume cómo se adaptan las actividades DSR al estudio y muestra la función de cada una dentro del ciclo de construcción, demostración, evaluación y
+comunicación del artefacto.
+Procedimiento 4.1: Proceso DSR adaptado al estudio. Fuente: Elaboración propia.
+A1. Identificación y motivación: delimitar el arreglo de cables–entorno térmico, la clase
+de problema, las entradas físicas relevantes y la diferencia operativa entre keq y la
+conductividad térmica espacialmente variable k(x, y).
+A2. Objetivos de solución: convertir problemas y requisitos físicos en productos verificables, criterios cuantificables de exactitud, robustez, utilidad y reproducibilidad.
+A3. Diseño y desarrollo: definir la arquitectura lógica del artefacto, la representación
+computacional del sistema físico, sus entradas y salidas esperadas, implementar
+incrementos y registrar decisiones y versiones.
+A4. Demostración: ejecutar referencias, benchmarks y escenarios de heterogeneidad
+representativos para mostrar los resultados que produce el artefacto.
+A5. Evaluación: comparar productos y resultados con los criterios de aceptación, analizar
+errores y decidir refinamiento o aceptación.
+A6. Comunicación: sistematizar y documentar el artefacto, los insumos, los resultados, la
+evidencia, los límites, el procedimiento reproducible, los principios de diseño derivados
+y los productos académicos.
+La secuencia seguirá a Peffers et al. (2007:55–56); sin embargo, la evaluación también será
+formativa. Por tanto, cada incremento deberá superar pruebas físicas y numéricas antes de
+usarse en la demostración. Esta decisión adopta el refinamiento continuo recomendado por
+Delport et al. (2024:198–203).
+4.3.2 SÍNTESIS Y COMUNICACIÓN DE LA EVIDENCIA DSR
+La Figura 4.1 ubica la sistematización y los principios de diseño dentro de la metodología
+DSR.
+La sistematización de un procedimiento reproducible y la formulación de principios de diseño
+se realizarán después de construir, demostrar y evaluar el artefacto. En consecuencia,
+no se formulan como problema, objetivo o hipótesis específicos adicionales. Constituyen
+una actividad metodológica de cierre de DSR que transforma la evidencia generada por
+
+PE1–PE4, OE1–OE4 y HE1–HE4 en conocimiento documentado y comunicable (Peffers
+et al., 2007:55–56; Gregor & Hevner, 2013:342–350).
+La síntesis usará VD1, la especificación trazable; VD2, el artefacto verificado y su expediente
+de aceptación; VD3, el expediente de evidencia térmica; VD4, el expediente comparativo de
+ampacidad; además de los registros de ejecución y los límites de validez. A partir de esos
+insumos se elaborarán la guía de reproducción, el protocolo consolidado de aplicación y
+evaluación, el repositorio depurado y los principios de diseño respaldados por evidencia.
+Los principios iniciales podrán confirmarse, modificarse o descartarse; no se considerarán
+resultados demostrados antes de completar la evaluación.
+VD1
+Especificación trazable
+Procedimiento y guía
+VD2 Actividad metode reproducción
+Artefacto verificado dológica DSR
+Evaluar, integrar, abstraer
+y comunicar la evidencia
+VD3 No agrega problema, Principios de di-
+Expediente térmico objetivo ni hipótesis seño, límites y
+repositorio depurado
+VD4
+Expediente de
+ampacidad
+Figura 4.1: Ubicación de la sistematización y de los principios de diseño dentro de la metodología
+DSR. La actividad ocurre después de obtener la evidencia de los cuatro objetivos específicos y no
+constituye un quinto problema, objetivo o hipótesis. Fuente: Elaboración propia.
+4.3.3 ARTEFACTO PROPUESTO
+El artefacto será un modelo y prototipo computacional, por lo que no se reducirá a una
+red entrenada. A nivel lógico tendrá seis componentes, mostrados en la Figura 4.2. Las
+herramientas concretas se registran en el repositorio del proyecto. La red se implementa
+en PyTorch y las referencias de elementos finitos se generan con FEniCSx y Gmsh, en un
+entorno Linux bajo WSL, sobre el equipo descrito en el presupuesto.
+Los componentes expresan el artefacto a un nivel lógico, de modo que separan los principios
+de diseño de una implementación particular. Esta separación favorece la reutilización y
+responde a la recomendación de Gregor y Hevner (2013:342–350) sobre describir artefacto, requisitos y búsqueda de diseño. El mismo esquema recoge la evaluación continua
+recomendada por Delport et al. (2024:198–203).
+
+2. Represen-
+1. Especifica- tación física
+3. Solucionador PINN ción del caso PDE, fuenaproximación y geometría, materiales, tes, interfaces
+entrenamiento carga y contornos y conductividad
+variable k(x, y)
+5. Experimenta- 4. Verificación
+6. Trazabilidad ción numérica evaluación técnica con
+datos, metadatos, casos, sensibili- referencias, residuos,
+resultados e informes dad y ampacidad balance y robustez
+Figura 4.2: Arquitectura lógica del artefacto DSR propuesto. Fuente: Elaboración propia.
+4.3.4 MODELO FÍSICO
+Para régimen estacionario, la temperatura se gobernará por la conservación de energía en un
+medio de conductividad espacialmente variable. Esta forma se toma de la ecuación clásica
+de conducción de calor para medios heterogéneos y se adapta al dominio 2D del estudio
+(Carslaw & Jaeger, 1959; Hahn & Özışık, 2012; Kakaç et al., 2018; Xing et al., 2023:3):
+∇·(k(x, y)∇T(x, y)) + Q(x, y) = 0, (x, y) ∈Ω. (4.1)
+Fórmula 4.1: Ecuación de conducción de calor 2D estacionaria. Fuente: Elaboración propia.
+La Fórmula 4.1 expresa el balance estacionario usado como núcleo físico del artefacto.
+En ella, Q representa las pérdidas volumétricas o una distribución equivalente de fuentes,
+mientras que k(x, y) mantiene la variación de material dentro del operador térmico. Por ello,
+la formulación evita tratar las discontinuidades como cambios externos al operador y es
+coherente con PINN que incluyen propiedades espaciales (Xing et al., 2023:3).
+En las interfaces se impondrá continuidad de temperatura y de flujo normal. En el contorno se
+usarán condiciones de temperatura, flujo o convección, según el caso de referencia (Enescu
+et al., 2020:3–5).
+T1 = T2, n · k1∇T1 = n · k2∇T2 en Γ12. (4.2)
+Fórmula 4.2: Condiciones de interfaz entre dos materiales. Fuente: Elaboración propia.
+La Fórmula 4.2 hace explícita esa restricción: la temperatura debe ser continua y el flujo
+normal debe conservarse entre materiales. Esta condición proviene del balance térmico en
+interfaces y es relevante porque el dominio incluye cable, suelo de relleno y suelo nativo, de
+modo que las interfaces no pueden introducir saltos térmicos sin justificación física (Carslaw
+& Jaeger, 1959; Kakaç et al., 2018; Patankar, 1980; Xing et al., 2023:3).
+
+La PINN aproximará el campo T(x, y) y minimizará una pérdida compuesta, la cual incluirá
+residuos de ecuación, contornos, interfaces y datos de referencia cuando existan (Raissi
+et al., 2019:686–690). Este esquema sigue la penalización física propuesta por Raissi et al.
+(2019:686–690); sin embargo, los pesos no se fijarán de antemano. Los pesos serán parte
+de la búsqueda de diseño, debido a que gradientes desbalanceados pueden sesgar la
+convergencia en redes PINN (Pan et al., 2025:16; Lawal et al., 2022:1–2,17).
+L(θ) = wfLPDE + wbLcont + wiLint + wdLdatos + weLenergía. (4.3)
+Fórmula 4.3: Función de pérdida lógica del artefacto PINN. Fuente: Elaboración propia.
+La Fórmula 4.3 organiza el entrenamiento como una suma ponderada de restricciones.
+Es una formulación operacional del estudio basada en la pérdida PINN de Raissi et al.
+(2019:686–690) y en los problemas de ponderación reportados por Lawal et al. (2022:1–2,17)
+y Pan et al. (2025:16). El término LPDE penaliza el incumplimiento de la ecuación de calor;
+los términos de contorno e interfaz controlan condiciones físicas auxiliares; los datos y la
+energía agregan trazabilidad cuando exista una referencia.
+La ampacidad se obtendrá buscando la corriente que hace coincidir Tmáx con el límite
+térmico adoptado. Este criterio se basa en la definición clásica de corriente admisible y en el
+tratamiento normativo de régimen permanente para cables (Neher & McGrath, 1957:752–760;
+International Electrotechnical Commission, 2023:cláusulas 4–5; Enescu et al., 2021:3–6). En
+cada iteración se actualizarán las pérdidas dependientes de corriente y luego se resolverá el
+campo térmico hasta cumplir tolerancias de temperatura y energía.
+Imáx = máx I : máx T(x, y; I) ≤Tlim . (4.4)
+(x,y)∈Ωc
+Fórmula 4.4: Condición para calcular la ampacidad. Fuente: Elaboración propia.
+La Fórmula 4.4 convierte ese criterio en una condición operacional para el artefacto. La
+corriente admisible es el mayor valor de I que mantiene la temperatura máxima del conductor,
+evaluada en Ωc, por debajo del límite térmico Tlim. Por tanto, el cálculo de ampacidad depende
+directamente de la calidad del campo T(x, y; I).
+a) Pérdidas Joule y resistencia eléctrica.
+Las pérdidas eléctricas se introducen como fuente de calor de Joule. Con una corriente I y
+una resistencia R(T), la potencia disipada por unidad de longitud del conductor es I2R(T).
+Esa potencia se reparte uniformemente en la sección del conductor. La resistencia se refiere
+a 20 ◦C y varía con la temperatura según la Fórmula 4.5, tomada de la norma de corriente
+admisible (International Electrotechnical Commission, 2023).
+
+R(T) = R20 [1 + α20 (T −T20)] . (4.5)
+Fórmula 4.5: Resistencia del conductor dependiente de la temperatura. Fuente: Elaboración propia a
+partir de International Electrotechnical Commission (2023).
+En la fórmula, T20 es la temperatura de referencia de 20 ◦C, R20 la resistencia en corriente
+alterna que aporta el caso y α20 el coeficiente de temperatura del material conductor. Los
+efectos piel y de proximidad no se calculan de forma explícita; entran solo a través de la
+resistencia en corriente alterna del caso. El modelo no resuelve las ecuaciones de Maxwell ni
+la distribución electromagnética de la corriente. El conductor se representa como un cilindro
+macizo con fuente uniforme. La temperatura interior se obtiene del campo resuelto y no
+de resistencias térmicas equivalentes. Los conductores segmentados y las pérdidas de
+proximidad quedan fuera del alcance y se reportan como límite. Aquí Ωc denota la región
+ocupada por el conductor.
+4.4 POBLACIÓN Y MUESTRA
+La población de referencia es el conjunto de configuraciones de cables enterrados en
+entornos térmicamente heterogéneos dentro del dominio 2D estacionario delimitado. Por
+tratarse de una maestría de especialización, no se extraerá una muestra probabilística: se
+seleccionará de forma intencional un conjunto de casos, realizaciones de R2, E3 y C4.
+4.4.1 CONTEXTO DE APLICACIÓN Y UNIDAD DE ANÁLISIS
+Por tratarse de una maestría de especialización, la unidad de análisis no será una población
+estadística, sino una sección transversal 2D del arreglo de cables–entorno térmico. Cada
+caso se definirá por atributos físicos y computacionales, entre ellos geometría, disposición,
+propiedades térmicas, carga, contornos, referencia de comparación y versión del artefacto.
+Estos atributos se alojan en P1, R2, E3 o C4 según la etapa y no constituyen por separado las
+VI metodológicas. Los valores de cables, materiales y entorno térmico se tomarán de fuentes
+bibliográficas, normas, casos publicados, soluciones analíticas o supuestos declarados. El
+artefacto PINN será la unidad de intervención. Por tanto, su evaluación seguirá la lógica
+DSR.
+Los casos se seleccionarán por pertinencia técnica y capacidad de evaluación. Se usarán
+soluciones analíticas, soluciones manufacturadas, benchmarks FEM, configuraciones publicadas y escenarios representativos. Así, los casos mostrarán alcance, límites y utilidad
+del artefacto. Sin embargo, no se levantarán mediciones directas de campo ni se buscará
+inferencia probabilística sobre todas las instalaciones posibles.
+
+4.5 TIPO DE DISEÑO
+El diseño es de ciencia del diseño (DSR), con ciclos formativos de evaluación y comparaciones pareadas entre representaciones heterogéneas y homogéneas equivalentes sobre
+casos discretos. No es un diseño experimental de campo ni un diseño factorial estadístico.
+4.5.1 EXPERIMENTACIÓN NUMÉRICA DEL ARTEFACTO DENTRO DE DSR
+La experimentación numérica permitirá observar el comportamiento térmico del sistema y
+servirá para demostrar y evaluar el artefacto dentro de la metodología DSR. No se planteará
+como un diseño experimental autónomo orientado a inferencia estadística, sino como una
+secuencia de casos controlados. Primero, la secuencia verificará el prototipo con casos
+simples y trazables; luego, demostrará su uso en configuraciones con k(x, y). Finalmente,
+evaluará la diferencia entre representaciones heterogéneas y homogéneas equivalentes
+para estimar el efecto sobre Tmáx e Imáx.
+Las comparaciones serán pareadas y controladas. Por tanto, cuando se evalúe heterogeneidad, solo cambiará la representación térmica del entorno. Además, los barridos de contraste,
+extensión y proximidad mostrarán sensibilidad física y límites del artefacto. La Tabla 4.1
+ordena esa secuencia dentro del ciclo DSR.
+Tabla 4.1: Uso de la experimentación numérica dentro del ciclo DSR. Fuente: Elaboración propia.
+Momento DSR Propósito de la experimenta- Evidencia esperada
+ción numérica
+Verificación forma- Comprobar que las entradas físi- VD2: artefacto verificado, paquetiva cas, PDE, contornos, interfaces, te de pruebas, errores frente a
+pérdidas y cálculo de ampacidad referencias, residuos, balance,
+están implementados de forma dominio y estado de aceptación.
+coherente.
+Demostración Mostrar que el artefacto puede VD3: expediente térmico con
+transformar escenarios de ca- mapas T(x, y), Tmáx, punto cables enterrados con materiales liente, diferencias, límites y estaheterogéneos en campos térmi- do del efecto.
+cos interpretables.
+Evaluación me- Juzgar utilidad, robustez, repro- VD4: expediente comparativo
+diante verificación ducibilidad y límites mediante con ampacidad, discrepancia,
+cálculos y referencias, sin valida- margen, clasificación de casos y
+ción experimental de campo. estado final.
+
+4.6 TÉCNICAS E INSTRUMENTOS DE RECOLECCIÓN DE DATOS
+Los datos se recolectarán mediante revisión documental y registro de ejecuciones computacionales. Los instrumentos y la trazabilidad se describen a continuación.
+4.6.1 EVIDENCIA, INSTRUMENTOS Y TRAZABILIDAD
+La evidencia provendrá de revisión documental, casos analíticos o manufacturados, referencias FEM, configuraciones publicadas y ejecuciones computacionales registradas. Por
+tanto, cada fuente deberá quedar asociada a un uso dentro del estudio. Los instrumentos
+serán la matriz de extracción bibliográfica, la especificación de requisitos y el catálogo de
+casos. Además, se usarán la bitácora DSR, archivos parametrizados, pruebas, matriz de
+resultados y protocolo de reproducción.
+Cada resultado conservará fuente, unidad, supuesto, semilla, versión del código, configuración de entrenamiento, criterio de convergencia y huella de salida. Esta trazabilidad permitirá
+reconstruir por qué se aceptó, refinó o descartó un incremento del artefacto.
+4.7 TÉCNICAS E INSTRUMENTOS DE ANÁLISIS Y PROCESAMIENTO DE DATOS
+El análisis comparará los resultados del artefacto con referencias independientes mediante
+las métricas y los criterios que siguen.
+4.7.1 MÉTRICAS DE EVALUACIÓN
+La evaluación combinará exactitud, consistencia física, utilidad y reproducibilidad. Para
+temperatura se usarán el error relativo de Tmáx, el error cuadrático medio normalizado
+(NRMSE), el error absoluto medio (MAE), el error máximo, los residuos y el desequilibrio
+energético. Las fórmulas de estas métricas aparecen en la Fórmula 4.6.
+Estas métricas son coherentes con la verificación de herramientas de ampacidad recomendada por CIGRÉ Working Group B1.87 (2025:93–99). Además, para ampacidad se reportará
+Imáx, diferencia porcentual y margen térmico.
+Para la calidad del artefacto se registrarán robustez entre semillas, cobertura de requisitos
+y facilidad de reproducción. El tiempo, la memoria y el hardware se conservarán como
+metadatos secundarios para interpretar la ejecución, no como medidas económicas ni como
+criterio central de aceptación. Por tanto, se seguirán los criterios DSR de utilidad, calidad y
+eficacia de Gregor y Hevner (2013:350–351).
+Las métricas mínimas de reporte se definen operacionalmente en la Fórmula 4.6, porque el
+
+artefacto debe evaluarse tanto por temperatura como por efecto operativo sobre ampacidad.
+La forma porcentual se adopta para facilitar la comparación entre referencias, como recomiendan los criterios de verificación de herramientas de rating (CIGRÉ Working Group B1.87,
+2025:93–99).
+máx PINN −T máx|ref , eTmáx(%) = 100|T ref T máx −Tamb
+−Ihom ∆I(%) = 100Ihet ,
+Ihom
+q 1 PINN ref 2 PNi=1 T i −T i (4.6) N
+NRMSE(%) = 100 ,
+T ref −Tamb máx
+|Pgen −Psal|
+εE(%) = 100 ,
+Pgen
+MT (K) = Tlim −Tmáx.
+Fórmula 4.6: Métricas de evaluación térmica, de ampacidad y de balance energético. Fuente:
+Elaboración propia.
+En la Fórmula 4.6, eTmáx expresa el error de Tmáx como fracción de la elevación térmica
+de la referencia, de modo que no depende del origen de la escala de temperatura. ∆I
+mide el cambio porcentual entre el escenario heterogéneo y el homogéneo. El NRMSE
+normaliza el error cuadrático medio con esa misma elevación, εE compara la potencia
+generada con la que sale del dominio y MT indica el margen frente al límite térmico. Estas
+expresiones no proceden de una norma como umbrales universales, sino que organizan el
+reporte cuantitativo del estudio dentro de la lógica DSR de utilidad, calidad y eficacia (Gregor
+& Hevner, 2013:350–351). La interpretación no dependerá de pruebas estadísticas como
+criterio central.
+4.7.2 VERIFICACIÓN Y CRITERIOS DSR
+La evaluación técnica se planteará como verificación, no como validación experimental
+de campo. Por tanto, responderá si el artefacto implementa bien la formulación térmica.
+La verificación usará referencias independientes, entre ellas casos analíticos, soluciones
+manufacturadas, FEM convergentes y casos publicados con datos suficientes (CIGRÉ
+Working Group B1.87, 2025:3–4,93–99).
+La IEC 60287 se usará como línea base normativa, aunque la referencia principal para juzgar
+el campo térmico será analítica, manufacturada o FEM convergente (CIGRÉ Working Group
+B1.87, 2025:3–4,93–99). Cuando el caso sea comparable, también se emplearán resultados
+publicados sobre suelo nativo y suelo de relleno. Por ejemplo, se usarán los trabajos de
+Khumalo et al. (2025:1,6–7) y Kim et al. (2025:9–10,16).
+
+No se levantarán mediciones directas de campo; por ello, la validación experimental queda
+fuera del alcance, debido a que requeriría una campaña específica de instrumentación y
+seguimiento. La Tabla 4.2 convierte esa lógica en reglas iniciales de aceptación y distingue
+verificación numérica, consistencia física, utilidad, reproducibilidad y contribución DSR.
+Tabla 4.2: Criterios DSR de aceptación del artefacto. Fuente: Elaboración propia.
+Criterio Evidencia esperada Regla inicial
+Verificación numé- Concordancia de Tmáx y del campo térmico con Límite general de
+rica (F2) una referencia convergente. HE2: eTmáx ≤5 %
+y NRMSE ≤5 %.
+En F2, |∆Tmáx|
+menor que 0,1 K
+y NRMSE menor
+que 1 %.
+Consistencia físi- Residuos, contornos, interfaces y balance global Desequilibrio
+ca de energía. ≤2 %.
+Evaluación de Concordancia de Tmáx y del campo T(x, y) con |∆Tmáx| menor
+escenarios (F3) la referencia numérica de cada escenario. que 0,5 K y NRM-
+SE menor que
+2,5 %.
+Utilidad Representa la conductividad térmica espacial- Más del 90 %
+mente variable k(x, y), estima Tmáx e Imáx y de los requisitos
+compara escenarios homogéneos/heterogé- críticos cubiertos
+neos. (F1).
+Reproducibilidad Resultado reconstruible desde datos, versión, Repositorio púconfiguración y semilla. blico con código,
+datos, fuentes y
+semilla que permite reconstruir
+cada resultado.
+Contribución DSR Requisitos, arquitectura, límites y principios de Síntesis transferidiseño explicitados. ble a problemas
+2D multimateriales.
+Juicio de expertos Calidad de la optimización en una escala de 1 Protocolo preli-
+(F4) a 10, con anclajes definidos antes de su aplica- minar del Aneción. xo ANEXO 2; sin
+umbral definitivo.
+Si un incremento no satisface criterios críticos, se volverá al diseño, como permite la secuencia DSRM de Peffers et al. (2007:56). Por tanto, la evaluación también servirá para
+decidir refinamientos. Si el piloto exige ajustar una regla, el cambio se justificará antes de
+la evaluación final, para evitar que los criterios cambien después de observar resultados
+favorables. Con ello se conserva la trazabilidad necesaria para comunicar evidencia y límites
+de validez (Gregor & Hevner, 2013:350–351).
+
+Las campañas de cálculo registran sus criterios de parada y de aceptación en el resumen
+de cada campaña. Cuando esos criterios difieren de los de la matriz, el informe lo indica y
+explica la conversión.
+La calidad de la optimización del artefacto se evaluará también mediante un juicio de expertos
+en una escala de 1 a 10. El protocolo preliminar, con criterios, anclajes y regla de agregación,
+se incluye en el Anexo ANEXO 2. Mientras no se aplique, ese juicio no se usa para aceptar
+ni rechazar el artefacto; complementa las métricas numéricas y no las reemplaza.
+4.8 ETAPAS DE INTERVENCIÓN DEL ESTUDIO
+El Procedimiento 4.2 organiza el trabajo en fases operativas y asocia cada una con un
+producto y una puerta de decisión. Esta estructura evita que la implementación avance sin
+requisitos, verificación básica o protocolo de evaluación suficientemente definidos. Las fases
+1 y 2 cubren los objetivos F0 y F1 de la matriz; la fase 3 corresponde a F2, la fase 4 a F3 y
+la fase 5 a F4. Las fases 6 y 7 son actividades de síntesis y comunicación, sin etapa propia
+en la matriz.
+Procedimiento 4.2: Etapas, productos y puertas de decisión. Fuente: Elaboración propia.
+Fase Actividad Producto Puerta
+1 Revisión y especifi- VD1: especificación trazable y matriz Aprobación de
+cación requisito–prueba. alcance y trazabilidad.
+2 Diseño lógico y Arquitectura, modelo físico, código Verificación básiprototipo versionado y pruebas unitarias/físi- ca.
+cas.
+3 Construcción, verifi- VD2: artefacto verificado y expedien- Aceptación, restriccación y piloto te de aceptación. ción o rechazo del
+artefacto.
+4 Demostración y VD3: expediente térmico por escena- Cobertura y calievaluación térmica rios y clasificación de efectos. dad de la evidencia.
+5 Comparación de VD4: expediente comparativo y clasi- Cobertura de paampacidad ficación de casos críticos. res y validez operativa.
+6 Síntesis DSR (activi- Procedimiento reproducible, princi- Aceptación del
+dad metodológica) pios de diseño, límites y evaluación artefacto.
+final.
+7 Comunicación Tesis, repositorio y manuscrito. Revisión académica.
+
+CAPÍTULO 5. ADMINISTRACIÓN DEL PLAN DE TESIS
+Este capítulo administra el plan: programa las actividades en el tiempo, identifica los rubros
+de gasto y declara la fuente de financiamiento.
+5.1 CRONOGRAMA
+El estudio se desarrolla en doce meses, de julio de 2026 a junio de 2027. La Tabla 5.1
+presenta el diagrama de Gantt. El primer bloque resume julio a septiembre de 2026, con las
+fases 1 y 2 del Procedimiento 4.2. La fase 3 se ejecutó en octubre de 2026 con las campañas
+adaptativas y se extiende a noviembre. Las fechas posteriores al 7 de noviembre de 2026
+son una programación sujeta a la aprobación del asesor.
+Tabla 5.1: Cronograma del plan de tesis en diagrama de Gantt. Azul oscuro: ejecutado o cumplido al 7 de
+noviembre de 2026; azul claro: programado. Fuente: Elaboración propia.
+2026 2027
+Jul–
+Fase Actividad Oct Nov Dic Ene Feb Mar Abr May Jun
+sep
+1 Revisión y especificación
+2 Diseño lógico y prototipo
+3 Construcción, verificación y piloto
+(campaña A–D)
+3E Ronda E de desarrollo, opcional y
+sujeta a aprobación
+4 Demostración y evaluación térmica
+5 Comparación de ampacidad
+6 Síntesis DSR
+7 Comunicación: redacción, revisión
+del asesor y sustentación
+Las campañas adaptativas A a D se ejecutaron entre el 26 y el 27 de octubre de 2026. La
+campaña A registró 39 corridas, la B 38, la C 40 y la D 42; todas comparten cuatro casos,
+cuatro arquitecturas y tres semillas. La campaña final, del 27 al 28 de octubre, registró
+22 corridas con dos casos, cinco arquitecturas y tres semillas. Su propósito es identificar
+las arquitecturas PINN con mejor desempeño para el problema térmico del estudio, y esa
+selección determina qué modelos se comparan en la fase de demostración.
+Los hitos del plan son: H1, especificación trazable y referencias FEM verificadas (octubre de
+2026); H2, campañas A a D con su extensión y confirmación con semillas nuevas (noviembre
+de 2026); H3, decisión sobre la ronda E (noviembre de 2026); H4, expedientes térmico y
+comparativo de ampacidad (diciembre de 2026 a febrero de 2027); H5, borrador completo
+de la tesis (marzo de 2027); y H6, revisión del asesor, depósito y sustentación (abril a junio
+de 2027).
+
+5.2 PRESUPUESTO
+La Tabla 5.2 organiza los gastos en los rubros de la Guía N.° 01: equipos, materiales e
+insumos, servicios, y viáticos y publicación. El equipo computacional ya existe y el software
+es de código abierto, por lo que no generan desembolso adicional. Los rubros con montos
+por confirmar dependen de cotizaciones y tarifas oficiales que se obtendrán antes de ejecutar
+el gasto. Hasta contar con esos valores, el presupuesto no se considera cerrado y su total
+queda pendiente.
+Tabla 5.2: Presupuesto del plan de tesis por rubros. Fuente: Elaboración propia.
+Rubro Concepto Situación Monto (S/)
+a) Equipos Computadora personal con CPU Intel Core Ultra Existente, de los 0,00
+7 165U para entrenamientos y referencias FEM. tesistas
+b) Materiales e insumos Software de código abierto: FEniCSx, Gmsh, Sin costo de licen- 0,00
+PETSc, PyTorch y LaTeX. cia
+b) Materiales e insumos Impresión y encuadernación de los ejemplares Por cotizar Por confirmar
+del informe final.
+c) Servicios Acceso a Internet y energía eléctrica durante el Existente, de los Por confirmar
+desarrollo. tesistas
+c) Servicios Derechos académicos y administrativos de Según el tarifario de Por confirmar
+sustentación y grado. la Universidad
+d) Viáticos y publicación Movilidad a reuniones de asesoría y a la sustenta- Por definir Por confirmar
+ción.
+d) Viáticos y publicación Publicación del manuscrito derivado de la tesis. Sujeta a la revista Por confirmar
+elegida
+5.3 FINANCIAMIENTO
+El plan será autofinanciado: los tesistas asumirán los gastos con fondos propios. No se han
+solicitado fondos concursables ni financiamiento de terceros, y no se requiere un compromiso
+económico adicional de la Universidad.
