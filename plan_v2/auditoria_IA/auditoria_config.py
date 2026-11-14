@@ -29,7 +29,7 @@ class AuditConfig:
         chunk_mode: 'structure' (párrafos), 'words' (por palabras) (default: 'structure')
         max_words: máximo de palabras por fragmento para chunking por palabras (default: 400)
         max_chars: máximo de caracteres por fragmento (default: 5000)
-        request_timeout: segundos de timeout para requests HTTP (default: 120)
+        request_timeout: segundos de timeout para requests HTTP (default: 300)
         review_threshold: puntuación mínima para priorizar lectura humana (default: 65.0)
         dry_run: True no envía requests ni inicia Docker; solo valida config (default: False)
         max_chunks: máximo de fragmentos a procesar; None procesa todos (default: None)
@@ -45,7 +45,8 @@ class AuditConfig:
     chunk_mode: str = "structure"  # 'structure', 'words'
     max_words: int = 400
     max_chars: int = 5000
-    request_timeout: int = 120
+    request_timeout: int = 300
+    report_timeout: int = 900
     review_threshold: float = 65.0
     dry_run: bool = False
     max_chunks: int | None = None
@@ -53,6 +54,17 @@ class AuditConfig:
 
     def __post_init__(self):
         """Normalizar rutas a Path absoluto."""
+        if self.mode not in {"whole", "chunks", "both"}:
+            raise ValueError("mode debe ser whole, chunks o both")
+        if self.chunk_mode not in {"structure", "words"}:
+            raise ValueError("chunk_mode debe ser structure o words")
+        for name in ("max_words", "max_chars", "startup_timeout", "request_timeout", "report_timeout", "stop_after_timeouts"):
+            if getattr(self, name) <= 0:
+                raise ValueError(f"{name} debe ser positivo")
+        if self.max_chunks is not None and self.max_chunks <= 0:
+            raise ValueError("max_chunks debe ser positivo o None")
+        if not 0 <= self.review_threshold <= 100:
+            raise ValueError("review_threshold debe estar entre 0 y 100")
         if isinstance(self.input_path, str):
             self.input_path = Path(self.input_path)
         if isinstance(self.output_dir, str):
@@ -72,7 +84,7 @@ class AuditConfig:
 
 
 def prepare_document(config: AuditConfig) -> tuple[Document, list[TextChunk]]:
-    """Preparar documento: extraer PDF y segmentar según configuración.
+    """Extraer un documento compatible y segmentar segun configuracion.
 
     Args:
         config: configuración de auditoría
@@ -85,12 +97,13 @@ def prepare_document(config: AuditConfig) -> tuple[Document, list[TextChunk]]:
         ValueError: si no se puede extraer texto del PDF
     """
     if not config.input_path.is_file():
-        raise FileNotFoundError(f"No se encontró PDF: {config.input_path}")
+        raise FileNotFoundError(f"No se encontró documento: {config.input_path}")
 
     document = extract_document(config.input_path)
     if not document.text.strip():
         raise ValueError("El documento no contiene texto extraible; revisar si requiere OCR.")
     chunks = make_chunks(document, config.max_words, config.max_chars, config.chunk_mode)
+    document.metadata["audit_total_chunks"] = len(chunks)
 
     if config.max_chunks is not None:
         chunks = chunks[: config.max_chunks]
@@ -163,33 +176,4 @@ def run_audit(
     if diagnostics is None and not config.dry_run:
         diagnostics = diagnose_service(config)
 
-    # Convertir a diccionario para auditar_plan.run_audit()
-    config_dict = {
-        "pdf_path": str(config.input_path),
-        "tex_path": str(config.input_path),  # Para este notebook usamos el PDF como referencia
-        "output_dir": str(config.output_dir),
-        "api_url": config.api_url,
-        "container_name": config.container_name,
-        "start_container_if_stopped": config.start_container,
-        "startup_timeout_seconds": config.startup_timeout,
-        "request_timeout_seconds": config.request_timeout,
-        "run_global": config.mode in {"whole", "both"},
-        "run_chunks": config.mode in {"chunks", "both"},
-        "batch_size": 1,
-        "chunk_chars": config.max_chars,
-        "review_threshold": config.review_threshold,
-    }
-
-    if config.dry_run:
-        # En dry_run: preparar output pero no enviar requests
-        config.output_dir.mkdir(parents=True, exist_ok=True)
-        report_path = config.output_dir / "auditoria_resultado_dry_run.md"
-        report_path.write_text(
-            "# Auditoría en modo simulado (dry_run=True)\n\n"
-            "No se han enviado requests ni iniciado contenedores.\n",
-            encoding="utf-8",
-        )
-        return report_path
-
-    # Ejecutar auditoría real
-    return auditar_plan.run_audit(config_dict)
+    return auditar_plan.run_audit(config.to_dict(), document, chunks, diagnostics)
