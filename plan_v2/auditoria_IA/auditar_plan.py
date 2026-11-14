@@ -175,6 +175,8 @@ def render_report(config: dict[str, Any], document: Document, chunks: list[TextC
     lines.extend(["", "## Resultados", "", "| Tarea | Ubicacion | Estado | Score 0-100 | Atencion |", "| --- | --- | --- | --- | --- |"])
     for item in results:
         attention = "revisar en contexto" if item["score"] is not None and item["score"] >= config["review_threshold"] else "sin prioridad por score"
+        if item["score"] is None:
+            attention = "no evaluable: sin puntuacion"
         lines.append(f"| {item['id']} | {md_text(', '.join(item['locations']))} | {item['status']} | {item['score'] if item['score'] is not None else 'no disponible'} | {attention} |")
     chunk_map = {chunk.chunk_id: chunk for chunk in chunks}
     for item in results:
@@ -206,7 +208,8 @@ def run_audit(config: dict[str, Any], document: Document, chunks: list[TextChunk
     (run_dir / "texto_extraido.txt").write_text(document.text, encoding="utf-8")
     tasks = []
     if config["mode"] in {"whole", "both"}:
-        tasks.append(("global", document.text, ["documento completo"], []))
+        scope = "muestra de prueba de humo" if document.metadata.get("smoke_test") else "documento completo"
+        tasks.append(("global", document.text, [scope], []))
     if config["mode"] in {"chunks", "both"}:
         tasks.extend((chunk.chunk_id, chunk.text, chunk.locations, chunk.sections) for chunk in chunks)
     results = []

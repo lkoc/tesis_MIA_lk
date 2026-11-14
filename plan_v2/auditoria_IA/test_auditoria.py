@@ -81,3 +81,29 @@ def test_global_score_never_uses_engine_score():
     assert find_score({"overall_score": float("nan")}) is None
     assert find_score({"overall_score": True}) is None
     assert find_score({"result": {"overall_score": 23.5}}) == 23.5
+
+
+def test_smoke_report_does_not_claim_full_document_or_low_risk(tmp_path):
+    from auditoria_config import run_audit
+
+    source = tmp_path / "sample.txt"
+    source.write_text("Sample text with sufficient context for a local test. " * 20, encoding="utf-8")
+    config = AuditConfig(source, tmp_path / "out", dry_run=True)
+    document, chunks = prepare_document(config)
+    document.metadata["smoke_test"] = True
+    report = run_audit(config, document, chunks)
+    content = report.read_text(encoding="utf-8")
+    assert "muestra de prueba de humo" in content
+    assert "no evaluable: sin puntuacion" in content
+    assert "sin prioridad por score" not in content
+
+
+def test_notebook_code_cells_compile_as_stored():
+    import json
+
+    notebook_path = Path(__file__).with_name("auditoria_sloptotal.ipynb")
+    notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
+    for cell in notebook["cells"]:
+        if cell["cell_type"] == "code":
+            source = cell["source"]
+            compile("".join(source) if isinstance(source, list) else source, str(notebook_path), "exec")
