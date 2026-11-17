@@ -3,6 +3,58 @@ from pathlib import Path
 from auditoria_config import AuditConfig, prepare_document
 
 
+def test_public_collector_resumes_ticket_and_rejects_duplicate(tmp_path):
+    import hashlib
+    import json
+    import pytest
+    from recolector_publico import ORDER, next_job, record_event
+
+    units = []
+    for index, identifier in enumerate(ORDER):
+        text = f"Texto verificable de {identifier}."
+        (tmp_path / f"{identifier}.txt").write_text(text, encoding="utf-8")
+        units.append({"id": identifier, "titulo": identifier, "archivo": f"{identifier}.txt",
+                      "sha256": hashlib.sha256(text.encode()).hexdigest(),
+                      "estado": "preparado_no_enviado", "pagina_pdf_inicial": index + 1,
+                      "pagina_pdf_final": index + 1})
+    (tmp_path / "manifest.json").write_text(json.dumps({"unidades": units}), encoding="utf-8")
+    job = next_job(tmp_path)
+    record_event(tmp_path, {"action": "started", "id": job["id"], "sha256": job["sha256_formulario_esperado"]})
+    with pytest.raises(ValueError, match="no reenviar"):
+        next_job(tmp_path)
+    ticket_url = "https://sloptotal.com/report/?ticket=1234567890abcdef"
+    record_event(tmp_path, {"action": "submitted", "id": job["id"], "url": ticket_url})
+    assert next_job(tmp_path)["url_ticket"] == ticket_url
+    with pytest.raises(ValueError, match="ya se envio"):
+        record_event(tmp_path, {"action": "started", "id": job["id"], "sha256": job["sha256_formulario_esperado"]})
+    capture = {"report_id": "123456abcdef", "report_text": "Complete 96.0 / 100", "visible_score": 96.0,
+               "export_text": json.dumps({"id": "123456abcdef", "overall_score": 99.3, "engine_results": []})}
+    record_event(tmp_path, {"action": "capture", "id": job["id"], "capture": capture})
+    saved = json.loads((tmp_path / "manifest.json").read_text(encoding="utf-8"))["unidades"][0]
+    assert saved["puntuacion_portal"] == 96.0
+    assert saved["puntuacion_exportacion"] == 99.3
+    assert "discrepancia_exportacion" in saved
+    assert next_job(tmp_path)["id"] == ORDER[1]
+    manifest = json.loads((tmp_path / "manifest.json").read_text(encoding="utf-8"))
+    manifest["orden_ejecucion"] = [ORDER[0]]
+    (tmp_path / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    assert next_job(tmp_path) == {"done": True}
+    manifest["cierre_auditoria"] = {"nuevos_envios_autorizados": False}
+    (tmp_path / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    assert next_job(tmp_path) == {"done": True, "closed": True}
+    with pytest.raises(ValueError, match="cerrada"):
+        record_event(tmp_path, {"action": "capture", "id": job["id"], "capture": capture})
+    manifest.pop("cierre_auditoria")
+    manifest["unidades"][0].update(estado="envio_iniciado")
+    manifest["unidades"][0].pop("ticket")
+    (tmp_path / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    record_event(tmp_path, {"action": "reused", "id": job["id"],
+                            "url": "https://sloptotal.com/report/?id=123456abcdef"})
+    assert next_job(tmp_path)["id_informe_reutilizado"] == "123456abcdef"
+    record_event(tmp_path, {"action": "capture", "id": job["id"], "capture": capture})
+    assert next_job(tmp_path) == {"done": True}
+
+
 def test_prepare_document_uses_generic_word_limits(tmp_path: Path):
     source = tmp_path / "document.txt"
     source.write_text("alpha beta gamma delta epsilon", encoding="utf-8")

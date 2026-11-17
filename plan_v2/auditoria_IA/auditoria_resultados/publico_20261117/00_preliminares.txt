@@ -1,0 +1,422 @@
+UNIVERSIDAD NACIONAL DE INGENIERÍA
+UNIDAD DE POSGRADO DE LA FACULTAD DE INGENIERÍA
+            INDUSTRIAL Y DE SISTEMAS
+              ESCUELA DE POSGRADO
+
+
+
+
+                      PLAN DE TESIS
+DISEÑO Y EVALUACIÓN DE UNA RED NEURONAL INFORMADA POR FÍSICA
+    PARA ESTIMAR LA TEMPERATURA Y LA AMPACIDAD DE CABLES
+     ELÉCTRICOS ENTERRADOS EN ENTORNOS HETEROGÉNEOS
+
+
+
+
+            PARA OBTENER EL GRADO ACADÉMICO DE
+                  MAESTRO CON MENCIÓN EN:
+                   INTELIGENCIA ARTIFICIAL
+
+                      ELABORADA POR:
+                LUIS ENRIQUE KOC GÓNGORA
+             HERBERT ANTONIO MELÉNDEZ GARCÍA
+
+                  ASESOR: SAMUEL OPORTO
+
+
+
+
+                        LIMA, PERÚ
+                            2026
+                                                                                       ıı
+
+
+
+
+DATOS GENERALES
+
+
+
+
+ Elemento               Descripción
+
+ Título del plan        DISEÑO Y EVALUACIÓN DE UNA RED NEURONAL IN-
+                        FORMADA POR FÍSICA PARA ESTIMAR LA TEMPERATU-
+                        RA Y LA AMPACIDAD DE CABLES ELÉCTRICOS ENTE-
+                        RRADOS EN ENTORNOS HETEROGÉNEOS.
+
+ Tesistas               Luis Enrique Koc Góngora;
+                        Herbert Antonio Meléndez García.
+
+ Asesor                 Samuel Oporto.
+
+ Programa               Maestría en Inteligencia Artificial.
+
+ Unidad académica       Unidad de Posgrado de la Facultad de Ingeniería Industrial
+                        y de Sistemas, Universidad Nacional de Ingeniería.
+
+ Área involucrada       Inteligencia artificial científica, modelado computacional y
+                        sistemas eléctricos de potencia.
+
+ Lugar de desarrollo    Entorno computacional de la Facultad de Ingeniería Indus-
+                        trial y de Sistemas de la Universidad Nacional de Ingeniería
+                        (FIIS-UNI) y casos de referencia documentados de instala-
+                        ciones de cables eléctricos enterrados.
+
+ Duración estimada      Doce meses, desde julio de 2026 hasta junio de 2027.
+
+ Fecha de inicio        Julio de 2026.
+
+ Fecha de culminación   Junio de 2027.
+ prevista
+
+ Tipo de graduación     Maestría de especialización o profesionalizante.
+
+ Artefacto de           Modelo y prototipo computacional 2D basado en redes neu-
+ investigación          ronales informadas por física para analizar campos térmicos
+                        y ampacidad en entornos heterogéneos.
+                                                                                              ııı
+
+
+
+
+ÍNDICE GENERAL
+
+
+
+DATOS GENERALES                                                                               II
+
+
+1. PLANTEAMIENTO DEL PROBLEMA                                                                 1
+
+  1.1. INTRODUCCIÓN . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .       1
+
+       1.1.1. PROBLEMÁTICA . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .        2
+
+  1.2. IDENTIFICACIÓN Y DESCRIPCIÓN DEL PROBLEMA DE ESTUDIO . . . . .                         7
+
+       1.2.1. ANTECEDENTES BIBLIOGRÁFICOS . . . . . . . . . . . . . . . . . .                 8
+
+              1.2.1.1. MODELOS TÉRMICOS Y AMPACIDAD . . . . . . . . . . . .                   9
+
+              1.2.1.2. HETEROGENEIDAD, SUELO NATIVO Y SUELO DE RELLENO 10
+
+              1.2.1.3. INTELIGENCIA ARTIFICIAL INFORMADA POR LA FÍSICA .                      11
+
+              1.2.1.4. ANTECEDENTES METODOLÓGICOS DSR . . . . . . . . .                       11
+
+              1.2.1.5. SÍNTESIS CRÍTICA Y DECISIONES DE DISEÑO . . . . . .                    11
+
+              1.2.1.6. UBICACIÓN DEL PROYECTO . . . . . . . . . . . . . . . . .               12
+
+       1.2.2. FORMULACIÓN DEL PROBLEMA . . . . . . . . . . . . . . . . . . . .                13
+
+              1.2.2.1. PROBLEMA GENERAL . . . . . . . . . . . . . . . . . . . . .             13
+
+              1.2.2.2. PROBLEMAS ESPECÍFICOS . . . . . . . . . . . . . . . . .                13
+
+       1.2.3. JUSTIFICACIÓN Y ALCANCES . . . . . . . . . . . . . . . . . . . . . .            15
+
+              1.2.3.1. JUSTIFICACIÓN . . . . . . . . . . . . . . . . . . . . . . . . .        15
+
+                   a).    Justificación práctica. . . . . . . . . . . . . . . . . . . . . .   15
+
+                   b).    Justificación tecnológica. . . . . . . . . . . . . . . . . . . .    15
+
+                   c).    Justificación metodológica. . . . . . . . . . . . . . . . . . .     15
+
+                   d).    Justificación científica y académica. . . . . . . . . . . . . .     15
+
+              1.2.3.2. ALCANCES Y LIMITACIONES . . . . . . . . . . . . . . . . .              16
+
+                   a).   Alcances. . . . . . . . . . . . . . . . . . . . . . . . . . . . .    16
+
+                   b).    Limitaciones. . . . . . . . . . . . . . . . . . . . . . . . . . .   16
+                                                                                             ıv
+
+2. OBJETIVOS DE LA INVESTIGACIÓN                                                             18
+
+  2.1. OBJETIVO GENERAL . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .        18
+
+  2.2. OBJETIVOS ESPECÍFICOS . . . . . . . . . . . . . . . . . . . . . . . . . . . .         18
+
+  2.3. HIPÓTESIS . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   20
+
+       2.3.1. HIPÓTESIS GENERAL . . . . . . . . . . . . . . . . . . . . . . . . . .          20
+
+       2.3.2. HIPÓTESIS ESPECÍFICAS . . . . . . . . . . . . . . . . . . . . . . . .          20
+
+  2.4. DIMENSIONES OPERATIVAS DEL ESTUDIO . . . . . . . . . . . . . . . . . .                21
+
+       2.4.1. VARIABLES INDEPENDIENTES DISCRETAS (ENTRADAS) . . . . .                        22
+
+       2.4.2. VARIABLES DEPENDIENTES (SALIDAS) . . . . . . . . . . . . . . . .               22
+
+       2.4.3. DISEÑO DISCRETO DE CASOS Y PARÁMETROS CONTROLADOS                              23
+
+
+3. MARCO TEÓRICO                                                                             25
+
+  3.1. BASES TEÓRICAS . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .      25
+
+       3.1.1. BASES CONCEPTUALES DEL PROBLEMA . . . . . . . . . . . . . .                    25
+
+               3.1.1.1. GENERACIÓN Y EVACUACIÓN DE CALOR EN CABLES .                         25
+
+               3.1.1.2. CONDUCTIVIDAD, RESISTIVIDAD Y HETEROGENEIDAD                         28
+
+               3.1.1.3. MÉTODOS DE CÁLCULO TÉRMICO . . . . . . . . . . . . .                 29
+
+       3.1.2. TÉCNICAS APLICADAS . . . . . . . . . . . . . . . . . . . . . . . . . .         30
+
+               3.1.2.1. REDES NEURONALES INFORMADAS POR LA FÍSICA . .                        30
+
+               3.1.2.2. CIENCIA DEL DISEÑO Y NATURALEZA DE LA CONTRIBU-
+                        CIÓN . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   33
+
+  3.2. DEFINICIÓN DE TÉRMINOS . . . . . . . . . . . . . . . . . . . . . . . . . . .          33
+
+
+4. METODOLOGÍA DE LA INVESTIGACIÓN                                                           39
+
+  4.1. TIPO DE INVESTIGACIÓN . . . . . . . . . . . . . . . . . . . . . . . . . . . .         39
+
+  4.2. NIVEL DE INVESTIGACIÓN . . . . . . . . . . . . . . . . . . . . . . . . . . . .        39
+
+  4.3. MÉTODOS DE TRABAJO . . . . . . . . . . . . . . . . . . . . . . . . . . . . .          39
+
+       4.3.1. ADAPTACIÓN DE LA CIENCIA DEL DISEÑO . . . . . . . . . . . . . .                40
+
+       4.3.2. SÍNTESIS Y COMUNICACIÓN DE LA EVIDENCIA DSR . . . . . . . .                    40
+                                                                                                v
+
+       4.3.3. ARTEFACTO PROPUESTO . . . . . . . . . . . . . . . . . . . . . . . .              41
+
+       4.3.4. MODELO FÍSICO . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .        42
+
+              4.3.4.1. PÉRDIDAS JOULE Y RESISTENCIA ELÉCTRICA . . . . . .                      43
+
+              4.3.4.2. BÚSQUEDA ACOTADA DE AMPACIDAD . . . . . . . . . . .                     44
+
+       4.3.5. PROTOCOLO REPRODUCIBLE DE LA PINN . . . . . . . . . . . . . .                    45
+
+  4.4. POBLACIÓN Y MUESTRA           . . . . . . . . . . . . . . . . . . . . . . . . . . . .   47
+
+       4.4.1. CONTEXTO DE APLICACIÓN Y UNIDAD DE ANÁLISIS . . . . . . . .                      47
+
+       4.4.2. CATÁLOGO MÍNIMO Y FICHAS DE LOS CASOS . . . . . . . . . . .                      48
+
+  4.5. TIPO DE DISEÑO . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .        49
+
+       4.5.1. EXPERIMENTACIÓN NUMÉRICA DEL ARTEFACTO DENTRO DE DSR 50
+
+       4.5.2. HOMOGENIZACIÓN Y CONTROL DE LOS PARES . . . . . . . . . .                        50
+
+  4.6. TÉCNICAS E INSTRUMENTOS DE RECOLECCIÓN DE DATOS . . . . . . .                           51
+
+       4.6.1. EVIDENCIA, INSTRUMENTOS Y TRAZABILIDAD . . . . . . . . . . .                     51
+
+  4.7. TÉCNICAS E INSTRUMENTOS DE ANÁLISIS Y PROCESAMIENTO DE DATOS 52
+
+       4.7.1. MÉTRICAS DE EVALUACIÓN . . . . . . . . . . . . . . . . . . . . . .               52
+
+       4.7.2. RELEVANCIA Y REGLAS DE DECISIÓN . . . . . . . . . . . . . . . .                  53
+
+       4.7.3. VERIFICACIÓN Y CRITERIOS DSR . . . . . . . . . . . . . . . . . . .               54
+
+              4.7.3.1. REFERENCIA FEM E INDEPENDENCIA DE MALLA . . . .                         54
+
+  4.8. ETAPAS DE INTERVENCIÓN DEL ESTUDIO . . . . . . . . . . . . . . . . . .                  57
+
+
+5. ADMINISTRACIÓN DEL PLAN DE TESIS                                                            58
+
+  5.1. CRONOGRAMA . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .          58
+
+  5.2. PRESUPUESTO . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .         59
+
+       5.2.1. RIESGOS Y CONTINGENCIAS . . . . . . . . . . . . . . . . . . . . . .              59
+
+  5.3. FINANCIAMIENTO . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .        60
+
+
+REFERENCIAS                                                                                    62
+
+
+ANEXOS                                                                                         67
+                                                                                             vı
+
+1. MATRIZ DE CONSISTENCIA . . . . . . . . . . . . . . . . . . . . . . . . . . . .            67
+
+2. PROTOCOLO PRELIMINAR DE JUICIO DE EXPERTOS . . . . . . . . . . . .                        72
+
+     2.1. Propósito y estado . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     72
+
+     2.2. Objeto de comparación . . . . . . . . . . . . . . . . . . . . . . . . . . . .      72
+
+     2.3. Evaluadores . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    72
+
+     2.4. Criterios y escala . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   72
+
+     2.5. Procedimiento . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    73
+
+     2.6. Cuestionario por caso . . . . . . . . . . . . . . . . . . . . . . . . . . . .      73
+
+     2.7. Agregación y regla de aceptación . . . . . . . . . . . . . . . . . . . . . .       73
+
+     2.8. Relación con las métricas numéricas . . . . . . . . . . . . . . . . . . . .        74
+
+     2.9. Limitaciones del protocolo . . . . . . . . . . . . . . . . . . . . . . . . . .     74
+                                                                                                 vıı
+
+
+
+
+LISTADO DE FIGURAS
+
+
+
+  1.1. Máxima demanda y longitud de la red troncal . . . . . . . . . . . . . . . . . .            3
+
+  1.2. Participación de la generación solar y eólica en el Perú . . . . . . . . . . . .           4
+
+  1.3. Resistividad térmica y ampacidad en cuatro casos publicados . . . . . . . . .              6
+
+  1.4. Relación entre presión de red, uso de cables enterrados, entorno térmico hete-
+       rogéneo, simplificación homogénea y riesgo de decisión. Fuente: Elaboración
+       propia. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    7
+
+  1.5. Articulación de los problemas específicos . . . . . . . . . . . . . . . . . . . .         14
+
+
+  2.1. Articulación de los objetivos específicos . . . . . . . . . . . . . . . . . . . . .       19
+
+  2.2. Articulación de las hipótesis específicas . . . . . . . . . . . . . . . . . . . . .       21
+
+  2.3. Modelo entrada–proceso–salida de las dimensiones operativas. Las VI y
+       las VD son objetos discretos; VD1–VD3 se heredan como componentes
+       obligatorios de VI2–VI4. Los parámetros físicos y numéricos se documentan
+       por caso, pero no se clasifican como VI ni VD. Fuente: Elaboración propia. .              24
+
+
+  3.1. Cadena física y metodológica entre heterogeneidad térmica, campo de tem-
+       peratura y ampacidad. Fuente: Elaboración propia. . . . . . . . . . . . . . . .           26
+
+  3.2. Estructura multicapa de un cable XLPE . . . . . . . . . . . . . . . . . . . . .           27
+
+  3.3. Zanja y entorno térmico del cable enterrado . . . . . . . . . . . . . . . . . . .         28
+
+  3.4. Arquitectura general de una red neuronal informada por física . . . . . . . . .           31
+
+  3.5. Esquema de funcionamiento de una PINN aplicada a conducción de calor . .                  32
+
+
+  4.1. Síntesis metodológica de la evidencia DSR . . . . . . . . . . . . . . . . . . .           41
+
+  4.2. Arquitectura lógica del artefacto DSR propuesto. Fuente: Elaboración propia.              42
+                                                                                                 vııı
+
+
+
+
+LISTADO DE TABLAS
+
+
+
+  1.1. Evolución cronológica de los antecedentes, de la fuente más antigua a la más
+       reciente. Fuente: Elaboración propia a partir de las referencias citadas. . . .             8
+
+  1.2. Comparación crítica de antecedentes y consecuencias para el diseño. Fuente:
+       Elaboración propia a partir de las fuentes citadas. . . . . . . . . . . . . . . .         12
+
+
+  2.1. Variables discretas de entrada y salida, composición y estados por etapa de
+       construcción del artefacto. Fuente: Elaboración propia. . . . . . . . . . . . .           24
+
+
+  3.1. Relación entre base teórica y uso metodológico. Fuente: Elaboración propia.               29
+
+  3.2. Función de los métodos térmicos dentro del estudio. Fuente: Elaboración
+       propia a partir de International Electrotechnical Commission (2023), Interna-
+       tional Electrotechnical Commission (2002), Enescu et al. (2021:4–6), CIGRÉ
+       Working Group B1.87 (2025:3–4,93–99), Patankar (1980) y Raissi et al. (2019). 30
+
+
+  4.1. Configuración propuesta para entrenamiento y confirmación. Fuente: Elabora-
+       ción propia. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    46
+
+  4.2. Casos mínimos propuestos y condiciones reproducibles. Fuente: Elaboración
+       propia; C0 utiliza una adaptación computacional histórica inspirada en Aras
+       et al. (2005). . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    48
+
+  4.3. Uso de la experimentación numérica dentro del ciclo DSR. Fuente: Elaboración
+       propia. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   51
+
+  4.4. Criterios DSR de aceptación del artefacto. Fuente: Elaboración propia. . . .              56
+
+
+  5.1. Cronograma revisado al 17 de noviembre de 2026. Azul oscuro: actividad
+       documentada, no necesariamente aceptada; azul claro: programación inicial
+       o pendiente. Fuente: Elaboración propia. . . . . . . . . . . . . . . . . . . . .          58
+
+  5.2. Hitos reprogramados y evidencia exigida para su cierre. Fuente: Elaboración
+       propia. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   59
+
+  5.3. Presupuesto estimado de planificación, en soles. Fuente: Elaboración propia;
+       importes sujetos a contraste antes del gasto. . . . . . . . . . . . . . . . . . .         60
+
+  5.4. Riesgos principales y respuesta prevista. Fuente: Elaboración propia. . . . .             61
+
+  A.1. Matriz de consistencia del plan de tesis: problema, objetivo y producto verifi-
+       cable. Fuente: Elaboración propia. . . . . . . . . . . . . . . . . . . . . . . . .        68
+                                                                                         ıx
+
+A.2. Matriz de consistencia del plan de tesis: entradas discretas, salidas, hipótesis,
+     indicadores y parámetros de caso. Fuente: Elaboración propia. . . . . . . . .       70
+                                                                                                  x
+
+
+
+
+LISTADO DE FÓRMULAS
+
+
+
+  3.1. Ley de Fourier para conducción en un medio heterogéneo. Fuente: Elaboración
+       propia. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   25
+
+  3.2. Ecuación de conducción de calor 2D transitoria. Fuente: Elaboración propia.               26
+
+  3.3. Ecuación de conducción de calor 2D estacionaria en notación vectorial. Fuente:
+       Elaboración propia. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     27
+
+  3.4. Residuo físico de una PINN para conducción de calor 2D estacionaria. Fuente:
+       Elaboración propia. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     32
+
+
+  4.1. Ecuación de conducción de calor 2D estacionaria. Fuente: Elaboración propia. 42
+
+  4.2. Condiciones de interfaz entre dos materiales. Fuente: Elaboración propia. . .             42
+
+  4.3. Función de pérdida lógica del artefacto PINN. Fuente: Elaboración propia. . .             43
+
+  4.4. Condición para calcular la ampacidad. Fuente: Elaboración propia. . . . . . .             43
+
+  4.5. Resistencia efectiva y fuente Joule uniforme por conductor. Fuente: Elabora-
+       ción propia a partir de International Electrotechnical Commission (2023). . .             44
+
+  4.6. Métricas de evaluación térmica, de ampacidad y de balance energético. Fuen-
+       te: Elaboración propia. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     53
+                                                                                      xı
+
+
+
+
+LISTADO DE PROCEDIMIENTOS
+
+
+
+  4.1. Proceso DSR adaptado al estudio. Fuente: Elaboración propia. . . . . . . . .   40
+
+  4.2. Etapas, productos y puertas de decisión. Fuente: Elaboración propia. . . . .   57

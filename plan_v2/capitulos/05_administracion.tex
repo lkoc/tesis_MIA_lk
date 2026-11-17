@@ -2,18 +2,20 @@
 \label{ch:administracion}
 \thispagestyle{empty}
 
-Este capítulo administra el plan: programa las actividades en el tiempo, identifica los rubros de gasto y declara la fuente de financiamiento.
+Las pruebas numéricas previstas requieren tiempo de cómputo y una secuencia de entregas que permita revisar cada resultado antes de continuar. El cronograma, el presupuesto y el financiamiento se organizan en función de esas necesidades.
 
 \section{CRONOGRAMA}
 \label{sec:cronograma}
 
-El estudio se desarrolla en doce meses, de julio de 2026 a junio de 2027. La Tabla~\ref{tab:cronograma} presenta el diagrama de Gantt. El primer bloque resume julio a septiembre de 2026, con las fases 1 y 2 del Procedimiento~\ref{proc:etapas}. La fase 3 se ejecutó en octubre de 2026 con las campañas adaptativas y se extiende a noviembre. Las fechas posteriores al 7 de noviembre de 2026 son una programación sujeta a la aprobación del asesor.
+El estudio se programa en doce meses, de julio de 2026 a junio de 2027. El corte de esta revisión es el 17 de noviembre de 2026, posterior al informe del asesor del 13 de noviembre. La Tabla~\ref{tab:cronograma} distingue actividad documentada y programación. El bloque julio--septiembre conserva la planificación inicial, sin acreditar fechas de cierre que no tengan acta o evidencia fechada.
+
+Las campañas de octubre corresponden al desarrollo exploratorio. La confirmación del protocolo revisado se programa para noviembre--diciembre y depende de superar el piloto.
 
 \providecommand{\gc}{\cellcolor{darkblue}}
 \providecommand{\gp}{\cellcolor{darkblue!35}}
 \begin{table}[htbp]
 \centering
-\caption{Cronograma del plan de tesis en diagrama de Gantt. Azul oscuro: ejecutado o cumplido al 7 de noviembre de 2026; azul claro: programado. Fuente: Elaboración propia.}
+\caption{Cronograma revisado al 17 de noviembre de 2026. Azul oscuro: actividad documentada, no necesariamente aceptada; azul claro: programación inicial o pendiente. Fuente: Elaboración propia.}
 \label{tab:cronograma}
 \scriptsize
 \setlength{\tabcolsep}{2.5pt}
@@ -23,43 +25,95 @@ El estudio se desarrolla en doce meses, de julio de 2026 a junio de 2027. La Tab
 \cmidrule(lr){4-6}\cmidrule(lr){7-12}
 \textbf{Fase} & \textbf{Actividad} & \textbf{\makecell{Jul--\\sep}} & \textbf{Oct} & \textbf{Nov} & \textbf{Dic} & \textbf{Ene} & \textbf{Feb} & \textbf{Mar} & \textbf{Abr} & \textbf{May} & \textbf{Jun} \\
 \midrule
-1 & Revisión y especificación & \gc &  &  &  &  &  &  &  &  &  \\
-2 & Diseño lógico y prototipo & \gc &  &  &  &  &  &  &  &  &  \\
-3 & Construcción, verificación y piloto (campaña A--D) & & \gc & \gp & & & & & & & \\
-3E & Ronda E de desarrollo, opcional y sujeta a aprobación &  & \gp & \gp &  &  &  &  &  &  &  \\
-4 & Demostración y evaluación térmica &  & \gp & \gp & \gp &  &  &  &  &  &  \\
-5 & Comparación de ampacidad &  &  & \gp & \gp & \gp & \gp &  &  &  &  \\
+1 & Revisión y cierre de especificación & \gp &  & \gc & \gp &  &  &  &  &  &  \\
+2 & Diseño y prototipo; ajuste al protocolo & \gp & \gc & \gc & \gp &  &  &  &  &  &  \\
+3 & Desarrollo exploratorio y piloto & & \gc & \gc & \gp & & & & & & \\
+3 & Confirmación F2 con semillas nuevas &  &  & \gp & \gp &  &  &  &  &  &  \\
+4 & Demostración y evaluación térmica F3 & {} & {} & {} & \gp & \gp & {} & {} & {} & {} & {} \\
+5 & Comparación de ampacidad F4 &  &  &  &  & \gp & \gp &  &  &  &  \\
 6 & Síntesis DSR &  &  &  &  &  & \gp & \gp &  &  &  \\
 7 & Comunicación: redacción, revisión del asesor y sustentación &  &  &  &  &  &  & \gp & \gp & \gp & \gp \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Las campañas adaptativas A a D se ejecutaron entre el 26 y el 27 de octubre de 2026. La campaña A registró 39 corridas, la B 38, la C 40 y la D 42; todas comparten cuatro casos, cuatro arquitecturas y tres semillas. La campaña final, del 27 al 28 de octubre, registró 22 corridas con dos casos, cinco arquitecturas y tres semillas. Su propósito es identificar las arquitecturas PINN con mejor desempeño para el problema térmico del estudio, y esa selección determina qué modelos se comparan en la fase de demostración.
+La bitácora del proyecto registra campañas adaptativas del 26--27 de octubre de 2026 con 39, 38, 40 y 42 corridas, y una extensión del 27--28 de octubre con 22. Su identificación y clasificación se conservan en los informes de campañas del repositorio \texttt{pinnV3} del 27 de octubre de 2026. Son antecedentes de desarrollo: las reglas históricas de parada, aceptación y uso de referencias difieren del protocolo revisado. No acreditan H1 ni H2, ni permiten declarar una arquitectura ganadora para la confirmación.
 
-Los hitos del plan son: H1, especificación trazable y referencias FEM verificadas (octubre de 2026); H2, campañas A a D con su extensión y confirmación con semillas nuevas (noviembre de 2026); H3, decisión sobre la ronda E (noviembre de 2026); H4, expedientes térmico y comparativo de ampacidad (diciembre de 2026 a febrero de 2027); H5, borrador completo de la tesis (marzo de 2027); y H6, revisión del asesor, depósito y sustentación (abril a junio de 2027).
+Las pruebas de noviembre inventariadas en la bitácora son exploratorias, parciales o de funcionamiento; no constituyen confirmación independiente. Al corte de revisión no se declara cumplido ningún hito de aceptación con esas ejecuciones. La ronda E deja de ser un compromiso separado: cualquier desarrollo adicional dependerá del fallo documentado del piloto y se versionará antes de la confirmación. La Tabla~\ref{tab:hitos-revisados} fija la evidencia exigida para cerrar cada hito.
+
+\begin{table}[htbp]
+\centering
+\caption{Hitos reprogramados y evidencia exigida para su cierre. Fuente: Elaboración propia.}
+\label{tab:hitos-revisados}
+\begin{tabularx}{\textwidth}{L{1.1cm}L{2.4cm}Y}
+\toprule
+\textbf{Hito} & \makecell[l]{\textbf{Fecha}\\\textbf{prevista}} & \textbf{Estado al corte y evidencia de cierre} \\
+\midrule
+H1 & Nov.--dic. 2026 & En revisión. Para su cierre se requieren VD1, fichas, matriz requisito--prueba, entorno versionado y estudio de convergencia FEM aprobados. \\
+H2 & Dic. 2026 & Pendiente. Manifiesto congelado, cinco semillas nuevas por caso F2 y expediente VD2 con errores, controles físicos y fallos. \\
+H3 & Nov.--dic. 2026 & Pendiente. Acta de decisión del piloto: confirmar o rediseñar; sin asignar aceptación a la antigua ronda E. \\
+H4 & Ene.--feb. 2027 & Pendiente. VD3 y VD4, pares completos, intervalos de ampacidad y clasificación según incertidumbre. \\
+H5 & Mar. 2027 & Pendiente. Borrador íntegro, repositorio reproducible y síntesis DSR. \\
+H6 & Abr.--jun. 2027 & Pendiente. Revisión del asesor, versión de depósito y sustentación conforme a requisitos institucionales. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Si H1--H3 no se cierran en diciembre, se reprogramarán las fases dependientes con el asesor. No se sustituirán casos difíciles por resultados favorables ni se ampliarán umbrales para conservar una fecha de entrega.
 
 \section{PRESUPUESTO}
 \label{sec:presupuesto}
 
-La Tabla~\ref{tab:presupuesto} organiza los gastos en los rubros de la Guía N.° 01: equipos, materiales e insumos, servicios, y viáticos y publicación. El equipo computacional ya existe y el software es de código abierto, por lo que no generan desembolso adicional. Los rubros con montos por confirmar dependen de cotizaciones y tarifas oficiales que se obtendrán antes de ejecutar el gasto. Hasta contar con esos valores, el presupuesto no se considera cerrado y su total queda pendiente.
+La Tabla~\ref{tab:presupuesto} reúne los gastos previstos en soles para los doce meses de estudio. El equipo ya está disponible y el software es de código abierto; no se prevén compras por esos conceptos. Los demás importes son estimaciones pendientes de contrastar con cotizaciones y tarifas oficiales.
+
+Para conectividad y energía se asignan montos mensuales; los derechos de sustentación y grado se cubren con una provisión. Estos valores se comprobarán antes de asumir cada gasto y los comprobantes se conservarán durante la ejecución.
 
 \begin{table}[htbp]
 \centering
-\caption{Presupuesto del plan de tesis por rubros. Fuente: Elaboración propia.}
+\caption{Presupuesto estimado de planificación, en soles. Fuente: Elaboración propia; importes sujetos a contraste antes del gasto.}
 \label{tab:presupuesto}
 \scriptsize
 \begin{tabularx}{\textwidth}{L{3.0cm}Y L{2.5cm}L{2.2cm}}
 \toprule
-\textbf{Rubro} & \textbf{Concepto} & \textbf{Situación} & \textbf{Monto (S/)} \\
+\textbf{Rubro} & \textbf{Concepto} & \textbf{Base estimada} & \textbf{Monto (S/)} \\
 \midrule
 a) Equipos & Computadora personal con CPU Intel Core Ultra 7 165U para entrenamientos y referencias FEM. & Existente, de los tesistas & 0,00 \\
 b) Materiales e insumos & Software de código abierto: FEniCSx, Gmsh, PETSc, PyTorch y LaTeX. & Sin costo de licencia & 0,00 \\
-b) Materiales e insumos & Impresión y encuadernación de los ejemplares del informe final. & Por cotizar & Por confirmar \\
-c) Servicios & Acceso a Internet y energía eléctrica durante el desarrollo. & Existente, de los tesistas & Por confirmar \\
-c) Servicios & Derechos académicos y administrativos de sustentación y grado. & Según el tarifario de la Universidad & Por confirmar \\
-d) Viáticos y publicación & Movilidad a reuniones de asesoría y a la sustentación. & Por definir & Por confirmar \\
-d) Viáticos y publicación & Publicación del manuscrito derivado de la tesis. & Sujeta a la revista elegida & Por confirmar \\
+b) Materiales e insumos & Impresión y encuadernación. & 3 ejemplares a S/ 80 & 240,00 \\
+c) Servicios & Asignación de conectividad. & 12 meses a S/ 30 & 360,00 \\
+c) Servicios & Asignación de energía eléctrica. & 12 meses a S/ 25 & 300,00 \\
+c) Servicios & Provisión para derechos de sustentación y grado; no representa el tarifario UNI. & Reserva estimada & 1500,00 \\
+c) Servicios & Reserva de capacidad de cómputo externa si el piloto lo requiere. & Tope de planificación & 300,00 \\
+d) Viáticos y publicación & Movilidad para asesoría y sustentación. & 12 traslados a S/ 20 & 240,00 \\
+d) Viáticos y publicación & Preparación y envío del manuscrito a una revista sin cargo de publicación. & Ruta sin APC & 0,00 \\
+\midrule
+\multicolumn{3}{r}{Subtotal estimado} & 2940,00 \\
+\multicolumn{3}{r}{Contingencia: 20\,\pct{} del subtotal} & 588,00 \\
+\multicolumn{3}{r}{\textbf{Total estimado}} & \textbf{3528,00} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+La publicación depende de la evaluación editorial y no se garantiza aceptación. Si se elige una revista con APC o el tarifario institucional supera la provisión, se actualizarán presupuesto y financiamiento antes de asumir el compromiso. El costo del equipo existente no se trata como desembolso nuevo. La estimación financia el estudio, no es una evaluación económica del cable o de la instalación.
+
+\subsection{RIESGOS Y CONTINGENCIAS}
+
+La Tabla~\ref{tab:riesgos-plan} vincula los riesgos de ejecución con acciones y reglas de continuidad. La revisión mensual permitirá actualizar plazos y recursos sin modificar retrospectivamente los criterios de aceptación.
+
+\begin{table}[htbp]
+\centering
+\caption{Riesgos principales y respuesta prevista. Fuente: Elaboración propia.}
+\label{tab:riesgos-plan}
+\begin{tabularx}{\textwidth}{L{3.2cm}Y Y}
+\toprule
+\textbf{Riesgo / señal} & \textbf{Prevención y respuesta} & \textbf{Regla de continuidad} \\
+\midrule
+Cómputo o memoria insuficientes & Medir tiempo y memoria del piloto, guardar estados y usar CPU/WSL si el acelerador no admite precisión o determinismo requeridos. & Extrapolar el costo al catálogo y a la bisección antes de confirmar; usar la reserva solo si basta, o reprogramar con el asesor. \\
+No convergencia PINN o electrotermal & Revisar escalamiento, interfaces y pérdidas en desarrollo; conservar errores y semillas fallidas. & No relajar puertas; rediseñar, versionar y repetir la confirmación completa del dominio afectado. \\
+Referencia FEM no convergente & Refinar malla, cuadratura y dominio; verificar primero casos exactos. & No aceptar el caso sin referencia estable; documentar la restricción del dominio. \\
+Datos publicados incompletos & Auditar cada dato y distinguir reproducción de adaptación o caso sintético. & Mantener el catálogo mínimo explícito; no completar datos faltantes atribuyéndolos al artículo. \\
+Pérdida de archivos o interrupción & Versionar código y manifiestos, respaldar resultados y registrar huellas y reanudaciones. & Repetir ejecuciones no reconstruibles antes de usarlas como evidencia. \\
+Retrasos o costos superiores & Revisar avance mensual, tarifas y disponibilidad de expertos antes de su fase. & Reprogramar y actualizar la provisión; el juicio experto no reemplazará la verificación numérica. \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -67,5 +121,5 @@ d) Viáticos y publicación & Publicación del manuscrito derivado de la tesis. 
 \section{FINANCIAMIENTO}
 \label{sec:financiamiento}
 
-El plan será autofinanciado: los tesistas asumirán los gastos con fondos propios. No se han solicitado fondos concursables ni financiamiento de terceros, y no se requiere un compromiso económico adicional de la Universidad.
+Los tesistas prevén cubrir con fondos propios el total estimado de S/ 3528,00, incluida la contingencia. No se han solicitado fondos concursables ni financiamiento de terceros, y no se requiere un compromiso económico adicional de la Universidad. La continuidad del estudio dependerá del cierre del piloto, la evidencia de cada hito y la actualización de los costos antes de ejecutar los gastos.
 

@@ -1,0 +1,178 @@
+{
+  "id": "26b29dad10dd",
+  "source_type": "text",
+  "source": "CAPÍTULO 2. OBJETIVOS DE LA INVESTIGACIÓN\r\n\r\n\r\nEste capítulo convierte el problema formulado en obje",
+  "text_excerpt": "CAPÍTULO 2. OBJETIVOS DE LA INVESTIGACIÓN\r\n\r\n\r\nEste capítulo convierte el problema formulado en objetivos, hipótesis y dimensiones operati-\r\nvas. Así define qué se evaluará y mantiene la correspondencia entre la brecha, las entradas\r\ndiscretas de cada etapa, los productos intermedios, sus estados posibles y los parámetros\r\nde caso.\r\n\r\n\r\n\r\n2.1 OBJETIVO GENERAL\r\n\r\nDiseñar y evaluar un artefacto computacional basado en una red neuronal informada por\r\nfísica (PINN) que represente el arreglo de cables–entorno térmico, estime T (x, y), Tmáx e\r\nImáx , cuantifique el efecto de la heterogeneidad térmica espacial y documente su exactitud,\r\nsu consistencia física y su robustez. La reproducibilidad se sustenta en un repositorio público\r\ncon el código fuente, los datos empleados y sus fuentes, de modo que cada resultado pueda\r\nreconstruirse.\r\n\r\n\r\n\r\n2.2 OBJETIVOS ESPECÍFICOS\r\n\r\nLos objetivos específicos siguen una secuencia de construcción y evaluación: la especifica-\r\nción del objeto y del artefacto sustenta su construcción y verificación; el artefacto verificado\r\npermite evaluar los escenarios térmicos; y el expediente de evidencia térmica permite com-\r\nparar la ampacidad. La Figura 2.1 representa esta relación. Cada producto intermedio tiene\r\ndoble papel: es la VD del bloque que lo genera y la entrada heredada de la VI del bloque\r\nsiguiente. El procedimiento reproducible y los principios de diseño se obtendrán posterior-\r\nmente mediante la síntesis DSR de la evidencia generada por estos objetivos; por ello, se\r\ntratan como productos metodológicos y no como un objetivo específico adicional.\r\n\r\n\r\nOE1. Elaborar una especificación trazable de las entradas físicas, los requisitos funcionales\r\n     y los criterios de calidad del artefacto para representar el arreglo de cables–entorno\r\n     térmico, incluyendo dominios multicapa, fuentes térmicas, condiciones de contorno,\r\n     interfaces y conductividad térmica espacialmente variable k(x, y). Indicador: cobertura\r\n     superior al 90 % de los requisitos críticos identificados y trazabilidad requisito–prueba\r\n     (Anexo 1).\r\nOE2. Construir y verificar el artefacto a partir de la especificación trazable y de un conjunto de\r\n     soluciones analíticas o manufacturadas, benchmarks FEM con convergencia y casos\r\n     publicados, clasificando su estado de aceptación según la exactitud, la consistencia\r\n     física y la robustez entre ejecuciones. Indicador: error absoluto de temperatura máxima\r\n     frente a la referencia, ET , menor que 0,1 K, y NRMSE menor que 1 % en cada semilla\r\n     de confirmación (Anexo 1).\r\n\f                                                                                                        19\r\n\r\nOE3. Aplicar el artefacto verificado a un catálogo de escenarios controlados de contraste,\r\n     patrón, extensión y proximidad de heterogeneidades del suelo nativo y de los suelos\r\n     de relleno, y consolidar un expediente de evidencia con los cambios en Tmáx , el campo\r\n     de temperatura T (x, y) y la localización del punto caliente. Indicadores: exactitud frente\r\n     a FEM, ET menor que 0,5 K y NRMSE menor que 2,5 % por semilla; efecto físico\r\n     pareado ∆Tmáx y posición del punto caliente respecto del escenario homogéneo, con\r\n     efecto mínimo de interés de 1 K y regla de incertidumbre de la Sección 4.7.2.\r\nOE4. Usar el expediente de evidencia térmica y un catálogo de representaciones pareadas\r\n     para elaborar un expediente comparativo de ampacidad entre la representación 2D\r\n     heterogénea y las representaciones homogéneas, e identificar las condiciones que\r\n     generan mayor discrepancia. Indicadores: ampacidad Imáx con error relativo frente a\r\n     FEM menor que 1 % por semilla, cambio porcentual ∆I, efecto mínimo de interés\r\n     de 2 % y margen térmico; juicio de expertos complementario en escala de 1 a 10\r\n     (Anexos 1 y 2).\r\n\r\n                                        Entrada nueva de VI2                  Entrada nueva de VI3\r\n   VI1: entrada inicial                 referencia analítica/ma-             catálogo base, estratifica-\r\n   paquete básico, com-                    nufacturada, FEM,                 do, localizado, mejorado,\r\n     pleto o trazable                      publicada o mixta                   seco o multimaterial\r\n\r\n\r\n\r\n            OE1                                   OE2                                    OE3\r\n    Especificar entradas, VD1 ≡ VI2,h      Construir y veri-       VD2 ≡ VI3,h      Evaluar escena-\r\n    requisitos y criterios                 ficar el artefacto                     rios heterogéneos\r\n\r\n\r\n\r\n\r\n                                                                   VD3 ≡ VI4,h\r\n\r\n\r\n\r\n                                                                                       Resultado\r\n                                                OE4                               Expediente compa-\r\n                                                                      VD4          rativo y evidencia\r\n                                        Comparar la ampacidad\r\n                                                                                 para la síntesis DSR\r\n\r\n\r\n                                        Entrada nueva de VI4\r\n                                           par homogéneo\r\n                                         equivalente, conser-\r\n                                          vador u optimista\r\n\r\n Figura 2.1: Articulación secuencial de los cuatro objetivos específicos. VI1 es la entrada inicial. En\r\nlas etapas siguientes, cada VI es un paquete compuesto por la VD anterior —entrada heredada— y\r\nel objeto nuevo mostrado verticalmente: VI2 = {VD1, R2 }, VI3 = {VD2, E3 } y VI4 = {VD3, C4 }. VD4\r\n    completa la evidencia que después se sintetiza dentro de DSR. Fuente: Elaboración propia.\r\n\f                                                                                            20\r\n\r\n2.3 HIPÓTESIS\r\n\r\n2.3.1 HIPÓTESIS GENERAL\r\n\r\nLa incorporación explícita de la conductividad térmica espacialmente variable k(x, y) en un\r\nartefacto PINN 2D permitirá reproducir referencias verificadas con exactitud, consistencia\r\nfísica y estabilidad entre ejecuciones. Además, mostrará diferencias de temperatura máxima\r\ny ampacidad frente a un entorno homogéneo equivalente cuando existan regiones de baja o\r\nalta conductividad próximas al cable. Por tanto, el proceso deberá reportar trazabilidad y\r\nreproducibilidad.\r\n\r\n\r\n2.3.2 HIPÓTESIS ESPECÍFICAS\r\n\r\nLas hipótesis específicas anticipan el estado esperado de los objetos producidos por cada\r\nobjetivo: especificación trazable aceptada, artefacto verificado dentro del dominio, expediente\r\ntérmico concluyente y expediente comparativo de ampacidad clasificado. La Figura 2.2\r\nresume su encadenamiento con los principales indicadores de contraste. La reproducibilidad\r\ny la derivación de principios de diseño se evaluarán como criterios y productos del proceso\r\nDSR, no como una hipótesis específica adicional.\r\n\r\n\r\nHE1. Un paquete inicial completo y documentado permitirá producir una especificación\r\n     trazable aceptada que separe PDE, contornos, interfaces, fuentes y propiedades\r\n     térmicas, cubra más del 90 % de los requisitos críticos y vincule cada requisito con al\r\n     menos una prueba de consistencia física o funcional.\r\nHE2. La especificación trazable, combinada con referencias válidas analíticas, manufac-\r\n     turadas, FEM convergentes o publicadas, permitirá producir un artefacto aceptado\r\n     dentro del dominio de verificación F2, con error absoluto de temperatura máxima\r\n             PINN    ref\r\n     ET = |Tmáx   − Tmáx | < 0,1 K, error cuadrático medio normalizado (NRMSE) menor que\r\n     1 % y desequilibrio energético no mayor a 2 %. Estos criterios deberán cumplirse en\r\n     cada semilla de confirmación; la dispersión y la relevancia de los efectos se juzgarán\r\n     mediante las reglas predefinidas en la Sección 4.7.2.\r\nHE3. El artefacto verificado, aplicado a los distintos tipos de escenario térmico y a igualdad\r\n     de geometría, pérdidas y contornos, permitirá clasificar el efecto térmico. Se espera\r\n     un aumento de Tmáx ante una región de baja k próxima al conductor y una reducción\r\n     ante un relleno de alta k. El sentido y la relevancia se contrastarán con envolventes de\r\n     cinco semillas y δT = 1 K; se admitirán resultados sin efecto relevante o inconclusos\r\n     según la Sección 4.7.2.\r\nHE4. Con la media de conductividad ponderada por área del entorno como comparador\r\n     principal (Sección 4.5.2), se espera que la representación homogénea sobreestime\r\n     Imáx ante una zona local de baja k próxima al conductor. Se contrastarán la reducción\r\n     de ampacidad y su sensibilidad al contraste, la extensión y la proximidad mediante\r\n     pares controlados, δI = 2 % y envolventes de cinco semillas. La ausencia de reducción,\r\n     un aumento o una tendencia no monótona podrán refutar esta expectativa dentro del\r\n     dominio evaluado.\r\n\f                                                                                                       21\r\n\r\n    Cobertura de requi-                  eTmáx , NRMSE, des-\r\n    sitos y trazabilidad                equilibrio energético y               ∆Tmáx , punto calien-\r\n     requisito–prueba                  robustez entre semillas                 te y campo T (x, y)\r\n\r\n\r\n\r\n            HE1                                  HE2                                 HE3\r\n    VD1: especificación                  VD2: artefacto acep-                 VD3: expediente tér-\r\n     trazable aceptada                   tado en su dominio                    mico concluyente\r\n\r\n\r\n\r\n\r\n                                                 HE4                           Contraste global\r\n                                        VD4: expediente com-                  Exactitud, efecto tér-\r\n                                         parativo clasificado                  mico y ampacidad\r\n\r\n\r\n\r\n                                            Imáx , ∆I% y\r\n                                           margen térmico\r\n\r\nFigura 2.2: Articulación de las cuatro hipótesis específicas y sus principales indicadores de contraste.\r\nLa secuencia vincula la calidad del artefacto con la evidencia térmica y operativa; la reproducibilidad\r\n    y la síntesis de principios se evalúan como parte del ciclo DSR. Fuente: Elaboración propia.\r\n\r\n\r\nLos umbrales son criterios de aceptación del estudio, no valores universales de las PINN.\r\nHE2 y OE2 comparten una única puerta F2: ET < 0,1 K y NRMSE menor que 1 %. La puerta\r\nF3 de OE3 exige ET < 0,5 K y NRMSE menor que 2,5 % en cada escenario; no sustituye\r\nla verificación básica F2. Ambas puertas requieren desequilibrio energético no mayor a\r\n2 %. El error relativo de temperatura se reportará normalizado por la elevación térmica\r\nde la referencia, pero no constituirá un criterio alternativo del 5 %. Se reserva ∆Tmáx =\r\n  het     hom\r\nTmáx  − Tmáx  para el efecto físico entre escenarios, distinto de ET , el error numérico frente a\r\nla referencia. La matriz de consistencia y la Tabla 4.4 aplican estas mismas definiciones. La\r\nincertidumbre numérica debe ser menor que el efecto analizado, en concordancia con la\r\nverificación de herramientas de ampacidad de CIGRÉ Working Group B1.87 (2025:93–99).\r\nCualquier modificación se justificará y versionará antes de la confirmación final, sin reclasificar\r\nretrospectivamente resultados, como recomiendan Gregor y Hevner (2013:350–351) para\r\ncontribuciones DSR.\r\n\r\n\r\n\r\n2.4 DIMENSIONES OPERATIVAS DEL ESTUDIO\r\n\r\nEn coherencia con DSR, la operacionalización se organiza como una secuencia de cons-\r\ntrucción del artefacto. En cada etapa se distingue: a) un paquete de entrada constituido\r\npor objetos discretos; b) la actividad expresada por un objetivo específico; y c) un producto\r\nverificable, también discreto. Este producto constituye la variable dependiente de la etapa y,\r\n\f                                                                                             22\r\n\r\nsalvo VD4, se convierte explícitamente en la entrada heredada de la variable independiente\r\nde la etapa siguiente. Por tanto, VI y VD tienen la misma naturaleza metodológica: son\r\npaquetes documentales, artefactos versionados o expedientes de evidencia, no magnitudes\r\nfísicas continuas.\r\n\r\nLa cadena se define como VI1 = P1 , VI2 = {VD1, R2 }, VI3 = {VD2, E3 } y VI4 = {VD3, C4 }.\r\nAquí, P1 es el paquete inicial de requisitos y datos; R2 , el conjunto nuevo de referencias\r\nde verificación; E3 , el catálogo nuevo de escenarios térmicos; y C4 , el catálogo nuevo de\r\nrepresentaciones pareadas. En consecuencia, VD1 ≡ VI2,h , VD2 ≡ VI3,h y VD3 ≡ VI4,h ,\r\ndonde el subíndice h indica la parte heredada de la entrada.\r\n\r\nEsta definición evita mezclar niveles metodológicos. La conductividad k(x, y), el contraste\r\nCk , la extensión fh , la proximidad dh /D, la geometría, las pérdidas y los contornos describen\r\nla física de un caso; no son variables independientes de la construcción del artefacto. Del\r\nmismo modo, las capas, neuronas, épocas, semillas y pesos de pérdida son decisiones\r\no metadatos del procedimiento numérico. Ambos grupos se fijan, documentan o recorren\r\ndentro de casos de cobertura, pero se mantienen separados de las variables del estudio.\r\n\r\n\r\n2.4.1 VARIABLES INDEPENDIENTES DISCRETAS (ENTRADAS)\r\n\r\nSe definen cuatro VI categóricas y discretas, una por etapa. VI1, paquete inicial de requisitos\r\ny datos, puede realizarse como paquete básico, completo o completo documentado. VI2,\r\nexpediente de construcción y verificación, hereda VD1 y agrega un conjunto de referencias\r\nque puede ser analítico/manufacturado, FEM convergente, publicado o mixto. VI3, expediente\r\nde evaluación térmica, hereda VD2 aceptada y agrega un catálogo de escenarios que\r\npuede ser base homogéneo, estratificado, con inclusión localizada, con material de mejora,\r\ncon zona seca o multimaterial. VI4, expediente de comparación de ampacidad, hereda\r\nVD3 concluyente y agrega pares de representación heterogénea 2D frente a homogénea\r\nequivalente, conservadora u optimista.\r\n\r\nLas realizaciones representan objetos de entrada completos. Por ejemplo, una realización de\r\nVI3 contiene una versión aceptada del artefacto, el escenario, su mapa k(x, y), materiales,\r\ncontraste, extensión y ubicación. Los últimos elementos son atributos físicos controlados del\r\nobjeto, no variables independientes adicionales. Esta regla mantiene cuatro VI lógicas, hace\r\nexplícita la herencia entre etapas y evita multiplicar artificialmente las variables.\r\n\r\n\r\n2.4.2 VARIABLES DEPENDIENTES (SALIDAS)\r\n\r\nLas variables dependientes son objetos discretos producidos por cada objetivo. VD1 es\r\nla especificación trazable del artefacto, con estados incompleta, completa pendiente de\r\ntrazabilidad o trazable aceptada. VD2 es el artefacto verificado y su expediente de aceptación,\r\ncon estados rechazado, aceptado con restricciones o aceptado dentro del dominio. VD3 es\r\n\f                                                                                           23\r\n\r\nel expediente de evidencia térmica, con estados inconcluso, sin efecto relevante, con efecto\r\nrelevante no crítico o con condición crítica. VD4 es el expediente comparativo de ampacidad,\r\nclasificado como sin discrepancia relevante, con reducción de ampacidad, con aumento de\r\nampacidad o inconcluso/fuera del dominio.\r\n\r\nLos errores, residuos, T (x, y), Tmáx , ∆Tmáx , Imáx , ∆I% y el margen térmico son indicadores\r\ncontenidos en esos objetos; no son las VD por sí mismos. Esta separación permite que VD1,\r\nVD2 y VD3 conserven su integridad al convertirse en entradas de la etapa siguiente.\r\n\r\nLa exactitud, la consistencia física, la robustez, la trazabilidad y la reproducibilidad son\r\ncriterios de evaluación DSR aplicados transversalmente a esas salidas. No forman una\r\nquinta variable dependiente ni una quinta correspondencia problema–objetivo.\r\n\r\n\r\n2.4.3 DISEÑO DISCRETO DE CASOS Y PARÁMETROS CONTROLADOS\r\n\r\nLa Figura 2.3 muestra el modelo entrada–proceso–salida de las dimensiones operativas y la\r\nTabla 2.1 registra las variables discretas y sus estados por etapa.\r\n\r\nEl estudio no adopta un diseño factorial de variables independientes. En su lugar, aplica\r\nun diseño discreto de objetos y casos: se seleccionan realizaciones de los componentes\r\nnuevos E3 y C4 de VI3 y VI4, siempre acompañadas por la VD heredada que corresponda.\r\nDentro de cada caso se asignan niveles documentados a los parámetros físicos Ck , fh y\r\ndh /D. La posible combinación de esos niveles es una malla de cobertura y sensibilidad\r\nfísica, no una redefinición de los parámetros como variables independientes ni un análisis\r\nfactorial estadístico.\r\n\r\nLas comparaciones térmicas y operativas serán pareadas. Se conservarán la geometría, los\r\ncontornos, el dominio y la configuración numérica aceptada; solo cambiará el atributo o la\r\nrepresentación que define el contraste. En VD3 se prescribirán pérdidas iguales; en VD4 se\r\nconservará la ley de pérdidas, no su valor, porque la corriente y la temperatura se recalculan\r\nal buscar la ampacidad. El comparador principal será el promedio por área definido en la\r\nSección 4.5.2; las alternativas conservadoras u optimistas se identificarán como sensibilidad\r\nadicional.\r\n\f                                                                                                                       24\r\n\r\n              VI1                         VI2                        VI3                           VI4\r\n        Paquete inicial P1              {VD1, R2 }                 {VD2, E3 }                    {VD3, C4 }\r\n\r\n\r\n              OE1                         OE2                         OE3                         OE4\r\n           Especificar    hereda                      hereda\r\n                                   Construir y verificar                        hereda\r\n                                                               Evaluar escenarios               Comparar\r\n                                                                                                ampacidad\r\n              VD1                          VD2                       VD3\r\n           Especifica-             Artefacto verificado        Expediente térmico                 VD4\r\n          ción trazable                                                                        Expediente\r\n                                                                                              de ampacidad\r\n                 Parámetros de caso y controles (no son VI): k(x, y), Ck , fh , dh /D, geo-\r\n                  metría, pérdidas, contornos, dominio y configuración numérica aceptada.\r\n\r\n Figura 2.3: Modelo entrada–proceso–salida de las dimensiones operativas. Las VI y las VD son\r\nobjetos discretos; VD1–VD3 se heredan como componentes obligatorios de VI2–VI4. Los parámetros\r\n     físicos y numéricos se documentan por caso, pero no se clasifican como VI ni VD. Fuente:\r\n                                      Elaboración propia.\r\n\r\n\r\n  Tabla 2.1: Variables discretas de entrada y salida, composición y estados por etapa de construcción del\r\n                                   artefacto. Fuente: Elaboración propia.\r\n\r\n\r\nEtapa     VI discreta: composición y         Actividad         VD discreta: objeto y estados         Indicadores del\r\n          realizaciones                                                                              objeto\r\n\r\nOE1       VI1=P1 . Paquete inicial de re-  Elaborar la         VD1. Especificación trazable.         Cobertura de requi-\r\n          quisitos y datos. Realizaciones: especificación.     Estados: incompleta; completa         sitos; trazabilidad\r\n          básico; completo; completo docu-                     pendiente de trazabilidad; trazable   requisito–prueba;\r\n          mentado.                                             aceptada.                             consistencia de uni-\r\n                                                                                                     dades y supuestos.\r\n\r\nOE2       VI2={VD1, R2 }. Expediente de Construir y            VD2. Artefacto verificado y           Error de Tmáx ; NRM-\r\n          construcción y verificación. R2 : verificar.         expediente de aceptación.             SE; residuos; balance\r\n          analítico/manufacturado; FEM                         Estados: rechazado; aceptado          energético; robustez;\r\n          convergente; publicado; mixto.                       con restricciones; aceptado en el     dominio aceptado.\r\n                                                               dominio.\r\n\r\nOE3       VI3={VD2, E3 }. Expediente de Evaluar escena-        VD3. Expediente de evidencia T (x, y); Tmáx ;\r\n          evaluación térmica. E3 : base;       rios.           térmica. Estados: inconcluso; sin ∆Tmáx ; gradiente;\r\n          estratificado; localizado; mejorado;                 efecto relevante; efecto relevante punto caliente; cober-\r\n          seco; multimaterial.                                 no crítico; condición crítica.     tura de escenarios.\r\n\r\nOE4       VI4={VD3, C4 }. Expediente de    Comparar ampa- VD4. Expediente comparativo        Imáx ; ∆I%; margen\r\n          comparación. C4 : par con homo- cidad.          de ampacidad. Estados: sin         térmico; casos crí-\r\n          génea equivalente; conservadora;                discrepancia relevante; reducción; ticos; cobertura de\r\n          optimista.                                      aumento; inconcluso/fuera del      pares.\r\n                                                          dominio.\r\n\r\n\r\n\r\n\r\nEl objeto de estudio sigue siendo el arreglo de cables–entorno térmico y la unidad de análisis\r\nes su sección transversal 2D parametrizada. Los estados de las VD se asignarán con\r\nreglas fijadas antes de la evaluación final; los umbrales cuantitativos son indicadores para\r\nclasificar el objeto, no estados continuos de la variable. La calidad DSR se evalúa sobre\r\nVD1–VD4 mediante exactitud, consistencia física, robustez, trazabilidad y reproducibilidad.\r\nLos parámetros físicos, los controles y los metadatos se registran aparte de estas definiciones.",
+  "word_count": 2656,
+  "engine_results": [
+    {
+      "engine_name": "Structural Analysis",
+      "score": 0.426,
+      "verdict": "suspicious",
+      "details": "Sentence length CV: 0.75 (mean 20 words); Colon density: 14.3/1k words; Colon definitions: 3",
+      "description": "Analyzes em-dash usage, sentence uniformity, list density, paragraph regularity, colon patterns"
+    },
+    {
+      "engine_name": "Vocabulary Richness",
+      "score": 0.234,
+      "verdict": "clean",
+      "details": "Root TTR: 13.30 (unique/√total), Hapax ratio: 0.52 (369/710 words), Yule's K: 110.5",
+      "description": "Measures type-token ratio, hapax legomena, and Yule's K diversity"
+    },
+    {
+      "engine_name": "Formulaic Patterns",
+      "score": 0.033,
+      "verdict": "clean",
+      "details": "Found 1 formulaic patterns: starter repetition: 72% (\"la\"x15, \"el\"x7, \"oe\"x6)",
+      "description": "Detects cliché AI openings, closings, filler patterns, and structural repetition"
+    },
+    {
+      "engine_name": "Readability Uniformity",
+      "score": 0.349,
+      "verdict": "clean",
+      "details": "Flesch Reading Ease: mean=10.5, stdev=7.1, CV=0.682 across 4 paragraphs",
+      "description": "Checks if readability stays unnaturally consistent across paragraphs"
+    },
+    {
+      "engine_name": "Sentiment & Hedging",
+      "score": 0,
+      "verdict": "clean",
+      "details": "No excessive hedging or sentiment patterns detected.",
+      "description": "Detects excessive hedging, forced balance, vague positivity, and explanatory patterns"
+    },
+    {
+      "engine_name": "Linguistic Markers",
+      "score": 0,
+      "verdict": "clean",
+      "details": "No significant AI linguistic markers detected.",
+      "description": "Detects AI-preferred words and phrases (delve, tapestry, landscape...)"
+    },
+    {
+      "engine_name": "TMR Detector",
+      "score": 0.953,
+      "verdict": "slop",
+      "details": "AI probability: 95.3% (TMR RoBERTa, RAID benchmark)",
+      "description": "RoBERTa-base RAID-trained detector — 97.3% accuracy, 2.3% FPR"
+    },
+    {
+      "engine_name": "OpenAI Detector",
+      "score": 0.018,
+      "verdict": "clean",
+      "details": "AI probability: 1.8% (RoBERTa OpenAI detector)",
+      "description": "RoBERTa fine-tuned by OpenAI to detect GPT-generated text"
+    },
+    {
+      "engine_name": "SuperAnnotate",
+      "score": 0.001,
+      "verdict": "clean",
+      "details": "AI probability: 0.1% (SuperAnnotate RoBERTa-large, low FPR)",
+      "description": "RoBERTa-large optimized for low false-positive rate — RAID benchmark"
+    },
+    {
+      "engine_name": "Burstiness",
+      "score": 0,
+      "verdict": "clean",
+      "details": "Sentence perplexity CV: 0.828 (mean=114.4, stdev=94.8, n=13 sentences). Natural variation — human-like",
+      "description": "Measures per-sentence perplexity variance — flat rhythm suggests AI"
+    },
+    {
+      "engine_name": "E5-Small",
+      "score": 0.404,
+      "verdict": "suspicious",
+      "details": "AI probability: 40.4% (E5-small LoRA, RAID #2)",
+      "description": "Ultra-lightweight E5 LoRA detector — 33M params, #2 on RAID benchmark"
+    },
+    {
+      "engine_name": "Perplexity",
+      "score": 0,
+      "verdict": "clean",
+      "details": "Perplexity: 78.7 (lower = more likely AI-generated)",
+      "description": "GPT-2 perplexity scoring — low perplexity suggests AI-generated text"
+    },
+    {
+      "engine_name": "Fast-DetectGPT",
+      "score": 0,
+      "verdict": "clean",
+      "details": "Mean curvature: -0.196 (higher = more AI-like, n=1023 tokens)",
+      "description": "Conditional probability curvature — AI tokens sit at peaks of the model's distribution"
+    },
+    {
+      "engine_name": "Cross-Perplexity",
+      "score": 0,
+      "verdict": "clean",
+      "details": "GPT-2 Medium PP: 78.7 (score 0.00), DistilGPT-2 PP: 138.7 (score 0.00), agreement: 1.00",
+      "description": "Compares perplexity across GPT-2 Large and DistilGPT-2 — agreement amplifies signal"
+    },
+    {
+      "engine_name": "Binoculars",
+      "score": 0,
+      "verdict": "clean",
+      "details": "CE ratio: 1.130 (observer/performer), PP performer: 78.7, PP observer: 138.7",
+      "description": "Cross-entropy ratio between two LMs — agreement signals AI-generated text"
+    },
+    {
+      "engine_name": "GLTR",
+      "score": 0.391,
+      "verdict": "clean",
+      "details": "Top-1: 38%, Top-5: 56%, Top-10: 61%, Top-100: 77% of 1023 tokens",
+      "description": "Token rank distribution — AI text uses disproportionately top-ranked tokens"
+    },
+    {
+      "engine_name": "BERT-tiny RAID",
+      "score": 0.934,
+      "verdict": "slop",
+      "details": "AI probability: 93.4% (BERT-tiny, RAID dataset)",
+      "description": "BERT-tiny (4.4M params) trained on RAID dataset — ultra-fast inference"
+    },
+    {
+      "engine_name": "DivEye",
+      "score": 0.691,
+      "verdict": "slop",
+      "details": "Surprisal CV: 1.081, skew: 1.96, kurtosis: 5.80 (mean=4.4, std=4.7, n=1023)",
+      "description": "Surprisal diversity — AI text has unnaturally uniform per-token surprisal"
+    },
+    {
+      "engine_name": "Log-Rank",
+      "score": 0,
+      "verdict": "clean",
+      "details": "Mean log-rank: 2.50 (lower = more AI-like, n=1023 tokens)",
+      "description": "Average log-rank of tokens under GPT-2 — lower rank means more predictable (AI-like)"
+    },
+    {
+      "engine_name": "ChatGPT Detector",
+      "score": 0,
+      "verdict": "clean",
+      "details": "AI probability: 0.0% (ChatGPT detector, label='ChatGPT')",
+      "description": "RoBERTa trained specifically on ChatGPT-generated text"
+    },
+    {
+      "engine_name": "Desklib DeBERTa",
+      "score": 0.013,
+      "verdict": "clean",
+      "details": "AI probability: 1.3% (DeBERTa-v3-large, RAID benchmark leader)",
+      "description": "DeBERTa-v3-large fine-tuned on GPT-4, Claude, Llama — RAID benchmark leader"
+    },
+    {
+      "engine_name": "Fakespot",
+      "score": 0.014,
+      "verdict": "clean",
+      "details": "AI probability: 1.4% (Fakespot APOLLO RoBERTa)",
+      "description": "RoBERTa-base AI text detector from the APOLLO system"
+    },
+    {
+      "engine_name": "ReMoDetect",
+      "score": 0.005,
+      "verdict": "clean",
+      "details": "AI probability: 0.5% (RLHF reward-model detector)",
+      "description": "Reward-model detector targeting RLHF-aligned LLMs (GPT-4, Claude, Llama-chat)"
+    }
+  ],
+  "overall_score": 17.3,
+  "overall_verdict": "Clean — likely human-written",
+  "engines_flagged": 5,
+  "engines_total": 23,
+  "input_chars": 22113,
+  "created_at": "2026-11-17T15:40:39",
+  "language": "es",
+  "language_support": "supported"
+}

@@ -1,0 +1,291 @@
+ANEXOS
+
+
+Los anexos reúnen la matriz de consistencia, que sostiene la trazabilidad del plan, y el protocolo preliminar de juicio de expertos.
+
+
+ANEXO 1. MATRIZ DE CONSISTENCIA
+
+La matriz articula los problemas de investigación con los objetivos, productos verificables, insumos, resultados, hipótesis y evidencia de evaluación del artefacto. Los problemas se formulan como
+enunciados narrativos, de modo que cada fila exprese una carencia verificable que será atendida por el diseño, implementación, evaluación y comunicación del artefacto PINN 2D.
+
+La Tabla A.1 presenta la primera parte de la matriz y verifica la correspondencia entre cada fase DSR, el problema que atiende, el objetivo asociado y el producto que permitirá comprobar su avance.
+El juicio de expertos del indicador F4 se describe en el Anexo 2.
+              Tabla A.1: Matriz de consistencia del plan de tesis: problema, objetivo y producto verificable. Fuente: Elaboración propia.
+
+Fase DSR / actividad         Problema                                              Objetivo                                       Producto verificable
+
+F0. Definición del objeto    PG. En el arreglo de cables–entorno térmico,           OG. Diseñar y evaluar un artefacto compu- Protocolo general del artefacto; dominio
+de estudio, caso de uso y    la heterogeneidad espacial del suelo nativo, el        tacional basado en una red neuronal         de validez; criterios de aceptación;
+alcance del artefacto        lecho de asiento y el suelo de relleno puede           informada por física (PINN) que represen- repositorio de escenarios y resultados.
+                             modificar T (x, y), Tmáx e Imáx respecto de una        te el arreglo de cables–entorno térmico,
+                             representación homogénea equivalente (Enescu estime T (x, y), Tmáx e Imáx , cuantifique el
+                             et al., 2021:4–6; CIGRÉ Working Group B1.87,           efecto de la heterogeneidad térmica espa-
+                             2025:3–4,93–99). Sin embargo, resulta difícil          cial y documente su exactitud, consistencia
+                             cuantificar esas diferencias de forma reprodu-         física, robustez y reproducibilidad.
+                             cible y establecer cuándo son relevantes para
+                             las decisiones de diseño y operación. Las re-
+                             presentaciones homogéneas equivalentes son
+                             rápidas, aunque no describen de forma explícita la
+                             conductividad variable k(x, y); los modelos FEM
+                             sí pueden representarla, pero exigen construir,
+                             mallar y verificar cada escenario. En consecuen-
+                             cia, persiste la necesidad de una formulación
+                             computacional verificada y trazable que represen-
+                             te k(x, y), estime el campo térmico y documente
+                             la exactitud, la consistencia física y la robustez del
+                             análisis.
+
+F1. Especificación física,   PE1. La representación física requerida por el        OE1. Elaborar una especificación trazable      VD1. Especificación trazable: documen-
+datos y requisitos           artefacto no está formalizada en términos de          de las entradas físicas, los requisitos        to de requisitos; catálogo de materiales
+                             entradas, requisitos funcionales y criterios de       funcionales y los criterios de calidad del     y geometrías; ficha de supuestos; matriz
+                             calidad que ordenen el cable multicapa, las           artefacto para representar el arreglo          requisito–prueba; estado incompleto,
+                             interfaces, las fuentes, los contornos y k(x, y) en   de cables–entorno térmico, incluyendo          completo pendiente o trazable aceptado.
+                             escenarios heterogéneos.                              dominios multicapa, fuentes térmicas,
+                                                                                   condiciones de contorno, interfaces y
+                                                                                   conductividad térmica espacialmente
+                                                                                   variable k(x, y).
+
+F2. Preparación de datos,    PE2. No se dispone de un paquete reproducible         OE2. Construir y verificar el artefacto        VD2. Artefacto verificado: versión del
+geometría y referencias      de soluciones analíticas o manufacturadas,            a partir de la especificación trazable y       prototipo, base de benchmarks, pruebas,
+                             referencias FEM con convergencia y casos              de un conjunto de soluciones analíticas        métricas, dominio de validez e informe
+                             publicados que permita construir y verificar el       o manufacturadas, benchmarks FEM               con estado rechazado, aceptado con
+                             artefacto dentro del dominio delimitado.              con convergencia y casos publicados,           restricciones o aceptado.
+                                                                                   clasificando su estado de aceptación
+                                                                                   según la exactitud, la consistencia física y
+                                                                                   la robustez entre ejecuciones.
+
+                                                                                                                                  Continúa en la siguiente página.
+
+
+
+
+                                                                                                                                                                             68
+             Fase DSR / actividad            Problema                                             Objetivo                                     Producto verificable
+
+             F3. Experimentación numéri- PE3. No se ha cuantificado de forma trazable             OE3. Aplicar el artefacto verificado a un    VD3. Expediente de evidencia térmi-
+             ca y análisis de sensibilidad cómo el contraste, el patrón, la extensión y la        catálogo de escenarios controlados de        ca: plan de casos; mapas de k(x, y)
+                                           proximidad de las heterogeneidades modifican           contraste, patrón, extensión y proximidad    y T (x, y); resultados de sensibilidad;
+                                           Tmáx , el campo T (x, y) y la localización del punto   de heterogeneidades del suelo nativo y       punto caliente; límites; y estado incon-
+                                           caliente.                                              de los suelos de relleno, y consolidar un    cluso, sin efecto relevante, con efecto
+                                                                                                  expediente de evidencia con los cambios      relevante no crítico o con condición
+                                                                                                  en Tmáx , el campo de temperatura T (x, y)   crítica.
+                                                                                                  y la localización del punto caliente.
+
+             F4. Evaluación de ampa-         PE4. No se han identificado las condiciones que OE4. Usar el expediente de evidencia              VD4. Expediente comparativo de ampa-
+             cidad y comparación de          producen la mayor discrepancia de ampacidad en- térmica y un catálogo de representaciones         cidad: rutina de búsqueda de Imáx ; tabla
+             escenarios                      tre una representación 2D heterogénea verificada pareadas para elaborar un expedien-              de reducción o aumento; clasificación de
+                                             y una representación homogénea equivalente.      te comparativo de ampacidad entre la             escenarios críticos; y estado sin discre-
+                                                                                              representación 2D heterogénea y las              pancia relevante, reducción, aumento o
+                                                                                              representaciones homogéneas, e identi-           inconcluso/fuera del dominio.
+                                                                                              ficar las condiciones que generan mayor
+                                                                                              discrepancia.
+
+
+
+
+La matriz de consistencia concluye en PE4–OE4 porque la síntesis y la comunicación no expresan una brecha específica adicional. El repositorio depurado, la guía de reproducción, el procedimiento
+y los principios de diseño se obtendrán en la actividad metodológica descrita en la Sección 4.3.2, a partir de la evidencia producida por las cuatro correspondencias problema–objetivo.
+
+
+
+La Tabla A.2 completa la matriz con las variables independientes discretas que ingresan a cada etapa, sus variables dependientes o productos, los estados posibles, las hipótesis, los indicadores y
+los parámetros controlados. Su función es comprobar que cada VD intermedia se conserva como parte heredada de la VI siguiente, mientras k(x, y), el contraste y los demás atributos físicos
+permanecen en una columna metodológica distinta.
+
+
+
+
+                                                                                                                                                                                                       69
+        Tabla A.2: Matriz de consistencia del plan de tesis: entradas discretas, salidas, hipótesis, indicadores y parámetros de caso. Fuente: Elaboración propia.
+
+Fase / objetivo   VI discreta: composi-     Realizaciones de la VI     VD discreta: objeto y      Hipótesis                          Indicadores de evalua-     Parámetros, controles y
+                  ción                                                 estados                                                       ción                       metadatos
+
+F1 / OE1. Es-     VI1=P1 . Paquete inicial Básico; completo; comple- VD1. Especificación       HE1. Un paquete inicial completo Requisitos críticos cu-         Parámetros del caso con-
+pecificación      de requisitos y datos. to documentado. Incluye, trazable: requisitos         y documentado permitirá produ- biertos                           tenidos en el paquete:
+física, datos y   No posee entrada hereda- según realización, geome- verificables, catálogo    cir una especificación trazable Umbrales de aceptación           geometría, materiales,
+requisitos        da.                      tría, materiales, fuentes, de datos, criterios y    aceptada, cubrir los requisitos    cobertura mayor que           k(x, y), fuentes y contor-
+                                           contornos, interfaces,     matriz requisito–prueba. críticos y vincular cada requisito 90 % de los requisitos        nos. Controles: norma,
+                                           unidades, supuestos y      Estados: incompleta;     con al menos una prueba física o críticos identificados, con     sistema de unidades, alcan-
+                                           procedencia.               completa pendiente de funcional.                            trazabilidad requisito–       ce y exclusiones.
+                                                                      trazabilidad; trazable                                      prueba.
+                                                                      aceptada.
+
+F2 / OE2. Cons- VI2={VD1, R2 }. Expe-        VD1 trazable aceptada      VD2. Artefacto verifi-    HE2. La especificación trazable             PINN − T ref |.
+                                                                                                                                     ET = |Tmáx                 Parámetros físicos coin-
+                                                                                                                                                       máx
+trucción y verifi- diente de construcción más R2 analítico/manufac- cado y expediente de          y referencias válidas permitirán   NRMSE: Error medio         cidentes entre artefacto y
+cación             y verificación. Hereda turado; FEM convergente; aceptación: versión,           producir un artefacto aceptado     cuadrático normalizado     referencia. Controles/me-
+                   VD1 y agrega referencias. publicado; o mixto. Sin    pruebas, métricas y       en F2: ET < 0,1 K, NRMSE           Umbrales de aceptación     tadatos: dominio, malla
+                                             VD1 aceptada no se habili- dominio. Estados: re-     menor que 1 % y desequilibrio      ET : menor que 0,1 K;      y tolerancia FEM, puntos
+                                             ta OE2.                    chazado; aceptado con     no mayor a 2 % en cada una de      NRMSE: menor que 1 %;      de colocación, arquitec-
+                                                                        restricciones; aceptado   cinco semillas.                    controles físicos de la    tura aceptada, pesos de
+                                                                        en el dominio.                                               Sección 4.3.5.             pérdida y semilla.
+
+F3 / OE3. Evalua- VI3={VD2, E3 }. Expe-     VD2 aceptada o aceptada VD3. Expediente de           HE3. A pérdidas iguales se      ET : error absoluto frente a Parámetros físicos del
+ción de escena- diente de evaluación        con restricciones com-   evidencia térmica: ma- espera aumento de Tmáx ante          FEM.                         escenario, no VI: mapa
+rios              térmica. Hereda VD2 y     patibles más E3 base;    pas, diferencias y límites. baja k cercana y reducción ante ∆Tmáx = Tmáx het − T hom :   k(x, y), Ck , fh y dh /D.
+                                                                                                                                                      máx
+                  agrega escenarios.        estratificado; localiza- Estados: inconcluso; sin relleno de alta k. Se contrastará efecto físico.                Controles: corriente o
+                                            do; mejorado; seco; o    efecto relevante; efec- el sentido y la relevancia; se      NRMSE: Error medio           pérdidas, profundidad,
+                                            multimaterial.           to relevante no crítico;    admitirán casos sin efecto o    cuadrático normalizado       disposición, Tamb , dominio,
+                                                                     condición crítica.          inconclusos.                    Umbrales de aceptación contornos y configuración
+                                                                                                                                 ET : menor que 0,5 K;        aceptada.
+                                                                                                                                 NRMSE: menor que 2,5 %
+                                                                                                                                 por semilla. Relevancia:
+                                                                                                                                 δT = 1 K y envolventes de
+                                                                                                                                 la Sección 4.7.2.
+
+                                                                                                                                                  Continúa en la siguiente página.
+
+
+
+
+                                                                                                                                                                                              70
+Fase / objetivo   VI discreta: composi-    Realizaciones de la VI     VD discreta: objeto y    Hipótesis                        Indicadores de evalua-     Parámetros, controles y
+                  ción                                                estados                                                   ción                       metadatos
+
+F4 / OE4. Com-    VI4={VD3, C4 }. Expe-    VD3 concluyente más C4 : VD4. Expediente com- HE4. Con promedio por área del Ampacidad Imáx (Ampe- Parámetros físicos he-
+paración de       diente de comparación heterogénea 2D frente a parativo de ampacidad: entorno se espera sobreestima- rios);                                 redados mediante VD3.
+ampacidad         de ampacidad. Hereda homogénea equivalente; resultados, márgenes y ción homogénea de Imáx ante                 ∆I (%): cambio de ampa- Controles: keq por área
+                  VD3 y agrega representa- conservadora; u optimista. casos críticos. Estados: baja k cercana. Se contrastarán cidad; error frente a FEM (Sección 4.5.2), Tlim , mis-
+                  ciones pareadas.                                    sin discrepancia relevan- reducción y sensibilidad al con- menor que 1 % por semi- ma ley R(T ), geometría y
+                                                                      te; reducción; aumento; traste, extensión y proximidad; la lla. Relevancia: δI = 2 % contornos; bisección de la
+                                                                      inconcluso/fuera del      expectativa podrá refutarse.     y envolventes de cinco      Sección 4.3.4.2.
+                                                                      dominio.                                                   semillas.
+                                                                                                                                 margen respecto de la
+                                                                                                                                 temperatura límite (K);
+                                                                                                                                 Calidad de la optimización
+                                                                                                                                 por juicio de expertos
+                                                                                                                                 escala de 1 a 10 (protocolo
+                                                                                                                                 en el Anexo 2)
+
+
+
+
+                                                                                                                                                                                        71
+                                                                                           72
+
+ANEXO 2. PROTOCOLO PRELIMINAR DE JUICIO DE EXPERTOS
+
+
+2.1 PROPÓSITO Y ESTADO
+
+
+Borrador preliminar del protocolo del indicador F4 de la matriz de consistencia (Anexo 1).
+Evalúa de forma estructurada las soluciones de cálculo térmico del artefacto frente a solucio-
+nes convencionales para cables enterrados. No se ha aplicado ni validado: el número de
+evaluadores, los pesos y el umbral de aceptación se fijan antes de la evaluación final.
+
+
+
+2.2 OBJETO DE COMPARACIÓN
+
+
+Los evaluadores comparan, con los mismos datos de entrada, el resultado del artefacto con
+la corriente admisible de la norma IEC 60287 (International Electrotechnical Commission,
+2023) y con una solución de elementos finitos verificada. Cada caso incluye geometría,
+materiales, pérdidas, contornos y resultado de ampacidad, sin indicar qué método produjo
+cada resultado.
+
+
+
+2.3 EVALUADORES
+
+
+Panel de tres a cinco profesionales con experiencia en cables de potencia, ampacidad o
+modelado térmico. Cada evaluador declara por escrito sus vínculos con el estudio o con los
+métodos comparados, y no participa en los casos con conflicto de interés.
+
+
+
+2.4 CRITERIOS Y ESCALA
+
+
+Cada caso se evalúa con cinco criterios, en una escala de 1 a 10:
+
+
+   1. Exactitud y adecuación técnica: concordancia del resultado con la referencia y con el
+      caso físico.
+
+   2. Consistencia física: cumplimiento de la conservación de la energía, de la continuidad
+      de temperatura y flujo en las interfaces, y de las condiciones de contorno.
+
+   3. Utilidad para el cálculo de ampacidad: capacidad del resultado para sustentar la
+      corriente admisible y el margen térmico.
+
+   4. Trazabilidad: disponibilidad de datos, supuestos y versión suficientes para reconstruir
+      el resultado.
+                                                                                                 73
+
+   5. Claridad de límites: identificación explícita del dominio de validez y de las condiciones
+      en las que el resultado no debe usarse.
+
+
+Anclajes: 1, el resultado contradice la referencia o la física sin explicación; 5, coincide en orden
+de magnitud, pero sus supuestos o límites no se documentan con claridad; 10, concuerda
+con la referencia dentro de la tolerancia del caso, respeta la física y declara sus límites
+con trazabilidad completa. Los valores intermedios se asignan por comparación con estos
+anclajes.
+
+
+
+2.5 PROCEDIMIENTO
+
+
+Cada evaluador recibe los casos por separado y no conoce las puntuaciones de los demás;
+cuando el formato lo permite, el método se oculta. Registra una justificación escrita por criterio
+y caso. Si dos evaluadores difieren en más de tres puntos, revisan juntos la justificación; si la
+diferencia persiste, decide un tercero.
+
+
+
+2.6 CUESTIONARIO POR CASO
+
+
+Antes de puntuar, el evaluador responde sí o no:
+
+
+   1. ¿El caso declara geometría, materiales, pérdidas, contornos y versión?
+
+   2. ¿El resultado reporta el error de Tmáx frente a la referencia y el balance energético?
+
+   3. ¿Los supuestos, la semilla y la configuración numérica están documentados?
+
+   4. ¿Se declaran el dominio de validez y los usos no admitidos?
+
+   5. ¿Cada puntuación tiene una justificación escrita?
+
+
+Un caso con respuestas negativas se reporta como inconcluso hasta completarse.
+
+
+
+2.7 AGREGACIÓN Y REGLA DE ACEPTACIÓN
+
+
+La puntuación de cada criterio y caso es la mediana de los evaluadores. La concordancia se
+reporta con el coeficiente de correlación intraclase de dos vías, con acuerdo absoluto, cuyo
+tipo se fija antes de la aplicación. El umbral mínimo por criterio y caso se establece antes de
+la evaluación final; los casos sin consenso se reportan como inconclusos.
+                                                                                           74
+
+
+2.8 RELACIÓN CON LAS MÉTRICAS NUMÉRICAS
+
+
+El juicio de expertos aporta una evaluación de utilidad y de adecuación profesional. Las
+métricas numéricas (error de Tmáx , NRMSE, desequilibrio energético y ∆I) sustentan la
+verificación. Ninguna fuente reemplaza a la otra. Una puntuación alta no compensa un
+incumplimiento numérico, y un resultado numérico correcto no basta si su utilidad o sus
+límites no están documentados.
+
+
+
+2.9 LIMITACIONES DEL PROTOCOLO
+
+
+El juicio depende de la experiencia de los evaluadores y de la calidad del material entregado,
+y su aplicación exige tiempo y disponibilidad. Por ello, el protocolo se revisa antes de la
+aplicación, y sus resultados se reportan como evidencia complementaria.

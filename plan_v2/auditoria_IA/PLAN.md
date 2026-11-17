@@ -116,3 +116,36 @@ Salidas por ejecucion aislada: `informe.md`, `manifest.json`, `texto_extraido.tx
 - https://github.com/pablocaeg/sloptotal
 - https://github.com/pablocaeg/sloptotal/blob/master/examples/python_client.py
 - Contrato instalado: http://127.0.0.1:8000/openapi.json
+
+## Auditoria Publica Autorizada: 17 De Noviembre De 2026
+
+El usuario autorizo el envio de la version final del plan a SlopTotal. Este flujo
+es independiente del cliente local anterior: no modifica su restriccion de API
+loopback ni intenta sortear el bloqueo del acceso programatico al portal.
+
+- Entradas y evidencias: `auditoria_resultados/publico_20261117/`.
+- Fuente de progreso: `manifest.json`; conservar tickets y huellas al reanudar.
+- `recolector_publico.py` recibe capturas exclusivamente en `127.0.0.1`; no envia
+	documentos ni solicita analisis al portal. Usa solo la biblioteca estandar.
+- `secuencia_navegador.js` se ejecuta con el objeto `page` de las herramientas
+	Playwright del navegador integrado. Usa el formulario normal y espera su
+	resultado antes de enviar otra unidad. No responde al cuestionario de autoria.
+- Inicio del recolector: `python recolector_publico.py --port 8767`.
+- La secuencia debe recibir ese mismo origen como segundo argumento:
+	`secuenciaAuditoria(page, "http://127.0.0.1:8767", 6)`.
+- Un `envio_iniciado` sin ticket requiere inspeccionar la pagina antes de
+	reanudar: no equivale a una solicitud rechazada ni autoriza a reenviarla.
+- La captura guarda DOM, tabla de motores, fecha, URL y JSON exportado. No se
+	fusionan puntuaciones distintas entre pantalla y exportacion.
+- El consolidado se actualiza al recibir cada evento. El recolector y la pagina
+	deben seguir abiertos mientras se ejecuta la secuencia; no es una tarea
+	permanente independiente del navegador. Se detiene ante errores y limita a
+	sesenta minutos la espera de finalizacion por unidad, sin reenviar por demora.
+
+Comprobaciones del flujo publico: prueba focalizada de reanudacion y rechazo de
+duplicados en `test_auditoria.py`; huellas de las ocho entradas comprobadas;
+conexion navegador--recolector y guardado real del capitulo II verificados. El
+entorno `.venv-benchmarks-repro` no tiene `requests`, por lo que cinco pruebas del
+cliente local anterior fallan por importacion; no se modificaron sus dependencias.
+No hay Node.js disponible en PATH: la sintaxis de la secuencia se comprobo con el
+motor JavaScript del navegador integrado y los diagnosticos del editor.

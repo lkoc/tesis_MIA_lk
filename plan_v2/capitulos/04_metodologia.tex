@@ -2,24 +2,24 @@
 \label{ch:metodologia}
 \thispagestyle{empty}
 
-Este capítulo explica cómo se construirá, verificará y evaluará el artefacto PINN. La ciencia del diseño organiza el proceso y mantiene la relación entre $\kx$, $T(x,y)$, $\Tmax$, $\Imax$ y la evidencia producida en cada fase.
+La metodología establece cómo el artefacto representará $\kx$, calculará $T(x,y)$ y estimará $\Tmax$ e $\Imax$. La ciencia del diseño organiza su construcción y evaluación mediante pruebas y registros que permitirán justificar los resultados y las restricciones de uso.
 
 \section{TIPO DE INVESTIGACIÓN}
 \label{sec:metodologia}
 
-La investigación tendrá enfoque cuantitativo porque calculará y comparará temperatura, errores, residuos, tiempos y variaciones de ampacidad. Además, esos registros se obtendrán mediante casos analíticos, manufacturados, bibliográficos y computacionales del arreglo de cables--entorno térmico.
+La investigación tendrá enfoque cuantitativo porque calculará y comparará temperatura, errores, residuos, tiempos y variaciones de ampacidad. Los registros procederán de casos analíticos, manufacturados, bibliográficos y computacionales del arreglo de cables--entorno térmico.
 
 Será aplicada y tecnológica porque construirá un artefacto para estudiar un problema de ingeniería. Por tanto, evaluará tanto el efecto de $\kx$ como la utilidad del artefacto.
 
 \section{NIVEL DE INVESTIGACIÓN}
 
-El nivel de la investigación será explicativo y comparativo, con orientación tecnológica. Es explicativo porque busca establecer cómo el contraste, el patrón, la extensión y la proximidad de las heterogeneidades de $\kx$ modifican $T(x,y)$, $\Tmax$ e $\Imax$; es comparativo porque contrasta pares controlados de representación heterogénea y homogénea equivalente; y tiene orientación tecnológica porque incluye la construcción y la verificación del artefacto PINN.
+El estudio será explicativo porque analizará cómo el contraste, el patrón, la extensión y la proximidad de las heterogeneidades de $\kx$ modifican $T(x,y)$, $\Tmax$ e $\Imax$. El análisis de pares controlados, con representación heterogénea y homogénea equivalente, aporta el componente comparativo. El desarrollo y la verificación de la PINN le dan su orientación tecnológica.
 
 \section{MÉTODOS DE TRABAJO}
 
-Como maestría de especialización, el diseño metodológico se organizará como ciencia del diseño. Primero se especificará el problema; luego se construirá el artefacto; finalmente se demostrará, evaluará y comunicará.
+El estudio seguirá el paradigma DSR para construir el artefacto y evaluar su funcionamiento, no para dar por supuesto su desempeño. La especificación del problema orientará el desarrollo; las etapas posteriores reunirán la evidencia para demostrar, evaluar y comunicar sus resultados.
 
-La metodología seguirá el paradigma DSR porque el estudio debe demostrar que el artefacto funciona y que su diseño produce conocimiento transferible. La estructura de identificación, diseño, demostración, verificación y comunicación se toma de \textcite[55--56]{peffers2007}; dentro de esa secuencia se contrastarán proposiciones sobre $\kx$, $\Tmax$ e $\Imax$. Las métricas cuantitativas serán evidencia del ciclo DSR, de acuerdo con el énfasis de \textcite[349--351]{gregor2013} en utilidad, calidad, eficacia y comunicación de la contribución. 
+La estructura de identificación, diseño, demostración, verificación y comunicación se toma de \textcite[55--56]{peffers2007}; dentro de esa secuencia se contrastarán proposiciones sobre $\kx$, $\Tmax$ e $\Imax$. Las métricas cuantitativas serán evidencia del ciclo DSR, de acuerdo con el énfasis de \textcite[349--351]{gregor2013} en utilidad, calidad, eficacia y comunicación de la contribución.
 
 Por esta razón, la metodología distingue objeto físico, entradas, configuración, producto, evidencia y controles, en lugar de tratar las dimensiones operativas como pares estadísticos aislados \parencites[55--56]{peffers2007}[342--344]{gregor2013}.
 
@@ -148,7 +148,7 @@ T_1=T_2,
 
 La Fórmula~\ref{for:interfaz} hace explícita esa restricción: la temperatura debe ser continua y el flujo normal debe conservarse entre materiales. Esta condición proviene del balance térmico en interfaces y es relevante porque el dominio incluye cable, suelo de relleno y suelo nativo, de modo que las interfaces no pueden introducir saltos térmicos sin justificación física \parencites{carslaw1959conduction,kakac2018heatConduction}{patankar1980numerical}[3]{xing2023}.
 
-La PINN aproximará el campo $T(x,y)$ y minimizará una pérdida compuesta, la cual incluirá residuos de ecuación, contornos, interfaces y datos de referencia cuando existan \parencite[686--690]{raissi2019}. Este esquema sigue la penalización física propuesta por \textcite[686--690]{raissi2019}; sin embargo, los pesos no se fijarán de antemano. Los pesos serán parte de la búsqueda de diseño, debido a que gradientes desbalanceados pueden sesgar la convergencia en redes PINN \parencites[16]{pan2025}[1--2,17]{lawal2022}.
+La PINN aproximará el campo $T(x,y)$ y minimizará una pérdida compuesta de ecuación, contornos, interfaces y balance energético \parencite[686--690]{raissi2019}. Los pesos se elegirán durante el desarrollo y se congelarán antes de la confirmación, debido a que gradientes desbalanceados pueden sesgar la convergencia \parencites[16]{pan2025}[1--2,17]{lawal2022}. No se usarán temperaturas analíticas, manufacturadas ni FEM como etiquetas de entrenamiento en la evaluación principal.
 
 \begin{formula}
 \centering
@@ -164,7 +164,7 @@ w_e\mathcal{L}_{\mathrm{energía}}.
 \caption{Función de pérdida lógica del artefacto PINN. Fuente: Elaboración propia.}
 \end{formula}
 
-La Fórmula~\ref{for:loss} organiza el entrenamiento como una suma ponderada de restricciones. Es una formulación operacional del estudio basada en la pérdida PINN de \textcite[686--690]{raissi2019} y en los problemas de ponderación reportados por \textcite[1--2,17]{lawal2022} y \textcite[16]{pan2025}. El término $\mathcal{L}_{\mathrm{PDE}}$ penaliza el incumplimiento de la ecuación de calor; los términos de contorno e interfaz controlan condiciones físicas auxiliares; los datos y la energía agregan trazabilidad cuando exista una referencia.
+La Fórmula~\ref{for:loss} organiza el entrenamiento como una suma ponderada de restricciones. Es una formulación operacional del estudio basada en la pérdida PINN de \textcite[686--690]{raissi2019} y en los problemas de ponderación reportados por \textcite[1--2,17]{lawal2022} y \textcite[16]{pan2025}. El término $\mathcal{L}_{\mathrm{PDE}}$ penaliza el incumplimiento de la ecuación de calor; contornos e interfaces controlan restricciones auxiliares; energía penaliza el defecto global de conservación. Se mantendrá $w_d=0$ en F2--F4: las referencias se reservarán para evaluar después del entrenamiento. Un ensayo supervisado de desarrollo, si se realiza, se identificará por separado y no acreditará esas puertas.
 
 La ampacidad se obtendrá buscando la corriente que hace coincidir $\Tmax$ con el límite térmico adoptado. Este criterio se basa en la definición clásica de corriente admisible y en el tratamiento normativo de régimen permanente para cables \parencites[752--760]{neher1957}[cláusulas 4--5]{iec60287}[3--6]{enescu2021}. En cada iteración se actualizarán las pérdidas dependientes de corriente y luego se resolverá el campo térmico hasta cumplir tolerancias de temperatura y energía.
 
@@ -179,19 +179,69 @@ La ampacidad se obtendrá buscando la corriente que hace coincidir $\Tmax$ con e
 
 La Fórmula~\ref{for:ampacidad} convierte ese criterio en una condición operacional para el artefacto. La corriente admisible es el mayor valor de $I$ que mantiene la temperatura máxima del conductor, evaluada en $\Omega_c$, por debajo del límite térmico $T_{\mathrm{lim}}$. Por tanto, el cálculo de ampacidad depende directamente de la calidad del campo $T(x,y;I)$.
 
-\paragraph{Pérdidas Joule y resistencia eléctrica.}
-Las pérdidas eléctricas se introducen como fuente de calor de Joule. Con una corriente $I$ y una resistencia $R(T)$, la potencia disipada por unidad de longitud del conductor es $I^2R(T)$. Esa potencia se reparte uniformemente en la sección del conductor. La resistencia se refiere a \SI{20}{\celsius} y varía con la temperatura según la Fórmula~\ref{for:joule-resistencia}, tomada de la norma de corriente admisible \parencite{iec60287}.
+\subsubsection{PÉRDIDAS JOULE Y RESISTENCIA ELÉCTRICA}
+Las pérdidas eléctricas se introducirán como calor de Joule. Para cada conductor $j$, la corriente $I_j$ será un valor eficaz y la resistencia por unidad de longitud se evaluará a la temperatura media de su sección, $\overline{T}_{c,j}=A_{c,j}^{-1}\int_{\Omega_{c,j}}T\,\mathrm{d}A$. La ley lineal de resistencia toma como base el tratamiento de \textcite{iec60287}; su aplicación a una resistencia AC efectiva será una aproximación declarada del estudio.
 
 \begin{formula}
 \centering
 \begin{equation}
 \label{for:joule-resistencia}
-R(T)=R_{20}\left[1+\alpha_{20}\left(T-T_{20}\right)\right].
+\begin{aligned}
+R_{\mathrm{ef},j}(\overline{T}_{c,j})
+&=R_{\mathrm{ef},20,j}\left[1+\alpha_{20,j}
+\left(\overline{T}_{c,j}-T_{20}\right)\right],\\
+Q_j&=\frac{I_j^2R_{\mathrm{ef},j}(\overline{T}_{c,j})}{A_{c,j}}
+\quad\text{en }\Omega_{c,j};\qquad Q=0\quad\text{fuera de los conductores}.
+\end{aligned}
 \end{equation}
-\caption{Resistencia del conductor dependiente de la temperatura. Fuente: Elaboración propia a partir de \textcite{iec60287}.}
+\caption{Resistencia efectiva y fuente Joule uniforme por conductor. Fuente: Elaboración propia a partir de \textcite{iec60287}.}
 \end{formula}
 
-En la fórmula, $T_{20}$ es la temperatura de referencia de \SI{20}{\celsius}, $R_{20}$ la resistencia en corriente alterna que aporta el caso y $\alpha_{20}$ el coeficiente de temperatura del material conductor. Los efectos piel y de proximidad no se calculan de forma explícita; entran solo a través de la resistencia en corriente alterna del caso. El modelo no resuelve las ecuaciones de Maxwell ni la distribución electromagnética de la corriente. El conductor se representa como un cilindro macizo con fuente uniforme. La temperatura interior se obtiene del campo resuelto y no de resistencias térmicas equivalentes. Los conductores segmentados y las pérdidas de proximidad quedan fuera del alcance y se reportan como límite. Aquí $\Omega_c$ denota la región ocupada por el conductor.
+En la fórmula, $T_{20}=\SI{20}{\celsius}$, $A_{c,j}$ se expresa en $\mathrm{m^2}$, $R_{\mathrm{ef},20,j}$ en $\Omega/\mathrm{m}$, $Q_j$ en $\mathrm{W/m^3}$ y $\alpha_{20,j}$ en $\mathrm{K^{-1}}$. Cada ficha elegirá una sola modalidad: (a) resistencia DC documentada, con $R_{\mathrm{ef},20}=R_{\mathrm{DC},20}$, sin correcciones AC; o (b) resistencia AC efectiva documentada a frecuencia y disposición especificadas. Si esta última se deriva de datos DC, se registrará $R_{\mathrm{ef},20}=R_{\mathrm{DC},20}(1+y_s+y_p)$ y la procedencia de $y_s$ e $y_p$. Si el dato ya es AC, no se volverán a aplicar esos factores. En la modalidad (b) se mantendrá fijo el factor AC durante el acoplamiento térmico; no se afirmará que reproduce la variación completa de los efectos piel y proximidad con la temperatura. Una resistencia documentada a otra temperatura solo se trasladará a \SI{20}{\celsius} con una ley y un coeficiente explícitos.
+
+La evaluación principal excluirá pérdidas dieléctricas, de pantallas y de armaduras. Por ello, no se comparará su ampacidad con la de un caso publicado que incluya esas pérdidas sin recalcular una referencia con los mismos supuestos. El modelo no resolverá Maxwell, corrientes de pantalla ni conductores segmentados; representará cada conductor como un cilindro macizo de generación uniforme, conservando su área declarada. Las fuentes analíticas o manufacturadas prescritas podrán diferir de esta ley para verificar el solucionador, pero no se usarán directamente para estimar ampacidad.
+
+Para cada corriente se resolverá el acoplamiento por punto fijo: iniciar $\overline{T}_{c,j}$ en $T_{\mathrm{amb}}$, calcular $Q_j$, resolver el campo y actualizar la temperatura media con relajación $\overline{T}_{c,j}^{\,n+1}=0{,}5\overline{T}_{c,j}^{\,n}+0{,}5\langle T^{n+1}\rangle_{c,j}$. Se detendrá cuando el cambio máximo de las medias sea menor que \SI{0.001}{\kelvin} y $\max_j\bigl\{|Q_j^{n+1}-Q_j^n|/\max(|Q_j^{n+1}|,Q_0)\bigr\}<10^{-4}$, con un máximo de 100 iteraciones y cumplimiento del balance energético. La escala positiva $Q_0$ se define en la Sección~\ref{subsec:protocolo-pinn} y evita dividir entre cero cuando $I=0$. Si no converge, el ensayo se registrará como fallido; no se inferirá ampacidad. FEM y PINN emplearán la misma ley y las mismas tolerancias, aunque resolverán sus campos de forma independiente.
+
+\subsubsection{BÚSQUEDA ACOTADA DE AMPACIDAD}
+\label{subsec:busqueda-ampacidad}
+En arreglos equilibrados se impondrá la misma corriente eficaz $I$ a todos los conductores. Se iniciará el intervalo en $I_L=0$ y en una corriente positiva $I_U$ declarada en la ficha. Se duplicará $I_U$ hasta obtener $T_{\max}(I_L)\leq T_{\mathrm{lim}}<T_{\max}(I_U)$, con un máximo de doce ampliaciones. Si el caso no disipa calor, no converge o no permite encerrar el límite, se declarará inconcluso; no se extrapolará la raíz.
+
+Con el límite encerrado se evaluará $I_M=(I_L+I_U)/2$ y se reemplazará el extremo admisible o no admisible según su temperatura. Se exigirán simultáneamente $(I_U-I_L)/I_U\leq10^{-3}$ y $|T_{\max}(I_M)-T_{\mathrm{lim}}|\leq\SI{0.05}{\kelvin}$, con un máximo de 60 bisecciones. Se comprobará que las temperaturas convergidas sean no decrecientes con la corriente dentro del error numérico estimado. Una inversión no explicada por ese error invalidará la búsqueda. Se reportarán el intervalo, el punto medio y el número de resoluciones, no solo una corriente redondeada.
+
+La tolerancia de la bisección no se confundirá con la exactitud de la PINN. FEM y PINN realizarán búsquedas independientes; después se verificarán con FEM las temperaturas de los extremos y del punto medio obtenidos por la PINN, sin transferir esos campos al entrenamiento. Se construirá además un intervalo ampliado usando $T_{\max}\pm u_T$, donde $u_T$ suma el mayor error observado frente a FEM en esas comprobaciones y la estimación de error de referencia de la Sección~\ref{subsec:referencia-fem}. Solo se aceptarán extremos cuya clasificación térmica no cambie con esa incertidumbre; si es necesario se ampliará el intervalo de corriente. Para F4 se exigirá error relativo de ampacidad frente a FEM menor que 1\,\pct{} en cada semilla y se propagarán los intervalos ampliados a $\Delta I$. Si la incertidumbre impide clasificar el efecto con la regla de relevancia, VD4 será inconcluso aunque la bisección haya terminado. Estas comprobaciones son numéricas, no una certificación de corriente segura en una instalación real.
+
+\subsection{PROTOCOLO REPRODUCIBLE DE LA PINN}
+\label{subsec:protocolo-pinn}
+
+La configuración siguiente es el protocolo propuesto de confirmación, no una declaración de resultados ya alcanzados. Se empleará una red densa independiente por subdominio material conectado, con dos coordenadas de entrada y una temperatura de salida. La ecuación se evaluará en el interior de cada subdominio; no se diferenciará una función indicadora discontinua de $k$. En cada interfaz se penalizarán por separado el salto de temperatura y el de flujo con una normal común. La descomposición permite gradientes térmicos diferentes sin exigir que una única red suave reproduzca el salto de conductividad.
+
+\begin{table}[htbp]
+\centering
+\caption{Configuración propuesta para entrenamiento y confirmación. Fuente: Elaboración propia.}
+\label{tab:protocolo-pinn}
+\begin{tabularx}{\textwidth}{L{3.4cm}Y}
+\toprule
+\textbf{Elemento} & \textbf{Regla reproducible} \\
+\midrule
+Red e inicialización & Tres capas ocultas de 32 neuronas por subdominio, activación $\tanh$, salida lineal, inicialización Xavier uniforme y sesgos nulos; precisión de 64 bits. \\
+Escalamiento & Coordenadas centradas y divididas por $L_0$, la mayor dimensión del dominio; temperatura $u=(T-T_{\mathrm{amb}})/T_0$, con $T_0=T_{\mathrm{lim}}-T_{\mathrm{amb}}>0$. En verificaciones sin límite térmico se fija $T_0$ en la ficha. \\
+Colocación & 512 puntos interiores por subdominio, 256 por interfaz y 128 por tramo de contorno externo. Muestreo uniforme seudoaleatorio estratificado por entidad; mismos puntos durante cada entrenamiento, sin puntos exactamente sobre esquinas. \\
+Pérdidas & Promedio cuadrático por entidad y luego promedio entre entidades del mismo término, para no ponderar un material por su número de puntos. Se fija $w_f=w_b=w_e=1$, $w_d=0$; el peso de interfaz se selecciona entre $w_i\in\{1,10,100\}$ en el piloto. \\
+Optimizadores & Adam: 20\,000 actualizaciones, tasa $0{,}003$, $\beta_1=0{,}9$, $\beta_2=0{,}999$, $\epsilon=10^{-8}$; después L-BFGS: máximo 200 iteraciones, historial 50 y búsqueda de línea Wolfe fuerte, con tolerancias de gradiente $10^{-9}$ y de cambio $10^{-12}$. \\
+Semillas & Desarrollo: 7, 11 y 23. Confirmación: 101, 211, 307, 401 y 503, sin selección posterior; semilla de colocación igual a la semilla de red más 10\,000. Pares heterogéneo--homogéneo con las mismas semillas. \\
+Selección y parada & Mejor estado según pérdida física total sobre puntos de control distintos de la colocación; nunca según error FEM. Se detiene por presupuesto o tolerancias L-BFGS y se conserva la causa. No se eliminan ejecuciones fallidas. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Las escalas de flujo y fuente serán $q_0=k_0T_0/L_0$ y $Q_0=k_0T_0/L_0^2$, donde $k_0$ es la conductividad del suelo nativo declarada en la ficha. Los residuos de PDE, flujo y temperatura se dividirán por $Q_0$, $q_0$ y $T_0$, respectivamente; los saltos de temperatura y flujo se promediarán como dos componentes de interfaz. El balance se normalizará por la potencia generada positiva, o por una potencia característica declarada cuando la generación neta sea nula. Las integrales de fuente y flujo usarán cuadratura por material y por cara, con resolución y tolerancia registradas.
+
+El piloto cubrirá M1 y M2 de la Tabla~\ref{tab:catalogo-minimo}, con las tres semillas de desarrollo y el mismo presupuesto por candidato. Se elegirá $w_i$ por el menor máximo de los residuos normalizados de PDE, contorno, interfaz y energía, tomando el máximo sobre ambos casos y todas las semillas de desarrollo. Los empates se resolverán por el menor peso. Se congelarán arquitectura, pesos, escalas, muestreo y presupuestos en un manifiesto antes de F2--F4. Si ningún candidato cumple los controles físicos, se revisará el diseño y se repetirá el piloto con una nueva versión antes de confirmar; no se ajustará la configuración a los escenarios finales.
+
+Los puntos de control físicos serán independientes de la colocación y tendrán el doble de puntos por entidad, con semilla de red más 20\,000. La aceptación exigirá residuo RMS normalizado de PDE no mayor a $10^{-2}$, defecto máximo de temperatura en contornos e interfaces no mayor a \SI{0.05}{\kelvin}, defecto máximo de flujo prescrito o salto de flujo no mayor a $0{,}02q_0$, y desequilibrio global no mayor a 2\,\pct{}. En contornos convectivos se evaluará el residuo de Robin como flujo. Estos controles se comprobarán también con puntos nuevos, con semilla de red más 30\,000, distintos de los usados para seleccionar el estado. No sustituyen los errores de F2/F3 frente a referencias independientes.
+
+Para un nuevo caso se iniciarán las redes desde la semilla prescrita. Dentro del acoplamiento electrotermal y de la bisección podrá reutilizarse el estado de la corriente previamente convergida de la misma semilla; el orden de corrientes y los estados iniciales quedarán registrados. Ninguna información del campo FEM se transferirá a la red. Cada ejecución conservará identificador, configuración, semillas, versión de código y bibliotecas, dispositivo, precisión, puntos, historial de pérdidas, estado elegido, tiempo y motivo de parada. Se solicitarán algoritmos deterministas cuando el dispositivo los permita y se declararán las excepciones.
 
 \section{POBLACIÓN Y MUESTRA}
 
@@ -204,6 +254,38 @@ Por tratarse de una maestría de especialización, la unidad de análisis no ser
 
 Los casos se seleccionarán por pertinencia técnica y capacidad de evaluación. Se usarán soluciones analíticas, soluciones manufacturadas, benchmarks FEM, configuraciones publicadas y escenarios representativos. Así, los casos mostrarán alcance, límites y utilidad del artefacto. Sin embargo, no se levantarán mediciones directas de campo ni se buscará inferencia probabilística sobre todas las instalaciones posibles.
 
+\subsection{CATÁLOGO MÍNIMO Y FICHAS DE LOS CASOS}
+\label{subsec:fichas-casos}
+
+La Tabla~\ref{tab:catalogo-minimo} fija el conjunto mínimo propuesto. Los casos A1 y M1--M2 verifican el solucionador; C0--C1 permiten evaluar los escenarios y la ampacidad. No se asigna a un artículo un parámetro que no haya sido contrastado con él. Las longitudes de la tabla se expresan en metros, las temperaturas en grados Celsius y las conductividades en $\mathrm{W/(m\,K)}$.
+
+\begingroup\footnotesize
+\begin{longtable}{L{2.1cm}L{4.9cm}L{6.5cm}}
+\caption{Casos mínimos propuestos y condiciones reproducibles. Fuente: Elaboración propia; C0 utiliza una adaptación computacional histórica inspirada en \textcite{aras2005}.}
+\label{tab:catalogo-minimo}\\
+\toprule
+\textbf{Caso / uso} & \textbf{Dominio y materiales} & \textbf{Fuente, contornos y referencia} \\
+\midrule\endfirsthead
+\toprule
+\textbf{Caso / uso} & \textbf{Dominio y materiales} & \textbf{Fuente, contornos y referencia} \\
+\midrule\endhead
+\bottomrule\endfoot
+A1. Anillo analítico (F2) & $0{,}02<r<1$, $k=1$; escala térmica $T_0=50$ K. & $Q=0$; potencia lineal entrante $p=10$ W/m en el radio interior, flujo entrante $p/(2\pi r_i)$; $T=20$ en el exterior. Referencia: $T(r)=20+[p/(2\pi k)]\ln(r_o/r)$, con $r_o=1$ m. No calcula ampacidad. \\
+M1. Manufacturado suave (F2) & Cuadrado unitario, $k=1$; $T_0=10$ K. & $T=20+10\sin(\pi x)\sin(\pi y)$, $Q=20\pi^2\sin(\pi x)\sin(\pi y)$ W/m$^3$; $T=20$ en todo el contorno. Solución exacta y FEM independientes de la PINN. \\
+M2. Transmisión (F2) & Cuadrado unitario, interfaz $x=0{,}5$; $k_1=1$, $k_2=0{,}5$; $T_0=10$ K. & $Q=0$; solución exacta $T=20+10x/k_1$ a la izquierda y $T=20+5/k_1+10(x-0{,}5)/k_2$ a la derecha. Dirichlet igual a esa solución en el contorno; temperatura y flujo continuos en la interfaz. \\
+C0. Cable plano (F2--F4) & $[-4,4]\times[-4,0]$; centros $(-0{,}33;-1{,}2)$, $(0;-1{,}2)$ y $(0{,}33;-1{,}2)$; suelo $k=1$. & $T=20$ en las cuatro caras. Corriente inicial $1110$ A; $R_{\mathrm{DC},20}=1{,}51\times10^{-5}$ $\Omega$/m, $\alpha_{20}=0{,}00393$ K$^{-1}$; $T_{\mathrm{lim}}=90$. En VD3: $p=I^2R_{20}=18{,}60471$ W/m por conductor. En VD4: $R(T)$ activa y referencia FEM propia. \\
+C1. Cable en trébol (F3--F4) & Mismo dominio, capas y materiales de C0; centros $(-0{,}165;-1{,}2)$, $(0{,}165;-1{,}2)$ y $(0;-0{,}91421)$. & Mismos parámetros eléctricos, pérdidas prescritas, límite y contornos que C0. Configuración sintética de cobertura, no reproducción de una instalación publicada. Referencia FEM propia. \\
+\end{longtable}
+\endgroup
+
+En C0 y C1 se usarán cuatro capas concéntricas con radios externos $0{,}01885$, $0{,}04085$, $0{,}04935$ y $0{,}05335$ m y conductividades respectivas $400$, $0{,}2857$, $384{,}6$ y $0{,}45$ $\mathrm{W/(m\,K)}$. Solo generará calor el disco conductor, de área $A_c=\pi(0{,}01885)^2$ m$^2$, con $Q=p/A_c$ en VD3. Son parámetros de una adaptación controlada conservada en la ficha histórica \texttt{aras\_flat}; su atribución original no está auditada campo por campo. Se adoptan aquí como supuestos explícitos, no como reproducción exacta de \textcite{aras2005}. El límite de \SI{90}{\celsius} se adopta para el aislamiento XLPE del caso y no acredita una capacidad comercial del cable.
+
+El catálogo $E_3$ incluirá el entorno homogéneo, una inclusión rectangular de baja conductividad, un relleno rectangular de mejora y un estrato horizontal. Para las inclusiones se fijarán altura $D$, anchura $w/D\in\{2,4\}$ y separación libre respecto de la envolvente del cable $d_h/D\in\{0{,}5;2\}$, donde $D=0{,}1067$ m. Se ubicarán sobre el conductor central en C0 o el superior en C1, sin intersectar los cables. Se usarán $k_h/k_{\mathrm{nativo}}\in\{0{,}5;0{,}25\}$ para baja conductividad y $\{2;4\}$ para mejora. El estrato tendrá espesor $2D$, ocupará el ancho del dominio y se situará con su cara inferior a esas mismas separaciones. Se registrará $f_h=|\Omega_h|/|\Omega_e|$; la geometría, y no un ajuste térmico posterior, determinará esa fracción.
+
+Para contener el costo se recorrerán niveles de un parámetro a la vez desde la base $w/D=2$, $d_h/D=0{,}5$ y contraste 0,5 o 2, según el material. En el estrato se variarán contraste y separación, no anchura. Se obtienen cuatro escenarios por tipo de inclusión y tres de estrato por disposición, más su base homogénea: 24 escenarios heterogéneos o de control para las dos disposiciones. Cada escenario heterogéneo tendrá su comparador homogéneo por área y cinco semillas; los campos FEM de ambos miembros serán obligatorios. Un caso multimaterial combinado o un caso publicado adicional se incorporará solo con ficha completa y como extensión identificada, sin sustituir el conjunto mínimo.
+
+Cada ficha conservará identificación, fuente y página o estado de supuesto por dato; geometría y unidades; capas y $k$; corriente, resistencia DC/AC y frecuencia si corresponde; $\alpha_{20}$, $T_{\mathrm{lim}}$, $T_{\mathrm{amb}}$, $Q$ y contornos; mapa de interfaces; regla $k_{eq}$; referencia, mallas y tolerancias; versión y huellas de archivos. Un caso publicado sin información suficiente se excluirá del contraste cuantitativo y se conservará únicamente como antecedente. La truncación del dominio se estudiará duplicando sus distancias laterales y de fondo, sin mover los cables ni la superficie. Si cambian $T_{\max}$ más de \SI{0.05}{\kelvin} o la ampacidad más de 0,2\,\pct{}, se ampliará nuevamente el dominio antes de congelar los pares. Se recalculará y documentará $k_{eq}$ para ese dominio común.
+
 \section{TIPO DE DISEÑO}
 
 El diseño es de ciencia del diseño (DSR), con ciclos formativos de evaluación y comparaciones pareadas entre representaciones heterogéneas y homogéneas equivalentes sobre casos discretos. No es un diseño experimental de campo ni un diseño factorial estadístico.
@@ -213,6 +295,20 @@ El diseño es de ciencia del diseño (DSR), con ciclos formativos de evaluación
 La experimentación numérica permitirá observar el comportamiento térmico del sistema y servirá para demostrar y evaluar el artefacto dentro de la metodología DSR. No se planteará como un diseño experimental autónomo orientado a inferencia estadística, sino como una secuencia de casos controlados. Primero, la secuencia verificará el prototipo con casos simples y trazables; luego, demostrará su uso en configuraciones con $\kx$. Finalmente, evaluará la diferencia entre representaciones heterogéneas y homogéneas equivalentes para estimar el efecto sobre $\Tmax$ e $\Imax$.
 
 Las comparaciones serán pareadas y controladas. Por tanto, cuando se evalúe heterogeneidad, solo cambiará la representación térmica del entorno. Además, los barridos de contraste, extensión y proximidad mostrarán sensibilidad física y límites del artefacto. La Tabla~\ref{tab:experimentacion-dsr} ordena esa secuencia dentro del ciclo DSR.
+
+\subsection{HOMOGENIZACIÓN Y CONTROL DE LOS PARES}
+\label{subsec:homogenizacion}
+La representación homogénea principal se construirá sobre la región térmica externa a los cables, $\Omega_e$, que comprende suelo nativo, relleno e inclusiones. Para conductividades escalares positivas y constantes por región se fijará
+\begin{equation}
+\label{eq:keq-area}
+k_{eq}=\frac{1}{|\Omega_e|}\int_{\Omega_e}k(x,y)\,\mathrm{d}A
+=\frac{\sum_m A_m k_m}{\sum_m A_m}.
+\end{equation}
+Las áreas $A_m$ serán las de cada material dentro del dominio externo finito de la ficha, sin superposiciones ni áreas de cable. Se conservarán el dominio, las capas y propiedades del cable, la posición de los conductores, los contornos y el límite térmico. En el miembro homogéneo se sustituirá únicamente $k(x,y)$ por $k_{eq}$ en $\Omega_e$; las interfaces internas del entorno dejarán de tener contraste, pero se mantendrán las interfaces cable--entorno. El valor y las áreas se calcularán antes de resolver los campos; no se ajustará $k_{eq}$ para igualar temperaturas ni ampacidades.
+
+Este promedio conserva la media espacial de conductividad, pero no garantiza una resistencia térmica equivalente ni una cota conservadora para cualquier geometría. Su elección permite contrastar una simplificación explícita y reproducible; las conclusiones dependerán de ella y del tamaño de dominio fijado. Las alternativas armónica o conservadora, si se exploran, serán análisis de sensibilidad identificados por separado y no reemplazarán retrospectivamente el comparador principal.
+
+En VD3 se prescribirán las mismas pérdidas lineales por conductor en ambos miembros, sin actualizar $R(T)$, para aislar el efecto de la distribución espacial de conductividad. La corriente nominal que origine esas pérdidas y la temperatura de resistencia usada quedarán documentadas. La comprobación de cruce de $T_{\mathrm{lim}}$ a corriente fija se hará adicionalmente con el acoplamiento electrotermal activo en ambos miembros y se identificará como tal. En VD4 se buscará la ampacidad de cada miembro con la misma ley $R(T)$ y el mismo algoritmo; las fuentes podrán diferir porque cambian la corriente admisible y la temperatura. Se mantendrán semillas pareadas y se verificará cada representación con su propia referencia FEM.
 
 \begin{table}[htbp]
 \centering
@@ -235,7 +331,7 @@ Los datos se recolectarán mediante revisión documental y registro de ejecucion
 
 \subsection{EVIDENCIA, INSTRUMENTOS Y TRAZABILIDAD}
 
-La evidencia provendrá de revisión documental, casos analíticos o manufacturados, referencias FEM, configuraciones publicadas y ejecuciones computacionales registradas. Por tanto, cada fuente deberá quedar asociada a un uso dentro del estudio. Los instrumentos serán la matriz de extracción bibliográfica, la especificación de requisitos y el catálogo de casos. Además, se usarán la bitácora DSR, archivos parametrizados, pruebas, matriz de resultados y protocolo de reproducción.
+La evidencia provendrá de revisión documental, casos analíticos o manufacturados, referencias FEM, configuraciones publicadas y ejecuciones computacionales registradas. Cada fuente se asociará con su uso dentro del estudio. La matriz de extracción bibliográfica, la especificación de requisitos y el catálogo de casos organizarán los insumos. La bitácora DSR, los archivos parametrizados, las pruebas, la matriz de resultados y el protocolo de reproducción documentarán las ejecuciones y sus resultados.
 
 Cada resultado conservará fuente, unidad, supuesto, semilla, versión del código, configuración de entrenamiento, criterio de convergencia y huella de salida. Esta trazabilidad permitirá reconstruir por qué se aceptó, refinó o descartó un incremento del artefacto.
 
@@ -245,7 +341,7 @@ El análisis comparará los resultados del artefacto con referencias independien
 
 \subsection{MÉTRICAS DE EVALUACIÓN}
 
-La evaluación combinará exactitud, consistencia física, utilidad y reproducibilidad. Para temperatura se usarán el error relativo de $\Tmax$, el error cuadrático medio normalizado (NRMSE), el error absoluto medio (MAE), el error máximo, los residuos y el desequilibrio energético. Las fórmulas de estas métricas aparecen en la Fórmula~\ref{for:metricas-evaluacion}.
+La evaluación combinará exactitud, consistencia física, utilidad y reproducibilidad. Para temperatura se usarán el error absoluto de $\Tmax$, $E_T$, su error relativo, el error cuadrático medio normalizado (NRMSE), el error absoluto medio (MAE), el error máximo, los residuos y el desequilibrio energético. El error numérico $E_T$ no se confundirá con el efecto físico $\Delta T_{\max}$ entre representaciones. Las fórmulas de estas métricas aparecen en la Fórmula~\ref{for:metricas-evaluacion}.
 
 Estas métricas son coherentes con la verificación de herramientas de ampacidad recomendada por \textcite[93--99]{cigre2025}. Además, para ampacidad se reportará $\Imax$, diferencia porcentual y margen térmico.
 
@@ -258,11 +354,13 @@ Las métricas mínimas de reporte se definen operacionalmente en la Fórmula~\re
 \begin{equation}
 \label{for:metricas-evaluacion}
 \begin{aligned}
+E_T(\mathrm{K})&=|T_{\max}^{\mathrm{PINN}}-T_{\max}^{\mathrm{ref}}|,\\
+\Delta T_{\max}(\mathrm{K})&=T_{\max}^{\mathrm{het}}-T_{\max}^{\mathrm{hom}},\\
 e_{T_{\max}}(\pct)&=
 100\frac{|T_{\max}^{\mathrm{PINN}}-T_{\max}^{\mathrm{ref}}|}
 {T_{\max}^{\mathrm{ref}}-T_{\mathrm{amb}}},\\
 \Delta I(\pct)&=100\frac{I_{\mathrm{het}}-I_{\mathrm{hom}}}{I_{\mathrm{hom}}},\\
-\mathrm{NRMSE}(\pct)&=100\,\frac{\sqrt{\frac{1}{N}\sum_{i=1}^{N}\left(T_i^{\mathrm{PINN}}-T_i^{\mathrm{ref}}\right)^2}}{T_{\max}^{\mathrm{ref}}-T_{\mathrm{amb}}},\\
+\mathrm{NRMSE}(\pct)&=100\,\frac{\sqrt{\sum_{i=1}^{N}a_i\left(T_i^{\mathrm{PINN}}-T_i^{\mathrm{ref}}\right)^2}}{T_{\max}^{\mathrm{ref}}-T_{\mathrm{amb}}},\\
 \varepsilon_E(\pct)&=100\,\frac{\left|P_{\mathrm{gen}}-P_{\mathrm{sal}}\right|}{P_{\mathrm{gen}}},\\
 M_T(\mathrm{K})&=T_{\mathrm{lim}}-T_{\max}.
 \end{aligned}
@@ -270,14 +368,45 @@ M_T(\mathrm{K})&=T_{\mathrm{lim}}-T_{\max}.
 \caption{Métricas de evaluación térmica, de ampacidad y de balance energético. Fuente: Elaboración propia.}
 \end{formula}
 
-En la Fórmula~\ref{for:metricas-evaluacion}, $e_{T_{\max}}$ expresa el error de $\Tmax$ como fracción de la elevación térmica de la referencia, de modo que no depende del origen de la escala de temperatura. $\Delta I$ mide el cambio porcentual entre el escenario heterogéneo y el homogéneo. El NRMSE normaliza el error cuadrático medio con esa misma elevación, $\varepsilon_E$ compara la potencia generada con la que sale del dominio y $M_T$ indica el margen frente al límite térmico. Estas expresiones no proceden de una norma como umbrales universales, sino que organizan el reporte cuantitativo del estudio dentro de la lógica DSR de utilidad, calidad y eficacia \parencite[350--351]{gregor2013}. La interpretación no dependerá de pruebas estadísticas como criterio central.
+Los pesos $a_i>0$ representan el área de cuadratura y suman uno; en una grilla uniforme valen $1/N$. Se reportarán además $\mathrm{MAE}=\sum_i a_i|T_i^{\mathrm{PINN}}-T_i^{\mathrm{ref}}|$ y el máximo de esos errores absolutos sobre los puntos de evaluación. En casos con cable, $T_{\max}$ se buscará en el conductor; en los casos exactos sin cable, en todo el dominio. La exactitud de ampacidad será $e_I=100|I_{\max}^{\mathrm{PINN}}-I_{\max}^{\mathrm{FEM}}|/I_{\max}^{\mathrm{FEM}}$, distinta del efecto $\Delta I$ entre representaciones. Las potencias por unidad de longitud serán $P_{\mathrm{gen}}=\int_\Omega Q\,\mathrm{d}A$ y $P_{\mathrm{sal}}=\int_{\partial\Omega}(-k\nabla T)\cdot\mathbf{n}\,\mathrm{d}s$, con flujo saliente positivo y normal exterior.
+
+En la Fórmula~\ref{for:metricas-evaluacion}, $e_{T_{\max}}$ expresa el error de $\Tmax$ como fracción de la elevación térmica de la referencia, de modo que no depende del origen de la escala de temperatura. $\Delta I$ mide el cambio porcentual entre el escenario heterogéneo y el homogéneo: un valor negativo indica reducción de ampacidad. El NRMSE normaliza el error cuadrático medio con esa misma elevación, $\varepsilon_E$ compara la potencia generada con la que sale del dominio y $M_T$ indica el margen frente al límite térmico.
+
+La elevación de referencia deberá ser positiva; en casos sin calentamiento se fijará en su ficha una escala térmica positiva antes de evaluar. Para $P_{\mathrm{gen}}=0$ se reportará el defecto absoluto de balance y se exigirá que no exceda $0{,}02P_0$, con $P_0=q_0|\partial\Omega|$ por unidad de longitud; no se calculará un porcentaje indefinido.
+
+La malla de evaluación, común a ambos solucionadores, será independiente de los puntos de entrenamiento, incluirá el conductor y las interfaces y se refinará hasta estabilizar las métricas. Estas expresiones y sus umbrales organizan el estudio; no son límites universales prescritos por una norma \parencite[350--351]{gregor2013}.
+
+\subsection{RELEVANCIA Y REGLAS DE DECISIÓN}
+\label{subsec:relevancia-decision}
+
+Antes de la confirmación se adoptan como efectos mínimos de interés $\delta_T=\SI{1}{\kelvin}$ para $\Delta T_{\max}$ y $\delta_I=2\,\pct$ para $\Delta I$. Son decisiones de diseño orientadas a distinguir cambios de ingeniería de discrepancias numéricas, no límites IEC ni evidencia de seguridad operacional. Se publicarán también los valores continuos, aunque no superen esos umbrales.
+
+Cada caso y cada par se ejecutarán con cinco semillas de confirmación, sin descartar ejecuciones desfavorables. Se usarán las mismas semillas en los dos miembros del par y se reportarán mediana, mínimo, máximo y número de ejecuciones aceptadas. Para un indicador pareado $z_s$ se construirá la envolvente conservadora $J_z=[\min_s z_s-b_z,\max_s z_s+b_z]$. Aquí $b_z$ estima el error numérico de la diferencia: para temperatura suma los errores máximos frente a FEM de ambos miembros y sus estimaciones de error de referencia; para ampacidad se obtiene propagando los intervalos de corriente de ambos miembros en la fórmula de $\Delta I$. No es un intervalo de confianza estadística ni una cota rigurosa del error. Si no se puede estimar ese margen numérico, el resultado será inconcluso.
+
+Se exigirá que $(\max_s z_s-\min_s z_s)/2+b_z<\delta_z$. Si no se cumple esta condición, falla alguna semilla o la envolvente cruza un límite de clasificación, el expediente se declarará inconcluso, sin sustituir ejecuciones ni ampliar tolerancias. Con esa condición satisfecha se aplicarán las siguientes reglas:
+\begin{itemize}
+  \item \textbf{VD3:} sin efecto relevante si $J_T\subseteq[-\delta_T,\delta_T]$; efecto relevante si toda la envolvente supera $\delta_T$ o queda por debajo de $-\delta_T$. Será condición crítica numérica cuando, a una corriente de comparación fija y común, la cota inferior de la temperatura máxima heterogénea supere $T_{\mathrm{lim}}$. Si la envolvente térmica cruza el límite admisible, la condición será inconclusa.
+  \item \textbf{VD4:} sin discrepancia relevante si $J_I\subseteq[-\delta_I,\delta_I]$; reducción si su extremo superior es menor que $-\delta_I$; aumento si su extremo inferior es mayor que $\delta_I$. Un par fuera del dominio verificado será inconcluso/fuera del dominio.
+\end{itemize}
+
+Por ejemplo, una envolvente térmica de $[1{,}2;1{,}6]\,\mathrm{K}$ indica efecto relevante; $[0{,}2;0{,}7]\,\mathrm{K}$, ausencia de efecto relevante; y $[0{,}8;1{,}3]\,\mathrm{K}$, resultado inconcluso. Una envolvente de ampacidad de $[-4;-3]\,\pct$ indica reducción. La ausencia de efecto relevante en un caso es un resultado admisible, no un fallo del artefacto. HE3 y HE4 se contrastarán con esas reglas y podrán no sostenerse; no se presupone que todo entorno heterogéneo reduzca la ampacidad.
 
 \subsection{VERIFICACIÓN Y CRITERIOS DSR}
 \label{subsec:verificacion-dsr}
 
-La evaluación técnica se planteará como verificación, no como validación experimental de campo. Por tanto, responderá si el artefacto implementa bien la formulación térmica. La verificación usará referencias independientes, entre ellas casos analíticos, soluciones manufacturadas, FEM convergentes y casos publicados con datos suficientes \parencite[3--4,93--99]{cigre2025}.
+La evaluación técnica verificará si el artefacto resuelve correctamente la formulación térmica; no constituirá una validación experimental de campo. Para ello se usarán referencias independientes: casos analíticos, soluciones manufacturadas, FEM convergentes y casos publicados con datos suficientes \parencite[3--4,93--99]{cigre2025}.
 
 La IEC 60287 se usará como línea base normativa, aunque la referencia principal para juzgar el campo térmico será analítica, manufacturada o FEM convergente \parencite[3--4,93--99]{cigre2025}. Cuando el caso sea comparable, también se emplearán resultados publicados sobre suelo nativo y suelo de relleno. Por ejemplo, se usarán los trabajos de \textcite[1,6--7]{khumalo2025} y \textcite[9--10,16]{kim2025}.
+
+\subsubsection{REFERENCIA FEM E INDEPENDENCIA DE MALLA}
+\label{subsec:referencia-fem}
+La referencia se calculará en FEniCSx con mallas triangulares conformes de Gmsh, interfaces ajustadas a los materiales y elementos de Lagrange continuos de grado dos. Cada paso térmico lineal se resolverá con PETSc y factorización LU/MUMPS; se comprobará residuo algebraico relativo no mayor que $10^{-10}$. Las versiones exactas, opciones del solucionador y archivos de malla quedarán fijados en el manifiesto de F1; la disponibilidad del entorno se verificará antes de lanzar la confirmación. La ley de pérdidas, el acoplamiento y los contornos serán idénticos a los de la PINN; no se compartirán ni entrenamientos ni soluciones de campo.
+
+Se usarán al menos tres mallas con tamaños característicos $h$, $h/2$ y $h/4$, refinando también conductor e interfaces curvas. La malla inicial tendrá al menos ocho elementos a lo largo del diámetro del conductor y dos a través de la capa más delgada. Se continuará hasta que, en dos refinamientos consecutivos, el cambio de $T_{\max}$ sea menor que \SI{0.01}{\kelvin}, el NRMSE entre campos FEM sobre puntos comunes sea menor que 0,1\,\pct{} y el desequilibrio energético sea menor que 0,2\,\pct{}. Para generación nula se exigirá defecto absoluto menor que $0{,}002P_0$. En cálculos de ampacidad se exigirá además un cambio relativo de $I_{\max}$ menor que 0,1\,\pct{}. Si no se alcanza estabilidad en seis niveles, la referencia se marcará no convergente y no acreditará aceptación.
+
+Se verificará primero el procedimiento FEM con una solución analítica y otra manufacturada, registrando error y reducción con el refinamiento. Para cada caso se conservarán las diferencias entre mallas y el error algebraico por separado. Se tomará como estimación conservadora de incertidumbre de referencia el doble del mayor cambio de los dos últimos refinamientos; esta estimación de estabilidad no constituye una cota matemática rigurosa del error. Si su magnitud es comparable al efecto o al umbral de aceptación, el caso será inconcluso y se requerirá una referencia más precisa. Los errores PINN se calcularán frente a la malla final, sin atribuirles automáticamente el error de discretización FEM.
+
+Los máximos se buscarán dentro de cada conductor, no solo en los nodos de una grilla global. Se refinarán la búsqueda local del máximo y la cuadratura de evaluación hasta que cambien $T_{\max}$ menos de \SI{0.005}{\kelvin} y el NRMSE menos de 0,05 puntos porcentuales. La integración del error de campo se ponderará por área y se reportará también por material para no ocultar errores en el conductor. Los saltos en interfaces se evaluarán con trazas por ambos lados y el balance global con una cuadratura independiente de la usada durante el entrenamiento.
 
 No se levantarán mediciones directas de campo; por ello, la validación experimental queda fuera del alcance, debido a que requeriría una campaña específica de instrumentación y seguimiento. La Tabla~\ref{tab:criterios} convierte esa lógica en reglas iniciales de aceptación y distingue verificación numérica, consistencia física, utilidad, reproducibilidad y contribución DSR.
 
@@ -287,11 +416,13 @@ No se levantarán mediciones directas de campo; por ello, la validación experim
 \label{tab:criterios}
 \begin{tabularx}{\textwidth}{L{3.1cm}Y L{3.0cm}}
 \toprule
-\textbf{Criterio} & \textbf{Evidencia esperada} & \textbf{Regla inicial} \\
+\textbf{Criterio} & \textbf{Evidencia esperada} & \textbf{Regla de aceptación} \\
 \midrule
-Verificación numérica (F2) & Concordancia de $\Tmax$ y del campo térmico con una referencia convergente. & Límite general de HE2: $e_{T_{\max}}\leq5\,\pct$ y NRMSE $\leq5\,\pct$. En F2, $|\Delta\Tmax|$ menor que \SI{0.1}{\kelvin} y NRMSE menor que $1\,\pct$. \\
-Consistencia física & Residuos, contornos, interfaces y balance global de energía. & Desequilibrio $\leq2\,\pct$. \\
-Evaluación de escenarios (F3) & Concordancia de $\Tmax$ y del campo $T(x,y)$ con la referencia numérica de cada escenario. & $|\Delta\Tmax|$ menor que \SI{0.5}{\kelvin} y NRMSE menor que $2{,}5\,\pct$. \\
+Verificación numérica (F2) & Concordancia de $\Tmax$ y del campo térmico con una referencia convergente, en cada semilla. & $E_T<\SI{0.1}{\kelvin}$ y NRMSE menor que $1\,\pct$. \\
+Consistencia física & Residuos, contornos, interfaces y balance global independiente, en F2 y F3. & Desequilibrio $\leq2\,\pct$ y controles físicos de la Sección~\ref{subsec:protocolo-pinn}. \\
+Evaluación de escenarios (F3) & Concordancia de $\Tmax$ y del campo $T(x,y)$ con FEM convergente, en cada semilla y escenario. & $E_T<\SI{0.5}{\kelvin}$ y NRMSE menor que $2{,}5\,\pct$. \\
+Ampacidad (F4) & Búsquedas independientes y comprobación térmica del intervalo PINN con FEM. & Error de $I_{\max}$ menor que 1\,\pct{} por semilla y búsqueda de la Sección~\ref{subsec:busqueda-ampacidad}. \\
+Relevancia y robustez & Envolventes de cinco semillas y estimaciones de error numérico de cada par. & $\delta_T=\SI{1}{\kelvin}$; $\delta_I=2\,\pct$; reglas de la Sección~\ref{subsec:relevancia-decision}. \\
 Utilidad & Representa la conductividad térmica espacialmente variable $\kx$, estima $\Tmax$ e $\Imax$ y compara escenarios homogéneos/heterogéneos. & Más del 90\,\pct{} de los requisitos críticos cubiertos (F1). \\
 Reproducibilidad & Resultado reconstruible desde datos, versión, configuración y semilla. & Repositorio público con código, datos, fuentes y semilla que permite reconstruir cada resultado. \\
 Contribución DSR & Requisitos, arquitectura, límites y principios de diseño explicitados. & Síntesis transferible a problemas 2D multimateriales. \\
@@ -300,9 +431,9 @@ Juicio de expertos (F4) & Calidad de la optimización en una escala de 1 a 10, c
 \end{tabularx}
 \end{table}
 
-Si un incremento no satisface criterios críticos, se volverá al diseño, como permite la secuencia DSRM de \textcite[56]{peffers2007}. Por tanto, la evaluación también servirá para decidir refinamientos. Si el piloto exige ajustar una regla, el cambio se justificará antes de la evaluación final, para evitar que los criterios cambien después de observar resultados favorables. Con ello se conserva la trazabilidad necesaria para comunicar evidencia y límites de validez \parencite[350--351]{gregor2013}.
+F2 y F3 son puertas distintas y acumulativas: superar F3 no dispensa de F2. El error relativo $e_{T_{\max}}$ se reportará, pero no habrá una aceptación alternativa del 5\,\pct{}. Un caso se aceptará solo si las cinco semillas satisfacen su puerta y los controles físicos. Si un incremento falla, se volverá al diseño, como permite la secuencia DSRM de \textcite[56]{peffers2007}. Cualquier cambio de regla se justificará y versionará antes de nuevas ejecuciones de confirmación, conservando el resultado previo; no se reclasificarán retrospectivamente resultados \parencite[350--351]{gregor2013}.
 
-Las campañas de cálculo registran sus criterios de parada y de aceptación en el resumen de cada campaña. Cuando esos criterios difieren de los de la matriz, el informe lo indica y explica la conversión.
+Las campañas anteriores que usaron otras pérdidas, referencias, semillas o reglas de parada se conservarán como evidencia exploratoria de desarrollo, no como aceptación automática del protocolo presente. La confirmación usará configuraciones congeladas y referencias que no intervengan en el entrenamiento, la selección de pesos ni la parada.
 
 La calidad de la optimización del artefacto se evaluará también mediante un juicio de expertos en una escala de 1 a 10. El protocolo preliminar, con criterios, anclajes y regla de agregación, se incluye en el Anexo~\ref{anx:protocolo-expertos}. Mientras no se aplique, ese juicio no se usa para aceptar ni rechazar el artefacto; complementa las métricas numéricas y no las reemplaza.
 
@@ -327,4 +458,6 @@ El Procedimiento~\ref{proc:etapas} organiza el trabajo en fases operativas y aso
 \bottomrule
 \end{tabularx}
 \end{procedure}
+
+El paso entre etapas dependerá de la evidencia obtenida, no solo del cumplimiento del cronograma. Los productos, los criterios de aceptación y los registros de ejecución permitirán justificar tanto los avances como las restricciones del artefacto y su eventual rediseño.
 

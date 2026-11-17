@@ -62,9 +62,9 @@ La Figura~\ref{fig:cadena-termica-metodologica} sintetiza esa relación para fac
 \label{fig:cadena-termica-metodologica}
 \end{figure}
 
-Las pérdidas eléctricas se transforman en calor y elevan la temperatura hasta que el calor generado por las pérdidas se equilibra con la disipación térmica hacia el entorno. En una sección 2D estacionaria, \textcite[752--760]{neher1957} relacionan esas pérdidas con resistencias térmicas y elevación de temperatura; a su vez, IEC 60287 formaliza el cálculo de corriente admisible para condiciones de régimen \parencite[cláusulas 4--5]{iec60287}. La temperatura límite del aislamiento convierte este problema de campo en una restricción de operación.
+En régimen estacionario, el calor generado por las pérdidas eléctricas se equilibra con la disipación hacia el entorno. Para una sección 2D, \textcite[752--760]{neher1957} relacionan esas pérdidas con resistencias térmicas y elevación de temperatura; la IEC 60287 formaliza el cálculo de corriente admisible en ese régimen \parencite[cláusulas 4--5]{iec60287}. El límite térmico del aislamiento convierte el cálculo de temperatura en una restricción de operación.
 
-Una PDE describe una función desconocida mediante sus derivadas respecto de más de una coordenada matemática independiente. En este problema, la función desconocida es la temperatura y las coordenadas son las posiciones espaciales y, si el proceso es transitorio, el tiempo. Esta terminología matemática no corresponde a VI1--VI4 de la operacionalización metodológica. Por tanto, el modelo debe distinguir acumulación térmica, flujo por conducción y fuentes internas \parencites{carslaw1959conduction,kakac2018heatConduction,hahn2012heatConduction}.
+Una ecuación en derivadas parciales (PDE, por sus siglas en inglés) relaciona una función desconocida con sus derivadas respecto de varias coordenadas independientes. En este problema, la función es la temperatura y las coordenadas son las posiciones espaciales y, si el proceso es transitorio, el tiempo. Estas coordenadas matemáticas no corresponden a VI1--VI4 de la operacionalización metodológica. La ecuación de calor distingue la acumulación térmica, el flujo por conducción y las fuentes internas \parencites{carslaw1959conduction,kakac2018heatConduction,hahn2012heatConduction}.
 
 En su forma dependiente del tiempo, la conducción de calor incorpora la inercia térmica del cable y del suelo. Para una sección 2D con propiedades espaciales, la ecuación puede escribirse como una adaptación directa de la ecuación clásica de calor en medios heterogéneos \parencites{carslaw1959conduction,kakac2018heatConduction,hahn2012heatConduction}:
 
@@ -95,7 +95,7 @@ La forma estacionaria se obtiene cuando la acumulación térmica se anula, es de
 \caption{Ecuación de conducción de calor 2D estacionaria en notación vectorial. Fuente: Elaboración propia.}
 \end{formula}
 
-La Fórmula~\ref{for:calor-estacionario-marco} usa la misma notación que la formulación metodológica de la Fórmula~\ref{for:calor}: $\kx$ representa la conductividad espacial y $Q(x,y)$ representa las pérdidas térmicas. Así, el marco teórico y la metodología comparten una única base física y simbólica.
+La Fórmula~\ref{for:calor-estacionario-marco} usa la misma notación que la formulación metodológica de la Fórmula~\ref{for:calor}: $\kx$ representa la conductividad espacial y $Q(x,y)$, la fuente volumétrica de calor. El marco teórico y la metodología comparten, por tanto, la misma base física y simbólica.
 
 Si corriente, temperatura ambiente o humedad cambian con el tiempo, el almacenamiento de calor afecta la respuesta térmica. Por ello, este efecto también aparece en revisiones de DTR para cables enterrados \parencites[3--6]{enescu2021}[14843--14845]{fariz2026}.
 
@@ -296,9 +296,11 @@ La Figura~\ref{fig:arquitectura-pinn-lawal} muestra esta organización en una ar
 \label{fig:arquitectura-pinn-lawal}
 \end{figure}
 
-En términos de arquitectura, una PINN puede usar una red neuronal directa con entradas, capas ocultas, funciones de activación y una o varias salidas físicas, como $u$ y $v$ en la Figura~\ref{fig:arquitectura-pinn-lawal}. La propuesta fundacional de \textcite[686--690]{raissi2019} comparte los parámetros de la aproximación de la solución y del residuo físico: las derivadas no se estiman con una red separada, sino que se obtienen de la misma aproximación mediante diferenciación automática. Por ello, la diferencia central respecto de una red supervisada convencional no está solo en la arquitectura, sino en el entrenamiento, porque la pérdida incorpora la PDE, los contornos y, cuando existen, datos de referencia \parencites[686--690]{raissi2019}[1--2,14--17]{lawal2022}.
+En términos de arquitectura, una PINN puede usar una red neuronal directa con entradas, capas ocultas, funciones de activación y una o varias salidas físicas, como $u$ y $v$ en la Figura~\ref{fig:arquitectura-pinn-lawal}. En la formulación de \textcite[686--690]{raissi2019}, la solución aproximada y el residuo físico comparten los parámetros de la red. Las derivadas se obtienen de esa aproximación mediante diferenciación automática, no de una red separada. La diferencia respecto de una red supervisada convencional reside en el entrenamiento: la pérdida incorpora la PDE, los contornos y, cuando existen, datos de referencia \parencites[686--690]{raissi2019}[1--2,14--17]{lawal2022}.
 
 Para el problema térmico, la red no aprende solo una relación empírica entre entradas y salidas. Aprende una aproximación del campo $T(x,y)$ que debe reducir el incumplimiento local de la ecuación de conducción, de modo que el residuo físico se convierte en evidencia de consistencia del modelo \parencites[686--690]{raissi2019}[1--2,14--17]{lawal2022}. La Fórmula~\ref{for:residuo-pinn-calor} se obtiene al evaluar la ecuación de calor estacionaria con $T(x,y)$ y reordenar sus términos como residuo.
+
+En la implementación propuesta se usará una red por subdominio material conectado, con coordenadas como entradas y temperatura como salida; las propiedades y las fuentes serán parámetros fijados de cada caso, no entradas de un sustituto paramétrico ya entrenado. La descomposición permitirá derivadas distintas a ambos lados de una interfaz conservando temperatura y flujo. La Sección~\ref{subsec:protocolo-pinn} fija arquitectura, escalamiento, colocación, pesos, optimizadores y semillas. En F2--F4 no se usarán etiquetas de temperatura de referencia, aunque la formulación PINN general admita ese término.
 
 \begin{formula}[htbp]
 \centering
@@ -313,7 +315,7 @@ r_f(x,y)=
 
 La Fórmula~\ref{for:residuo-pinn-calor} debe interpretarse junto con contornos, interfaces y datos de referencia, cuando existan. Por ello, la metodología usa una función de pérdida compuesta, presentada en la Fórmula~\ref{for:loss}, y no una única métrica de ajuste. En esa pérdida, $\mathcal{L}_{\mathrm{PDE}}$ se calcula con el residuo en puntos de colocación, mientras que los otros términos conectan la solución con contornos, interfaces, datos y conservación de energía. Esta distinción se vuelve necesaria porque el estudio evaluará dominios multimateriales, donde la representación de interfaces y el balance entre términos de pérdida pueden condicionar el entrenamiento \parencites[16]{pan2025}[2--6]{ren2025}.
 
-La Figura~\ref{fig:esquema-pinn-calor} resume ese mecanismo para el problema térmico estacionario. Primero, la red recibe las coordenadas espaciales y los parámetros del caso; luego, produce una aproximación del campo $T(x,y)$. Después, la diferenciación automática calcula sus gradientes espaciales \parencite[686--690]{raissi2019}. Finalmente, la función de pérdida penaliza el incumplimiento de la ecuación de calor, los contornos, las interfaces y los datos disponibles, de modo que el esquema sintetiza \textcite[686--690]{raissi2019}, \textcite[1--2,14--17]{lawal2022} y \textcite[1,3,16]{pan2025}.
+La Figura~\ref{fig:esquema-pinn-calor} resume el cálculo térmico estacionario. La configuración del caso fija las propiedades, las fuentes y los contornos; las coordenadas espaciales son las entradas de la red, que aproxima el campo $T(x,y)$. Sus gradientes se calculan mediante diferenciación automática \parencite[686--690]{raissi2019}. La pérdida penaliza el incumplimiento de la ecuación de calor y de las condiciones auxiliares; el término de datos corresponde solo a variantes que los utilicen. El esquema sintetiza estas relaciones a partir de \textcite[686--690]{raissi2019}, \textcite[1--2,14--17]{lawal2022} y \textcite[1,3,16]{pan2025}.
 
 \begin{figure}[htbp]
 \centering
@@ -360,7 +362,7 @@ $r_b,r_i,r_d$};
 
 Su utilidad para el estudio tiene tres razones: primero, ofrece una representación continua del campo; segundo, integra $\kx$; tercero, puede extenderse a identificación inversa. Sin embargo, sus riesgos también son claros, entre ellos el mal balance de pérdidas, las discontinuidades, los mínimos de optimización, la sensibilidad y la demanda computacional del entrenamiento \parencites[2--6]{ren2025}[16]{pan2025}.
 
-Las técnicas de descomposición de dominio de \textcite[1--2]{shukla2021} aportan una ruta posible para tratar discontinuidades. Sin embargo, se incorporarán solo si el diseño básico demuestra que las necesita.
+Las técnicas de descomposición de dominio de \textcite[1--2]{shukla2021} aportan un antecedente para tratar discontinuidades. En el diseño propuesto se adopta una red por subdominio material; su verificación deberá comprobar la continuidad de temperatura y la conservación del flujo en las interfaces.
 
 \subsubsection{CIENCIA DEL DISEÑO Y NATURALEZA DE LA CONTRIBUCIÓN}
 \label{subsec:dsr-contribucion}
@@ -455,4 +457,6 @@ Esta sección precisa los términos que se usarán con sentido técnico u operac
   \item[Zona seca.] Región de suelo nativo o suelo de relleno con bajo contenido de humedad y mayor resistividad térmica que el material en condición húmeda. Puede aparecer por condiciones ambientales o calentamiento y reducir la disipación de calor del cable \parencites[4--6]{enescu2021}[1,6--9]{khumalo2025}[14851--14852]{fariz2026}.
 \end{description}
 \endgroup
+
+Las bases físicas y las definiciones anteriores delimitan qué representa el artefacto y cómo se interpretarán sus resultados. Sobre esta base, el capítulo siguiente establece el procedimiento de construcción, las referencias de verificación y los criterios para aceptar o restringir su uso.
 

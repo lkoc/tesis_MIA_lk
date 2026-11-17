@@ -1,13 +1,88 @@
 # Bitacora de revision y cambios de `plan_v2`
 
-**Actualizado:** 2026-11-07 15:19:24 -05:00  
-**Estado general:** revision exhaustiva en curso; no declarar el plan listo. Sesion del 2026-11-07: verificacion de fuentes, inventario de pinnV3 y comprobaciones automaticas completados; no se modificaron capitulos, anexos ni matriz. Decisiones pendientes en la seccion de hallazgos.  
+**Actualizado:** 2026-11-17
+
+**Estado general:** correccion de las observaciones del asesor del 13-nov-2026 aplicada en las fuentes. Las secciones historicas conservan el estado de sus fechas y no sustituyen este registro.
 **Copia de trabajo:** `plan_v2/`.  
 **Fuente original protegida:** `Plan/`; no editarla durante esta revision.
 
 ## Proposito y reglas de reanudacion
 
 Este archivo conserva el estado de trabajo para retomar la revision despues de una interrupcion o perdida de contexto. Es un indice operativo, no sustituye los documentos fuente ni la evidencia.
+
+## Cotejo final con el informe del asesor: 17 de noviembre de 2026
+
+- [x] Se contrasto el informe de evaluacion del 13-nov-2026 con las fuentes vigentes, la matriz y el PDF. Dictamen documental: nueve observaciones atendidas y la numero 9 parcial, porque el presupuesto tiene importes y riesgos pero sigue pendiente de cotizaciones/tarifas verificadas. No se declara absolucion formal ni ejecucion experimental.
+- Correccion puntual en `capitulos/05_administracion.tex`: aclarar que los documentos aprobados enumerados para H1 son evidencia exigida para su cierre, no un logro ya acreditado cuando el hito sigue en revision. Comprobacion prevista: control de esa fila y compilacion final.
+- Verificacion el 17-nov-2026 a las 18:04 en Lima: LuaLaTeX/Biber generaron 85 paginas sin errores ni referencias/citas indefinidas y sin advertencias de Biber. Bibliografia: 50 claves unicas, 21 entradas tipo articulo; la referencia de lineas aereas no esta activa. La matriz externa rev2 paso `--check` en sus tres hojas sin ser reescrita. La fila H1 corregida se verifico en el PDF y visualmente, sin recortes ni solapamientos.
+- Evidencia y pendientes: `comentarios_plan/Verificacion_final_observaciones_20261117.md`. Se distingue la verificacion interna de citas de una auditoria externa de DOI/indexacion, y el protocolo propuesto de resultados experimentales acreditados.
+- PDF final de trabajo: SHA-256 `baa97227721ad14407759c90149bf9da85d6df62a1a695993ac352da9c530a89`. La version evaluada en SlopTotal se preserva en `old/plan_previo_cierre_asesor_20261117_9123017d.pdf` con su SHA-256 `9123017df6815b867c10145947f2d828b84fd7575cfda478c0c6e970f37644fc`. No se repitio SlopTotal para esta aclaracion de H1.
+
+## Evaluacion SlopTotal del ultimo afinado IV/V: 17 de noviembre de 2026
+
+- [x] Se evaluaron exclusivamente IV y V del PDF SHA-256 `9123017df6815b867c10145947f2d828b84fd7575cfda478c0c6e970f37644fc`, sin modificar el texto durante la ejecucion. Dos envios, dos identificadores nuevos respecto de la version editorial, 23 motores por capitulo y coincidencia pantalla/JSON.
+- Capturas a las 22:44:42 y 22:45:57 UTC (17:44:42 y 17:45:57 en Lima): IV 33,9/100, `Low risk`, informe `a9e25cc2a4a0`; V 41,0/100, `Low risk`, informe `d12f5b6fb613`.
+- Comparacion inmediata: IV 30,4 a 33,9 (+3,5 puntos); V 47,0 a 41,0 (-6,0). Se conserva el resultado mixto, sin atribuir causalidad a cambios concretos ni presentar las puntuaciones como prueba de autoria o calidad.
+- Evidencia: `auditoria_IA/auditoria_resultados/afinamiento_IV_V_20261117/`. Se conservaron las ejecuciones anteriores, se verificaron las huellas y se detuvo el recolector al terminar. I--III, preliminares, referencias y anexos no se enviaron.
+
+## Contraste y afinado puntual de IV y V: 17 de noviembre de 2026
+
+- [x] El usuario solicita comparar los cambios de IV/V y tomar recursos expositivos de I--III. Se compararon las exportaciones completas anteriores y editoriales; no se atribuye causalmente el agregado del detector a una correccion concreta.
+- En IV, TMR paso de 72,9 a 94,8, mientras Desklib paso de 35,9 a 3,7. En V, la heuristica estructural bajo de 45,3 a 41,0 y Burstiness de 61,2 a 53,6, aunque el agregado aumento. Estos desacuerdos no respaldan una explicacion simple basada en uniformidad o muletillas.
+- Antes de editar se registra la version actual de `capitulos/04_metodologia.tex` y `capitulos/05_administracion.tex` y se protegen formulas, cifras, referencias, citas, figuras y tablas. En V se afinan apertura y prosa presupuestaria para referir acciones y recursos concretos; no se cambian importes ni hitos. Se conservaran los PDF evaluados y los resultados de ambas versiones.
+- En IV se afinan la apertura, la clasificacion del estudio y la introduccion de DSR: explicacion de decisiones y comprobaciones en lugar de frases paralelas que solo vuelven a definir la clasificacion. Se conserva el protocolo; el funcionamiento del artefacto queda planteado como objeto de evaluacion, no como exito supuesto.
+- Verificacion cerrada el 17-nov-2026 a las 17:34 en Lima: ocho filas del contraste de motores comprobadas contra los JSON; IV/V conservan formulas, cifras, referencias, citas y los bloques completos de figuras/tablas. I--III no se modificaron en esta ronda.
+- Compilacion limpia en `%TEMP%/plan_tesis_afinamiento_IV_V_20261117/`: 85 paginas, sin errores ni citas/referencias indefinidas, sin advertencias de Biber. Se verificaron los pasajes nuevos y se inspeccionaron visualmente las paginas de apertura de IV y de presupuesto, sin recortes ni solapamientos. Se mantienen los dos desbordamientos bibliograficos previos inferiores a 0,2 pt.
+- PDF de trabajo actualizado, SHA-256 `9123017df6815b867c10145947f2d828b84fd7575cfda478c0c6e970f37644fc`. La version editorial evaluada, SHA-256 `ce82f135ae0e05d1e5700c5a37355bbd26275b4537c7af390f9dc2b721d8a824`, se preserva en `old/plan_previo_afinamiento_IV_V_20261117_ce82f135.pdf`. Al cerrar el afinado aun no se habia enviado a SlopTotal; la evaluacion posterior consta en la seccion anterior.
+- Analisis y fundamentos de los cambios: `auditoria_IA/auditoria_resultados/version_editorial_20261117/analisis_IV_V.md`. No se promete una puntuacion menor ni una percepcion garantizada de autoria humana.
+
+## Reevaluacion de SlopTotal de la version editorial: 17 de noviembre de 2026
+
+- [x] Se evaluaron exclusivamente I--V del PDF SHA-256 `ce82f135ae0e05d1e5700c5a37355bbd26275b4537c7af390f9dc2b721d8a824`, mediante cinco envios secuenciales sin alterar el documento. Se verificaron 23 motores por capitulo, coincidencia pantalla/JSON, identificadores y huellas de entrada.
+- Capturas entre 21:51:52 y 22:00:59 UTC (16:51:52--17:00:59 en Lima): I 29,5; II 11,8; III 22,7; IV 30,4; V 47,0. Etiquetas: I--III `Clean - likely human-written`; IV `Low risk`; V `Suspicious`.
+- Comparacion con los resultados completos anteriores: -7,3; -5,5; +6,4; +8,3; +19,7 puntos, respectivamente. No se interpreta la variacion como demostracion de autoria ni se atribuye a una causa editorial especifica. No se hicieron reenvios para buscar un valor mas bajo.
+- Evidencia y comparativo: `auditoria_IA/auditoria_resultados/version_editorial_20261117/`. Se conservan las ejecuciones anteriores y las exportaciones originales. Recolector detenido al terminar; preliminares, referencias y anexos no enviados.
+
+## Revision editorial puntual de los capitulos I a V: 17 de noviembre de 2026
+
+- [x] Revision de texto autorizada expresamente despues de completar la auditoria de SlopTotal; el usuario incluye tambien II y III. Se siguieron las guias Markdown de redaccion y estructura. Los resultados del detector orientaron la lectura, no se usaron como objetivo de puntuacion.
+- Primer ajuste, `capitulos/02_objetivos.tex`: dividir HE2 y separar el bloque de umbrales para mejorar legibilidad, sin cambiar criterios ni indicadores. Se registran antes de editar los cinco capitulos y sus formulas, cifras, referencias, citas, figuras y tablas para comprobar su conservacion.
+- Siguiente ajuste, `capitulos/03_marco_teorico.tex`: aclarar el vocabulario de la PDE, reducir repeticiones y hacer concordar la explicacion de las entradas de la red y de la descomposicion por material con el protocolo ya fijado. Se atiende tambien la naturalidad solicitada: continuidad, conectores justificados y ritmo de lectura, sin prometer autoria humana ni buscar eludir detectores.
+- Ajuste de `capitulos/01_planteamiento_del_problema.tex`: acotar la afirmacion sobre FEM, distinguir el contraste descriptivo de demanda/longitud de red de un diagnostico de congestion y completar la referencia discursiva al Anexo de matriz. No se modifican las cifras de contexto ni PG/PE.
+- Ajuste de `capitulos/04_metodologia.tex`: separar justificaciones del nivel de investigacion, reducir transiciones redundantes, ordenar la explicacion de las metricas en parrafos y cerrar el capitulo. Se conservan completos el protocolo, las tolerancias, las semillas y las reglas de decision.
+- Ajuste de `capitulos/05_administracion.tex`: separar el corte del cronograma de la programacion futura y precisar en prosa la naturaleza estimada del presupuesto y su financiamiento. Las tablas, los importes y los hitos permanecen sin cambios.
+- La revision se limita a fuentes de `plan_v2/` y a su PDF de trabajo. Se preservan matrices, referencias bibliograficas, entregas historicas y las entradas/resultados de la auditoria; estos ultimos describen el PDF anterior y no se atribuiran a la version editada.
+- Verificacion cerrada el 17-nov-2026 a las 16:32 en Lima: los cinco capitulos conservan, frente al texto anterior a esta revision, las secuencias de formulas, cifras, referencias y citas, asi como los bloques completos de figuras y tablas. Se corrigio una ambiguedad del comprobador de matematicas en linea usando siempre la copia previa a la edicion como referencia; no se alteraron formulas para satisfacer el control.
+- LuaLaTeX/Biber compilaron 85 paginas en `%TEMP%/plan_tesis_estilo_20261117/`, sin errores ni citas/referencias indefinidas y sin advertencias de Biber. Persisten los dos desbordamientos bibliograficos previos, ambos inferiores a 0,2 pt. Se verifico la presencia de pasajes nuevos en el PDF y se inspeccionaron visualmente HE2, el cierre de III y la pagina de hitos/presupuesto, sin recortes ni solapamientos.
+- PDF de trabajo actualizado: `plan_tesis_cables_pinn.pdf`, SHA-256 `ce82f135ae0e05d1e5700c5a37355bbd26275b4537c7af390f9dc2b721d8a824`. El PDF anterior, usado en SlopTotal, se preserva en `old/plan_previo_revision_editorial_20261117_3f9d80b9.pdf`, con su SHA-256 original `3f9d80b9baee06a76f1d9cffdf4d3abe0315440ec515d1acfdc7eee4f97d6c62`.
+- La revision de naturalidad es editorial: se atendieron conectores sin funcion, repeticiones prescindibles, transiciones y extension de oraciones segun el contenido. No acredita autoria humana, no garantiza la percepcion de cualquier lector y no introduce variacion artificial. Al cierre editorial esta version aun no se habia vuelto a evaluar; la evaluacion posterior consta en la seccion anterior. No se modificaron sus resultados historicos.
+
+## Aclaracion de la revision del capitulo I: 17 de noviembre de 2026
+
+- El usuario aclara que solicita un nuevo analisis en SlopTotal, no una revision editorial. Se detiene la correccion academica iniciada por interpretacion equivocada de la solicitud.
+- Se restaura exclusivamente el parrafo de la introduccion sobre FEM que se acababa de modificar. Las correcciones anteriores del plan y las evidencias del primer analisis se conservan. Se comprobara la coincidencia del texto extraido y de sus huellas antes del nuevo envio.
+- El nuevo analisis se registrara por separado; no se sustituira el resultado anterior ni se enviaran otros capitulos.
+- [x] Verificado: se restauro el unico parrafo modificado por error y se comprobaron las huellas del PDF, la entrada y el texto normalizado. Se realizo un unico nuevo envio del capitulo I; el portal devolvio el informe existente `3de8ee861873`, no un ticket nuevo.
+- Captura del 17-nov-2026 a las 19:12:19 UTC (14:12:19 en Lima): pantalla y JSON coinciden en 36,8/100, `Low risk`, con 23 motores puntuados. Se archivan DOM y exportacion original en `auditoria_IA/auditoria_resultados/reanalisis_capitulo_1_20261117/`. Es una segunda consulta de un informe reutilizado, no un recalculo independiente acreditado; las capturas anteriores se conservan. Recolector detenido al terminar; no se recompilo ni se altero el PDF.
+
+## Revision de observaciones del asesor: 17 de noviembre de 2026
+
+Solicitud vigente: corregir el plan con el informe del asesor y el resumen de aplicabilidad de `comentarios_plan/`. Se conservan las entregas historicas y no se modifica codigo de entrenamiento, la matriz XLSX externa ni resultados de campanas.
+
+| Observacion | Aplicacion en la fuente |
+|---|---|
+| 1. Umbrales | Capitulos 2 y 4 y anexo 1: F2 E_T <0,1 K y NRMSE <1 %; F3 E_T <0,5 K y NRMSE <2,5 %; sin puerta alternativa del 5 %. Error frente a referencia separado del efecto pareado. |
+| 2. Perdidas y ampacidad | Capitulo 4: resistencia DC o AC efectiva excluyentes, fuente uniforme, exclusiones, acoplamiento, biseccion, tolerancias e intervalos. Capitulo 1: limites concordantes. |
+| 3. Entrenamiento | Capitulos 3 y 4: una red por subdominio, tabla de configuracion, escalas, pesos, piloto, semillas nuevas, parada fisica y w_d=0. Protocolo propuesto, no ejecucion acreditada. |
+| 4. Homogenizacion | Capitulos 2 y 4 y matriz: media ponderada por area solo del entorno; datos conservados en el par; hipotesis refutable. |
+| 5. FEM | Capitulo 4: elementos, solucionador, refinamiento, tolerancias, verificacion exacta y estimacion de error de referencia separada del error PINN. |
+| 6. Relevancia | Capitulos 2 y 4 y matriz: cinco semillas, envolventes conservadoras, delta_T=1 K, delta_I=2 %, fallos e inconclusos. |
+| 7. Interpretacion externa | Capitulos 1 y 4: sin campo ni certificacion operacional, limites de geometria, contornos y perdidas. |
+| 8. Antecedentes | Capitulo 1: tabla critica metodo/geometria/limite/decision; retirado el uso de la referencia de lineas aereas para sustentar cables enterrados. No se agregan fuentes nuevas. |
+| 9. Viabilidad | Capitulo 5: estimacion de planificacion de S/ 3528 (2940 +20 %), supuestos visibles, no cotizaciones ni tarifas verificadas; riesgos y contingencias. |
+| 10. Cronograma | Capitulo 5: corte 17-nov-2026, campanas historicas exploratorias, H1-H6 con evidencia y reprogramacion; no se declaran aceptaciones sin prueba. |
+
+Verificacion: compilacion limpia con LuaLaTeX/Biber de 85 paginas, sin citas ni referencias indefinidas y sin advertencias de Biber. Salida final aislada: `%TEMP%/plan_tesis_revision_20261117_final/`; la primera salida temporal tuvo un auxiliar truncado y se descarto. Inspeccion visual de tablas de entrenamiento, casos, criterios, presupuesto y matriz: sin recortes ni solapamientos. Se corrige tambien la duplicacion de la palabra ANEXO en referencias cruzadas y se da mayor separacion a columnas de la matriz. Dos desbordamientos de URL bibliograficas inferiores a 0,2 pt ya estaban presentes. El presupuesto exige contrastar importes antes del gasto; no se obtuvieron cotizaciones en esta revision. La matriz integrada en LaTeX queda actualizada; la matriz XLSX externa no se sincroniza en esta tarea. No se certifica una auditoria externa de DOI ni la validacion de campo del prototipo.
 
 Al reanudar:
 

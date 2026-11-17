@@ -83,7 +83,7 @@ La Tabla~\ref{tab:matriz-consistencia-b} completa la matriz con las variables in
 % ---------------------------------------------------------------------------
 % Tabla 2: Entradas discretas, salidas, hipótesis, evidencia y controles
 % ---------------------------------------------------------------------------
-\setlength{\tabcolsep}{1pt}
+\setlength{\tabcolsep}{2pt}
 \renewcommand{\arraystretch}{1.15}
 
 \begin{longtable}{%
@@ -136,7 +136,7 @@ Básico; completo; completo documentado. Incluye, según realización, geometrí
 
 \textbf{Umbrales de aceptación} 
 
-cobertura mayor que 90\,\pct{} de los casos de estudio con requisitos críticos completos. &
+cobertura mayor que 90\,\pct{} de los requisitos críticos identificados, con trazabilidad requisito--prueba. &
 Parámetros del caso contenidos en el paquete: geometría, materiales, $\kx$, fuentes y contornos. Controles: norma, sistema de unidades, alcance y exclusiones. \\
 
 \midrule
@@ -144,15 +144,15 @@ Parámetros del caso contenidos en el paquete: geometría, materiales, $\kx$, fu
 \textbf{VI2=$\{\mathrm{VD1},R_2\}$. Expediente de construcción y verificación.} Hereda VD1 y agrega referencias. &
 VD1 trazable aceptada más $R_2$ analítico/manufacturado; FEM convergente; publicado; o mixto. Sin VD1 aceptada no se habilita OE2. &
 \textbf{VD2. Artefacto verificado y expediente de aceptación:} versión, pruebas, métricas y dominio. Estados: rechazado; aceptado con restricciones; aceptado en el dominio. &
-\textbf{HE2.} La especificación trazable y referencias válidas permitirán producir un artefacto aceptado dentro del dominio, con error de $\Tmax$ y NRMSE no mayores a 5\,\pct{}, desequilibrio no mayor a 2\,\pct{} y variabilidad menor que el efecto relevante. &
-\shortstack[l]{$\Delta T_{\max} =$\\$T_{\max,\mathrm{mod}} - T_{\max,\mathrm{ref}}$}
+\textbf{HE2.} La especificación trazable y referencias válidas permitirán producir un artefacto aceptado en F2: $E_T<\SI{0.1}{\kelvin}$, NRMSE menor que 1\,\pct{} y desequilibrio no mayor a 2\,\pct{} en cada una de cinco semillas. &
+$E_T=|T_{\max}^{\mathrm{PINN}}-T_{\max}^{\mathrm{ref}}|$.
 
 \textbf{NRMSE}: Error medio cuadrático normalizado
 
 \textbf{Umbrales de aceptación}
-\textbf{$|\Delta T_{\max}|$}: menor que 0,1 K;
+\textbf{$E_T$}: menor que 0,1 K;
 
-\textbf{NRMSE}: menor que 1\,\pct{}; 
+\textbf{NRMSE}: menor que 1\,\pct{}; controles físicos de la Sección~\ref{subsec:protocolo-pinn}.
  &
 Parámetros físicos coincidentes entre artefacto y referencia. Controles/metadatos: dominio, malla y tolerancia FEM, puntos de colocación, arquitectura aceptada, pesos de pérdida y semilla. \\
 
@@ -161,15 +161,17 @@ Parámetros físicos coincidentes entre artefacto y referencia. Controles/metada
 \textbf{VI3=$\{\mathrm{VD2},E_3\}$. Expediente de evaluación térmica.} Hereda VD2 y agrega escenarios. &
 VD2 aceptada o aceptada con restricciones compatibles más $E_3$ base; estratificado; localizado; mejorado; seco; o multimaterial. &
 \textbf{VD3. Expediente de evidencia térmica:} mapas, diferencias y límites. Estados: inconcluso; sin efecto relevante; efecto relevante no crítico; condición crítica. &
-\textbf{HE3.} El artefacto verificado aplicado a $E_3$ producirá un expediente concluyente: una región de baja $k$ cercana aumentará $\Tmax$ y una región de alta $k$ usada como relleno la reducirá. &
-\shortstack[l]{$\Delta T_{\max} =$\\$T_{\max,\mathrm{mod}} - T_{\max,\mathrm{ref}}$}
+\textbf{HE3.} A pérdidas iguales se espera aumento de $\Tmax$ ante baja $k$ cercana y reducción ante relleno de alta $k$. Se contrastará el sentido y la relevancia; se admitirán casos sin efecto o inconclusos. &
+$E_T$: error absoluto frente a FEM.
+
+$\Delta T_{\max}=T_{\max}^{\mathrm{het}}-T_{\max}^{\mathrm{hom}}$: efecto físico.
 
 \textbf{NRMSE}: Error medio cuadrático normalizado
 
 \textbf{Umbrales de aceptación}
-\textbf{$|\Delta T_{\max}|$}: menor que 0,5 K;
+\textbf{$E_T$}: menor que 0,5 K;
 
-\textbf{NRMSE}: menor que 2,5\,\pct{}; 
+\textbf{NRMSE}: menor que 2,5\,\pct{} por semilla. Relevancia: $\delta_T=\SI{1}{\kelvin}$ y envolventes de la Sección~\ref{subsec:relevancia-decision}.
  &
 Parámetros físicos del escenario, no VI: mapa $\kx$, $C_k$, $f_h$ y $d_h/D$. Controles: corriente o pérdidas, profundidad, disposición, $T_{\mathrm{amb}}$, dominio, contornos y configuración aceptada. \\
 
@@ -178,15 +180,15 @@ Parámetros físicos del escenario, no VI: mapa $\kx$, $C_k$, $f_h$ y $d_h/D$. C
 \textbf{VI4=$\{\mathrm{VD3},C_4\}$. Expediente de comparación de ampacidad.} Hereda VD3 y agrega representaciones pareadas. &
 VD3 concluyente más $C_4$: heterogénea 2D frente a homogénea equivalente; conservadora; u optimista. &
 \textbf{VD4. Expediente comparativo de ampacidad:} resultados, márgenes y casos críticos. Estados: sin discrepancia relevante; reducción; aumento; inconcluso/fuera del dominio. &
-\textbf{HE4.} El expediente térmico combinado con $C_4$ producirá un expediente comparativo en el que la aproximación homogénea tenderá a sobreestimar $\Imax$ al promediar una zona local de baja $k$. &
+\textbf{HE4.} Con promedio por área del entorno se espera sobreestimación homogénea de $\Imax$ ante baja $k$ cercana. Se contrastarán reducción y sensibilidad al contraste, extensión y proximidad; la expectativa podrá refutarse. &
 \textbf{Ampacidad $I_{\max}$ (Amperios); }
 
-\textbf{Δ I\pct{}}: incremento de ampacidad;
+\textbf{$\Delta I$ (\pct{})}: cambio de ampacidad; error frente a FEM menor que 1\,\pct{} por semilla. Relevancia: $\delta_I=2\,\pct{}$ y envolventes de cinco semillas.
 
 \textbf{margen respecto de la temperatura límite (K);}
 
 Calidad de la optimización por juicio de expertos
 escala de 1 a 10 (protocolo en el Anexo~\ref{anx:protocolo-expertos}) &
-Parámetros físicos contenidos en el escenario $E_3$ heredado mediante VD3. Controles: $T_{\mathrm{lim}}$, modelo de pérdidas dependiente de corriente, paso/tolerancia de bisección, geometría y condiciones de borde. \\
+Parámetros físicos heredados mediante VD3. Controles: $k_{eq}$ por área (Sección~\ref{subsec:homogenizacion}), $T_{\mathrm{lim}}$, misma ley $R(T)$, geometría y contornos; bisección de la Sección~\ref{subsec:busqueda-ampacidad}. \\
 
 \end{longtable}
